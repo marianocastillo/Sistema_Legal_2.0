@@ -9,16 +9,15 @@ public partial class Usuarios
 {
     public int idUsuario { get; set; }
 
-    public string nombres { get; set; }
-    public string Nombres { get; internal set; }
-    public string apellidos { get; set; }
-    public string Apellidos { get; internal set; }
-    public DateTime fechaCreacion { get; set; }
+    public int? idPerfil { get; set; }
 
-    public int idPerfil { get; set; }
+    public string Usuario { get; set; }
 
-    public string usuario { get; set; }
-    public string Usuario { get; internal set; }
+    public DateTime FechaCrea { get; set; }
+
     public bool Activo { get; set; }
-    public DateTime FechaCrea { get; internal set; }
+
+    public string Nombres { get; set; }
+
+    public string Apellidos { get; set; }
 }

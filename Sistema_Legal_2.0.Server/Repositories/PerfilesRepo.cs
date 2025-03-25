@@ -4,34 +4,35 @@ using Microsoft.EntityFrameworkCore;
 using RegistroVisitas.Server.Repositories;
 using System.Linq;
 using Sistema_Legal_2._0.Server.Models;
+using System;
+using Sistema_Legal_2.Server.Repositories;
 
-
-namespace Sistema_Legal_2.Server.Repositories
+namespace Sistema_Legal_2._0.Server.Repositories
 {
 
-    public class PerfilesRepo : Repository<Perfiles, PerfilesModel>
+    public class PerfilesRepo : Repository<Perfiles, Models.PerfilesModel>
     {
         public PerfilesRepo(DbContext dbContext) : base
         (
             dbContext,
-            new ObjectsMapper<PerfilesModel, Perfiles>(p => new Perfiles()
+            new ObjectsMapper<Models.PerfilesModel, Perfiles>(p => new Perfiles()
             {
                 Descripcion = p.Descripcion,
                 idPerfil = p.idPerfil,
                 Nombre = p.Nombre,
             }),
                     (DB, filter) => (from p in DB.Set<Perfiles>().Where(filter)
-                                     select new PerfilesModel()
+                                     select new Models.PerfilesModel()
                                      {
                                          Descripcion = p.Descripcion,
                                          idPerfil = p.idPerfil,
-                                         Nombre = p.Nombre,
+                                         Nombre = (string)p.Nombre,
                                      })
         )
         {
 
         }
-        public PerfilesModel Get(int Id)
+        public Models.PerfilesModel Get(int Id)
         {
             var model = base.Get(p => p.idPerfil == Id).FirstOrDefault();
             return model;

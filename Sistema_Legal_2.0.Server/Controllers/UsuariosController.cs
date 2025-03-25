@@ -1,36 +1,35 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
+
 using Microsoft.AspNetCore.Mvc;
-
-//using EjecucionPresupuestal.Server.Infraestructure;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity;
 using Sistema_Legal_2._0.Server.Models;
-using Sistema_Legal_2.Server.Repositories;
-using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using Sistema_Legal_2._0.Server.Models.Enums;
-using Sistema_Legal_2.Server.Controllers;
-
-
-
+using Sistema_Legal_2._0.Server.Repositories;
 
 namespace Sistema_Legal_2._0.Server.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class UsuariosController : ControllerBase
+    [Route("api/[Cotroller]")]
+    public class UsuariosController : Controller
     {
         private readonly UsuariosRepo usuariosRepo;
         private readonly PerfilesRepo perfilesRepo;
-        private readonly db_silegContext _db_Sistema_Legal_2;
-        private readonly ILogger<UsuariosController> _logger;
+        private readonly db_silegContext _db_SilegContext;
+        private readonly Logger _logger;
         private int idUsuarioOnline;
-        public UsuariosController(db_silegContext db_silegContext, IUserAccessor userAccessor, Logger logger)
+
+
+
+        public UsuariosController(db_silegContext db_SilegContext, IdentityUserAccessor userAccessor, Logger logger ) 
         {
-            _db_Sistema_Legal_2 = db_silegContext;
-            usuariosRepo = new UsuariosRepo(db_silegContext);
-            perfilesRepo = new PerfilesRepo(db_silegContext);
-            _logger = (ILogger<UsuariosController>)logger;
+            _db_SilegContext = db_SilegContext;
+            usuariosRepo = new UsuariosRepo(db_SilegContext);
+            perfilesRepo = new PerfilesRepo(db_SilegContext);
+            _logger = logger;
             idUsuarioOnline = userAccessor.idUsuario;
         }
 
+        // GET: UsuariosController/Create
         [HttpGet(Name = "GetUsuarios")]
         [Authorize]
         public List<UsuariosModel> Get()
@@ -38,25 +37,15 @@ namespace Sistema_Legal_2._0.Server.Controllers
             List<UsuariosModel> usuarios = usuariosRepo.Get().ToList();
             return usuarios;
         }
-
-        /// <summary>
-        /// Obtiene un usuario por su ID.
-        /// </summary>
-        /// <param name="idUsuario">ID del usuario.</param>
-        /// <returns>Usuario encontrado.</returns>
+        // GET: UsuariosController/Details/5
         [HttpGet("{idUsuario}", Name = "GetUsuario")]
         [Authorize]
         public UsuariosModel Get(int idUsuario)
         {
-            UsuariosModel usuario = usuariosRepo.Get(idUsuario);
-            return usuario;
+            UsuariosModel usuarios = usuariosRepo.Get(idUsuario);
+            return usuarios;
         }
 
-        /// <summary>
-        /// Obtiene un usuario de Active Directory por su nombre de usuario.
-        /// </summary>
-        /// <param name="nombreUsuario">Nombre de usuario.</param>
-        /// <returns>Usuario de Active Directory encontrado.</returns>
         [HttpGet("GetADUser/{nombreUsuario}", Name = "GetADUser")]
         [Authorize]
         public UsuariosModel? GetADUser(string nombreUsuario)
@@ -76,82 +65,71 @@ namespace Sistema_Legal_2._0.Server.Controllers
             return usuario;
         }
 
-        /// <summary>
-        /// Crea un nuevo usuario.
-        /// </summary>
-        /// <param name="usuariosModel">Datos del usuario a crear.</param>
-        /// <returns>Resultado de la operacin.</returns>
+
+
+
+
+
+
+
+        // POST: UsuariosController/Create
         [HttpPost(Name = "SaveUsuario")]
-        public Models.OperationResult Post(UsuariosModel usuariosModel)
+        public OperationResult Post(UsuariosModel usuariosModel)
         {
             try
             {
-                if (usuariosRepo.Any(x => x.Usuario == usuariosModel.NombreUsuario)) return new Models.OperationResult(false, "Este usuario ya tiene acceso al sistema");
+                if (usuariosRepo.Any(x => x.Usuario == usuariosModel.NombreUsuario)) return new OperationResult(false, "Este usuario ya tiene acceso al sistema");
 
                 usuariosModel.FechaCrea = DateTime.Now;
 
                 var created = usuariosRepo.Add(usuariosModel);
-
-                return new Models.OperationResult(true, "Usuario creado exitosamente", created);
+                _logger.LogHttpRequest(usuariosModel);
+                return new OperationResult(true, "Usuario creado exitosamente", created);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                _logger.LogError("Este es un error");
+                _logger.LogError(ex);
                 throw;
             }
         }
 
-        public Models.OperationResult Put(UsuariosModel usuariosModel, ILogger<UsuariosController> logger)
-        {
-            return Put(usuariosModel, _logger);
-        }
-
-        /// <summary>
-        /// Actualiza un usuario existente.
-        /// </summary>
-        /// <param name="usuariosModel">Datos del usuario a actualizar.</param>
-        /// <returns>Resultado de la operacin.</returns>
-        /// 
 
         [HttpPut(Name = "UpdateUsuario")]
-        public Models.OperationResult Put(UsuariosModel usuariosModel, Logger _logger)
+        public OperationResult Put(UsuariosModel usuariosModel)
         {
-
             try
             {
                 var usuario = usuariosRepo.Get(x => x.idUsuario == usuariosModel.idUsuario).FirstOrDefault();
 
-                if (usuario == null) return new Models.OperationResult(false, "El usuario no se ha encontrado");
+                if (usuario == null) return new OperationResult(false, "El usuario no se ha encontrado");
                 usuario.idPerfil = usuariosModel.idPerfil;
                 usuario.Activo = usuariosModel.Activo;
 
                 usuariosRepo.Edit(usuario);
-
-                return new Models.OperationResult(true, "Usuario modificado exitosamente", usuario);
+                _logger.LogHttpRequest(usuariosModel);
+                return new OperationResult(true, "Usuario modificado exitosamente", usuario);
             }
             catch (Exception ex)
             {
-                _logger.LogError("Este es un error");
+                _logger.LogError(ex);
                 throw;
             }
-
         }
+
 
         [HttpDelete("{idUsuario}", Name = "DeleteUsuario")]
         [AuthorizeByPermission(PermisosEnum.Usuarios, PermisosEnum.Editar_Usuario)]
-        private Models.OperationResult Delete(int idUsuario, Logger _logger)
+        public OperationResult Delete(int idUsuario)
         {
             try
             {
                 usuariosRepo.Delete(idUsuario);
-
-                return new Models.OperationResult(true, "Usuario eliminado exitosamente", idUsuario);
+                _logger.LogHttpRequest(idUsuario);
+                return new OperationResult(true, "Usuario eliminado exitosamente", idUsuario);
             }
             catch (Exception ex)
             {
-                _logger.LogError("Este es un error");
-
-
+                _logger.LogError(ex);
                 throw;
             }
         }

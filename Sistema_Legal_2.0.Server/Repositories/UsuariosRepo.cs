@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Sistema_Legal_2.Server.Models;
-using RegistroVisitas.Server.Repositories;
 using Sistema_Legal_2._0.Server.Models;
+using RegistroVisitas.Server.Repositories;
 
 
 
-namespace Sistema_Legal_2.Server.Repositories
+
+namespace Sistema_Legal_2._0.Server.Repositories
 {
     public class UsuariosRepo : Repository<Usuarios, UsuariosModel>
     {

@@ -42,11 +42,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-using Sistema_Legal_2.Server.Models;
+
 using Microsoft.AspNetCore.Mvc;
 using Sistema_Legal_2.Server.Providers;
 using Microsoft.CodeAnalysis.Elfie.Diagnostics;
-using Sistema_Legal_2.Server.Controllers;
+
 using Microsoft.AspNetCore.Authentication;
 using Sistema_Legal_2._0.Server.Models;
 
