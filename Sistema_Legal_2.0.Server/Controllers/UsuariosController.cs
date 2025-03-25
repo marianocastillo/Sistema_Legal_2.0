@@ -6,7 +6,7 @@ using Sistema_Legal_2._0.Server.Models;
 using Sistema_Legal_2.Server.Repositories;
 using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using Sistema_Legal_2._0.Server.Models.Enums;
-using Sistema_Legal_2.Server.Controllers;
+using Sistema_Legal_2._0.Server.Controllers;
 
 
 
@@ -86,7 +86,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
             return usuario;
         }
         
-       [HttpPost("Guardar Usuario", Name = "SaveUsuario")]
+       [HttpPost("GuardarUsuario", Name = "SaveUsuario")]
         [Authorize]
         public Models.OperationResult Post(UsuariosModel usuariosModel)
         {

@@ -1,4 +1,4 @@
-﻿namespace Sistema_Legal_2.Server.Controllers
+﻿namespace Sistema_Legal_2._0.Server.Controllers
 {
     public interface IUserAccessor
     {

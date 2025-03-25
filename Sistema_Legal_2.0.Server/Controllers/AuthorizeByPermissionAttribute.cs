@@ -1,7 +1,7 @@
 ﻿
 using Sistema_Legal_2._0.Server.Models.Enums;
 
-namespace Sistema_Legal_2.Server.Controllers
+namespace Sistema_Legal_2._0.Server.Controllers
 {
     internal class AuthorizeByPermissionAttribute : Attribute
     {
