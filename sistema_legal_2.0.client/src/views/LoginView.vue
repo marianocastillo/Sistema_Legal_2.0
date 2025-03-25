@@ -11,16 +11,22 @@
         <h2>Sistema Legal</h2>
         <p>Inicie sesión para continuar </p>
         <form>
-          <input type="text" placeholder="Usuario">
+          <div class="input-container">
+            <span class="input-icon">
+              <font-awesome-icon icon="user" />
+            </span>
+            <input type="text" placeholder="Usuario" v-model="credentials.UserName" />
+          </div>
+
           <div class="password-container">
             <input :type="showPassword ? 'text' : 'password'" placeholder="Contraseña">
 
-              <span class="password-icon" v-if="showPassword" @click="togglePasswordVisibility()">
-                            <i class='fas fa-eye'></i>
-                        </span>
-                        <span class="password-icon" v-else @click="togglePasswordVisibility()">
-                            <i class='fas fa-eye-slash'></i>
-                        </span>
+            <span class="password-icon" v-if="showPassword" @click="togglePasswordVisibility()">
+              <i class='fas fa-eye'></i>
+            </span>
+            <span class="password-icon" v-else @click="togglePasswordVisibility()">
+              <i class='fas fa-eye-slash'></i>
+            </span>
           </div>
           <button type="submit" class="login-btn">Iniciar sesión</button>
         </form>
@@ -34,6 +40,10 @@
 
 
 <script>
+import { push } from 'notivue';
+import api from '@/utilities/api.js'
+
+
 export default {
   name: 'LoginVue',
   data() {
@@ -49,10 +59,48 @@ export default {
       showPassword: false,
     };
   },
+
+  mounted() {
+        localStorage.removeItem('sessionExpireTime');
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+    },
+
   methods: {
     togglePasswordVisibility() {
       this.showPassword = !this.showPassword;
     },
+
+    async LogIn(event) {
+            event.preventDefault();
+            this.invalid.UserName = this.invalid.Password = false;
+
+            if (this.credentials.UserName === "" || this.credentials.Password === "") {
+                (this.credentials.UserName === "" ? this.invalid.UserName = true : this.invalid.UserName = false);
+                (this.credentials.Password === "" ? this.invalid.Password = true : this.invalid.Password = false);
+                push.warning("Por favor, rellene todos los campos")
+            }
+            else {
+                const response = await api.post('/api/Account', this.credentials);
+                if (response.data.success) {
+                    const token = response.data.token;
+                    localStorage.setItem("token", token);
+                    localStorage.setItem("user", response.data.data.usuario.nombreUsuario);
+
+                    push.success(response.data.message);
+
+                    const { usuario } = response.data.data;
+
+                    this.$store.commit('setUser', usuario);
+
+                    const sessionExpireTime = new Date().getTime() + (30 * 60 * 1000);
+                    localStorage.setItem('sessionExpireTime', sessionExpireTime);
+
+                    this.$router.push('/home');
+                }
+                else push.warning(response.data.message);
+            }
+        },
   },
 };
 </script>
@@ -350,5 +398,48 @@ input[type="password"]:focus {
 .password-icon:hover {
   color: #013579;
   /* Cambia de color al hacer hover */
+}
+
+
+
+
+
+
+
+
+
+
+
+/* Estilos de los inputs */
+.input-container {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+input {
+  width: 100%;
+  padding: 10px 40px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* Ícono de usuario/candado */
+.input-icon {
+  position: absolute;
+  right: 10px;
+  top: 40%;
+  transform: translateY(-50%);
+  color: gray;
+}
+
+/* Ícono de ojo en la contraseña */
+.password-icon {
+  position: absolute;
+  right: 10px;
+  top: 40%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: gray;
 }
 </style>

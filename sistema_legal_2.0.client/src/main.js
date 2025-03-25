@@ -5,6 +5,7 @@ import {dom, library} from '@fortawesome/fontawesome-svg-core';
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import { fab } from '@fortawesome/free-brands-svg-icons';
 import { far } from '@fortawesome/free-regular-svg-icons';
+
 import App from './App.vue';
 import Aura from '@primeuix/themes/aura';
 import router from './router';
@@ -12,10 +13,10 @@ import { createNotivue } from 'notivue'
 import 'notivue/notification.css'
 import 'notivue/animations.css'
 
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faUser, faLock, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
-library.add(faEye, faEyeSlash);
+library.add(faEye, faUser,  faLock, faEyeSlash);
 
 const app = createApp(App);
 const notivue = createNotivue({
