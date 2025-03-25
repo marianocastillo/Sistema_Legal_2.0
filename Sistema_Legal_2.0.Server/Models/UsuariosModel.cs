@@ -8,6 +8,7 @@ public class UsuariosModel
 {
     public int idUsuario { get; set; }
 
+
     [Required(ErrorMessage = "Se debe especificar el nombre de usuario")]
     [StringLength(50, ErrorMessage = "No puede exceder a los 50 carácteres")]
     [Unicode(false)]

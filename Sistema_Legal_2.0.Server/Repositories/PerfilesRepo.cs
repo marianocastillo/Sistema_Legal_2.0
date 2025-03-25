@@ -64,8 +64,9 @@ namespace Sistema_Legal_2.Server.Repositories
 
         public bool CanAccess(int idUsuario, int[] idVistas)
         {
-            var PVSet = from u in dbContext.Set<Usuarios>().Where(u => u.idUsuario == idUsuario && u.Activo == true)
-                        join pv in dbContext.Set<PerfilesVistas>().Where(a => idVistas.Contains(a.idVista)) on u.idPerfil equals pv.idPerfil
+            var PVSet = from u in dbContext.Set<Usuarios>().Where(u => u.idUsuario == idUsuario && u.Activo)
+                        join pv in dbContext.Set<PerfilesVistas>().Where(a => idVistas.ToList().Contains((int)a.idVista))
+                        on u.idPerfil equals pv.idPerfil
                         select pv;
 
             return PVSet.Any();

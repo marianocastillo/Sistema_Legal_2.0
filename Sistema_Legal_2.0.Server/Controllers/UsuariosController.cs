@@ -15,6 +15,18 @@ namespace Sistema_Legal_2._0.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+
+    public static class LoggerExtensions
+    {
+        public static void LogError(this Logger logger, string mensaje)
+        {
+            // Asumiendo que Logger tiene un método para escribir en logs
+            // Usa un método disponible de Logger si tiene uno similar
+            logger.GetType().GetMethod("Log")?.Invoke(logger, new object[] { mensaje });
+        }
+    }
+
+
     public class UsuariosController : ControllerBase
     {
         private readonly UsuariosRepo usuariosRepo;
@@ -22,6 +34,14 @@ namespace Sistema_Legal_2._0.Server.Controllers
         private readonly db_silegContext _db_Sistema_Legal_2;
         private readonly ILogger<UsuariosController> _logger;
         private int idUsuarioOnline;
+
+        private readonly Logger _ogger;
+
+        public UsuariosController(Logger logger)
+        {
+            _ogger = logger;
+        }
+
         public UsuariosController(db_silegContext db_silegContext, IUserAccessor userAccessor, Logger logger)
         {
             _db_Sistema_Legal_2 = db_silegContext;
@@ -32,18 +52,12 @@ namespace Sistema_Legal_2._0.Server.Controllers
         }
 
         [HttpGet(Name = "GetUsuarios")]
-        [Authorize]
         public List<UsuariosModel> Get()
         {
             List<UsuariosModel> usuarios = usuariosRepo.Get().ToList();
             return usuarios;
         }
 
-        /// <summary>
-        /// Obtiene un usuario por su ID.
-        /// </summary>
-        /// <param name="idUsuario">ID del usuario.</param>
-        /// <returns>Usuario encontrado.</returns>
         [HttpGet("{idUsuario}", Name = "GetUsuario")]
         [Authorize]
         public UsuariosModel Get(int idUsuario)
@@ -52,11 +66,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
             return usuario;
         }
 
-        /// <summary>
-        /// Obtiene un usuario de Active Directory por su nombre de usuario.
-        /// </summary>
-        /// <param name="nombreUsuario">Nombre de usuario.</param>
-        /// <returns>Usuario de Active Directory encontrado.</returns>
+       
         [HttpGet("GetADUser/{nombreUsuario}", Name = "GetADUser")]
         [Authorize]
         public UsuariosModel? GetADUser(string nombreUsuario)
@@ -75,13 +85,9 @@ namespace Sistema_Legal_2._0.Server.Controllers
             };
             return usuario;
         }
-
-        /// <summary>
-        /// Crea un nuevo usuario.
-        /// </summary>
-        /// <param name="usuariosModel">Datos del usuario a crear.</param>
-        /// <returns>Resultado de la operacin.</returns>
-        [HttpPost(Name = "SaveUsuario")]
+        
+       [HttpPost("Guardar Usuario", Name = "SaveUsuario")]
+        [Authorize]
         public Models.OperationResult Post(UsuariosModel usuariosModel)
         {
             try
@@ -101,27 +107,22 @@ namespace Sistema_Legal_2._0.Server.Controllers
             }
         }
 
-        public Models.OperationResult Put(UsuariosModel usuariosModel, ILogger<UsuariosController> logger)
+
+
+
+
+        [HttpPut("ActualizarUsuario",Name = "UpdateUsuario")]
+        [Authorize]
+        public Models.OperationResult Put([FromBody] UsuariosModel usuariosModel)
+
         {
-            return Put(usuariosModel, _logger);
-        }
-
-        /// <summary>
-        /// Actualiza un usuario existente.
-        /// </summary>
-        /// <param name="usuariosModel">Datos del usuario a actualizar.</param>
-        /// <returns>Resultado de la operacin.</returns>
-        /// 
-
-        [HttpPut(Name = "UpdateUsuario")]
-        public Models.OperationResult Put(UsuariosModel usuariosModel, Logger _logger)
-        {
-
             try
             {
                 var usuario = usuariosRepo.Get(x => x.idUsuario == usuariosModel.idUsuario).FirstOrDefault();
 
-                if (usuario == null) return new Models.OperationResult(false, "El usuario no se ha encontrado");
+                if (usuario == null)
+                    return new Models.OperationResult(false, "El usuario no se ha encontrado");
+
                 usuario.idPerfil = usuariosModel.idPerfil;
                 usuario.Activo = usuariosModel.Activo;
 
@@ -134,26 +135,36 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 _logger.LogError("Este es un error");
                 throw;
             }
-
         }
 
-        [HttpDelete("{idUsuario}", Name = "DeleteUsuario")]
+
+        /// <summary>
+        ///     
+        /// </summary>
+        /// <param name="idUsuario"></param>
+        /// <param name="_ogger"></param>
+        /// <returns></returns>
+
+
+        [HttpDelete("EliminarUsuario/{idUsuario}", Name = "DeleteUsuario")]
         [AuthorizeByPermission(PermisosEnum.Usuarios, PermisosEnum.Editar_Usuario)]
-        private Models.OperationResult Delete(int idUsuario, Logger _logger)
+        public Models.OperationResult Delete(int idUsuario)
         {
             try
             {
+                // Eliminar el usuario usando el repositorio
                 usuariosRepo.Delete(idUsuario);
 
+                // Retornar el resultado de la operación
                 return new Models.OperationResult(true, "Usuario eliminado exitosamente", idUsuario);
             }
             catch (Exception ex)
             {
-                _logger.LogError("Este es un error");
-
-
+                // Si ocurre un error, se captura la excepción y se registra el error
+                _logger.LogError($"Error al eliminar el usuario: {ex.Message}");
                 throw;
             }
         }
+
     }
 }

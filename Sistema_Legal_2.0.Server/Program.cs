@@ -69,16 +69,16 @@ builder.Services.AddDbContext<db_silegContext>(options =>
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-builder.Services.AddScoped<IUserAccessor>(provider =>
-{
-    IHttpContextAccessor context = provider.GetService<IHttpContextAccessor>();
-    int uid = Convert.ToInt32(context.HttpContext?.User.Claims.FirstOrDefault(c => c.Type == "idUsuario")?.Value);
+//builder.Services.AddScoped<IUserAccessor>(provider =>
+//{
+//    IHttpContextAccessor context = provider.GetService<IHttpContextAccessor>();
+//    int uid = Convert.ToInt32(context.HttpContext?.User.Claims.FirstOrDefault(c => c.Type == "idUsuario")?.Value);
 
-    return new UserAccessor
-    {
-        idUsuario = uid
-    };
-});
+//    return new UserAccessor
+//    {
+//        idUsuario = uid
+//    };
+//});
 
 builder.Services.AddScoped<Logger>();
 
@@ -126,7 +126,7 @@ builder.Services.AddMvcCore().ConfigureApiBehaviorOptions(options =>
 builder.Services.AddScoped<ActiveDirectoryAuthenticationService>();
 builder.Services.AddScoped<AuthenticationService>();
 
-builder.Services.AddScoped<OnlineUser>();
+//builder.Services.AddScoped<OnlineUser>();
 
 var app = builder.Build();
 
@@ -134,11 +134,9 @@ app.UseDefaultFiles();
 app.UseStaticFiles();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+
     app.UseSwagger();
     app.UseSwaggerUI();
-}
 
 
 app.UseAuthentication();
