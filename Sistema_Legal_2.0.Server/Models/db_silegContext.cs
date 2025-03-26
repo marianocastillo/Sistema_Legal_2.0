@@ -40,8 +40,8 @@ public partial class db_silegContext : DbContext
     public virtual DbSet<Vistas> Vistas { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=192.168.3.81;Initial Catalog=db_sileg;Integrated Security=True");
+
+        => optionsBuilder.UseSqlServer("Data Source=192.168.3.81;Initial Catalog=db_sileg;Trusted_Connection=SSPI;MultipleActiveResultSets=true;Trust Server Certificate=true; Integrated Security=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

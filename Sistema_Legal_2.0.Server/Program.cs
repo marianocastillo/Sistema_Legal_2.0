@@ -1,14 +1,14 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc;
+
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Sistema_Legal_2._0.Server.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<db_silegContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Sistema_Legal"))
 );
 // Add services to the container.
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

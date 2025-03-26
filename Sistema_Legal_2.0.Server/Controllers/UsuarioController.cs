@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+
 using Microsoft.IdentityModel.Tokens;
 using Sistema_Legal_2._0.Server.Models;
 using System.IdentityModel.Tokens.Jwt;
