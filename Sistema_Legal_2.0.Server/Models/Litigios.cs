@@ -7,15 +7,19 @@ namespace Sistema_Legal_2._0.Server.Models;
 
 public partial class Litigios
 {
-    public int id_Ltg { get; set; }
+    public int IdLtg { get; set; }
 
-    public string ltg_acto { get; set; }
+    public string LtgActo { get; set; }
 
-    public DateTime ltg_fecha { get; set; }
+    public DateTime LtgFecha { get; set; }
 
-    public int? id_sentencia { get; set; }
+    public int? IdSentencia { get; set; }
 
-    public int id_Estatus { get; set; }
+    public int IdEstatus { get; set; }
 
-    public DateTime? ltg_fecha_litigio { get; set; }
+    public DateTime? LtgFechaLitigio { get; set; }
+
+    public string DocDemandante { get; set; }
+
+    public string Ltg { get; set; }
 }

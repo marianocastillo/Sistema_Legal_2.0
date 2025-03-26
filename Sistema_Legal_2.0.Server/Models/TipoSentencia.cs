@@ -5,9 +5,9 @@ using System.Collections.Generic;
 
 namespace Sistema_Legal_2._0.Server.Models;
 
-public partial class Estatus_Litigios
+public partial class TipoSentencia
 {
-    public int ltg_estatus { get; set; }
+    public int IdSentencia { get; set; }
 
-    public string ltg_description { get; set; }
+    public string DescSentencia { get; set; }
 }

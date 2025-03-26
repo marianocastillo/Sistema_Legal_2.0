@@ -3,13 +3,13 @@
 using System;
 using System.Collections.Generic;
 
-namespace Sistema_Legal_2.Server.Models;
+namespace Sistema_Legal_2._0.Server.Models;
 
 public partial class LogError
 {
-    public int idLogError { get; set; }
+    public int IdLogError { get; set; }
 
-    public int idUsuario { get; set; }
+    public int IdUsuario { get; set; }
 
     public DateTime Fecha { get; set; }
 

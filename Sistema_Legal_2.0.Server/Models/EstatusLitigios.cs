@@ -5,13 +5,9 @@ using System.Collections.Generic;
 
 namespace Sistema_Legal_2._0.Server.Models;
 
-public partial class Perfiles
+public partial class EstatusLitigios
 {
-    public int IdPerfil { get; set; }
+    public int LtgEstatus { get; set; }
 
-    public string Nombre { get; set; }
-
-    public string Descripcion { get; set; }
-
-    public bool? PorDefecto { get; set; }
+    public string LtgDescription { get; set; }
 }
