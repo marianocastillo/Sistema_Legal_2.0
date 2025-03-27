@@ -35,6 +35,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[Modulos]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[Perfiles]",
          "ObjectType": 0
       },
@@ -44,6 +48,10 @@
       },
       {
          "Name": "[dbo].[t_ruta_archivos]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Tipo_Demanda]",
          "ObjectType": 0
       },
       {

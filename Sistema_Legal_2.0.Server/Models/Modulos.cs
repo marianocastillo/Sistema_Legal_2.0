@@ -5,23 +5,15 @@ using System.Collections.Generic;
 
 namespace Sistema_Legal_2._0.Server.Models;
 
-public partial class Vistas
+public partial class Modulos
 {
-    public int IdVista { get; set; }
+    public int IdModulo { get; set; }
 
     public string Nombre { get; set; }
 
     public string Descripcion { get; set; }
 
-    public string Url { get; set; }
-
-    public int IdModulo { get; set; }
-
-    public int? IdPadre { get; set; }
-
-    public int Principal { get; set; }
-
-    public int Orden { get; set; }
-
     public string Icono { get; set; }
+
+    public int? Orden { get; set; }
 }

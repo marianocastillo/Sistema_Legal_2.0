@@ -1,24 +1,28 @@
 import { fileURLToPath, URL } from 'node:url';
-
 import { defineConfig } from 'vite';
+import Components from 'unplugin-vue-components/vite'
+import { PrimeVueResolver } from 'unplugin-vue-components/resolvers'
 import plugin from '@vitejs/plugin-vue';
 import fs from 'fs';
 import path from 'path';
 import child_process from 'child_process';
-import { env } from 'process';
 
+/* global process */
 const baseFolder =
-    env.APPDATA !== undefined && env.APPDATA !== ''
-        ? `${env.APPDATA}/ASP.NET/https`
-        : `${env.HOME}/.aspnet/https`;
+    process.env.APPDATA !== undefined && process.env.APPDATA !== ''
+        ? `${process.env.APPDATA}/ASP.NET/https`
+        : `${process.env.HOME}/.aspnet/https`;
 
-const certificateName = "sistema_legal_2.0.client";
+const certificateArg = process.argv.map(arg => arg.match(/--name=(?<value>.+)/i)).filter(Boolean)[0];
+const certificateName = certificateArg ? certificateArg.groups.value : "registrovisitas.client";
+
+if (!certificateName) {
+    console.error('Invalid certificate name. Run this script in the context of an npm/yarn script or pass --name=<<app>> explicitly.')
+    process.exit(-1);
+}
+
 const certFilePath = path.join(baseFolder, `${certificateName}.pem`);
 const keyFilePath = path.join(baseFolder, `${certificateName}.key`);
-
-if (!fs.existsSync(baseFolder)) {
-    fs.mkdirSync(baseFolder, { recursive: true });
-}
 
 if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
     if (0 !== child_process.spawnSync('dotnet', [
@@ -34,28 +38,49 @@ if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
     }
 }
 
-const target = env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${env.ASPNETCORE_HTTPS_PORT}` :
-    env.ASPNETCORE_URLS ? env.ASPNETCORE_URLS.split(';')[0] : 'https://localhost:7177';
-
 // https://vitejs.dev/config/
 export default defineConfig({
-    plugins: [plugin()],
+    plugins: [
+        plugin(),
+        Components({
+            resolvers: [
+              PrimeVueResolver(),
+            ],
+            types: [{
+              from: 'notivue',
+              names: ['push'],
+            }],
+          },
+        )
+    ],
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url))
         }
     },
+    base: process.env.NODE_ENV === 'production' ? '/Sistema Legal/' : '/',
     server: {
         proxy: {
-            '^/weatherforecast': {
-                target,
-                secure: false
+            '^/api': {
+                target: 'https://localhost:7251/',
+                secure: false,
             }
         },
-        port: parseInt(env.DEV_SERVER_PORT || '54679'),
+        port: 5173,
         https: {
             key: fs.readFileSync(keyFilePath),
             cert: fs.readFileSync(certFilePath),
         }
-    }
+    },
+    build: {
+        rollupOptions: {
+            output: {
+                globals: {
+                   jquery: 'window.jQuery',
+                   jquery: 'window.$'
+                }
+            }
+        },
+        commonjsOptions: { transformMixedEsModules: true } // Change
+    },
 })

@@ -27,11 +27,15 @@ public partial class db_silegContext : DbContext
 
     public virtual DbSet<Logins> Logins { get; set; }
 
+    public virtual DbSet<Modulos> Modulos { get; set; }
+
     public virtual DbSet<Perfiles> Perfiles { get; set; }
 
     public virtual DbSet<PerfilesVistas> PerfilesVistas { get; set; }
 
     public virtual DbSet<TRutaArchivos> TRutaArchivos { get; set; }
+
+    public virtual DbSet<TipoDemanda> TipoDemanda { get; set; }
 
     public virtual DbSet<TipoSentencia> TipoSentencia { get; set; }
 
@@ -40,8 +44,8 @@ public partial class db_silegContext : DbContext
     public virtual DbSet<Vistas> Vistas { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-
-        => optionsBuilder.UseSqlServer("Data Source=192.168.3.81;Initial Catalog=db_sileg;Trusted_Connection=SSPI;MultipleActiveResultSets=true;Trust Server Certificate=true; Integrated Security=True");
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Data Source=192.168.3.81;Initial Catalog=db_sileg;Encrypt=False; Integrated Security=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -150,6 +154,23 @@ public partial class db_silegContext : DbContext
                 .HasConstraintName("FK__Logins__UsuarioI__42ACE4D4");
         });
 
+        modelBuilder.Entity<Modulos>(entity =>
+        {
+            entity.HasKey(e => e.IdModulo);
+
+            entity.Property(e => e.IdModulo).HasColumnName("idModulo");
+            entity.Property(e => e.Descripcion)
+                .HasMaxLength(250)
+                .IsUnicode(false);
+            entity.Property(e => e.Icono)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.Nombre)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false);
+        });
+
         modelBuilder.Entity<Perfiles>(entity =>
         {
             entity.HasKey(e => e.IdPerfil);
@@ -196,6 +217,19 @@ public partial class db_silegContext : DbContext
             entity.Property(e => e.RuaUsuario)
                 .HasMaxLength(50)
                 .HasColumnName("rua_usuario");
+        });
+
+        modelBuilder.Entity<TipoDemanda>(entity =>
+        {
+            entity.HasKey(e => e.IdDemanda);
+
+            entity.ToTable("Tipo_Demanda");
+
+            entity.Property(e => e.IdDemanda).HasColumnName("id_demanda");
+            entity.Property(e => e.IdEstatus).HasColumnName("id_Estatus");
+            entity.Property(e => e.Nombre)
+                .IsRequired()
+                .HasMaxLength(150);
         });
 
         modelBuilder.Entity<TipoSentencia>(entity =>
@@ -250,6 +284,9 @@ public partial class db_silegContext : DbContext
                 .HasMaxLength(150)
                 .IsUnicode(false)
                 .HasColumnName("descripcion");
+            entity.Property(e => e.Icono)
+                .HasMaxLength(50)
+                .IsUnicode(false);
             entity.Property(e => e.IdModulo).HasColumnName("idModulo");
             entity.Property(e => e.IdPadre).HasColumnName("idPadre");
             entity.Property(e => e.Nombre)

@@ -9,6 +9,7 @@ export default createStore({
     views: [],
     isMobile: false,
     screenLocked: false,
+    baseURL: import.meta.env.BASE_URL.replace(/\/$/, ''),
   },
   mutations: {
     setLoading(state, loading) {
@@ -31,7 +32,8 @@ export default createStore({
     fetchUser({ commit }) {
       api.get("/api/Account")
         .then(response => {
-          commit('setUser', response.data.usuario);         
+          commit('setUser', response.data.usuario);
+          commit('setViews', response.data.vistas);
         })
         .catch(error => {
           push.error(error);
