@@ -46,7 +46,7 @@ import Navbar from "./layout/Navbar.vue";
 import FooterComponent from "./layout/Footer.vue";
 import ControlSidebar from "./layout/ControlSidebar.vue"
 // import PageLoader from "@/components/PageLoader.vue"
-import BlockScreen from "@/components/BlockScreen.vue"
+// import BlockScreen from "@/components/BlockScreen.vue"
 import ConfirmPopup from 'primevue/confirmpopup';
 // import { FilterService } from 'primevue/api';
 // import { FilterService } from 'primevue/utils';

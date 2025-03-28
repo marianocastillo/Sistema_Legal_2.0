@@ -19,9 +19,9 @@ public partial class Usuarios
 
     public bool Activo { get; set; }
 
-    public string IdLoggin { get; set; }
+    public string Cedula { get; set; }
 
-    public virtual Logins IdLogginNavigation { get; set; }
+    public string NombreUsuario { get; set; }
 
-    public virtual ICollection<Logins> Logins { get; set; } = new List<Logins>();
+    public int? IdSupervisor { get; set; }
 }

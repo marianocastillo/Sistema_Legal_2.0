@@ -6,14 +6,14 @@ namespace Sistema_Legal_2._0.Server.Models;
 
 public class UsuariosModel
 {
-    public int idUsuario { get; set; }
+    public int IdUsuario { get; set; }
 
 
     [Required(ErrorMessage = "Se debe especificar el nombre de usuario")]
     [StringLength(50, ErrorMessage = "No puede exceder a los 50 carácteres")]
     [Unicode(false)]
     public string NombreUsuario { get; set; }
-    public int idPerfil { get; set; }
+    public int IdPerfil { get; set; }
     public string? NombrePerfil { get; set; }
 
     //[Required(ErrorMessage = "Se debe especificar la cédula")]

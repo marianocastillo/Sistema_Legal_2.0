@@ -121,8 +121,8 @@
   </aside>
 </template>
 
-<script>
-import $ from "jquery";
+<!-- <script>
+// import $ from "jquery";
 import * as AdminLte from "admin-lte";
 import { push } from "notivue";
 
@@ -191,7 +191,7 @@ export default {
     });
   },
 };
-</script>
+</script> -->
 
 <style>
 .sidebar .nav-link p {

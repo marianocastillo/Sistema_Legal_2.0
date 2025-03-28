@@ -2,10 +2,9 @@
 
 using Microsoft.IdentityModel.Tokens;
 using Sistema_Legal_2._0.Server.Models;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using Microsoft.EntityFrameworkCore;
+using Sistema_Legal_2._0.Server.Repositories;
+using Sistema_Legal_2._0.Server.Infraestructure;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Sistema_Legal_2._0.Server.Controllers
 {
@@ -15,62 +14,65 @@ namespace Sistema_Legal_2._0.Server.Controllers
     public class AuthController : ControllerBase
     {
         private readonly db_silegContext _context;
+        private readonly Authentication _authentication;
         private readonly IConfiguration _configuration;
+       
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly Logger _logger;
+        private readonly UsuariosRepo _usuariosRepo;
+        private readonly PerfilesRepo _perfilesRepo;
+        private int idUsuarioOnline;
 
-        public AuthController(db_silegContext context, IConfiguration configuration)
+        public AuthController(db_silegContext db_silegContext, IUserAccessor userAccessor, Authentication authentication, IHttpContextAccessor httpContextAccessor, Logger logger)
         {
-            _context = context;
-            _configuration = configuration;
+          
+            _authentication = authentication;
+            _httpContextAccessor = httpContextAccessor;
+            _logger = logger;
+            _perfilesRepo = new PerfilesRepo(db_silegContext);
+            _usuariosRepo = new UsuariosRepo(db_silegContext);
+            idUsuarioOnline = userAccessor.idUsuario;
         }
 
-        [HttpPost("Login")]
-        public async Task<IActionResult> Login([FromBody] Logins request)
+        [HttpGet(Name = "GetUserData")]
+        [Authorize]
+        public object GetUserData()
         {
-            if (request == null || string.IsNullOrEmpty(request.LogginUsuario) || string.IsNullOrEmpty(request.Contraseña))
-            {
-                return BadRequest(new { mensaje = "Usuario y contraseña son requeridos." });
-            }
-
-            var loggin = await _context.Logins
-                .FirstOrDefaultAsync(u => u.LogginUsuario == request.LogginUsuario && u.Contraseña == request.Contraseña);
-
-            if (loggin == null)
-            {
-                return Unauthorized(new { mensaje = "Credenciales inválidas." });
-            }
-
-            // Generar el token JWT
-            var token = GenerarToken(loggin.LogginUsuario);
-
-            return Ok(new
-            {
-                mensaje = "Inicio de sesión exitoso",
-                token
-            });
-        }
-
-        private string GenerarToken(string loggin)
-        {
-            var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
-            var claims = new[]
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, loggin),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            UsuariosModel usuario = _usuariosRepo.Get(x => x.IdUsuario == idUsuarioOnline).FirstOrDefault();
+            List<VistasModel> vistas = [.. _perfilesRepo.GetPermisos(Convert.ToInt32(usuario.IdPerfil)).Where(v => v.Permiso)];
+            return new
+            {    
+                usuario = usuario,
+                vistas = vistas
             };
-
-            var credenciales = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
-            var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
-                claims: claims,
-                expires: DateTime.UtcNow.AddHours(2),
-                signingCredentials: credenciales
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        [HttpPost(Name = "LogIn")]
+        [AllowAnonymous]
+        public OperationResult LogIn(Credentials credentials)
+        {
+            try
+            {
+                if (credentials.UserName.Contains("@contraloria.gob.do"))
+                {
+                    credentials.UserName = credentials.UserName.Replace("@contraloria.gob.do", "");
+                }
+
+                OperationResult result = _authentication.LogIn(credentials);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex);
+                return new OperationResult(false, ex.Message);
+            }
+
+        }
+
+
     }
-    }
+}
+    
 
     
     

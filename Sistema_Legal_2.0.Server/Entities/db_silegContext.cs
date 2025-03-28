@@ -8,10 +8,6 @@ namespace Sistema_Legal_2._0.Server.Models;
 
 public partial class db_silegContext : DbContext
 {
-    public db_silegContext()
-    {
-    }
-
     public db_silegContext(DbContextOptions<db_silegContext> options)
         : base(options)
     {
@@ -24,8 +20,6 @@ public partial class db_silegContext : DbContext
     public virtual DbSet<LogActividad> LogActividad { get; set; }
 
     public virtual DbSet<LogError> LogError { get; set; }
-
-    public virtual DbSet<Logins> Logins { get; set; }
 
     public virtual DbSet<Modulos> Modulos { get; set; }
 
@@ -42,10 +36,6 @@ public partial class db_silegContext : DbContext
     public virtual DbSet<Usuarios> Usuarios { get; set; }
 
     public virtual DbSet<Vistas> Vistas { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=192.168.3.81;Initial Catalog=db_sileg;Encrypt=False; Integrated Security=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -134,24 +124,6 @@ public partial class db_silegContext : DbContext
                 .IsRequired()
                 .HasMaxLength(50)
                 .IsUnicode(false);
-        });
-
-        modelBuilder.Entity<Logins>(entity =>
-        {
-            entity.HasKey(e => e.LogginUsuario).HasName("PK__Logins__3214EC074180EEAC");
-
-            entity.Property(e => e.LogginUsuario).HasMaxLength(50);
-            entity.Property(e => e.Contraseña)
-                .IsRequired()
-                .HasMaxLength(25)
-                .IsUnicode(false);
-            entity.Property(e => e.FechaHora)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-
-            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Logins)
-                .HasForeignKey(d => d.IdUsuario)
-                .HasConstraintName("FK__Logins__UsuarioI__42ACE4D4");
         });
 
         modelBuilder.Entity<Modulos>(entity =>
@@ -252,25 +224,28 @@ public partial class db_silegContext : DbContext
 
             entity.Property(e => e.IdUsuario).HasColumnName("idUsuario");
             entity.Property(e => e.Apellidos)
+                .IsRequired()
                 .HasMaxLength(100)
                 .IsFixedLength()
                 .HasColumnName("apellidos");
+            entity.Property(e => e.Cedula)
+                .IsRequired()
+                .HasMaxLength(13)
+                .IsUnicode(false);
             entity.Property(e => e.FechaCreacion)
                 .HasColumnType("datetime")
                 .HasColumnName("fechaCreacion");
-            entity.Property(e => e.IdLoggin)
-                .IsRequired()
-                .HasMaxLength(50);
             entity.Property(e => e.IdPerfil).HasColumnName("idPerfil");
+            entity.Property(e => e.IdSupervisor).HasColumnName("idSupervisor");
+            entity.Property(e => e.NombreUsuario)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false);
             entity.Property(e => e.Nombres)
+                .IsRequired()
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("nombres");
-
-            entity.HasOne(d => d.IdLogginNavigation).WithMany(p => p.Usuarios)
-                .HasForeignKey(d => d.IdLoggin)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Usuarios_Usuarios");
         });
 
         modelBuilder.Entity<Vistas>(entity =>

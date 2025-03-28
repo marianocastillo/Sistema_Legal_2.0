@@ -3,7 +3,7 @@
    "ContextClassName": "db_silegContext",
    "ContextNamespace": null,
    "FilterSchemas": false,
-   "IncludeConnectionString": true,
+   "IncludeConnectionString": false,
    "ModelNamespace": null,
    "OutputContextPath": null,
    "OutputPath": "Models",
@@ -28,10 +28,6 @@
       },
       {
          "Name": "[dbo].[LogError]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[Logins]",
          "ObjectType": 0
       },
       {

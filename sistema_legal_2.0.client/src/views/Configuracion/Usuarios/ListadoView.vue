@@ -44,7 +44,9 @@
 <script>
 import { push } from 'notivue'
 import api from '@/utilities/api.js'
-import { FilterMatchMode } from 'primevue/api';
+import { FilterMatchMode } from 'primevue';
+
+
 import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
 

@@ -43,7 +43,10 @@
 <script>
 import { push } from 'notivue'
 import api from '@/utilities/api.js'
-import { FilterMatchMode } from 'primevue/api';
+
+import { FilterMatchMode } from 'primevue';
+
+
 import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
 
@@ -53,7 +56,7 @@ export default {
   data() {
       return {
           filters: {
-              global: { value: null, matchMode: FilterMatchMode.CONTAINS }
+            global: { value: null, matchMode: FilterMatchMode.contains }
           },
           perfiles: [],
           dialogVisible: false,
