@@ -14,7 +14,8 @@ public class UsuariosRepo : Repository<Usuarios, UsuariosModel>
                 Apellidos = u.Apellidos,                
                 Activo = u.Activo,
                 FechaCreacion = u.FechaCrea,
-                IdPerfil = u.IdPerfil
+                IdPerfil = u.IdPerfil,
+              
             }),
         (DB, filter) =>
         {
@@ -23,7 +24,7 @@ public class UsuariosRepo : Repository<Usuarios, UsuariosModel>
                         select new UsuariosModel()
                         {
                             IdUsuario = u.IdUsuario,
-                            NombreUsuario = u.Nombres,
+                            NombreUsuario = u.NombreUsuario,
                             NombrePerfil = p.Nombre ?? "",
                             Nombres = u.Nombres,
                             Apellidos = u.Apellidos,                            

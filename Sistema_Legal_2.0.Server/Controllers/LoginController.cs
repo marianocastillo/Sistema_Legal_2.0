@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace Sistema_Legal_2._0.Server.Controllers
 {
    
-    [Route("api/[controller]")]
+    [Route("api/Auth")]
     [ApiController]
     public class AuthController : ControllerBase
     {
@@ -36,16 +36,43 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
         [HttpGet(Name = "GetUserData")]
         [Authorize]
-        public object GetUserData()
+        public IActionResult GetUserData()
         {
-            UsuariosModel usuario = _usuariosRepo.Get(x => x.IdUsuario == idUsuarioOnline).FirstOrDefault();
-            List<VistasModel> vistas = [.. _perfilesRepo.GetPermisos(Convert.ToInt32(usuario.IdPerfil)).Where(v => v.Permiso)];
-            return new
-            {    
+            if (idUsuarioOnline == null)
+            {
+                return Unauthorized(new { message = "No se pudo obtener el ID del usuario autenticado." });
+            }
+
+            var usuario = _usuariosRepo.Get(x => x.IdUsuario == idUsuarioOnline).FirstOrDefault();
+            if (usuario == null)
+            {
+                return NotFound(new { message = "Usuario no encontrado." });
+            }
+
+            var vistas = _perfilesRepo.GetPermisos(Convert.ToInt32(usuario.IdPerfil))?
+                .Where(v => v.Permiso)
+                .ToList() ?? new List<VistasModel>();
+
+            return Ok(new
+            {
                 usuario = usuario,
                 vistas = vistas
-            };
+            });
         }
+
+
+        //[HttpGet(Name = "GetUserData")]
+        //[Authorize]
+        //public object GetUserData()
+        //{
+        //    UsuariosModel usuario = _usuariosRepo.Get(x => x.IdUsuario == idUsuarioOnline).FirstOrDefault();
+        //    List<VistasModel> vistas = [.. _perfilesRepo.GetPermisos(Convert.ToInt32(usuario.IdPerfil)).Where(v => v.Permiso)];
+        //    return new
+        //    {    
+        //        usuario = usuario,
+        //        vistas = vistas
+        //    };
+        //}
 
         [HttpPost(Name = "LogIn")]
         [AllowAnonymous]

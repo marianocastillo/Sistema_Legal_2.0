@@ -14,6 +14,22 @@ System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Inst
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        policy =>
+        {
+            policy.WithOrigins("https://localhost:5174") // Cambia esto si tu frontend tiene otro puerto
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials(); // Si usas autenticación con cookies o tokens
+        });
+});
+
+
+
+
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -85,6 +101,7 @@ builder.Services.AddScoped<Authentication>();
 builder.Services.AddScoped<OnlineUser>();
 
 var app = builder.Build();
+app.UseCors("AllowAllOrigins");
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
@@ -98,6 +115,7 @@ if (app.Environment.IsDevelopment())
 
 
 app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers();

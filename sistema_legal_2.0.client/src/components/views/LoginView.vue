@@ -4,23 +4,17 @@
     <div class="login-container ">
       <div class="welcome-section">
         <div class="logo">
-          <img src="/src/assets/LogoBlancoLogin1.png" alt="Logo">
+          <img src="/public/LogoBlancoLogin1.png" alt="Logo">
         </div>
       </div>
       <div class="login-section">
         <h2>Sistema Legal</h2>
         <p>Inicie sesión para continuar </p>
         <form>
-          <div class="input-container">
-            <span class="input-icon">
-              <font-awesome-icon icon="user" />
-            </span>
-            <input type="text" placeholder="Usuario" v-model="credentials.UserName" />
-          </div>
-
+          <input type="text" placeholder="Usuario" :invalid="invalid.userName" v-model="credentials.userName">
           <div class="password-container">
-            <input :type="showPassword ? 'text' : 'password'" placeholder="Contraseña">
-
+            <input :type="showPassword ? 'text' : 'password'" placeholder="Contraseña" :invalid="invalid.password"
+              v-model="credentials.password">
             <span class="password-icon" v-if="showPassword" @click="togglePasswordVisibility()">
               <i class='fas fa-eye'></i>
             </span>
@@ -28,88 +22,113 @@
               <i class='fas fa-eye-slash'></i>
             </span>
           </div>
-          <button type="submit" class="login-btn">Iniciar sesión</button>
+          <button type="submit" @click="LogIn" class="login-btn">Iniciar sesión</button>
         </form>
 
       </div>
     </div>
   </body>
 
+
+  <Notivue v-slot="item">
+    <NotivueSwipe :item="item">
+      <Notifications :item="item" />
+    </NotivueSwipe>
+  </Notivue>
 </template>
 
 
-
 <script>
-import { push } from 'notivue';
+import { push } from 'notivue'
 import api from '@/utilities/api.js'
-
+import { Notivue, Notifications, NotivueSwipe } from 'notivue'
 
 export default {
-  name: 'LoginVue',
+  name: 'LoginView',
+  
+  components: {
+
+    Notivue,
+    Notifications,
+    NotivueSwipe,
+
+
+
+  },
   data() {
     return {
       credentials: {
-        UserName: "",
-        Password: "",
+        userName: "",
+        password: "",
       },
       invalid: {
-        UserName: false,
-        Password: false,
+        userName: false,
+        password: false,
       },
       showPassword: false,
-    };
+    }
   },
-
   mounted() {
-        localStorage.removeItem('sessionExpireTime');
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
-    },
-
+    localStorage.removeItem('sessionExpireTime');
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+  },
   methods: {
     togglePasswordVisibility() {
       this.showPassword = !this.showPassword;
     },
 
     async LogIn(event) {
-            event.preventDefault();
-            this.invalid.UserName = this.invalid.Password = false;
+      console.log(this.credentials);
+      event.preventDefault()
+      this.invalid.userName = this.invalid.password = false;
 
-            if (this.credentials.UserName === "" || this.credentials.Password === "") {
-                (this.credentials.UserName === "" ? this.invalid.UserName = true : this.invalid.UserName = false);
-                (this.credentials.Password === "" ? this.invalid.Password = true : this.invalid.Password = false);
-                push.warning("Por favor, rellene todos los campos")
-            }
-            else {
-                const response = await api.post('/api/Account', this.credentials);
-                if (response.data.success) {
-                    const token = response.data.token;
-                    localStorage.setItem("token", token);
-                    localStorage.setItem("user", response.data.data.usuario.nombreUsuario);
+      if (this.credentials.userName === "" || this.credentials.password === "") {
+        (this.credentials.userName === "" ? this.invalid.userName = true : this.invalid.userName = false);
+        (this.credentials.password === "" ? this.invalid.password = true : this.invalid.password = false);
+        push.warning("Por favor, rellene todos los campos")
+      }
+      else {
+        console.log(this.credentials);
 
-                    push.success(response.data.message);
+        try {
+          const response = await api.post('https://localhost:7177/api/Auth', this.credentials);
+          console.log(response); // Log de la respuesta
 
-                    const { usuario } = response.data.data;
+          if (response.data.success) {
+            const token = response.data.token;
+            localStorage.setItem("token", token);
+            localStorage.setItem("user", response.data.data.usuario.nombreUsuario);
 
-                    this.$store.commit('setUser', usuario);
+            push.success(response.data.message);
 
-                    const sessionExpireTime = new Date().getTime() + (30 * 60 * 1000);
-                    localStorage.setItem('sessionExpireTime', sessionExpireTime);
+            const { usuario } = response.data.data;
 
-                    this.$router.push('/home');
-                }
-                else push.warning(response.data.message);
-            }
-        },
-  },
-};
+            this.$store.commit('setUser', usuario);
+
+            const sessionExpireTime = new Date().getTime() + (30 * 60 * 1000);
+            localStorage.setItem('sessionExpireTime', sessionExpireTime);
+
+
+            this.$router.push('/sidebar/home');
+            setTimeout(() => {
+              window.location.reload();
+            }, 500);
+
+
+          } else {
+            push.warning(response.data.message);
+          }
+        } catch (error) {
+          console.error("Error en la solicitud", error);
+          push.warning("Hubo un error al intentar iniciar sesión. Intenta nuevamente.");
+        }
+      }
+    }
+  }
+
+}
 </script>
-
-
-
-
-
-
 
 
 
@@ -127,18 +146,21 @@ body {
   align-items: center;
   height: 100vh;
 
-
 }
 
 input[type="text"]:focus,
 input[type="password"]:focus {
   border-color: #013579;
+
   /* Cambia el color del borde al hacer focus */
   outline: none;
   /* Sin borde de enfoque del navegador */
 
 }
 
+.login-section input {
+  color: black !important;
+}
 
 .login-container {
   display: flex;
@@ -214,7 +236,6 @@ input[type="password"]:focus {
   border-radius: 0px 100px 0px 0px;
   position: relative;
 
-
 }
 
 .login-section h2 {
@@ -246,7 +267,6 @@ input[type="password"]:focus {
   font-size: 1rem;
   width: 100%;
   background-color: rgba(0, 56, 128, 0.1);
-  color: black;
 }
 
 .forgot-password {
@@ -398,48 +418,5 @@ input[type="password"]:focus {
 .password-icon:hover {
   color: #013579;
   /* Cambia de color al hacer hover */
-}
-
-
-
-
-
-
-
-
-
-
-
-/* Estilos de los inputs */
-.input-container {
-  position: relative;
-  margin-bottom: 20px;
-}
-
-input {
-  width: 100%;
-  padding: 10px 40px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-/* Ícono de usuario/candado */
-.input-icon {
-  position: absolute;
-  right: 10px;
-  top: 40%;
-  transform: translateY(-50%);
-  color: gray;
-}
-
-/* Ícono de ojo en la contraseña */
-.password-icon {
-  position: absolute;
-  right: 10px;
-  top: 40%;
-  transform: translateY(-50%);
-  cursor: pointer;
-  color: gray;
 }
 </style>

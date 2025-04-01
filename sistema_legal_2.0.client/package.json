@@ -18,6 +18,7 @@
     "@primeuix/themes": "^1.0.0",
     "@primevue/themes": "^4.3.2",
     "axios": "^1.8.4",
+    "bootstrap": "^5.3.3",
     "notivue": "^2.4.5",
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",

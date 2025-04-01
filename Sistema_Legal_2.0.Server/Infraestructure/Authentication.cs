@@ -28,7 +28,7 @@ public class Authentication
         using (db_SilegContext)
         {
             UsuariosRepo ur = new UsuariosRepo(db_SilegContext);
-            var usuario = ur.GetFirst(u => u.Nombres.Equals(credentials.UserName, StringComparison.CurrentCultureIgnoreCase));
+            var usuario = ur.GetFirst(u => u.NombreUsuario.Equals(credentials.UserName, StringComparison.CurrentCultureIgnoreCase));
 
             ADRepository adRepository = new();
 
