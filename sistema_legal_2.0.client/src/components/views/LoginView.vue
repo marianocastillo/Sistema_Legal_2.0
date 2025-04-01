@@ -45,7 +45,7 @@ import { Notivue, Notifications, NotivueSwipe } from 'notivue'
 
 export default {
   name: 'LoginView',
-  
+  emits: ['loginSuccess'],
   components: {
 
     Notivue,
@@ -110,7 +110,7 @@ export default {
             localStorage.setItem('sessionExpireTime', sessionExpireTime);
 
 
-            this.$router.push('/sidebar/home');
+            this.$router.push('/drawer/home');
             setTimeout(() => {
               window.location.reload();
             }, 500);

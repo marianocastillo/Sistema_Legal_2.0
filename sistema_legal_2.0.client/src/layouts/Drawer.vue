@@ -8,17 +8,17 @@
           <br>
           <ul class="nav nav-pills flex-column mb-sm-auto mb-0 w-100" id="menu">
             <li class="nav-item">
-              <router-link to="home" class="nav-link text-white w-100">
+              <router-link to="/drawer/home" class="nav-link text-white w-100">
                 <i class="fs-5 bi-house"></i> <span class="ms-2 d-none d-sm-inline">Home</span>
               </router-link>
             </li>
             <li>
-              <router-link to="registro" class="nav-link text-white w-100">
+              <router-link to="/drawer/registro" class="nav-link text-white w-100">
                 <i class="fs-5 bi-card-checklist"></i> <span class="ms-2 d-none d-sm-inline">Registrar</span>
               </router-link>
             </li>
             <li>
-              <router-link to="edit" class="nav-link text-white w-100">
+              <router-link to="/drawer/edit" class="nav-link text-white w-100">
                 <i class="fs-5 bi-pencil-square"></i> <span class="ms-2 d-none d-sm-inline">Modificar</span>
               </router-link>
             </li>

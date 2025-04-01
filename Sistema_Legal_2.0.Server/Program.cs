@@ -20,7 +20,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAllOrigins",
         policy =>
         {
-            policy.WithOrigins("https://localhost:5174") // Cambia esto si tu frontend tiene otro puerto
+            policy.WithOrigins("https://localhost:5173") // Cambia esto si tu frontend tiene otro puerto
                   .AllowAnyHeader()
                   .AllowAnyMethod()
                   .AllowCredentials(); // Si usas autenticación con cookies o tokens

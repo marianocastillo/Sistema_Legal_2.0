@@ -6,21 +6,14 @@ import {dom, library} from '@fortawesome/fontawesome-svg-core';
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import { fab } from '@fortawesome/free-brands-svg-icons';
 import { far } from '@fortawesome/free-regular-svg-icons';
-
 import App from './App.vue';
-
-
 import Aura from '@primeuix/themes/aura';
 import router from './router/router';
 import { createNotivue } from 'notivue'
 import 'notivue/notification.css'
 import 'notivue/animations.css'
-
 import { faEye, faUser, faLock, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-
-
-
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
@@ -28,8 +21,8 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 import './assets/main.css';
 
-import 'notivue/notifications.css'
-import 'notivue/animations.css'
+//import 'notivue/notifications.css'
+//import 'notivue/animations.css'
 import 'primeflex/primeflex.css'
 import 'primeicons/primeicons.css'
 
@@ -68,5 +61,5 @@ theme: {
 
 app.use(router);
 app.use(store);
-app.mount('#app');
 app.component('font-awesome-icon', FontAwesomeIcon);
+app.mount('#app');
