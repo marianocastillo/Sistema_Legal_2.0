@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authorization;
 using Sistema_Legal_2._0.Server.Models;
 using Sistema_Legal_2._0.Server.Repositories;
 using Sistema_Legal_2._0.Server.Infraestructure;
-using Microsoft.AspNetCore.Authorization;
+using Sistema_Legal_2._0.Server.Entities;
 
 namespace Sistema_Legal_2._0.Server.Controllers
 {
@@ -25,8 +24,8 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
         public AuthController(db_silegContext db_silegContext, IUserAccessor userAccessor, Authentication authentication, IHttpContextAccessor httpContextAccessor, Logger logger)
         {
-          
-            _authentication = authentication;
+            _context = db_silegContext;
+           _authentication = authentication;
             _httpContextAccessor = httpContextAccessor;
             _logger = logger;
             _perfilesRepo = new PerfilesRepo(db_silegContext);
@@ -35,29 +34,18 @@ namespace Sistema_Legal_2._0.Server.Controllers
         }
 
         [HttpGet(Name = "GetUserData")]
-        [Authorize]
-        public IActionResult GetUserData()
-        {
-            if (idUsuarioOnline == null)
+        [AllowAnonymous]
+        public object GetUserData(int ID)
+         {
+            //idUsuarioOnline
+            UsuariosModel usuario = _usuariosRepo.Get(x => x.idUsuario == ID ).FirstOrDefault();
+            List<VistasModel> vistas = _perfilesRepo.GetPermisos(Convert.ToInt32(usuario.IdPerfil)).Where(v => v.Permiso).ToList();
+            return new
             {
-                return Unauthorized(new { message = "No se pudo obtener el ID del usuario autenticado." });
-            }
-
-            var usuario = _usuariosRepo.Get(x => x.IdUsuario == idUsuarioOnline).FirstOrDefault();
-            if (usuario == null)
-            {
-                return NotFound(new { message = "Usuario no encontrado." });
-            }
-
-            var vistas = _perfilesRepo.GetPermisos(Convert.ToInt32(usuario.IdPerfil))?
-                .Where(v => v.Permiso)
-                .ToList() ?? new List<VistasModel>();
-
-            return Ok(new
-            {
+            
                 usuario = usuario,
                 vistas = vistas
-            });
+            };
         }
 
 
@@ -68,7 +56,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
         //    UsuariosModel usuario = _usuariosRepo.Get(x => x.IdUsuario == idUsuarioOnline).FirstOrDefault();
         //    List<VistasModel> vistas = [.. _perfilesRepo.GetPermisos(Convert.ToInt32(usuario.IdPerfil)).Where(v => v.Permiso)];
         //    return new
-        //    {    
+        //    {
         //        usuario = usuario,
         //        vistas = vistas
         //    };
@@ -87,6 +75,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
                 OperationResult result = _authentication.LogIn(credentials);
                 return result;
+               
             }
             catch (Exception ex)
             {

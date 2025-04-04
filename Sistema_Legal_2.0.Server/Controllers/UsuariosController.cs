@@ -4,7 +4,7 @@ using Sistema_Legal_2._0.Server.Models;
 using Sistema_Legal_2._0.Server.Repositories;
 using Sistema_Legal_2._0.Server.Infraestructure;
 using Sistema_Legal_2._0.Server.Models.Enums;
-
+using Sistema_Legal_2._0.Server.Entities;
 
 namespace Sistema_Legal_2._0.Server.Controller
 {
@@ -27,7 +27,7 @@ namespace Sistema_Legal_2._0.Server.Controller
         }
 
         [HttpGet(Name = "GetUsuarios")]
-        [Authorize]
+        [AllowAnonymous]
         public List<UsuariosModel> Get()
         {
             List<UsuariosModel> usuarios = usuariosRepo.Get().ToList();
@@ -40,7 +40,7 @@ namespace Sistema_Legal_2._0.Server.Controller
         /// <param name="idUsuario">ID del usuario.</param>
         /// <returns>Usuario encontrado.</returns>
         [HttpGet("{idUsuario}", Name = "GetUsuario")]
-        [Authorize]
+        [AllowAnonymous]
         public UsuariosModel Get(int idUsuario)
         {
             UsuariosModel usuario = usuariosRepo.Get(idUsuario);
@@ -53,7 +53,7 @@ namespace Sistema_Legal_2._0.Server.Controller
         /// <param name="nombreUsuario">Nombre de usuario.</param>
         /// <returns>Usuario de Active Directory encontrado.</returns>
         [HttpGet("GetADUser/{nombreUsuario}", Name = "GetADUser")]
-        [Authorize]
+        [AllowAnonymous]
         public UsuariosModel? GetADUser(string nombreUsuario)
         {
             AdUser? adUser = usuariosRepo.GetADUser(nombreUsuario);
@@ -62,6 +62,7 @@ namespace Sistema_Legal_2._0.Server.Controller
 
             UsuariosModel usuario = new UsuariosModel()
             {                
+               
                 Nombres = adUser.firstName.ToString(),
                 Apellidos = adUser.lastName.ToString(),
                 NombreUsuario = nombreUsuario.ToLower(),
@@ -76,12 +77,13 @@ namespace Sistema_Legal_2._0.Server.Controller
         /// </summary>
         /// <param name="usuariosModel">Datos del usuario a crear.</param>
         /// <returns>Resultado de la operacin.</returns>
-        [HttpPost(Name = "SaveUsuario")]        
+        [HttpPost(Name = "SaveUsuario")]
+        [AllowAnonymous]
         public OperationResult Post(UsuariosModel usuariosModel)
         {
             try
             {
-                if (usuariosRepo.Any(x => x.Nombres     == usuariosModel.NombreUsuario)) return new OperationResult(false, "Este usuario ya tiene acceso al sistema");
+                if (usuariosRepo.Any(x => x.nombres == usuariosModel.NombreUsuario)) return new OperationResult(false, "Este usuario ya tiene acceso al sistema");
                     
                 usuariosModel.FechaCrea = DateTime.Now;
 
@@ -101,12 +103,13 @@ namespace Sistema_Legal_2._0.Server.Controller
         /// </summary>
         /// <param name="usuariosModel">Datos del usuario a actualizar.</param>
         /// <returns>Resultado de la operacin.</returns>
-        [HttpPut(Name = "UpdateUsuario")]        
+        [HttpPut(Name = "UpdateUsuario")]
+        [AllowAnonymous]
         public OperationResult Put(UsuariosModel usuariosModel)
         {
             try
             {
-                var usuario = usuariosRepo.Get(x => x.IdUsuario == usuariosModel.IdUsuario).FirstOrDefault();
+                var usuario = usuariosRepo.Get(x => x.idUsuario == usuariosModel.IdUsuario).FirstOrDefault();
 
                 if (usuario == null) return new OperationResult(false, "El usuario no se ha encontrado");
                 usuario.IdPerfil = usuariosModel.IdPerfil;
@@ -128,7 +131,8 @@ namespace Sistema_Legal_2._0.Server.Controller
         /// <param name="idUsuario">ID del perfil.</param>
         /// <returns>Resultado de la operacin.</returns>
         [HttpDelete("{idUsuario}", Name = "DeleteUsuario")]
-        [AuthorizeByPermission(PermisosEnum.Usuarios, PermisosEnum.Editar_Usuario)]
+        [AllowAnonymous]
+        //[AuthorizeByPermission(PermisosEnum.Usuarios, PermisosEnum.Editar_Usuario)]
         public OperationResult Delete(int idUsuario)
         {
             try

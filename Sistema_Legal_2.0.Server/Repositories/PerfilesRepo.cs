@@ -1,7 +1,8 @@
 ﻿using Sistema_Legal_2._0.Server.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
-
+using Sistema_Legal_2._0.Server.Entities;
+using Humanizer;
 
 namespace Sistema_Legal_2._0.Server.Repositories
 {
@@ -14,15 +15,15 @@ namespace Sistema_Legal_2._0.Server.Repositories
             new ObjectsMapper<PerfilesModel, Perfiles>(p => new Perfiles()
             {
                 Descripcion = p.Descripcion,
-                IdPerfil = p.idPerfil,
-                Nombre = p.Nombre,
+                idPerfil = p.idPerfil,
+                nombre = p.Nombre,
             }),
                     (DB, filter) => (from p in DB.Set<Perfiles>().Where(filter)
                                      select new PerfilesModel()
                                      {
                                          Descripcion = p.Descripcion,
-                                         idPerfil = p.IdPerfil,
-                                         Nombre = p.Nombre,
+                                         idPerfil = p.idPerfil,
+                                         Nombre = p.nombre,
                                      })
         )
         {
@@ -30,7 +31,7 @@ namespace Sistema_Legal_2._0.Server.Repositories
         }
         public PerfilesModel Get(int Id)
         {
-            var model = base.Get(p => p.IdPerfil == Id).FirstOrDefault();
+            var model = base.Get(p => p.idPerfil == Id).FirstOrDefault();
             return model;
         }
 
@@ -38,38 +39,40 @@ namespace Sistema_Legal_2._0.Server.Repositories
         public IEnumerable<VistasModel> GetPermisos(int? idPerfil)
         {
             int id = idPerfil ?? 0;
-            var permisosSet = dbContext.Set<PerfilesVistas>().Where(p => p.IdPerfil == id);
-            return from v in dbContext.Set<VistasModel>()
+            var permisosSet = dbContext.Set<perfilesVistas>().Where(p => p.idPerfil == id);
+
+
+            return from v in dbContext.Set<vistas>()
                    select new VistasModel()
                    {
                        idVista = v.idVista,
-                       Nombre = v.Nombre,
-                       Descripcion = v.Descripcion,
-                       Url = v.Url,
-                       Permiso = permisosSet.Any(a => a.IdVista == v.idVista),                      
+                       Nombre = v.nombre,
+                       Descripcion = v.descripcion,
+                       Url = v.url,
+                       Permiso = permisosSet.Any(a => a.idVista == v.idVista),
                        idModulo = v.idModulo,
-                      
+
                    };
         }
 
         public IEnumerable<UsuariosModel> GetUsuarios(int idPerfil)
         {
             UsuariosRepo usuariosRepo = new UsuariosRepo(dbContext);
-            var listUsuarios = usuariosRepo.Get(x => x.IdPerfil == idPerfil);
+            var listUsuarios = usuariosRepo.Get(x => x.idPerfil == idPerfil);
             return listUsuarios;
         }
 
         public bool CanAccess(int idUsuario, int[] idVistas)
         {
-            var PVSet = from u in dbContext.Set<Usuarios>().Where(u => u.IdUsuario == idUsuario && u.Activo == true)
-                        join pv in dbContext.Set<PerfilesVistas>().Where(a => idVistas.Contains(a.IdVista)) on u.IdPerfil equals pv.IdPerfil
+            var PVSet = from u in dbContext.Set<Usuarios>().Where(u => u.idUsuario == idUsuario && u.Activo == true)
+                        join pv in dbContext.Set<perfilesVistas>().Where(a => idVistas.Contains(a.idVista)) on u.idPerfil equals pv.idPerfil
                         select pv;
 
             return PVSet.Any();
         }
         public int GetPerfilDefault()
         {
-            var perfilDefault = base.Get(x => x.PorDefecto == true).First();
+            var perfilDefault = base.Get(x => x.porDefecto == true).First();
             return perfilDefault.idPerfil;
         }
 

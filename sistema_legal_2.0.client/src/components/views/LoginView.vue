@@ -4,7 +4,7 @@
     <div class="login-container ">
       <div class="welcome-section">
         <div class="logo">
-          <img src="/public/LogoBlancoLogin1.png" alt="Logo">
+          <img src="/src/assets/LogoBlancoLogin1.png" alt="Logo">
         </div>
       </div>
       <div class="login-section">

@@ -3,15 +3,19 @@
 using System;
 using System.Collections.Generic;
 
-namespace Sistema_Legal_2._0.Server.Models;
+namespace Sistema_Legal_2._0.Server.Entities;
 
 public partial class Perfiles
 {
-    public int IdPerfil { get; set; }
+    public int idPerfil { get; set; }
 
-    public string Nombre { get; set; }
+    public string nombre { get; set; }
 
     public string Descripcion { get; set; }
 
-    public bool? PorDefecto { get; set; }
+    public bool? porDefecto { get; set; }
+
+    public virtual ICollection<Usuarios> Usuarios { get; set; } = new List<Usuarios>();
+
+    public virtual ICollection<perfilesVistas> perfilesVistas { get; set; } = new List<perfilesVistas>();
 }

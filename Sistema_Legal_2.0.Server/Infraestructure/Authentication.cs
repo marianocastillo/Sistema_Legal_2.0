@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using Sistema_Legal_2._0.Server.Models;
 using Sistema_Legal_2._0.Server.Repositories;
+using Sistema_Legal_2._0.Server.Entities;
 
 
 
@@ -14,7 +15,7 @@ namespace Sistema_Legal_2._0.Server.Infraestructure;
 public class Authentication
 {
     private readonly ActiveDirectoryAuthenticationService _adAuthenticationService;
-    private readonly db_silegContext db_SilegContext;
+    private readonly db_silegContext db_SilegContext; 
     private readonly IConfiguration _configuration;
     public Authentication(ActiveDirectoryAuthenticationService adAuthenticationService, db_silegContext db_Registro, IConfiguration configuration)
     {

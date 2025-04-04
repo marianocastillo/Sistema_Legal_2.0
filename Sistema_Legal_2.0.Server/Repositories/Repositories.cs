@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Sistema_Legal_2._0.Server.Models;
-
+using Sistema_Legal_2._0.Server.Entities;
 namespace Sistema_Legal_2._0.Server.Repositories
 {
     /// <summary>

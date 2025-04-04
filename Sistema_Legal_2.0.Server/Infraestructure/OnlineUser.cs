@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-
+﻿
 namespace Sistema_Legal_2._0.Server.Infraestructure;
 
 public class OnlineUser

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Sistema_Legal_2._0.Server.Infraestructure;
 using Sistema_Legal_2._0.Server.Providers;
 using Microsoft.OpenApi.Models;
+using Sistema_Legal_2._0.Server.Entities;
 //using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 
 System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
@@ -20,7 +21,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAllOrigins",
         policy =>
         {
-            policy.WithOrigins("https://localhost:5173") // Cambia esto si tu frontend tiene otro puerto
+            policy.WithOrigins("https://localhost:5173" , "https://localhost:5174") // Cambia esto si tu frontend tiene otro puerto
                   .AllowAnyHeader()
                   .AllowAnyMethod()
                   .AllowCredentials(); // Si usas autenticación con cookies o tokens

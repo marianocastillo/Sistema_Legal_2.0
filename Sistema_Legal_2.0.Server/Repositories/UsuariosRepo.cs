@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Sistema_Legal_2._0.Server.Models;
-
+using Sistema_Legal_2._0.Server.Entities;
 namespace Sistema_Legal_2._0.Server.Repositories;
 public class UsuariosRepo : Repository<Usuarios, UsuariosModel>
     {
@@ -9,28 +9,34 @@ public class UsuariosRepo : Repository<Usuarios, UsuariosModel>
             dbContext,
             new ObjectsMapper<UsuariosModel, Usuarios>(u => new Usuarios()
             {
-                IdUsuario = u.IdUsuario,
-                Nombres = u.Nombres,
-                Apellidos = u.Apellidos,                
+                idUsuario = u.IdUsuario,
+                NombreUsuario = u.NombreUsuario,
+                nombres = u.Nombres,
+                apellidos = u.Apellidos,                
                 Activo = u.Activo,
-                FechaCreacion = u.FechaCrea,
-                IdPerfil = u.IdPerfil,
+                fechaCreacion = u.FechaCrea,
+                Cedula = u.Cedula,
+                idSupervisor = u.idSupervisor,
+                idPerfil = u.IdPerfil
+              
+      
               
             }),
         (DB, filter) =>
         {
                 return (from u in DB.Set<Usuarios>().Where(filter)
-                        join p in DB.Set<Perfiles>() on u.IdPerfil equals p.IdPerfil
+                        join p in DB.Set<Perfiles>() on u.idPerfil equals p.idPerfil
                         select new UsuariosModel()
                         {
-                            IdUsuario = u.IdUsuario,
-                            NombreUsuario = u.NombreUsuario,
-                            NombrePerfil = p.Nombre ?? "",
-                            Nombres = u.Nombres,
-                            Apellidos = u.Apellidos,                            
-                            FechaCrea = u.FechaCreacion,
+                            IdUsuario = u.idUsuario,
+                            NombreUsuario = u.NombreUsuario,          
+                            Nombres = u.nombres,
+                            Apellidos = u.apellidos,                            
+                            FechaCrea = (DateTime)u.fechaCreacion,
+                            idSupervisor = u.idSupervisor,
+                            Cedula = u.Cedula,
                             Activo = u.Activo,
-                            IdPerfil = (int)u.IdPerfil
+                            IdPerfil = (int)u.idPerfil
                         });
             }
         )
@@ -40,12 +46,12 @@ public class UsuariosRepo : Repository<Usuarios, UsuariosModel>
 
         public UsuariosModel GetByUsername(string nombreUsuario)
         {
-            return this.Get(x => x.Nombres == nombreUsuario).FirstOrDefault();
+            return this.Get(x => x.NombreUsuario == nombreUsuario).FirstOrDefault();
         }
 
         public UsuariosModel Get(int id)
         {
-            var result = base.Get(a => a.IdUsuario == id).FirstOrDefault();
+            var result = base.Get(a => a.idUsuario == id).FirstOrDefault();
 
             if (result != null)
             {

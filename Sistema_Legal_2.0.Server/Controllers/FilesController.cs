@@ -7,175 +7,194 @@ using System.Numerics;
 using Sistema_Legal_2._0.Server.Models;
 using Sistema_Legal_2._0.Server.Repositories;
 using Sistema_Legal_2._0.Server.Infraestructure;
+using Sistema_Legal_2._0.Server.Entities;
+using System.Configuration;
+using Microsoft.Data.SqlClient;
 
-//namespace Sistema_Legal_2._0.Server.Controllers
-//{
-//    [ApiController]
-//    [Route("api/[controller]")]
-//    public class FilesController : ControllerBase
-//    {
-//        private readonly IUserAccessor _userAccessor;
-//        private readonly IConfiguration _configuration;
-//        private readonly IWebHostEnvironment _hostingEnvironment;
-//        private readonly Logger _logger;
-//        private readonly db_silegContext _db_silegContext;
-//        public FilesController(IConfiguration configuration, IUserAccessor userAccessor, IWebHostEnvironment hostingEnvironment, Logger logger, db_silegContext db_silegContext_)
-//        {
-//            _userAccessor = userAccessor;
-//            _configuration = configuration;
-//            _hostingEnvironment = hostingEnvironment;
-//            _logger = logger;
-//            _db_silegContext = db_silegContext_;
-//        }
-//        public class EjecucionGuardada
-//        {
-//            public DateTime FechaEjecucion { get; set; }
-//            public List<EjecucionGasto>? Registros { get; set; }
-//        }
+namespace Sistema_Legal_2._0.Server.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class FilesController : ControllerBase
+    {
+     
+        private readonly string _filesServerPath;
+        private readonly string _cadenaSQL;
+        private  IConfiguration configuration;
+        private readonly IConfiguration _configuration;
+        private readonly Logger _logger;
+        private readonly db_silegContext _db_silegContext;
+        public FilesController(IConfiguration config, db_silegContext db_SilegContext )
+        {
+            _db_silegContext = db_SilegContext;
+            _filesServerPath = config.GetSection("Configuracion").GetSection("FilesServerPath").Value;
+            _cadenaSQL = config.GetConnectionString("Sistema_Legal");
+            _configuration = configuration;
+        }
 
-//        [HttpPost()]
-//        [Authorize]
-//        public OperationResult Post([FromForm] IFormFile file)
-//        {
-//            try
-//            {
-//                if (file != null)
-//                {
-//                    List<EjecucionGasto> listado = new List<EjecucionGasto>();
 
-//                    using (var reader = ExcelReaderFactory.CreateReader(file.OpenReadStream()))
-//                    {
-//                        var result = reader.AsDataSet();
+        //[HttpPost]
+        //[Route("Subir")]
+        //[DisableRequestSizeLimit, RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueCountLimit = int.MaxValue)]
+        //public IActionResult Subir([FromForm] Ruta_archivos request)
+        //{
+        //    string rutaDocumento = Path.Combine(_filesServerPath, request.Archivo.FileName);
 
-//                        foreach (DataTable hoja in result.Tables)
-//                        {
-//                            DataColumnCollection columns = hoja.Columns;
+        //    try
+        //    {
+        //        using (FileStream newfile = System.IO.File.Create(rutaDocumento))
+        //        {
+        //            request.Archivo.CopyTo(newfile);
+        //            newfile.Flush();
+        //        }
+        //        using (var conexion = new SqlConnection(_cadenaSQL))
+        //        {
+        //            conexion.Open();
+        //            var cmd = new SqlCommand("sp_guardar_documento", conexion);
+        //            cmd.Parameters.AddWithValue("nombre", request.Nombre);
+        //            cmd.Parameters.AddWithValue("ruta", rutaDocumento);
 
-//                            DataRowCollection rows = hoja.Rows;
+        //            //cmd.Parameters.AddWithValue("", request.id_usuario);
+        //            cmd.CommandType = CommandType.StoredProcedure;
+        //            cmd.ExecuteNonQuery();
+        //        }
 
-//                            bool isFirstRow = true;
-//                            List<string> ColumnNames = new List<string>();
+        //        return StatusCode(StatusCodes.Status200OK, new { mensaje = "documento guardado" });
+        //    }
+        //    catch (Exception error)
+        //    {
+        //        return StatusCode(StatusCodes.Status200OK, new { mensaje = error.Message });
+        //    }
+        //}
 
-//                            foreach (DataRow row in rows)
-//                            {
-//                                EjecucionGasto ejecucionGasto = new EjecucionGasto();
-//                                for (int i = 0; i < columns.Count; i++)
-//                                {
-//                                    if (isFirstRow)
-//                                    {
-//                                        ColumnNames.Add(row[i].ToString().Trim());
-//                                    }
-//                                    else
-//                                    {
-//                                        PropertyInfo propertyInfo = ejecucionGasto.GetType().GetProperty(ColumnNames[i]);
 
-//                                        if (propertyInfo == null)
-//                                        {
-//                                            return new OperationResult(false, "El archivo no cumple con el formato requerido. Utilizar la plantilla especificada.");
-//                                        }
+        [HttpPost("Subir_Litigio")]
 
-//                                        object parsedValue = Convert.ChangeType(row[i].ToString().Trim(), propertyInfo.PropertyType);
-//                                        propertyInfo.SetValue(ejecucionGasto, parsedValue);
-//                                    }
-//                                }
+        public async Task<IActionResult> CrearLitigio([FromBody] Litigio litigio)
+        {
+            using (SqlConnection connection = new SqlConnection(_cadenaSQL))
+            {
+                using (SqlCommand command = new SqlCommand("sp_CrearLitigio", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@ltg_acto", litigio.ltg_acto);
+                    command.Parameters.AddWithValue("@ltg_Fecha_Acto", litigio.ltg_Fecha_Acto);
+                    command.Parameters.AddWithValue("@id_Tipo_Demanda", litigio.id_Tipo_Demanda);
+                    command.Parameters.AddWithValue("@ltg_Cedula_Demandante", litigio.ltg_Cedula_Demandante);
+                    command.Parameters.AddWithValue("@ltg_Nacionalidad", litigio.ltg_Nacionalidad);
+                    command.Parameters.AddWithValue("@ltg_Demandante", litigio.ltg_Demandante);
+                    command.Parameters.AddWithValue("@ltg_Tipo_Demandante", litigio.ltg_Tipo_Demandante);
+                    command.Parameters.AddWithValue("@ltg_Cedula_Representante", litigio.ltg_Cedula_Representante);
+                    command.Parameters.AddWithValue("@ltg_Nombre_Representante", litigio.ltg_Nombre_Representante);
+                    command.Parameters.AddWithValue("@ltg_Fecha_Audiencia", litigio.ltg_Fecha_Audiencia);
+                    command.Parameters.AddWithValue("@ltg_Doc_Demandante", litigio.ltg_Doc_Demandante);
+                    command.Parameters.AddWithValue("@ltg_Fecha_Actualizacion", litigio.ltg_Fecha_Actualizacion);
+                    command.Parameters.AddWithValue("@id_Tribunal", litigio.id_Tribunal);
+                    command.Parameters.AddWithValue("@id_Sentencia", litigio.id_Sentencia);
+                    command.Parameters.AddWithValue("@id_usuario", litigio.id_usuario);
+                    command.Parameters.AddWithValue("@id_ruta", litigio.id_ruta);
+                    command.Parameters.AddWithValue("@id_Estatus", litigio.id_Estatus);
 
-//                                if (isFirstRow) isFirstRow = false;
-//                                else listado.Add(ejecucionGasto);
-//                            }
-//                        }
-//                    }
+                    await connection.OpenAsync();
+                    await command.ExecuteNonQueryAsync();
+                }
+            }
+            return CreatedAtAction(nameof(CrearLitigio), litigio);
+        }
 
-//                    return new OperationResult(true, file.FileName, listado);
-//                }
 
-//                return new OperationResult(false, "Debe seleccionar una archivo válido");
-//            }
-//            catch (Exception ex)
-//            {
-//                _logger.LogError(ex);
-//                return new OperationResult(false, "Error al extraer archivo. Utilizar la plantilla especificada.");
-//            }
-//        }
 
-        
-    
-//        //[Route("api/[controller]")]
-//        //[ApiController]
-//        //public class ArchivosController : ControllerBase
-//        //{
-//        //    [HttpGet("DescargarPlantilla")]
-//        //    public IActionResult DescargarPlantilla()
-//        //    {                
-//        //        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Plantilla", "Plantilla Ejecucion del gasto.XLSX");
 
-//        //        if (!System.IO.File.Exists(filePath))
-//        //        {
-//        //            return NotFound();
-//        //        }
 
-//        //        var bytes = System.IO.File.ReadAllBytes(filePath);
-              
-//        //        return File(bytes, "application/vnd.ms-excel", "Plantilla Ejecucion del gasto.XLSX");
-//        //    }
-//        //}
-    
 
-//    [HttpPost("Guardar", Name = "Guardar")]
-//        [Authorize]
-//        public OperationResult Guardar(EjecucionGuardada ejecucion)
-//        {
-//            using (var trx = _db_silegContext.Database.BeginTransaction())
-//            {
-//                try
-//                {
-//                    if (ejecucion.FechaEjecucion == null)
-//                    {
-//                        return new OperationResult(false, "Debe especificar la fecha de ejecución.");
-//                    }
 
-//                    if (ejecucion.Registros == null || ejecucion.Registros.Count == 0)
-//                    {
-//                        return new OperationResult(false, "No se han encontrado registros para guardar.");
-//                    }
+        [HttpGet("ObtenerPorNombre")]
+        public IActionResult ObtenerDocumentosPorDescripcion(string nombre)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_cadenaSQL))
+                {
+                    connection.Open();
+                    using (SqlCommand cmd = new SqlCommand("sp_obtener_documentos_por_nombre", connection))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@nombre", nombre);
 
-//                    var ExisteCarga = _db_silegContext.Set<Cargas>().Where(x => x.FechaEjecucionGasto == DateOnly.FromDateTime(ejecucion.FechaEjecucion)).Any();
 
-//                    if (ExisteCarga)
-//                    {
-//                        return new OperationResult(false, "Ya existe una carga para la fecha especificada.");
-//                    }
+                        SqlDataReader reader = cmd.ExecuteReader();
+                        List<object> documentos = new List<object>();
 
-//                    _db_silegContext.Set<Cargas>().Add(new Cargas()
-//                    {
-//                        FechaCarga = DateTime.Now,
-//                        idUsuario = _userAccessor.idUsuario,
-//                        FechaEjecucionGasto = DateOnly.FromDateTime(ejecucion.FechaEjecucion)
-//                    });
+                        while (reader.Read())
+                        {
+                            documentos.Add(new
+                            {
+                                Nombre = reader["nombre"].ToString(),
+                                Ruta = reader["Ruta"].ToString()
+                            });
+                        }
 
-//                    _db_silegContext.SaveChanges();
+                        return Ok(documentos);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { mensaje = ex.Message });
+            }
+        }
 
-//                    int idCarga = _db_silegContext.Set<Cargas>().OrderByDescending(x => x.idCarga).FirstOrDefault().idCarga;
 
-//                    foreach(EjecucionGasto registro in ejecucion.Registros)
-//                    {
-//                        registro.idCarga = idCarga;
-//                        _db_silegContext.Set<EjecucionGasto>().Add(registro);
-//                    }
 
-//                    _db_silegContext.SaveChanges();
 
-//                    trx.Commit();
+        [HttpGet("archivos/{nombreArchivo}")]
+        public IActionResult ObtenerArchivo(string nombreArchivo)
+        {
+            try
+            {
+                string rutaCarpeta = @"C:\ProgramasVisual\Archivos\"; // Ruta donde guardas los archivos
+                string rutaCompleta = Path.Combine(rutaCarpeta, nombreArchivo);
 
-//                    return new OperationResult(true, "Se ha guardado exitosamente la ejecución.");
-//                }
-//                catch (Exception ex)
-//                {
-//                    trx.Rollback();
-//                    _logger.LogError(ex);
-//                    return new OperationResult(false, "Error al guardar ejecución.");
-//                }
-//            }
+                if (!System.IO.File.Exists(rutaCompleta))
+                {
+                    return NotFound(new { mensaje = "Archivo no encontrado" });
+                }
 
-//        }
-//    }
-//}
+                string tipoMime = "application/octet-stream"; // Tipo MIME por defecto
+                string extension = Path.GetExtension(rutaCompleta).ToLower();
+
+                // Asignar tipos MIME comunes
+                var tiposMime = new Dictionary<string, string>
+        {
+            { ".pdf", "application/pdf" },
+            { ".docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
+            { ".jpg", "image/jpeg" },
+            { ".png", "image/png" }
+        };
+
+                if (tiposMime.ContainsKey(extension))
+                {
+                    tipoMime = tiposMime[extension];
+                }
+
+                var archivoBytes = System.IO.File.ReadAllBytes(rutaCompleta);
+                return File(archivoBytes, tipoMime);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { mensaje = ex.Message });
+            }
+        }
+
+
+
+
+
+
+
+    }
+
+
+
+}
+

@@ -14,7 +14,8 @@ public class UsuariosModel
     [Unicode(false)]
     public string NombreUsuario { get; set; }
     public int IdPerfil { get; set; }
-    public string? NombrePerfil { get; set; }
+    public string Cedula { get; set; }
+    public int? idSupervisor { get; set; }
 
     //[Required(ErrorMessage = "Se debe especificar la cédula")]
     //[StringLength(13, ErrorMessage = "No puede exceder a los 13 carácteres")]

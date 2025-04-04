@@ -3,13 +3,17 @@
 using System;
 using System.Collections.Generic;
 
-namespace Sistema_Legal_2._0.Server.Models;
+namespace Sistema_Legal_2._0.Server.Entities;
 
-public partial class PerfilesVistas
+public partial class perfilesVistas
 {
-    public int IdPerfilVista { get; set; }
+    public int idPerfilVista { get; set; }
 
-    public int IdPerfil { get; set; }
+    public int idPerfil { get; set; }
 
-    public int IdVista { get; set; }
+    public int idVista { get; set; }
+
+    public virtual Perfiles idPerfilNavigation { get; set; }
+
+    public virtual vistas idVistaNavigation { get; set; }
 }

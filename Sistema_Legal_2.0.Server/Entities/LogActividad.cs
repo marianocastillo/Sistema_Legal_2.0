@@ -3,15 +3,15 @@
 using System;
 using System.Collections.Generic;
 
-namespace Sistema_Legal_2._0.Server.Models;
+namespace Sistema_Legal_2._0.Server.Entities;
 
 public partial class LogActividad
 {
-    public int IdLog { get; set; }
+    public int idLog { get; set; }
 
-    public string Url { get; set; }
+    public string URL { get; set; }
 
-    public int IdUsuario { get; set; }
+    public int idUsuario { get; set; }
 
     public string Metodo { get; set; }
 

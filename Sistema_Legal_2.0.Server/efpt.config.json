@@ -6,7 +6,7 @@
    "IncludeConnectionString": false,
    "ModelNamespace": null,
    "OutputContextPath": null,
-   "OutputPath": "Models",
+   "OutputPath": "Entities",
    "PreserveCasingWithRegex": true,
    "ProjectRootNamespace": "Sistema_Legal_2._0.Server",
    "Schemas": null,
@@ -39,11 +39,15 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[PerfilesVista]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[perfilesVistas]",
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[t_ruta_archivos]",
+         "Name": "[dbo].[Ruta_archivos]",
          "ObjectType": 0
       },
       {
@@ -52,6 +56,10 @@
       },
       {
          "Name": "[dbo].[Tipo_Sentencia]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Tribunales]",
          "ObjectType": 0
       },
       {
@@ -67,7 +75,7 @@
    "UncountableWords": null,
    "UseAsyncStoredProcedureCalls": true,
    "UseBoolPropertiesWithoutDefaultSql": false,
-   "UseDatabaseNames": false,
+   "UseDatabaseNames": true,
    "UseDatabaseNamesForRoutines": true,
    "UseDateOnlyTimeOnly": true,
    "UseDbContextSplitting": false,

@@ -15,6 +15,6 @@ public class VistasModel
 
     public int? idModulo { get; set; }
     public bool Permiso { get; set; }
-   
+   public int idPerfil {get; set; }
 
 }

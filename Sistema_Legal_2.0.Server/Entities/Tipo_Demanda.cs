@@ -5,15 +5,13 @@ using System.Collections.Generic;
 
 namespace Sistema_Legal_2._0.Server.Entities;
 
-public partial class Modulos
+public partial class Tipo_Demanda
 {
-    public int idModulo { get; set; }
+    public int id_demanda { get; set; }
 
     public string Nombre { get; set; }
 
-    public string Descripcion { get; set; }
+    public int id_Estatus { get; set; }
 
-    public string Icono { get; set; }
-
-    public int? Orden { get; set; }
+    public virtual ICollection<Litigios> Litigios { get; set; } = new List<Litigios>();
 }

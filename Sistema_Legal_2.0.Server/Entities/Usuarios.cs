@@ -3,19 +3,19 @@
 using System;
 using System.Collections.Generic;
 
-namespace Sistema_Legal_2._0.Server.Models;
+namespace Sistema_Legal_2._0.Server.Entities;
 
 public partial class Usuarios
 {
-    public int IdUsuario { get; set; }
+    public int idUsuario { get; set; }
 
-    public string Nombres { get; set; }
+    public string nombres { get; set; }
 
-    public string Apellidos { get; set; }
+    public string apellidos { get; set; }
 
-    public DateTime FechaCreacion { get; set; }
+    public DateTime? fechaCreacion { get; set; }
 
-    public int IdPerfil { get; set; }
+    public int idPerfil { get; set; }
 
     public bool Activo { get; set; }
 
@@ -23,5 +23,9 @@ public partial class Usuarios
 
     public string NombreUsuario { get; set; }
 
-    public int? IdSupervisor { get; set; }
+    public int? idSupervisor { get; set; }
+
+    public virtual ICollection<Litigios> Litigios { get; set; } = new List<Litigios>();
+
+    public virtual Perfiles idPerfilNavigation { get; set; }
 }

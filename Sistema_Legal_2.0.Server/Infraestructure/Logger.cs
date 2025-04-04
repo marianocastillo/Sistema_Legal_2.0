@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Sistema_Legal_2._0.Server.Models;
 
-
+using Sistema_Legal_2._0.Server.Entities;
 
 
 namespace Sistema_Legal_2._0.Server.Infraestructure
@@ -31,8 +31,8 @@ namespace Sistema_Legal_2._0.Server.Infraestructure
         {
             LogActividad log = new()
             {
-                Url = _httpContextAccessor.HttpContext.Request.Path,
-                IdUsuario = OnlineUserID,
+                URL = _httpContextAccessor.HttpContext.Request.Path,
+                idUsuario = OnlineUserID,
                 Metodo = _httpContextAccessor.HttpContext.Request.Method,
                 Fecha = DateTime.Now,
                 Data = data == null ? String.Empty : JsonConvert.SerializeObject(data)
@@ -45,7 +45,7 @@ namespace Sistema_Legal_2._0.Server.Infraestructure
         {
             LogError log = new()
             {
-                IdUsuario = OnlineUserID,
+                idUsuario = OnlineUserID,
                 Fecha = DateTime.Now,
                 Mensaje = ex.Message,
                 StackTrace = ex.StackTrace,
