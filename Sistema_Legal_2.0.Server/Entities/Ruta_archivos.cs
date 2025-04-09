@@ -10,12 +10,12 @@ public partial class Ruta_archivos
     public int id_Ruta { get; set; }
 
     public string Ruta { get; set; }
+       
 
     public string Nombre { get; set; }
 
     public int id_usuario { get; set; }
 
-    //public IFormFile Archivo { get; set; }
-
-    public virtual ICollection<Litigios> Litigios { get; set; } = new List<Litigios>();
+ 
+   public virtual ICollection<Litigios> Litigios { get; set; } = new List<Litigios>();
 }

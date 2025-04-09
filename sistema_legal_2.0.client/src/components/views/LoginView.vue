@@ -93,7 +93,7 @@ export default {
 
         try {
           const response = await api.post('https://localhost:7177/api/Auth', this.credentials);
-          console.log(response); // Log de la respuesta
+          console.log(response); // Log de la respuesta   
 
           if (response.data.success) {
             const token = response.data.token;
