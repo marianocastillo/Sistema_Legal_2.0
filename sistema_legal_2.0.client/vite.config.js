@@ -77,7 +77,7 @@ export default defineConfig({
             output: {
                 globals: {
                   jquery: 'window.jQuery',
-                  '$': 'window.jQuery' 
+                  '$': 'window.jQuery'  
                 }
             }
         },

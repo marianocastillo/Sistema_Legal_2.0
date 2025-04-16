@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using Sistema_Legal_2._0.Server.Entities;
 using Humanizer;
+using Sistema_Legal_2._0.Server.Controller;
 
 namespace Sistema_Legal_2._0.Server.Repositories
 {
@@ -39,20 +40,21 @@ namespace Sistema_Legal_2._0.Server.Repositories
         public IEnumerable<VistasModel> GetPermisos(int? idPerfil)
         {
             int id = idPerfil ?? 0;
-            var permisosSet = dbContext.Set<perfilesVistas>().Where(p => p.idPerfil == id);
 
+            var permisos = from p in dbContext.Set<perfilesVistas>()
+                           join v in dbContext.Set<vistas>() on p.idVista equals v.idVista
+                           where p.idPerfil == id
+                           select new VistasModel()
+                           {
+                               idVista = v.idVista,
+                               Nombre = v.nombre,
+                               Descripcion = v.descripcion,
+                               Url = v.url,
+                               Permiso = true,
+                               idModulo = v.idModulo
+                           };
 
-            return from v in dbContext.Set<vistas>()
-                   select new VistasModel()
-                   {
-                       idVista = v.idVista,
-                       Nombre = v.nombre,
-                       Descripcion = v.descripcion,
-                       Url = v.url,
-                       Permiso = permisosSet.Any(a => a.idVista == v.idVista),
-                       idModulo = v.idModulo,
-
-                   };
+            return permisos.ToList();
         }
 
         public IEnumerable<UsuariosModel> GetUsuarios(int idPerfil)

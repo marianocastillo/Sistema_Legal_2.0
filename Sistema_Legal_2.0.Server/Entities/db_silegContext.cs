@@ -67,9 +67,6 @@ public partial class db_silegContext : DbContext
                 .IsRequired()
                 .HasMaxLength(50)
                 .IsUnicode(false);
-            entity.Property(e => e.ltg_Doc_Demandante)
-                .HasMaxLength(11)
-                .IsUnicode(false);
             entity.Property(e => e.ltg_Fecha_Acto).HasColumnType("datetime");
             entity.Property(e => e.ltg_Fecha_Actualizacion).HasColumnType("datetime");
             entity.Property(e => e.ltg_Fecha_Audiencia).HasColumnType("datetime");

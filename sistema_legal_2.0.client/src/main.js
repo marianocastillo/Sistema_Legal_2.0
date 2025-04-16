@@ -17,6 +17,11 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
+
+
+import Column from 'primevue/column';
+import ColumnGroup from 'primevue/columngroup';   // optional
+import Row from 'primevue/row';
  // Importamos el router correctamente
 
 import './assets/main.css';
@@ -25,11 +30,11 @@ import './assets/main.css';
 //import 'notivue/animations.css'
 import 'primeflex/primeflex.css'
 import 'primeicons/primeicons.css'
+import Tooltip from 'primevue/tooltip';
 
 
 
-
-library.add(faEye, faUser,  faLock, faEyeSlash);
+library.add(faEye, faUser,  faLock, faEyeSlash  );
 
 const app = createApp(App);
 const notivue = createNotivue({
@@ -59,7 +64,12 @@ theme: {
 } });
 
 
+app.directive('tooltip', Tooltip);
+
 app.use(router);
 app.use(store);
 app.component('font-awesome-icon', FontAwesomeIcon);
 app.mount('#app');
+app.component('PrimeColumn', Column)
+app.component('PrimeRow', Row)
+app.component('ColumnGroup', ColumnGroup)

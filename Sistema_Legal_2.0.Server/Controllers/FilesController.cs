@@ -288,7 +288,6 @@ namespace Sistema_Legal_2._0.Server.Controllers
                     command.Parameters.AddWithValue("@ltg_Cedula_Representante", datos.ltg_Cedula_Representante);
                     command.Parameters.AddWithValue("@ltg_Nombre_Representante", datos.ltg_Nombre_Representante);
                     command.Parameters.AddWithValue("@ltg_Fecha_Audiencia", datos.ltg_Fecha_Audiencia);
-                    command.Parameters.AddWithValue("@ltg_Doc_Demandante", datos.ltg_Doc_Demandante);
                     command.Parameters.AddWithValue("@ltg_Fecha_Actualizacion", datos.ltg_Fecha_Actualizacion);
                     command.Parameters.AddWithValue("@id_Tribunal", datos.id_Tribunal);
                     command.Parameters.AddWithValue("@id_Sentencia", datos.id_Sentencia);
@@ -296,7 +295,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                     command.Parameters.AddWithValue("@id_ruta", idRutaArchivo);
                     command.Parameters.AddWithValue("@id_Estatus", datos.id_Estatus);
 
-                    await command.ExecuteNonQueryAsync();
+                    await command.ExecuteNonQueryAsync(); 
                 }
             }
 

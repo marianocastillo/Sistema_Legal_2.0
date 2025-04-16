@@ -29,9 +29,9 @@ export default createStore({
   },
   actions: {
     fetchUser({ commit }) {
-      api.get("/api/Account")
+      api.get("/api/Auth")
         .then(response => {
-          commit('setUser', response.data.usuario);         
+          commit('setUser', response.data.usuario);
         })
         .catch(error => {
           push.error(error);
