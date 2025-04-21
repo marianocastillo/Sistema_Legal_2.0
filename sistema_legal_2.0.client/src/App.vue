@@ -1,31 +1,14 @@
 <template>
-  <div>
-    <LoginView v-if="!isAuthenticated" @loginSuccess="handleLoginSuccess" />
-    <div v-else>
-      <!-- <Drawer  /> -->
-      <router-view />
-    </div>
-  </div>
+  <router-view />
 
+  <!-- Notivue global -->
+  <Notivue v-slot="item">
+    <NotivueSwipe :item="item">
+      <Notifications :item="item" />
+    </NotivueSwipe>
+  </Notivue>
 </template>
 
-<script>
-
-// import Drawer  from './layouts/Drawer.vue';
-
-export default {
-  name: 'App',
-  // components: {  Drawer  },
-  data() {
-    return {
-      isAuthenticated: !!localStorage.getItem("token"),
-    };
-  },
-  methods: {
-    handleLoginSuccess() {
-      this.isAuthenticated = true;
-      this.$router.push('/drawer/home'); // Redirige correctamente
-    }
-  }
-};
+<script setup>
+import { Notivue, NotivueSwipe, Notifications } from 'notivue'
 </script>

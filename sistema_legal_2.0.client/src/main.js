@@ -50,13 +50,16 @@ dom.watch()
 
 
 app.use(notivue);
-app.use(PrimeVue, { ripple: true, locale: {
-  apply: 'Aplicar',
-  clear: 'Limpiar',
-},
-theme: {
-  preset: Aura
-} });
+app.use(PrimeVue, {
+  ripple: true,
+  locale: {
+    apply: 'Aplicar',
+    clear: 'Limpiar'
+  },
+  theme: {
+    preset: Aura
+  }
+});
 
 
 app.use(router);
