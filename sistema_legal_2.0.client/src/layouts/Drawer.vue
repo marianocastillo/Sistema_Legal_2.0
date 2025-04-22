@@ -5,7 +5,7 @@
       <div class="sidebar-top">
         <div class="sidebar-header">
           <div class="sidebar-brand">
-            <img src="../assets/LogoBlanco.png" alt="Logo"  class="img-fluid" style="max-width: 50px;"/>
+            <img src="../assets/LogoBlanco.png" alt="Logo" class="img-fluid" style="max-width: 50px;" />
             <h4 class="sidebar-title">Sistema de Litigio</h4>
           </div>
         </div>
@@ -27,18 +27,15 @@
             </li>
 
 
-            <!-- <li>
-              <router-link to="/drawer/lista" class="sidebar-link" exact-active-class="active">
-                <i class="pi pi-list" />
-                <span>Registros</span>
-              </router-link>
-            </li> -->
+
+
+
 
             <li>
-            <router-link to="/drawer/modificarregistro" class="sidebar-link" exact-active-class="active">
-              <i class="pi pi-pencil" />
-              <span>Modificar</span>
-            </router-link>
+              <router-link to="/drawer/modificarregistro" class="sidebar-link" exact-active-class="active">
+                <i class="pi pi-pencil" />
+                <span>Modificar</span>
+              </router-link>
             </li>
 
             <li ref="submenuRef">
@@ -51,6 +48,18 @@
                 <li>
                   <Button label="Cerrar sesión" icon="pi pi-sign-out" class="p-button-text p-button-sm w-full pl-4"
                     @click="cerrarSesion" />
+                </li>
+              </ul>
+
+              <ul v-if="mostrarSubmenu" class="submenu">
+                <li>
+                <router-link to="/drawer/listadodeusuario"> <Button label="Lista de Usuario" icon="pi pi-user" class="p-button-text p-button-sm w-full pl-4" /></router-link>
+                </li>
+              </ul>
+
+              <ul v-if="mostrarSubmenu" class="submenu">
+                <li>
+                <router-link to="/drawer/formulario"> <Button label="Añadir Usuario" icon="pi pi-user" class="p-button-text p-button-sm w-full pl-4" /></router-link>
                 </li>
               </ul>
             </li>
@@ -208,7 +217,7 @@ body {
   transition: background-color 0.2s ease;
 }
 
-.sidebar-link:hover{
+.sidebar-link:hover {
   background-color: #c00606;
   font-weight: 600;
 }

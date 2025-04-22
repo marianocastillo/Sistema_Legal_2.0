@@ -1,121 +1,147 @@
 <template>
-    <DataTable v-model:filters="filters" tableStyle="" size="small" sortField="fechaCrea" :sortOrder="-1" :value="usuarios"
-        removableSort paginator :rows="10" :rowsPerPageOptions="[10, 20, 50]">
-        <template #header>
-            <div class="flex justify-content-between align-items-center my-2 mx-2">
-                <div class="text-xl font-bold" style="color: #003876;">Listado de usuarios</div>
-                <div class="flex gap-2">
-                    <Button icon="fas fa-plus" label="Nuevo" @click="$router.push({ name: 'Nuevo Usuario'})" />
-                    <IconField iconPosition="left">
-                        <InputIcon>
-                            <i class="pi pi-search" />
-                        </InputIcon>
-                        <InputText v-model="filters['global'].value" variant="filled" placeholder="Buscar..." />
-                    </IconField>
-                    <Button  icon="fa-solid fa-home" label="Inicio" @click="$router.push({name: 'Inicio'})" severity="secondary" />
-                </div>
-            </div>
-        </template>
-        <template #empty> No se han encontrado usuarios. </template>     
-        <Column sortable style="padding: 0px 20px 0px 20px; color: #003876; width: 15%;" body-style="color: dark-gray" field="nombreUsuario" header="Nombre de Usuario"></Column>
-        <Column sortable style="color: #003876; width: 20%;" body-style="color: dark-gray" field="nombres" header="Nombres"></Column>
-        <Column sortable style="color: #003876; width: 20%;" body-style="color: dark-gray" field="apellidos" header="Apellidos"></Column>
-        <Column sortable style="color: #003876;" body-style="color: dark-gray" field="nombrePerfil" header="Perfil"></Column>
-        <Column sortable style="color: #003876;" body-style="color: dark-gray" field="fechaCrea" header="Fecha de Creación">
-            <template #body="{ data }">
-                {{ new Date(data.fechaCrea).toLocaleDateString() }}
-            </template>
-        </Column>
-        <Column style="color: #003876;" sortable field="activo" header="Estado">
-            <template #body="{ data }">
-                <Tag v-if="data.activo" severity="success" value="Activo"></Tag>
-                <Tag v-else severity="warn" value="Inactivo"></Tag>
-            </template>
-        </Column>
-        <Column header="Acciones">
-            <template #body="{ data }">
-                <Button style="color: #003876;"  icon="fas fa-edit" severity="secondary" text
-                    @click="$router.push({ name: 'Editar Usuario', params: { idUsuario: data.idUsuario }})" />
-                    <Button  icon="fas fa-trash-alt" severity="danger" text
-                    @click="ConfirmDelete($event, data.idUsuario)" />
-            </template>
-        </Column>
-        <ConfirmPopup></ConfirmPopup>
-    </DataTable>
+  <div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="text-primary">Listado de usuarios</h4>
+      <div class="d-flex gap-2">
+        <router-link to="/drawer/formulario" class="btn btn-primary">
+          <i class="fas fa-plus me-2"></i> Nuevo
+        </router-link>
+
+        <input type="text" class="form-control-sm bg-white text-dark" placeholder="Buscar..." v-model="search" />
+        <router-link to="/drawer/home"class="btn btn-secondary ">
+          <i class="fa-solid fa-home me-2"></i> Inicio
+        </router-link>
+      </div>
+    </div>
+
+    <table class="table table-bordered table-hover table-sm">
+      <thead class="table-light">
+        <tr>
+          <th @click="sort('nombreUsuario')">Nombre de Usuario</th>
+          <th @click="sort('nombres')">Nombres</th>
+          <th @click="sort('apellidos')">Apellidos</th>
+          <th @click="sort('nombrePerfil')">Perfil</th>
+          <th @click="sort('fechaCrea')">Fecha de Creación</th>
+          <th @click="sort('activo')">Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="usuario in paginatedUsuarios" :key="usuario.idUsuario">
+          <td>{{ usuario.nombreUsuario }}</td>
+          <td>{{ usuario.nombres }}</td>
+          <td>{{ usuario.apellidos }}</td>
+          <td>{{ usuario.nombrePerfil }}</td>
+          <td>{{ new Date(usuario.fechaCrea).toLocaleDateString() }}</td>
+          <td>
+            <span :class="['badge', usuario.activo ? 'bg-success' : 'bg-warning']">
+              {{ usuario.activo ? 'Activo' : 'Inactivo' }}
+            </span>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary me-2"
+              @click="$router.push({ name: 'formulario', params: { idUsuario: usuario.idUsuario } })">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" @click="ConfirmDelete(usuario.idUsuario)">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </td>
+        </tr>
+        <tr v-if="filteredUsuarios.length === 0">
+          <td colspan="7" class="text-center">No se han encontrado usuarios.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Paginación -->
+    <nav>
+      <ul class="pagination justify-content-end">
+        <li class="page-item" :class="{ disabled: page === 1 }">
+          <button class="page-link" @click="page--">Anterior</button>
+        </li>
+        <li class="page-item" v-for="p in totalPages" :key="p" :class="{ active: page === p }">
+          <button class="page-link" @click="page = p">{{ p }}</button>
+        </li>
+        <li class="page-item" :class="{ disabled: page === totalPages }">
+          <button class="page-link" @click="page++">Siguiente</button>
+        </li>
+      </ul>
+    </nav>
+  </div>
 </template>
 
 <script>
 import { push } from 'notivue'
 import api from '@/utilities/api.js'
-import { FilterMatchMode } from '@primevue/core/api';
-import IconField from 'primevue/iconfield';
-import InputIcon from 'primevue/inputicon';
-import ConfirmPopup from 'primevue/confirmpopup';
 
 export default {
-    name: 'UsuariosView',
-    components: { IconField, InputIcon, ConfirmPopup },
-    data() {
-        return {
-            filters: {
-                global: { value: null, matchMode: FilterMatchMode.CONTAINS }
-            },
-            usuarios: [],
-            perfiles: [],
-            dialogVisible: false,
-        }
-    },
-
-    mounted() {
-        this.LoadData();
-    },
-    methods: {
-        async LoadData() {
-            await this.LoadUsuarios();
-            await this.LoadPerfiles();
-        },
-        async LoadUsuarios() 
-        {
-            const response = await api.get('/api/Usuarios');
-            if (response.data) {
-                this.usuarios = response.data;               
-            }
-            else push.warning({ title: "Advertencia", message: response.data.message });
-        },
-        async LoadPerfiles() {
-            const response = await api.get('/api/Perfiles');
-            if (response.data) {
-                this.perfiles = response.data;               
-            }
-            else push.warning({ title: "Advertencia", message: response.data.message });
-        },
-        ConfirmDelete(event, idUsuario) {
-            this.$confirm.require({
-                target: event.currentTarget,
-                message: '¿Estás seguro que deseas proceder?',
-                icon: 'pi pi-exclamation-triangle',
-                rejectClass: 'p-button-secondary border-rounded p-button-outlined p-button-sm mx-2',
-                acceptClass: 'p-button-danger p-button-sm border-rounded',
-                rejectLabel: 'Cancelar',
-                acceptLabel: 'Eliminar',
-                accept: async () => {
-                    const response = await api.delete(`/api/Usuarios/${idUsuario}`);
-                    if (response.data) {
-                        this.LoadUsuarios();
-                        push.success({ title: 'Operación exitosa', message: response.data.message});
-                    }
-                    else push.warning({ title: 'Advertencia', message: response.data.message});
-                }
-            });
-        }
-
+  data() {
+    return {
+      usuarios: [],
+      search: '',
+      sortBy: 'fechaCrea',
+      sortDesc: true,
+      page: 1,
+      perPage: 10,
     }
+  },
+  computed: {
+    filteredUsuarios() {
+      if (!this.search) return this.sortedUsuarios
+      const term = this.search.toLowerCase()
+      return this.sortedUsuarios.filter(u =>
+        Object.values(u).some(val => String(val).toLowerCase().includes(term))
+      )
+    },
+    sortedUsuarios() {
+      return [...this.usuarios].sort((a, b) => {
+        const aVal = a[this.sortBy]
+        const bVal = b[this.sortBy]
+        if (aVal < bVal) return this.sortDesc ? 1 : -1
+        if (aVal > bVal) return this.sortDesc ? -1 : 1
+        return 0
+      })
+    },
+    totalPages() {
+      return Math.ceil(this.filteredUsuarios.length / this.perPage)
+    },
+    paginatedUsuarios() {
+      const start = (this.page - 1) * this.perPage
+      return this.filteredUsuarios.slice(start, start + this.perPage)
+    }
+  },
+  mounted() {
+    this.LoadUsuarios()
+  },
+  methods: {
+    sort(field) {
+      if (this.sortBy === field) {
+        this.sortDesc = !this.sortDesc
+      } else {
+        this.sortBy = field
+        this.sortDesc = false
+      }
+    },
+    async LoadUsuarios() {
+      const response = await api.get('/api/Usuarios')
+      if (response.data) {
+        this.usuarios = response.data
+      } else {
+        push.warning({ title: 'Advertencia', message: response.data.message })
+      }
+    },
+    async ConfirmDelete(idUsuario) {
+      if (confirm('¿Estás seguro que deseas eliminar este usuario?')) {
+        const response = await api.delete(`/api/Usuarios/${idUsuario}`)
+        if (response.data) {
+          this.LoadUsuarios()
+          push.success({ title: 'Éxito', message: response.data.message })
+        } else {
+          push.warning({ title: 'Advertencia', message: response.data.message })
+        }
+      }
+    }
+  }
 }
 </script>
-
-<style>
-.p-input-icon {
-    margin-top: -0.6rem !important;
-}
-
-</style>

@@ -5,7 +5,9 @@ import TodosRegistro from '../components/views/TodosRegistro.vue';
 import RegistroLitigio from '../components/views/RegistrarLitigio.vue';
 import TableView from '../components/views/TableView.vue';
 import ModificarRegistro from '../components/views/ModificarRegistro.vue';
-// import HomeView from '../components/views/HomeView.vue';
+import LitigioModal from '../components/views/LitigioModal.vue';
+import ListadoUsuariosView from '../components/views/Configs/ListadoUsuariosView.vue';
+import FormularioView from '../components/views/Configs/FormularioView.vue';
 
 const routes = [
   { path: '/', name: 'Login', component: LoginView },
@@ -14,11 +16,15 @@ const routes = [
     component: Drawer,
     children: [
       { path: '', redirect: '/drawer/home' }, // 👈 Redirige a 'home' cuando accedes a '/sidebar'
-      // { path: 'home', name: 'HomeView', component: HomeView },
+      { path: 'modal', name: 'LitigioModal', component: LitigioModal },
       { path: 'home', name: 'TodosRegistro', component: TodosRegistro },
       { path: 'registrar', name: 'RegistroLitigio', component: RegistroLitigio },
       { path: 'edit', name: 'TableView', component: TableView },
-      { path: 'modificarregistro', name: 'ModificarRegistro', component: ModificarRegistro }
+      { path: 'modificarregistro', name: 'ModificarRegistro', component: ModificarRegistro },
+      {path: 'listadodeusuario', name: 'ListadoUsuariosVie', component: ListadoUsuariosView},
+      { path: 'formulario', name: 'nuevoUsuario', component: FormularioView},
+      {path: 'formulario/:idUsuario', name: 'formulario', component: FormularioView},
+
     ]
   }
 ];

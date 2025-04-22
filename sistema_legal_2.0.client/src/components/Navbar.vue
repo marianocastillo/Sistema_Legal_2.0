@@ -6,7 +6,7 @@
       <!-- <strong class="">Sistema de Carga de Ejecución del Gasto</strong> -->
     </div>
     <div class="text-xl font-bold" style="color: #003880;">Sistema de Litigio</div>
-      <div v-if="$store.state.user.idUsuario">
+      <!-- <div v-if="$store.state.user.idUsuario">
         <Button @click="profileClick" class="w-full p-link flex align-items-center p-1 px-2 text-color hover:surface-200 border-rounded" text severity="secondary">
           <Avatar :label="$store.state.user.nombres[0] + $store.state.user.apellidos[0]" class="mr-2" shape="circle" style="background-color:#003880; color: #ffffff" />
           <div class="flex flex-column align">
@@ -16,7 +16,7 @@
 
           <Menu ref="menu" :model="items" :popup="true" />
         </Button>
-      </div>
+      </div> -->
   </div>
 </template>
 

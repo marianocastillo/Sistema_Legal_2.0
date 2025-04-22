@@ -9,8 +9,8 @@
   <!-- Resto de la app con layout -->
   <template v-else>
     <div class="min-h-screen surface-ground flex">
-
       <div class="flex flex-column flex-grow-1">
+
 
         <main class="flex-grow-1 p-4">
           <router-view />
@@ -24,7 +24,7 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
 
-// import Navbar from './components/Navbar.vue'
+//import Navbar from './components/Navbar.vue'
 // import Footer from './components/Footer.vue'
 import LoginView from './components/views/LoginView.vue'
 import Toast from 'primevue/toast'

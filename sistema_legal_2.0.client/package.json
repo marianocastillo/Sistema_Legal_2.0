@@ -18,6 +18,7 @@
     "@popperjs/core": "^2.11.8",
     "@primeuix/themes": "^1.0.0",
     "@primevue/themes": "^4.3.2",
+    "@surely-vue/table": "^5.0.2",
     "axios": "^1.8.4",
     "bootstrap": "^5.3.5",
     "datatables.net": "^2.2.2",
