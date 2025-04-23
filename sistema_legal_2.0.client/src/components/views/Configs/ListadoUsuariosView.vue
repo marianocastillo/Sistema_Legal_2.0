@@ -1,14 +1,14 @@
 <template>
   <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h4 class="text-primary">Listado de usuarios</h4>
+      <h4 class="text-dark">Listado de usuarios</h4>
       <div class="d-flex gap-2">
-        <router-link to="/drawer/formulario" class="btn btn-primary">
+        <router-link to="/drawer/formulario" class="btn text-white" style="background-color: #003870;">
           <i class="fas fa-plus me-2"></i> Nuevo
         </router-link>
 
         <input type="text" class="form-control-sm bg-white text-dark" placeholder="Buscar..." v-model="search" />
-        <router-link to="/drawer/home"class="btn btn-secondary ">
+        <router-link to="/drawer/home" class="btn text-white" style="background-color: #003870;">
           <i class="fa-solid fa-home me-2"></i> Inicio
         </router-link>
       </div>
@@ -39,12 +39,12 @@
             </span>
           </td>
           <td>
-            <button class="btn btn-sm btn-outline-primary me-2"
+            <button class="btn btn-sm  me-2" style="background-color: #003870;"
               @click="$router.push({ name: 'formulario', params: { idUsuario: usuario.idUsuario } })">
-              <i class="fas fa-edit"></i>
+              <i class="fas fa-edit" style="color: white;"></i>
             </button>
-            <button class="btn btn-sm btn-outline-danger" @click="ConfirmDelete(usuario.idUsuario)">
-              <i class="fas fa-trash-alt"></i>
+            <button class="btn btn-sm " style="background-color: #003870;" @click="ConfirmDelete(usuario.idUsuario)">
+              <i class="fas fa-trash-alt" style="color: white;"></i>
             </button>
           </td>
         </tr>

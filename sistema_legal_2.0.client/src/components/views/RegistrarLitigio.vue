@@ -99,7 +99,7 @@
           </div>
         </div>
         <div class="text-center mt-4 btn-align-items-center">
-        <button type="submit" class="p-button custom-blue">
+        <button type="submit" class="btn p-button custom-blue ">
           <i class="bi bi-check-circle"></i> Registrar
         </button>
       </div>

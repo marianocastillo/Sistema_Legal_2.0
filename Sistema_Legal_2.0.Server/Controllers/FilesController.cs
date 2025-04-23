@@ -4,6 +4,7 @@ using ExcelDataReader;
 using System.Data;
 using System.Reflection;
 using System.Numerics;
+using Dapper;
 using Sistema_Legal_2._0.Server.Models;
 using Sistema_Legal_2._0.Server.Repositories;
 using Sistema_Legal_2._0.Server.Infraestructure;
@@ -29,7 +30,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
             _db_silegContext = db_SilegContext;
             _filesServerPath = config.GetSection("Configuracion").GetSection("FilesServerPath").Value;
             _cadenaSQL = config.GetConnectionString("Sistema_Legal");
-            _configuration = configuration;
+            _configuration = config;
         }
 
 
@@ -151,83 +152,83 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
 
 
-        [HttpGet("ObtenerPorNombre")]
-        public IActionResult ObtenerDocumentosPorDescripcion(string nombre)
-        {
-            try
-            {
-                using (SqlConnection connection = new SqlConnection(_cadenaSQL))
-                {
-                    connection.Open();
-                    using (SqlCommand cmd = new SqlCommand("sp_obtener_documentos_por_nombre", connection))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@nombre", nombre);
+        //[HttpGet("ObtenerPorNombre")]
+        //public IActionResult ObtenerDocumentosPorDescripcion(string nombre)
+        //{
+        //    try
+        //    {
+        //        using (SqlConnection connection = new SqlConnection(_cadenaSQL))
+        //        {
+        //            connection.Open();
+        //            using (SqlCommand cmd = new SqlCommand("sp_obtener_documentos_por_nombre", connection))
+        //            {
+        //                cmd.CommandType = CommandType.StoredProcedure;
+        //                cmd.Parameters.AddWithValue("@nombre", nombre);
 
 
-                        SqlDataReader reader = cmd.ExecuteReader();
-                        List<object> documentos = new List<object>();
+        //                SqlDataReader reader = cmd.ExecuteReader();
+        //                List<object> documentos = new List<object>();
 
-                        while (reader.Read())
-                        {
-                            documentos.Add(new
-                            {
-                                Nombre = reader["nombre"].ToString(),
-                                Ruta = reader["Ruta"].ToString()
-                            });
-                        }
+        //                while (reader.Read())
+        //                {
+        //                    documentos.Add(new
+        //                    {
+        //                        Nombre = reader["nombre"].ToString(),
+        //                        Ruta = reader["Ruta"].ToString()
+        //                    });
+        //                }
 
-                        return Ok(documentos);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { mensaje = ex.Message });
-            }
-        }
-
-
+        //                return Ok(documentos);
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { mensaje = ex.Message });
+        //    }
+        //}
 
 
-        [HttpGet("archivos/{nombreArchivo}")]
-        public IActionResult ObtenerArchivo(string nombreArchivo)
-        {
-            try
-            {
-                string rutaCarpeta = @"C:\Users\mariancastillo\Desktop\SistemaLitigio";  // Ruta donde guardas los archivos
-                string rutaCompleta = Path.Combine(rutaCarpeta, nombreArchivo);
 
-                if (!System.IO.File.Exists(rutaCompleta))
-                {
-                    return NotFound(new { mensaje = "Archivo no encontrado" });
-                }
 
-                string tipoMime = "application/octet-stream"; // Tipo MIME por defecto
-                string extension = Path.GetExtension(rutaCompleta).ToLower();
+        //[HttpGet("archivos/{nombreArchivo}")]
+        //public IActionResult ObtenerArchivo(string nombreArchivo)
+        //{
+        //    try
+        //    {
+        //        string rutaCarpeta = @"C:\Users\mariancastillo\Desktop\SistemaLitigio";  // Ruta donde guardas los archivos
+        //        string rutaCompleta = Path.Combine(rutaCarpeta, nombreArchivo);
 
-                // Asignar tipos MIME comunes
-                var tiposMime = new Dictionary<string, string>
-        {
-            { ".pdf", "application/pdf" },
-            { ".docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
-            { ".jpg", "image/jpeg" },
-            { ".png", "image/png" }
-        };
+        //        if (!System.IO.File.Exists(rutaCompleta))
+        //        {
+        //            return NotFound(new { mensaje = "Archivo no encontrado" });
+        //        }
 
-                if (tiposMime.ContainsKey(extension))
-                {
-                    tipoMime = tiposMime[extension];
-                }
+        //        string tipoMime = "application/octet-stream"; // Tipo MIME por defecto
+        //        string extension = Path.GetExtension(rutaCompleta).ToLower();
 
-                var archivoBytes = System.IO.File.ReadAllBytes(rutaCompleta);
-                return File(archivoBytes, tipoMime);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { mensaje = ex.Message });
-            }
-        }
+        //        // Asignar tipos MIME comunes
+        //        var tiposMime = new Dictionary<string, string>
+        //{
+        //    { ".pdf", "application/pdf" },
+        //    { ".docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
+        //    { ".jpg", "image/jpeg" },
+        //    { ".png", "image/png" }
+        //};
+
+        //        if (tiposMime.ContainsKey(extension))
+        //        {
+        //            tipoMime = tiposMime[extension];
+        //        }
+
+        //        var archivoBytes = System.IO.File.ReadAllBytes(rutaCompleta);
+        //        return File(archivoBytes, tipoMime);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { mensaje = ex.Message });
+        //    }
+        //}
 
         [HttpPost("Subir_Litigio_Con_Archivo")]
         [DisableRequestSizeLimit, RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueCountLimit = int.MaxValue)]
@@ -295,7 +296,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                     command.Parameters.AddWithValue("@id_ruta", idRutaArchivo);
                     command.Parameters.AddWithValue("@id_Estatus", datos.id_Estatus);
 
-                    await command.ExecuteNonQueryAsync(); 
+                    await command.ExecuteNonQueryAsync();
                 }
             }
 
@@ -356,41 +357,80 @@ namespace Sistema_Legal_2._0.Server.Controllers
             }
         }
 
-        [HttpGet("ObtenerArchivosPorActo")]
-        public IActionResult ObtenerArchivosPorActo([FromQuery] string nombreActo)
+        //[HttpGet("ObtenerArchivosPorActo")]
+        //public IActionResult ObtenerArchivosPorActo([FromQuery] string nombreActo)
+        //{
+        //    try
+        //    {
+        //        if (string.IsNullOrEmpty(nombreActo))
+        //            return BadRequest("Debe proporcionar el nombre del acto.");
+
+        //        string rutaBase = @"C:\Users\mariancastillo\Desktop\SistemaLitigio";
+        //        string rutaActo = Path.Combine(rutaBase, nombreActo);
+
+        //        if (!Directory.Exists(rutaActo))
+        //            return NotFound("No existe ninguna carpeta para ese acto.");
+
+        //        // Obtener todos los archivos incluyendo los de las subcarpetas
+        //        var archivos = Directory.GetFiles(rutaActo, "*.*", SearchOption.AllDirectories)
+        //                                .Select(path => new
+        //                                {
+        //                                    NombreArchivo = Path.GetFileName(path),
+        //                                    RutaRelativa = Path.GetRelativePath(rutaBase, path),
+        //                                    RutaCompleta = path
+        //                                })
+        //                                .ToList();
+
+        //        return Ok(archivos);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, $"Error al obtener: {{ex.Message}}");
+        //            }
+
+        //}
+        /// <summary>
+        /// Obtiene los litigios con información detallada desde el procedimiento almacenado.
+        /// </summary>
+        [HttpGet("detallados")]
+        public async Task<ActionResult<IEnumerable<LitigioDetallado>>> ObtenerLitigiosDetallados()
         {
-            try
-            {
-                if (string.IsNullOrEmpty(nombreActo))
-                    return BadRequest("Debe proporcionar el nombre del acto.");
+            using var connection = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal"));
 
-                string rutaBase = @"C:\Users\mariancastillo\Desktop\SistemaLitigio";
-                string rutaActo = Path.Combine(rutaBase, nombreActo);
+            var resultado = await connection.QueryAsync<LitigioDetallado>(
+                "sp_ObtenerLitigiosDetallados",
+                commandType: CommandType.StoredProcedure
+            );
 
-                if (!Directory.Exists(rutaActo))
-                    return NotFound("No existe ninguna carpeta para ese acto.");
-
-                // Obtener todos los archivos incluyendo los de las subcarpetas
-                var archivos = Directory.GetFiles(rutaActo, "*.*", SearchOption.AllDirectories)
-                                        .Select(path => new
-                                        {
-                                            NombreArchivo = Path.GetFileName(path),
-                                            RutaRelativa = Path.GetRelativePath(rutaBase, path),
-                                            RutaCompleta = path
-                                        })
-                                        .ToList();
-
-                return Ok(archivos);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error al obtener: {{ex.Message}}");
-                    }
-        
+            return Ok(resultado);
         }
-    
+
+        [HttpGet("detallados/{id}")]
+        public async Task<ActionResult<LitigioDetallado>> ObtenerLitigioPorId(int id)
+        {
+            using var connection = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal"));
+
+            var parametros = new DynamicParameters();
+            parametros.Add("@IdLitigio", id);
+
+            var resultado = await connection.QueryFirstOrDefaultAsync<LitigioDetallado>(
+                "sp_ObtenerLitigioPorId",
+                parametros,
+                commandType: CommandType.StoredProcedure
+            );
+
+            if (resultado == null)
+                return NotFound();
+
+            return Ok(resultado);
+        }
+
+
+
+
     }
 
 }
+
 
 
