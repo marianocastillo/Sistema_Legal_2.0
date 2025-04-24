@@ -50,7 +50,11 @@
     <td>{{ litigio.desc_Sentencia }}</td>
     <td> <!-- Este es el TD que faltaba para la columna Acciones -->
       <div class="btn-group">
-        <router-link @click="mostrarDetalle(litigio.ltg_acto)" to="/drawer/modal" class="btn btn-sm" style="background-color: #003870; border-color: #003870;">
+        <router-link
+  :to="`/litigio/detalle/${litigio.id_Ltg}`"
+  class="btn btn-sm"
+  style="background-color: #003870; border-color: #003870;"
+>
   <i class="pi pi-eye white-icon"></i>
 </router-link>
 <router-link to="/drawer/modificarregistro" class="btn btn-sm" style="background-color: #003870; border-color: #003870;">

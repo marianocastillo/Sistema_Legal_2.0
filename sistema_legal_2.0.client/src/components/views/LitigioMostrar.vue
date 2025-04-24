@@ -11,132 +11,146 @@
       />
     </div>
 
-    <!-- Encabezado del documento -->
-    <div class="document-header mb-5 p-4 border-round-lg" style="background: #f8f9fa;">
-      <div class="flex align-items-center justify-content-between">
-        <div>
-          <h3 class="text-xl m-0" style="color: #003870;">Expediente Judicial</h3>
-          <p class="text-sm text-600 m-0">No. Acto: <strong>{{ litigio.ltg_acto }}</strong></p>
-        </div>
-        <div class="text-right">
-          <p class="text-sm m-0">Fecha: {{ formatDate(litigio.ltg_Fecha_Acto) }}</p>
-          <Tag :value="litigio.estatus_Descripcion"
-               :severity="getStatusSeverity(litigio.estatus_Descripcion)"
-               class="mt-1" />
-        </div>
-      </div>
+    <div v-if="loading">
+      <p class="text-center text-lg text-500">Cargando litigio...</p>
     </div>
 
-    <!-- Sección de información principal -->
-    <div class="grid mb-5">
-      <div class="col-12 md:col-6">
-        <div class="surface-50 p-3 border-round-lg">
-          <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Demandante</h4>
-          <div class="grid">
-            <div class="col-6 field">
-              <label class="text-sm font-medium text-600">Nombre</label>
-              <p class="m-0">{{ litigio.ltg_Demandante || 'N/A' }}</p>
+    <div v-else>
+      <!-- Encabezado del documento -->
+      <div class="document-header mb-5 p-4 border-round-lg" style="background: #f8f9fa;">
+        <div class="flex align-items-center justify-content-between">
+          <div>
+            <h3 class="text-xl m-0" style="color: #003870;">Expediente Judicial</h3>
+            <p class="text-sm text-600-dark m-0">No. Acto: <strong>{{ litigio?.ltg_acto || 'N/A' }}</strong></p>
+          </div>
+          <div class="text-right">
+            <p class="text-sm m-0">Fecha: {{ formatDate(litigio?.ltg_Fecha_Acto) }}</p>
+            <Tag :value="litigio?.estatus_Descripcion"
+                 :severity="getStatusSeverity(litigio?.estatus_Descripcion)"
+                 class="mt-1" style="color: #003870;" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección de información principal -->
+      <div class="grid mb-5">
+        <div class="col-12 md:col-6">
+          <div class="surface-50 p-3 border-round-lg bg-white">
+            <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Demandante</h4>
+            <div class="grid ">
+              <div class="col-6 field ">
+                <label class="text-sm font-medium text-600-dark">Nombre</label>
+                <p class="m-0">{{ litigio?.ltg_Demandante || 'N/A' }}</p>
+              </div>
+              <div class="col-6 field">
+                <label class="text-sm font-medium text-600-dark">Cédula</label>
+                <p class="m-0">{{ litigio?.ltg_Cedula_Demandante || 'N/A' }}</p>
+              </div>
+              <div class="col-6 field">
+                <label class="text-sm font-medium text-600-dark">Tipo</label>
+                <p class="m-0">{{ litigio?.ltg_Tipo_Demandante || 'N/A' }}</p>
+              </div>
+              <div class="col-6 field">
+                <label class="text-sm font-medium text-600-dark">Nacionalidad</label>
+                <p class="m-0">{{ litigio?.ltg_Nacionalidad || 'N/A' }}</p>
+              </div>
             </div>
-            <div class="col-6 field">
-              <label class="text-sm font-medium text-600">Cédula</label>
-              <p class="m-0">{{ litigio.ltg_Cedula_Demandante || 'N/A' }}</p>
-            </div>
-            <div class="col-6 field">
-              <label class="text-sm font-medium text-600">Tipo</label>
-              <p class="m-0">{{ litigio.ltg_Tipo_Demandante || 'N/A' }}</p>
-            </div>
-            <div class="col-6 field">
-              <label class="text-sm font-medium text-600">Nacionalidad</label>
-              <p class="m-0">{{ litigio.ltg_Nacionalidad || 'N/A' }}</p>
+          </div>
+        </div>
+
+        <div class="col-12 md:col-6">
+          <div class="surface-50 p-3 border-round-lg bg-white">
+            <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Representante</h4>
+            <div class="grid">
+              <div class="col-6 field">
+                <label class="text-sm font-medium text-600-dark">Nombre</label>
+                <p class="m-0">{{ litigio?.ltg_Nombre_Representante || 'N/A' }}</p>
+              </div>
+              <div class="col-6 field">
+                <label class="text-sm font-medium text-600-dark">Cédula</label>
+                <p class="m-0">{{ litigio?.ltg_Cedula_Representante || 'N/A' }}</p>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="col-12 md:col-6">
-        <div class="surface-50 p-3 border-round-lg">
-          <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Representante</h4>
-          <div class="grid">
-            <div class="col-6 field">
-              <label class="text-sm font-medium text-600">Nombre</label>
-              <p class="m-0">{{ litigio.ltg_Nombre_Representante || 'N/A' }}</p>
-            </div>
-            <div class="col-6 field">
-              <label class="text-sm font-medium text-600">Cédula</label>
-              <p class="m-0">{{ litigio.ltg_Cedula_Representante || 'N/A' }}</p>
-            </div>
+      <!-- Detalles del proceso -->
+      <div class="surface-50 p-4 mb-5 border-round-lg bg-white">
+        <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Detalles del Proceso</h4>
+        <div class="grid">
+          <div class="col-12 md:col-4 field">
+            <label class="text-sm font-medium text-600-dark">Tipo de Demanda</label>
+            <p class="m-0">{{ litigio?.tipoDemanda_Nombre || 'N/A' }}</p>
+          </div>
+          <div class="col-12 md:col-4 field">
+            <label class="text-sm font-medium text-600-dark">Tribunal</label>
+            <p class="m-0">{{ litigio?.nombre_Tribunal || 'N/A' }}</p>
+          </div>
+          <div class="col-12 md:col-4 field">
+            <label class="text-sm font-medium text-600-dark">Digitador</label>
+            <p class="m-0">{{ litigio?.nombreUsuario || 'N/A' }}</p>
+          </div>
+          <div class="col-12 md:col-4 field">
+            <label class="text-sm font-medium text-600-dark">Fecha Audiencia</label>
+            <p class="m-0">{{ formatDate(litigio?.ltg_Fecha_Audiencia) || 'N/A' }}</p>
+          </div>
+          <div class="col-12 md:col-4 field">
+            <label class="text-sm font-medium text-600-dark">Fecha Actualización</label>
+            <p class="m-0">{{ formatDate(litigio?.ltg_Fecha_Actualizacion) || 'N/A' }}</p>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Detalles del proceso -->
-    <div class="surface-50 p-4 mb-5 border-round-lg">
-      <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Detalles del Proceso</h4>
+      <!-- Documentos y sentencia -->
       <div class="grid">
-        <div class="col-12 md:col-4 field">
-          <label class="text-sm font-medium text-600">Tipo de Demanda</label>
-          <p class="m-0">{{ litigio.tipoDemanda_Nombre || 'N/A' }}</p>
-        </div>
-        <div class="col-12 md:col-4 field">
-          <label class="text-sm font-medium text-600">Tribunal</label>
-          <p class="m-0">{{ litigio.nombre_Tribunal || 'N/A' }}</p>
-        </div>
-        <div class="col-12 md:col-4 field">
-          <label class="text-sm font-medium text-600">Digitador</label>
-          <p class="m-0">{{ litigio.nombreUsuario || 'N/A' }}</p>
-        </div>
-        <div class="col-12 md:col-4 field">
-          <label class="text-sm font-medium text-600">Fecha Audiencia</label>
-          <p class="m-0">{{ formatDate(litigio.ltg_Fecha_Audiencia) || 'N/A' }}</p>
-        </div>
-        <div class="col-12 md:col-4 field">
-          <label class="text-sm font-medium text-600">Fecha Actualización</label>
-          <p class="m-0">{{ formatDate(litigio.ltg_Fecha_Actualizacion) || 'N/A' }}</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Documentos y sentencia -->
-    <div class="grid">
-      <div class="col-12 md:col-8">
-        <div class="surface-50 p-4 border-round-lg h-full">
-          <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Sentencia</h4>
-          <p class="m-0">{{ litigio.desc_Sentencia || 'No registrada' }}</p>
-        </div>
-      </div>
-      <div class="col-12 md:col-4">
-        <div class="surface-50 p-4 border-round-lg h-full">
-          <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Documentos</h4>
-          <div v-if="litigio.ruta_Nombre" class="flex align-items-center">
-            <i class="pi pi-file-pdf mr-2" style="color: #e74c3c;"></i>
-            <span>{{ litigio.ruta_Nombre }}</span>
+        <div class="col-12 md:col-8">
+          <div class="surface-50 p-4 border-round-lg h-full bg-white">
+            <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Sentencia</h4>
+            <p class="m-0">{{ litigio?.desc_Sentencia || 'No registrada' }}</p>
           </div>
-          <p v-else class="m-0 text-500">No hay documentos adjuntos</p>
+        </div>
+        <div class="col-12 md:col-4">
+          <div class="surface-50 p-4 border-round-lg h-full bg-white">
+            <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Documentos</h4>
+            <div v-if="litigio?.ruta_Nombre" class="flex align-items-center">
+              <i class="pi pi-file-pdf mr-2" style="color: #e74c3c;"></i>
+              <span>{{ litigio.ruta_Nombre }}</span>
+            </div>
+            <p v-else class="m-0 text-500-dark">No hay documentos adjuntos</p>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Pie de documento -->
-    <div class="flex justify-content-between mt-4 pt-3 border-top-1 surface-border">
-      <small class="text-500">Sistema Judicial - {{ new Date().getFullYear() }}</small>
-      <Button
-        label="Imprimir"
-        icon="pi pi-print"
-        class="p-button-sm p-button-text"
-        @click="printDocument"
-      />
+      <!-- Pie de documento -->
+      <div class="flex justify-content-between mt-4 pt-3 border-top-1 surface-border ">
+        <small class="text-500-dark">Sistema Judicial - {{ new Date().getFullYear() }}</small>
+        <Button
+          label="Imprimir"
+          icon="pi pi-print"
+          class="p-button-sm p-button-text-dark"
+          @click="printDocument"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import api from '@/utilities/api.js' // 👈 ¡Este import es clave!
 
 const props = defineProps({
-  litigioId: {  // Cambia a recibir el ID en lugar del objeto completo
-    type: String || Number,
-    required: true
+  id: {
+    type: [Number, String],
+    required: true,
+    validator: (value) => {
+      const isValid = value !== null && value !== undefined && value !== ''
+      if (!isValid) {
+        console.error('ID inválido recibido:', value)
+      }
+      return isValid
+    }
   }
 })
 
@@ -144,12 +158,23 @@ const litigio = ref(null)
 const loading = ref(true)
 
 onMounted(async () => {
+  if (!props.id) {
+    console.error('ID no proporcionado o inválido:', props.id)
+    loading.value = false
+    return
+  }
+
   try {
-    const response = await api.get(`/api/litigios/${props.litigioId}`)
+    const response = await api.get(`/api/Files/detallados/${props.id}`)
+
+    if (!response.data) {
+      throw new Error('La respuesta no contiene datos')
+    }
+
     litigio.value = response.data
   } catch (error) {
     console.error('Error al cargar litigio:', error)
-    // Puedes manejar el error mostrando un mensaje al usuario
+    // Opcional: manejar el estado de error en la UI
   } finally {
     loading.value = false
   }
@@ -178,6 +203,7 @@ const printDocument = () => {
   window.print()
 }
 </script>
+
 
 <style scoped>
 .field {

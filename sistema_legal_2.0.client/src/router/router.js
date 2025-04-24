@@ -16,7 +16,7 @@ const routes = [
     component: Drawer,
     children: [
       { path: '', redirect: '/drawer/home' }, // 👈 Redirige a 'home' cuando accedes a '/sidebar'
-      { path: 'modal', name: 'LitigioModal', component: LitigioModal },
+      // { path: 'modal', name: 'LitigioModal', component: LitigioModal },
       { path: 'home', name: 'TodosRegistro', component: TodosRegistro },
       { path: 'registrar', name: 'RegistroLitigio', component: RegistroLitigio },
       { path: 'edit', name: 'TableView', component: TableView },
@@ -24,7 +24,12 @@ const routes = [
       {path: 'listadodeusuario', name: 'ListadoUsuariosVie', component: ListadoUsuariosView},
       { path: 'formulario', name: 'nuevoUsuario', component: FormularioView},
       {path: 'formulario/:idUsuario', name: 'formulario', component: FormularioView},
-
+      {
+        path: '/litigio/detalle/:id',
+        name: 'LitigioDetalle',
+        component: () => import('../components/views/LitigioMostrar.vue'),
+        props: true
+      }
     ]
   }
 ];
