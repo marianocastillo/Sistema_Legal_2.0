@@ -25,8 +25,7 @@ const routes = [
       { path: 'formulario', name: 'nuevoUsuario', component: FormularioView},
       {path: 'formulario/:idUsuario', name: 'formulario', component: FormularioView},
       {
-        path: '/litigio/detalle/:id',
-        name: 'LitigioDetalle',
+        path: '/litigio/detalle/:id', name: 'LitigioDetalle',
         component: () => import('../components/views/LitigioMostrar.vue'),
         props: true
       }

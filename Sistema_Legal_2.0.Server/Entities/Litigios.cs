@@ -2,6 +2,7 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sistema_Legal_2._0.Server.Entities;
 
@@ -37,10 +38,12 @@ public partial class Litigios
 
     public int id_usuario { get; set; }
 
-    public int? id_ruta { get; set; }
-
     public int id_Estatus { get; set; }
 
+    [NotMapped]
+    public IFormFile Archivo { get; set; }
+
+    public string NombreCarpeta { get; set; }
     public virtual Estatus_Litigios id_EstatusNavigation { get; set; }
 
     public virtual Tipo_Sentencia id_SentenciaNavigation { get; set; }
@@ -49,7 +52,10 @@ public partial class Litigios
 
     public virtual Tribunales id_TribunalNavigation { get; set; }
 
-    public virtual Ruta_archivos id_rutaNavigation { get; set; }
+    public virtual ICollection<Ruta_archivos> Rutas { get; set; }
 
     public virtual Usuarios id_usuarioNavigation { get; set; }
+    public int id_ruta { get; set; }
+
+    public Ruta_archivos Ruta_archivos { get; set; }
 }

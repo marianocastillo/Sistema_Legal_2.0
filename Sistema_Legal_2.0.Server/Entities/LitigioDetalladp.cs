@@ -42,5 +42,10 @@
 
         public int? ltg_estatus { get; set; }
         public string? Estatus_Descripcion { get; set; }
+
+        public string Comentarios { get; set; }
+        public string Rutas { get; set; }
+
+
     }
 }

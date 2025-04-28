@@ -13,6 +13,7 @@ public partial class db_silegContext : DbContext
     {
     }
 
+    public static IEnumerable<object> Ruta_Archivos { get; internal set; }
     public virtual DbSet<Estatus_Litigios> Estatus_Litigios { get; set; }
 
     public virtual DbSet<Litigios> Litigios { get; set; }
@@ -39,8 +40,12 @@ public partial class db_silegContext : DbContext
 
     public virtual DbSet<vistas> vistas { get; set; }
 
+    public virtual DbSet<ComentariosLitigio> ComentariosLitigio { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+
+       
         modelBuilder.Entity<Estatus_Litigios>(entity =>
         {
             entity.HasKey(e => e.ltg_estatus);
@@ -49,6 +54,35 @@ public partial class db_silegContext : DbContext
                 .IsRequired()
                 .HasMaxLength(50)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<ComentariosLitigio>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.Id_Litigio)
+                .IsRequired()
+                .HasMaxLength(10)
+                .IsUnicode(false);
+
+            entity.Property(e => e.Comentario)
+                .IsRequired()
+                .HasMaxLength(500)
+                .IsUnicode(false);
+
+            entity.Property(e => e.Fecha)
+                .HasColumnType("datetime")
+                .HasDefaultValueSql("GETDATE()");
+
+            entity.Property(e => e.Id_usuario)
+                .IsRequired();
+
+            // Relación con Litigios (si quieres)
+            entity.HasOne<Litigios>()
+                .WithMany()
+                .HasForeignKey(e => e.Id_Litigio)
+                .HasPrincipalKey(l => l.id_Ltg)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<Litigios>(entity =>
@@ -105,14 +139,17 @@ public partial class db_silegContext : DbContext
                 .HasForeignKey(d => d.id_Tribunal)
                 .HasConstraintName("FK_Litigios_Tribunales");
 
-            entity.HasOne(d => d.id_rutaNavigation).WithMany(p => p.Litigios)
-                .HasForeignKey(d => d.id_ruta)
-                .HasConstraintName("FK_Litigios_Ruta_archivos");
-
             entity.HasOne(d => d.id_usuarioNavigation).WithMany(p => p.Litigios)
                 .HasForeignKey(d => d.id_usuario)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Litigios_Usuarios");
+            entity.HasOne(d => d.Ruta_archivos)
+    .WithMany(p => p.Litigios)
+    .HasForeignKey(d => d.id_ruta)
+    .OnDelete(DeleteBehavior.Restrict) // o ClientSetNull si prefieres
+    .HasConstraintName("FK_Litigios_Ruta_Archivos");
+
+
         });
 
         modelBuilder.Entity<LogActividad>(entity =>
@@ -185,9 +222,11 @@ public partial class db_silegContext : DbContext
         {
             entity.HasKey(e => e.id_Ruta).HasName("PK_t_ruta_archivos");
 
+            entity.Property(e => e.fecha).HasColumnType("datetime");
             entity.Property(e => e.Ruta)
-                .IsRequired()
                 .HasMaxLength(200);
+
+
         });
 
         modelBuilder.Entity<Tipo_Demanda>(entity =>
@@ -290,6 +329,7 @@ public partial class db_silegContext : DbContext
                 .HasMaxLength(300)
                 .IsUnicode(false);
         });
+
 
         OnModelCreatingPartial(modelBuilder);
     }

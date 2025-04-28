@@ -2,6 +2,8 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using static Dapper.SqlMapper;
 
 namespace Sistema_Legal_2._0.Server.Entities;
 
@@ -12,10 +14,14 @@ public partial class Ruta_archivos
     public string Ruta { get; set; }
        
 
-    public string Nombre { get; set; }
+    public DateTime? fecha { get; set; }
+    public string Ruta_Nombre { get; set; }
 
     public int id_usuario { get; set; }
+    public int id_litigio { get; set; }
 
- 
-   public virtual ICollection<Litigios> Litigios { get; set; } = new List<Litigios>();
+    // Propiedad de navegación
+    [ForeignKey("id_litigio")]
+    public ICollection<Litigios> Litigios { get; set; }
+
 }

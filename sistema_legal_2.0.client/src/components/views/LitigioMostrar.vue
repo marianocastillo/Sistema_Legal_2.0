@@ -2,13 +2,7 @@
   <div class="card p-6 shadow-2">
     <div class="flex justify-content-between align-items-center mb-4">
       <h2 class="text-2xl font-semibold">Detalle del Litigio</h2>
-      <VaButton
-        @click="$emit('close')"
-        icon="close"
-        color="danger"
-        size="small"
-        class="p-2"
-      />
+      <VaButton @click="$emit('close')" icon="close" color="danger" size="small" class="p-2" />
     </div>
 
     <div v-if="loading">
@@ -25,9 +19,8 @@
           </div>
           <div class="text-right">
             <p class="text-sm m-0">Fecha: {{ formatDate(litigio?.ltg_Fecha_Acto) }}</p>
-            <Tag :value="litigio?.estatus_Descripcion"
-                 :severity="getStatusSeverity(litigio?.estatus_Descripcion)"
-                 class="mt-1" style="color: #003870;" />
+            <Tag :value="litigio?.estatus_Descripcion" :severity="getStatusSeverity(litigio?.estatus_Descripcion)"
+              class="mt-1" style="color: #003870;" />
           </div>
         </div>
       </div>
@@ -104,33 +97,48 @@
 
       <!-- Documentos y sentencia -->
       <div class="grid">
-        <div class="col-12 md:col-8">
-          <div class="surface-50 p-4 border-round-lg h-full bg-white">
-            <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Sentencia</h4>
-            <p class="m-0">{{ litigio?.desc_Sentencia || 'No registrada' }}</p>
-          </div>
-        </div>
+        <!-- Columna izquierda: Documentos (4 unidades en pantallas medianas/grandes) -->
         <div class="col-12 md:col-4">
           <div class="surface-50 p-4 border-round-lg h-full bg-white">
             <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Documentos</h4>
-            <div v-if="litigio?.ruta_Nombre" class="flex align-items-center">
-              <i class="pi pi-file-pdf mr-2" style="color: #e74c3c;"></i>
-              <span>{{ litigio.ruta_Nombre }}</span>
+            <div v-if="rutas.length > 0">
+              <div v-for="(ruta, index) in rutas" :key="index"
+                class="flex align-items-center mb-3 p-3 border rounded-3 surface-100 bg-white cursor-pointer hover:surface-200 transition-duration-150"
+                @click="mostrarArchivo(ruta.id_Ruta)">
+                <i class="pi pi-file-pdf mr-2" style="color: #e74c3c;"></i>
+                <span>{{ ruta.ruta_Nombre }}</span>
+              </div>
             </div>
             <p v-else class="m-0 text-500-dark">No hay documentos adjuntos</p>
           </div>
+        </div>
+
+        <!-- Columna derecha: Comentarios (8 unidades en pantallas medianas/grandes) -->
+        <div class="col-12 md:col-8">
+          <div class="surface-50 p-4 border-round-lg h-full bg-white">
+            <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Comentarios</h4>
+            <div v-if="comentarios.length > 0">
+              <div v-for="(item, index) in comentarios" :key="index"
+                class="mb-3 p-3 border rounded-3 surface-100 bg-white">
+                <p class="m-0 font-medium">{{ item.comentario }}</p>
+                <small class="text-500-dark">{{ formatCommentDate(item.fecha) }}</small>
+              </div>
+            </div>
+            <p v-else class="m-0 text-500">Sin comentarios</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 md:col-8">
+        <div class="surface-50 p-4 border-round-lg h-full bg-white">
+          <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Sentencia</h4>
+          <p class="m-0">{{ litigio?.desc_Sentencia || 'No registrada' }}</p>
         </div>
       </div>
 
       <!-- Pie de documento -->
       <div class="flex justify-content-between mt-4 pt-3 border-top-1 surface-border ">
         <small class="text-500-dark">Sistema Judicial - {{ new Date().getFullYear() }}</small>
-        <Button
-          label="Imprimir"
-          icon="pi pi-print"
-          class="p-button-sm p-button-text-dark"
-          @click="printDocument"
-        />
+        <Button label="Imprimir" icon="pi pi-print" class="p-button-sm p-button-text-dark" @click="printDocument" />
       </div>
     </div>
   </div>
@@ -138,7 +146,8 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import api from '@/utilities/api.js' // 👈 ¡Este import es clave!
+import axios from 'axios';
+import api from '@/utilities/api.js'
 
 const props = defineProps({
   id: {
@@ -156,7 +165,43 @@ const props = defineProps({
 
 const litigio = ref(null)
 const loading = ref(true)
+const comentarios = ref([])
+const rutas = ref([])
 
+// Función para abrir el documento en una nueva pestaña
+const mostrarArchivo = (idRuta) => {
+  const apiUrl = import.meta.env.VITE_API_URL || ''; // O déjalo en '' si no usas variable de entorno
+  window.open(`${apiUrl}/api/Files/rutaspor/${idRuta}`, '_blank');
+}
+
+// Función para formatear fechas
+const formatDate = (dateString) => {
+  if (!dateString) return 'N/A'
+  return new Date(dateString).toLocaleDateString('es-ES', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+}
+
+// Función para formatear la fecha de comentarios
+const formatCommentDate = (dateString) => {
+  if (!dateString) return 'Fecha no disponible'
+  try {
+    const options = {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }
+    return new Date(dateString).toLocaleDateString('es-ES', options)
+  } catch {
+    return dateString // Si falla el formateo, muestra la fecha original
+  }
+}
+
+// Cargar información cuando el componente se monta
 onMounted(async () => {
   if (!props.id) {
     console.error('ID no proporcionado o inválido:', props.id)
@@ -172,23 +217,23 @@ onMounted(async () => {
     }
 
     litigio.value = response.data
+
+    // Obtener comentarios
+    const comentariosResponse = await api.get(`/api/Files/comentarios/${props.id}`)
+    comentarios.value = comentariosResponse.data || []
+
+    // Obtener rutas
+    const rutasResponse = await api.get(`/api/Files/rutas/${props.id}`)
+    rutas.value = rutasResponse.data || []
+
   } catch (error) {
     console.error('Error al cargar litigio:', error)
-    // Opcional: manejar el estado de error en la UI
   } finally {
     loading.value = false
   }
 })
 
-const formatDate = (dateString) => {
-  if (!dateString) return 'N/A'
-  return new Date(dateString).toLocaleDateString('es-ES', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
-}
-
+// Obtener estilo según el estado
 const getStatusSeverity = (status) => {
   const statusMap = {
     'activo': 'success',
@@ -199,10 +244,13 @@ const getStatusSeverity = (status) => {
   return statusMap[status?.toLowerCase()] || null
 }
 
+// Imprimir documento
 const printDocument = () => {
   window.print()
 }
 </script>
+
+
 
 
 <style scoped>
@@ -219,5 +267,15 @@ const printDocument = () => {
     box-shadow: none !important;
     border: none !important;
   }
+}
+
+.md\:col-4 {
+  padding-right: 1rem;
+  /* Espacio a la derecha de documentos */
+}
+
+.md\:col-8 {
+  padding-left: 1rem;
+  /* Espacio a la izquierda de comentarios */
 }
 </style>

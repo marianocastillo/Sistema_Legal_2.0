@@ -24,46 +24,42 @@
               <th>Fecha actualizacion</th>
               <th>Tribunal</th>
               <th>Digitador</th>
-              <th>Documentos</th>
               <th>Estatus</th>
               <th>Sentencia</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
-  <tr v-for="litigio in data" :key="litigio.ltg_acto">
-    <td class="sticky-column  accent-column fw-bold ">{{ litigio.ltg_acto }}</td>
-    <td>{{ litigio.ltg_Fecha_Acto }}</td>
-    <td>{{ litigio.ltg_Cedula_Demandante }}</td>
-    <td>{{ litigio.ltg_Demandante }}</td>
-    <td>{{ litigio.ltg_Cedula_Representante }}</td>
-    <td>{{ litigio.ltg_Nombre_Representante }}</td>
-    <td>{{ litigio.tipoDemanda_Nombre }}</td>
-    <td>{{ litigio.ltg_Nacionalidad }}</td>
-    <td>{{ litigio.ltg_Tipo_Demandante }}</td>
-    <td>{{ litigio.ltg_Fecha_Audiencia }}</td>
-    <td>{{ litigio.ltg_Fecha_Actualizacion }}</td>
-    <td>{{ litigio.nombre_Tribunal }}</td>
-    <td>{{ litigio.nombreUsuario }}</td>
-    <td>{{ litigio.ruta_Nombre }}</td>
-    <td>{{ litigio.estatus_Descripcion}}</td>
-    <td>{{ litigio.desc_Sentencia }}</td>
-    <td> <!-- Este es el TD que faltaba para la columna Acciones -->
-      <div class="btn-group">
-        <router-link
-  :to="`/litigio/detalle/${litigio.id_Ltg}`"
-  class="btn btn-sm"
-  style="background-color: #003870; border-color: #003870;"
->
-  <i class="pi pi-eye white-icon"></i>
-</router-link>
-<router-link to="/drawer/modificarregistro" class="btn btn-sm" style="background-color: #003870; border-color: #003870;">
-  <i class="pi pi-pencil white-icon"></i>
-</router-link>
-      </div>
-    </td>
-  </tr>
-</tbody>
+            <tr v-for="litigio in data" :key="litigio.ltg_acto">
+              <td class="sticky-column  accent-column fw-bold ">{{ litigio.ltg_acto }}</td>
+              <td>{{ litigio.ltg_Fecha_Acto }}</td>
+              <td>{{ litigio.ltg_Cedula_Demandante }}</td>
+              <td>{{ litigio.ltg_Demandante }}</td>
+              <td>{{ litigio.ltg_Cedula_Representante }}</td>
+              <td>{{ litigio.ltg_Nombre_Representante }}</td>
+              <td>{{ litigio.tipoDemanda_Nombre }}</td>
+              <td>{{ litigio.ltg_Nacionalidad }}</td>
+              <td>{{ litigio.ltg_Tipo_Demandante }}</td>
+              <td>{{ litigio.ltg_Fecha_Audiencia }}</td>
+              <td>{{ litigio.ltg_Fecha_Actualizacion }}</td>
+              <td>{{ litigio.nombre_Tribunal }}</td>
+              <td>{{ litigio.nombreUsuario }}</td>
+              <td>{{ litigio.estatus_Descripcion }}</td>
+              <td>{{ litigio.desc_Sentencia }}</td>
+              <td> <!-- Este es el TD que faltaba para la columna Acciones -->
+                <div class="btn-group">
+                  <router-link :to="`/litigio/detalle/${litigio.id_Ltg}`" class="btn btn-sm"
+                    style="background-color: #003870; border-color: #003870;">
+                    <i class="pi pi-eye white-icon"></i>
+                  </router-link>
+                  <router-link to="/drawer/modificarregistro" class="btn btn-sm"
+                    style="background-color: #003870; border-color: #003870;">
+                    <i class="pi pi-pencil white-icon"></i>
+                  </router-link>
+                </div>
+              </td>
+            </tr>
+          </tbody>
         </table>
       </div>
     </div>
@@ -99,7 +95,7 @@ const mostrarDetalle = (litigio) => {
 
 onMounted(async () => {
   try {
-    const response = await api.get('/api/Files/detallados') // Ajusta si tu endpoint cambia
+    const response = await api.get('/api/Files/Litigio_detallado') // Ajusta si tu endpoint cambia
     data.value = response.data
 
     await nextTick()
@@ -136,14 +132,16 @@ onMounted(async () => {
   position: relative;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  max-height: 600px; /* Altura máxima con scroll vertical */
+  max-height: 600px;
+  /* Altura máxima con scroll vertical */
 }
 
 .sticky-column {
   position: sticky;
   left: 0;
-   z-index: 1;
-  min-width: 120px; /* Ancho mínimo para la columna fija */
+  z-index: 1;
+  min-width: 120px;
+  /* Ancho mínimo para la columna fija */
 }
 
 /* Efecto hover para mejor interactividad */
@@ -174,7 +172,8 @@ onMounted(async () => {
 
 .table-sm td,
 .table-sm th {
-  font-size: 0.8rem; /* Puedes ajustar el tamaño a tu gusto */
+  font-size: 0.8rem;
+  /* Puedes ajustar el tamaño a tu gusto */
 }
 
 .white-icon {
@@ -185,5 +184,3 @@ onMounted(async () => {
   color: #003870 !important;
 }
 </style>
-
-
