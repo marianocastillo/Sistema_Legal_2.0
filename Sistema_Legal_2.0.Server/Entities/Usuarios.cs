@@ -19,13 +19,14 @@ public partial class Usuarios
 
     public bool Activo { get; set; }
 
-    public string Cedula { get; set; }
+    public string nombreUsuario { get; set; }
 
-    public string NombreUsuario { get; set; }
 
     public int? idSupervisor { get; set; }
 
     public virtual ICollection<Litigios> Litigios { get; set; } = new List<Litigios>();
 
     public virtual Perfiles idPerfilNavigation { get; set; }
+
+
 }

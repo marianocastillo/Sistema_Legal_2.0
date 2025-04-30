@@ -17,14 +17,14 @@ namespace Sistema_Legal_2._0.Server.Repositories
             {
                 Descripcion = p.Descripcion,
                 idPerfil = p.idPerfil,
-                nombre = p.Nombre,
+                nombrePerfil = p.nombrePerfil,
             }),
                     (DB, filter) => (from p in DB.Set<Perfiles>().Where(filter)
                                      select new PerfilesModel()
                                      {
                                          Descripcion = p.Descripcion,
                                          idPerfil = p.idPerfil,
-                                         Nombre = p.nombre,
+                                         nombrePerfil = p.nombrePerfil,
                                      })
         )
         {

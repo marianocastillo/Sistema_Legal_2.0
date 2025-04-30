@@ -75,14 +75,14 @@ export default {
   data() {
     return {
       usuario: {
-        cedula: '',
-        nombreUsuario: '',
-        nombres: '',
-        apellidos: '',
-        idPerfil: 0,
-        idSupervisor: null,
-        activo: true,
-        withData: false,
+        Cedula: '',
+  NombreUsuario: '',
+  Nombres: '',
+  Apellidos: '',
+  IdPerfil: 0,
+  idSupervisor: null,
+  Activo: true,
+  withData: false,
       },
       idUsuario: this.$route.params.idUsuario,
       errors: {},
@@ -139,6 +139,8 @@ export default {
       else push.warning({ title: "Advertencia", message: response.data.message });
     },
     async Guardar() {
+      console.log("Datos enviados:", this.usuario);
+
       const payload = { ...this.usuario };
       delete payload.withData;
       const response = await api[this.FormMode == this.FormModes.Editar ? 'put' : 'post']('/api/Usuarios', this.usuario);
@@ -146,7 +148,7 @@ export default {
       if (response.data.success) {
         push.success({ title: 'Operación exitosa', message: response.data.message });
         this.errors = {};
-        this.$router.push('/api/Usuarios');
+        this.$router.push('/drawer/listadodeusuario');
       }
       else {
         if (response.data.errors) this.errors = response.data.errors;

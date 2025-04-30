@@ -32,7 +32,7 @@
           <td>{{ usuario.nombres }}</td>
           <td>{{ usuario.apellidos }}</td>
           <td>{{ usuario.nombrePerfil }}</td>
-          <td>{{ new Date(usuario.fechaCrea).toLocaleDateString() }}</td>
+          <td>{{ new Date(usuario.fechaCreacion).toLocaleDateString() }}</td>
           <td>
             <span :class="['badge', usuario.activo ? 'bg-success' : 'bg-warning']">
               {{ usuario.activo ? 'Activo' : 'Inactivo' }}
@@ -124,8 +124,9 @@ export default {
       }
     },
     async LoadUsuarios() {
-      const response = await api.get('/api/Usuarios')
+      const response = await api.get('/api/Usuarios/UsuariosConPerfil')
       if (response.data) {
+        console.log(response.data) // ← Aquí
         this.usuarios = response.data
       } else {
         push.warning({ title: 'Advertencia', message: response.data.message })

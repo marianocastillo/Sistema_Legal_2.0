@@ -10,13 +10,14 @@ public class UsuariosRepo : Repository<Usuarios, UsuariosModel>
             new ObjectsMapper<UsuariosModel, Usuarios>(u => new Usuarios()
             {
                 idUsuario = u.IdUsuario,
-                NombreUsuario = u.NombreUsuario,
+                nombreUsuario = u.NombreUsuario,
                 nombres = u.Nombres,
+           
                 apellidos = u.Apellidos,                
                 Activo = u.Activo,
                 fechaCreacion = u.FechaCrea,
-                Cedula = u.Cedula,
-                idSupervisor = u.idSupervisor,
+               
+              
                 idPerfil = u.IdPerfil
               
       
@@ -29,12 +30,11 @@ public class UsuariosRepo : Repository<Usuarios, UsuariosModel>
                         select new UsuariosModel()
                         {
                             IdUsuario = u.idUsuario,
-                            NombreUsuario = u.NombreUsuario,          
+                            NombreUsuario = u.nombreUsuario,          
                             Nombres = u.nombres,
                             Apellidos = u.apellidos,                            
                             FechaCrea = (DateTime)u.fechaCreacion,
-                            idSupervisor = u.idSupervisor,
-                            Cedula = u.Cedula,
+                           
                             Activo = u.Activo,
                             IdPerfil = (int)u.idPerfil
                         });
@@ -46,7 +46,7 @@ public class UsuariosRepo : Repository<Usuarios, UsuariosModel>
 
         public UsuariosModel GetByUsername(string nombreUsuario)
         {
-            return this.Get(x => x.NombreUsuario == nombreUsuario).FirstOrDefault();
+            return this.Get(x => x.nombreUsuario == nombreUsuario).FirstOrDefault();
         }
 
         public UsuariosModel Get(int id)

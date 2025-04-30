@@ -5,6 +5,7 @@ using Sistema_Legal_2._0.Server.Repositories;
 using Sistema_Legal_2._0.Server.Infraestructure;
 using Sistema_Legal_2._0.Server.Models.Enums;
 using Sistema_Legal_2._0.Server.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Sistema_Legal_2._0.Server.Controller
 {
@@ -26,13 +27,23 @@ namespace Sistema_Legal_2._0.Server.Controller
             idUsuarioOnline = userAccessor.idUsuario;
         }
 
-        [HttpGet(Name = "GetUsuarios")]
-        [AllowAnonymous]
-        public List<UsuariosModel> Get()
+        [HttpGet("UsuariosConPerfil")]
+        public async Task<IActionResult> GetUsuariosConPerfil()
         {
-            List<UsuariosModel> usuarios = usuariosRepo.Get().ToList();
-            return usuarios;
+            try
+            {
+                var usuarios = await _db_silegContext.Usuarios
+                    .FromSqlRaw("EXEC sp_ObtenerUsuariosConPerfil")
+                    .ToListAsync();
+
+                return Ok(usuarios);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al obtener los usuarios.", error = ex.Message });
+            }
         }
+
 
         /// <summary>
         /// Obtiene un usuario por su ID.
@@ -72,6 +83,11 @@ namespace Sistema_Legal_2._0.Server.Controller
             return usuario;
         }
 
+
+
+
+
+
         /// <summary>
         /// Crea un nuevo usuario.
         /// </summary>
@@ -79,11 +95,12 @@ namespace Sistema_Legal_2._0.Server.Controller
         /// <returns>Resultado de la operacin.</returns>
         [HttpPost(Name = "SaveUsuario")]
         [AllowAnonymous]
-        public OperationResult Post(UsuariosModel usuariosModel)
+        public OperationResult Post([FromBody] UsuariosModel usuariosModel)
         {
             try
             {
-                if (usuariosRepo.Any(x => x.nombres == usuariosModel.NombreUsuario)) return new OperationResult(false, "Este usuario ya tiene acceso al sistema");
+                if (usuariosRepo.Any(x => x.nombreUsuario == usuariosModel.NombreUsuario)) 
+                    return new OperationResult(false, "Este usuario ya tiene acceso al sistema");
                     
                 usuariosModel.FechaCrea = DateTime.Now;
 
@@ -103,6 +120,8 @@ namespace Sistema_Legal_2._0.Server.Controller
         /// </summary>
         /// <param name="usuariosModel">Datos del usuario a actualizar.</param>
         /// <returns>Resultado de la operacin.</returns>
+       
+        
         [HttpPut(Name = "UpdateUsuario")]
         [AllowAnonymous]
         public OperationResult Put(UsuariosModel usuariosModel)
@@ -125,6 +144,9 @@ namespace Sistema_Legal_2._0.Server.Controller
                 throw;
             }
         }
+
+
+
         /// <summary>
         /// Elimina un perfil de usuario por su ID.
         /// </summary>

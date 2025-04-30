@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Sistema_Legal_2._0.Server.Models;
 
 namespace Sistema_Legal_2._0.Server.Entities;
 
@@ -212,7 +213,7 @@ public partial class db_silegContext : DbContext
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(100)
                 .IsUnicode(false);
-            entity.Property(e => e.nombre)
+            entity.Property(e => e.nombrePerfil)
                 .HasMaxLength(50)
                 .IsUnicode(false);
         });
@@ -273,11 +274,7 @@ public partial class db_silegContext : DbContext
         {
             entity.HasKey(e => e.idUsuario);
 
-            entity.Property(e => e.Cedula)
-                .IsRequired()
-                .HasMaxLength(13)
-                .IsUnicode(false);
-            entity.Property(e => e.NombreUsuario)
+            entity.Property(e => e.nombreUsuario)
                 .IsRequired()
                 .HasMaxLength(50)
                 .IsUnicode(false);

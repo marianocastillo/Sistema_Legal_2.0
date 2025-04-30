@@ -34,7 +34,7 @@
 
         <!-- Demandante -->
         <div class="col-md-6">
-          <input type="text" class="form-control" v-model="form.demandante" placeholder="Demandante" />
+          <input type="text" class="form-control" v-model="form.demandante" placeholder="Nombre demandante" />
         </div>
 
         <!-- Tipo de Demandante -->
@@ -113,27 +113,19 @@
 import { ref, onMounted } from 'vue'
 
 const form = ref({
+  fechaExpediente: new Date().toISOString().split('T')[0],
   noActo: '',
-  fechaActo: null,
-  fechaExpediente: null,
-  tipoDemanda: '',
+  fechaActo: '',
   cedulaDemandante: '',
+  tipoDemanda: '',
   demandante: '',
-  cedulaRepresentante: '',
-  nombreRepresentante: '',
-  tribunal: '',
-  lugar: '',
-  abogado: [],
-  fechaAudiencia: null,
-  estatus: '',
   tiposDemandante: '',
+  cedulaRepresentante: '',
+  tribunal: '',
+  nombreRepresentante: '',
+  fechaAudiencia: '',
+  estatus: ''
 })
-
-const tiposDemanda = [
-  { label: 'Civil', value: 'civil' },
-  { label: 'Penal', value: 'penal' },
-  { label: 'Laboral', value: 'laboral' },
-]
 
 const tiposDemandante = [
   { label: 'Empleado', value: 'Empleado' },
@@ -141,20 +133,38 @@ const tiposDemandante = [
   { label: 'Otros', value: 'Otros' },
 ]
 
-const tribunales = [
-  { label: 'Tribunal DN', value: 'dn' },
-  { label: 'Tribunal San Cristóbal', value: 'sc' },
-  { label: 'Tribunal SDE', value: 'sde' },
-]
+const tiposDemanda = ref([])
+const tribunales = ref([])
+const estatusList = ref([])
 
-const estatusList = [
-  { label: 'Option 1', value: '1' },
-  { label: 'Option 2', value: '2' },
-  { label: 'Option 3', value: '3' },
-]
+const cargarDatosDropdowns = async () => {
+  try {
+    const response = await fetch('/api/Litigio/datos-litigio')
+    const data = await response.json()
+
+    tiposDemanda.value = data.tiposDemanda.map(d => ({
+      value: d.id_demanda,
+      label: d.nombre
+    }))
+
+    tribunales.value = data.tribunales.map(t => ({
+      value: t.id_Tribunal,
+      label: t.nombre_Tribunal
+    }))
+
+    estatusList.value = data.estatusLitigios.map(e => ({
+      value: e.ltg_estatus,
+      label: e.ltg_description
+    }))
+  } catch (error) {
+    console.error('Error al cargar los datos de los dropdowns:', error)
+  }
+}
+
 
 onMounted(() => {
   form.value.fechaExpediente = new Date().toISOString().substring(0, 10)
+  cargarDatosDropdowns()
 })
 
 const handleExpedienteUpload = (e) => {

@@ -28,7 +28,7 @@
       <!-- Sección de información principal -->
       <div class="grid mb-5">
         <div class="col-12 md:col-6">
-          <div class="surface-50 p-3 border-round-lg bg-white">
+          <div class="surface-50 p-3 border-round-lg border bg-white">
             <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Demandante</h4>
             <div class="grid ">
               <div class="col-6 field ">
@@ -52,7 +52,7 @@
         </div>
 
         <div class="col-12 md:col-6">
-          <div class="surface-50 p-3 border-round-lg bg-white">
+          <div class="surface-50 p-3 border-round-lg border bg-white">
             <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Representante</h4>
             <div class="grid">
               <div class="col-6 field">
@@ -69,7 +69,7 @@
       </div>
 
       <!-- Detalles del proceso -->
-      <div class="surface-50 p-4 mb-5 border-round-lg bg-white">
+      <div class="surface-50 p-4 mb-5 border-round-lg border bg-white">
         <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Detalles del Proceso</h4>
         <div class="grid">
           <div class="col-12 md:col-4 field">
@@ -98,7 +98,7 @@
       <!-- Documentos y sentencia -->
       <div class="grid">
         <!-- Columna izquierda: Documentos (4 unidades en pantallas medianas/grandes) -->
-        <div class="col-12 md:col-4">
+        <div class="col-12 md:col-6">
           <div class="surface-50 p-4 border-round-lg h-full bg-white">
             <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Documentos</h4>
             <div v-if="rutas.length > 0">
@@ -114,7 +114,7 @@
         </div>
 
         <!-- Columna derecha: Comentarios (8 unidades en pantallas medianas/grandes) -->
-        <div class="col-12 md:col-8">
+        <div class="col-12 md:col-6">
           <div class="surface-50 p-4 border-round-lg h-full bg-white">
             <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Comentarios</h4>
             <div v-if="comentarios.length > 0">
@@ -128,8 +128,8 @@
           </div>
         </div>
       </div>
-      <div class="col-12 md:col-8">
-        <div class="surface-50 p-4 border-round-lg h-full bg-white">
+      <div class="col-12 md:col-2 m-3">
+        <div class="surface-50 p-4 border-round-lg border h-full bg-white">
           <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Sentencia</h4>
           <p class="m-0">{{ litigio?.desc_Sentencia || 'No registrada' }}</p>
         </div>
@@ -171,7 +171,7 @@ const rutas = ref([])
 // Función para abrir el documento en una nueva pestaña
 const mostrarArchivo = (idRuta) => {
   const apiUrl = import.meta.env.VITE_API_URL || ''; // O déjalo en '' si no usas variable de entorno
-  window.open(`${apiUrl}/api/Files/rutaspor/${idRuta}`, '_blank');
+  window.open(`${apiUrl}/api/Files/rutas/${idRuta}`, '_blank');
 }
 
 // Función para formatear fechas
@@ -210,7 +210,7 @@ onMounted(async () => {
   }
 
   try {
-    const response = await api.get(`/api/Files/detallados/${props.id}`)
+    const response = await api.get(`/api/Litigio/detallados/${props.id}`)
 
     if (!response.data) {
       throw new Error('La respuesta no contiene datos')
@@ -219,7 +219,7 @@ onMounted(async () => {
     litigio.value = response.data
 
     // Obtener comentarios
-    const comentariosResponse = await api.get(`/api/Files/comentarios/${props.id}`)
+    const comentariosResponse = await api.get(`/api/Litigio/comentarios/${props.id}`)
     comentarios.value = comentariosResponse.data || []
 
     // Obtener rutas

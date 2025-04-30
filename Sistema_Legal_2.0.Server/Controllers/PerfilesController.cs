@@ -77,6 +77,8 @@ namespace Sistema_Legal_2._0.Server.Controller
         //        throw;
         //    }
         //}
+
+
         //[HttpPut(Name = "UpdatePerfil")]
         //[AuthorizeByPermission(PermisosEnum.Editar_Perfil)]
         //public OperationResult Put(PerfilesModel perfilModel)
@@ -98,6 +100,10 @@ namespace Sistema_Legal_2._0.Server.Controller
         //        throw;
         //    }
         //}
+
+
+
+
         //[HttpDelete("{idPerfil}", Name = "DeletePerfil")]
         //[AuthorizeByPermission(PermisosEnum.Perfiles, PermisosEnum.Editar_Perfil)]
         //public OperationResult Delete(int idPerfil)
@@ -114,6 +120,14 @@ namespace Sistema_Legal_2._0.Server.Controller
         //        throw;
         //    }
         //}
+
+
+
+
+
+
+
+
         /// <summary>
         /// Obtiene los permisos de un perfil de usuario.
         /// </summary>

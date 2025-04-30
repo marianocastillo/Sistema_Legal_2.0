@@ -95,7 +95,7 @@ const mostrarDetalle = (litigio) => {
 
 onMounted(async () => {
   try {
-    const response = await api.get('/api/Files/Litigio_detallado') // Ajusta si tu endpoint cambia
+    const response = await api.get('/api/Litigio/Litigio_detallado') // Ajusta si tu endpoint cambia
     data.value = response.data
 
     await nextTick()
