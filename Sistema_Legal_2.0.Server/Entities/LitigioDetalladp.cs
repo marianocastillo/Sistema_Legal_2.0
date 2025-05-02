@@ -5,7 +5,7 @@
         public int id_Ltg { get; set; }
         public string ltg_acto { get; set; }
         public DateTime? ltg_Fecha_Acto { get; set; }
-
+        
         public int? TipoDemanda_Id { get; set; }
         public string? TipoDemanda_Nombre { get; set; }
         public int TipoDemanda_Estatus { get; set; }

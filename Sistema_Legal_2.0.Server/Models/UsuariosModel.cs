@@ -17,6 +17,7 @@ public class UsuariosModel
     [Unicode(false)]
     public string NombreUsuario { get; set; }
 
+
     public int IdPerfil { get; set; }
 
     public int? IdSupervisor { get; set; }
@@ -34,7 +35,7 @@ public class UsuariosModel
     public string Apellidos { get; set; }
 
     [Column(TypeName = "datetime")]
-    public DateTime FechaCrea { get; set; }
+    public DateTime FechaCreacion { get; set; }
 
     public bool Activo { get; set; }
 

@@ -97,6 +97,12 @@
               <input type="file" class="d-none"  @change="handleOtrosUpload" />
             </label>
           </div>
+
+
+<!-- <div>
+<file-upload :url="url" :thumb-url="thumbUrl" :headers="headers" @change="onFileChange"></file-upload>
+</div> -->
+
         </div>
         <div class="text-center mt-4 btn-align-items-center">
         <button type="submit" class="btn p-button custom-blue ">
@@ -107,7 +113,6 @@
     </form>
   </div>
 </template>
-
 
 <script setup>
 import { ref, onMounted } from 'vue'
@@ -124,8 +129,12 @@ const form = ref({
   tribunal: '',
   nombreRepresentante: '',
   fechaAudiencia: '',
-  estatus: ''
+  estatus: '',
+  id_usuario: 1 // Asegúrate de establecerlo correctamente
 })
+
+const expedienteFile = ref(null)
+const otrosFile = ref(null)
 
 const tiposDemandante = [
   { label: 'Empleado', value: 'Empleado' },
@@ -161,33 +170,67 @@ const cargarDatosDropdowns = async () => {
   }
 }
 
-
 onMounted(() => {
   form.value.fechaExpediente = new Date().toISOString().substring(0, 10)
   cargarDatosDropdowns()
 })
 
 const handleExpedienteUpload = (e) => {
-  const file = e.target.files[0]
-  if (file) {
-    console.log('Expediente seleccionado:', file.name)
-    // Aquí podrías subirlo o guardarlo
+  expedienteFile.value = e.target.files[0]
+  if (expedienteFile.value) {
+    console.log('Expediente seleccionado:', expedienteFile.value.name)
   }
 }
 
 const handleOtrosUpload = (e) => {
-  const file = e.target.files[0]
-  if (file) {
-    console.log('Otro documento seleccionado:', file.name)
-    // Aquí podrías subirlo o guardarlo
+  otrosFile.value = e.target.files[0]
+  if (otrosFile.value) {
+    console.log('Otro documento seleccionado:', otrosFile.value.name)
   }
 }
 
-const registrarLitigio = () => {
-  console.log('Formulario enviado:', form.value)
-  alert('¡Litigio registrado con éxito!')
+const registrarLitigio = async () => {
+  if (!expedienteFile.value) {
+    alert('Debe adjuntar un archivo de expediente.')
+    return
+  }
+
+  const formData = new FormData()
+  formData.append('ltg_acto', form.value.noActo)
+  formData.append('ltg_Fecha_Acto', form.value.fechaActo)
+  formData.append('id_Tipo_Demanda', form.value.tipoDemanda)
+  formData.append('ltg_Cedula_Demandante', form.value.cedulaDemandante)
+  formData.append('ltg_Nacionalidad', '') // Modifica si tienes este dato
+  formData.append('ltg_Demandante', form.value.demandante)
+  formData.append('ltg_Tipo_Demandante', form.value.tiposDemandante)
+  formData.append('ltg_Cedula_Representante', form.value.cedulaRepresentante)
+  formData.append('ltg_Nombre_Representante', form.value.nombreRepresentante)
+  formData.append('ltg_Fecha_Audiencia', form.value.fechaAudiencia || '')
+  formData.append('ltg_Fecha_Actualizacion', new Date().toISOString())
+  formData.append('id_Tribunal', form.value.tribunal)
+  formData.append('id_Sentencia', '') // Modifica si corresponde
+  formData.append('id_usuario', form.value.id_usuario)
+  formData.append('id_Estatus', form.value.estatus)
+  formData.append('NombreCarpeta', form.value.noActo) // Para la ruta
+  formData.append('Archivo', expedienteFile.value)
+
+  try {
+    const response = await fetch('https://localhost:7177/api/TuControlador/Subir_Litigio_Con_Archivo', {
+      method: 'POST',
+      body: formData
+    })
+
+    if (!response.ok) throw new Error('Error al registrar el litigio.')
+
+    const result = await response.json()
+    alert(result.mensaje) // Puedes cambiar esto por notivue
+  } catch (error) {
+    console.error('Error al registrar el litigio:', error)
+    alert('Hubo un error al registrar el litigio.')
+  }
 }
 </script>
+
 <style scoped>
 .card {
   background-color: #ffffff;

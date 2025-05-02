@@ -21,12 +21,10 @@ public partial class Usuarios
 
     public string nombreUsuario { get; set; }
 
-
     public int? idSupervisor { get; set; }
 
     public virtual ICollection<Litigios> Litigios { get; set; } = new List<Litigios>();
 
     public virtual Perfiles idPerfilNavigation { get; set; }
-
 
 }

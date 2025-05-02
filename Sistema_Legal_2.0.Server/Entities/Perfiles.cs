@@ -9,7 +9,7 @@ public partial class Perfiles
 {
     public int idPerfil { get; set; }
 
-    public string nombrePerfil { get; set; }
+    public string Nombre { get; set; }
 
     public string Descripcion { get; set; }
 

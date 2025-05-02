@@ -213,7 +213,7 @@ public partial class db_silegContext : DbContext
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(100)
                 .IsUnicode(false);
-            entity.Property(e => e.nombrePerfil)
+            entity.Property(e => e.Nombre)
                 .HasMaxLength(50)
                 .IsUnicode(false);
         });

@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Sistema_Legal_2._0.Server.Controller
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/Usuarios")]
     public class UsuariosController : ControllerBase
     {
         private readonly UsuariosRepo usuariosRepo;
@@ -102,7 +102,7 @@ namespace Sistema_Legal_2._0.Server.Controller
                 if (usuariosRepo.Any(x => x.nombreUsuario == usuariosModel.NombreUsuario)) 
                     return new OperationResult(false, "Este usuario ya tiene acceso al sistema");
                     
-                usuariosModel.FechaCrea = DateTime.Now;
+                usuariosModel.FechaCreacion = DateTime.Now;
 
                 var created = usuariosRepo.Add(usuariosModel);
                 _logger.LogHttpRequest(usuariosModel);
@@ -122,28 +122,28 @@ namespace Sistema_Legal_2._0.Server.Controller
         /// <returns>Resultado de la operacin.</returns>
        
         
-        [HttpPut(Name = "UpdateUsuario")]
-        [AllowAnonymous]
-        public OperationResult Put(UsuariosModel usuariosModel)
-        {
-            try
-            {
-                var usuario = usuariosRepo.Get(x => x.idUsuario == usuariosModel.IdUsuario).FirstOrDefault();
+        //[HttpPut(Name = "UpdateUsuario")]
+        //[AllowAnonymous]
+        //public OperationResult Put(UsuariosModel usuariosModel)
+        //{
+        //    try
+        //    {
+        //        var usuario = usuariosRepo.Get(x => x.idUsuario == usuariosModel.IdUsuario).FirstOrDefault();
 
-                if (usuario == null) return new OperationResult(false, "El usuario no se ha encontrado");
-                usuario.IdPerfil = usuariosModel.IdPerfil;
-                usuario.Activo = usuariosModel.Activo;             
+        //        if (usuario == null) return new OperationResult(false, "El usuario no se ha encontrado");
+        //        usuario.IdPerfil = usuariosModel.IdPerfil;
+        //        usuario.Activo = usuariosModel.Activo;             
 
-                usuariosRepo.Edit(usuario);
-                _logger.LogHttpRequest(usuariosModel);
-                return new OperationResult(true, "Usuario modificado exitosamente", usuario);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex);
-                throw;
-            }
-        }
+        //        usuariosRepo.Edit(usuario);
+        //        _logger.LogHttpRequest(usuariosModel);
+        //        return new OperationResult(true, "Usuario modificado exitosamente", usuario);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex);
+        //        throw;
+        //    }
+        //}
 
 
 

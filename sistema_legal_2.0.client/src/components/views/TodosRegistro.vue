@@ -15,37 +15,37 @@
               <th>Fecha acto</th>
               <th>Cédula demandante</th>
               <th>Nombre demandante</th>
-              <th>Cédula Representante</th>
-              <th>Nombre Representante</th>
+  <!--             <th>Cédula Representante</th>
+              <th>Nombre Representante</th> -->
               <th>Tipo de Demanda</th>
-              <th>Nacionalidad</th>
+   <!--            <th>Nacionalidad</th> -->
               <th>Tipo de Demandante</th>
               <th>Fecha audiencia</th>
-              <th>Fecha actualizacion</th>
-              <th>Tribunal</th>
-              <th>Digitador</th>
-              <th>Estatus</th>
-              <th>Sentencia</th>
+    <!--           <th>Fecha actualizacion</th> -->
+        <!--       <th>Tribunal</th> -->
+           <!--    <th>Digitador</th> -->
+    <!--           <th>Estatus</th> -->
+       <!--        <th>Sentencia</th> -->
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="litigio in data" :key="litigio.ltg_acto">
               <td class="sticky-column  accent-column fw-bold ">{{ litigio.ltg_acto }}</td>
-              <td>{{ litigio.ltg_Fecha_Acto }}</td>
+              <td>{{ litigio.ltg_Fecha_Acto.split('T')[0] }}</td>
               <td>{{ litigio.ltg_Cedula_Demandante }}</td>
               <td>{{ litigio.ltg_Demandante }}</td>
-              <td>{{ litigio.ltg_Cedula_Representante }}</td>
-              <td>{{ litigio.ltg_Nombre_Representante }}</td>
+    <!--           <td>{{ litigio.ltg_Cedula_Representante }}</td>
+              <td>{{ litigio.ltg_Nombre_Representante }}</td> -->
               <td>{{ litigio.tipoDemanda_Nombre }}</td>
-              <td>{{ litigio.ltg_Nacionalidad }}</td>
+     <!--          <td>{{ litigio.ltg_Nacionalidad }}</td> -->
               <td>{{ litigio.ltg_Tipo_Demandante }}</td>
-              <td>{{ litigio.ltg_Fecha_Audiencia }}</td>
-              <td>{{ litigio.ltg_Fecha_Actualizacion }}</td>
-              <td>{{ litigio.nombre_Tribunal }}</td>
-              <td>{{ litigio.nombreUsuario }}</td>
-              <td>{{ litigio.estatus_Descripcion }}</td>
-              <td>{{ litigio.desc_Sentencia }}</td>
+              <td>{{ litigio.ltg_Fecha_Audiencia?.split('T')[0] || 'Sin fecha' }}</td>
+         <!--      <td>{{ litigio.ltg_Fecha_Actualizacion }}</td> -->
+<!--               <td>{{ litigio.nombre_Tribunal }}</td> -->
+       <!--        <td>{{ litigio.nombreUsuario }}</td> -->
+             <!--  <td>{{ litigio.estatus_Descripcion }}</td> -->
+          <!--     <td>{{ litigio.desc_Sentencia }}</td> -->
               <td> <!-- Este es el TD que faltaba para la columna Acciones -->
                 <div class="btn-group">
                   <router-link :to="`/litigio/detalle/${litigio.id_Ltg}`" class="btn btn-sm"
@@ -136,13 +136,7 @@ onMounted(async () => {
   /* Altura máxima con scroll vertical */
 }
 
-.sticky-column {
-  position: sticky;
-  left: 0;
-  z-index: 1;
-  min-width: 120px;
-  /* Ancho mínimo para la columna fija */
-}
+
 
 /* Efecto hover para mejor interactividad */
 

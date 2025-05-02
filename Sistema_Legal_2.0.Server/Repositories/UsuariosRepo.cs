@@ -11,13 +11,10 @@ public class UsuariosRepo : Repository<Usuarios, UsuariosModel>
             {
                 idUsuario = u.IdUsuario,
                 nombreUsuario = u.NombreUsuario,
-                nombres = u.Nombres,
-           
+                nombres = u.Nombres,             
                 apellidos = u.Apellidos,                
                 Activo = u.Activo,
-                fechaCreacion = u.FechaCrea,
-               
-              
+                fechaCreacion = u.FechaCreacion,
                 idPerfil = u.IdPerfil
               
       
@@ -30,11 +27,11 @@ public class UsuariosRepo : Repository<Usuarios, UsuariosModel>
                         select new UsuariosModel()
                         {
                             IdUsuario = u.idUsuario,
-                            NombreUsuario = u.nombreUsuario,          
+                            NombreUsuario = u.nombreUsuario,  
+                            nombrePerfil = p.Nombre ?? "",
                             Nombres = u.nombres,
                             Apellidos = u.apellidos,                            
-                            FechaCrea = (DateTime)u.fechaCreacion,
-                           
+                            FechaCreacion = (DateTime)u.fechaCreacion,                      
                             Activo = u.Activo,
                             IdPerfil = (int)u.idPerfil
                         });
