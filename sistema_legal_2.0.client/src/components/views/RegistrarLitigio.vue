@@ -1,154 +1,130 @@
 <template>
-  <div class="card p-4 shadow-sm">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2 class="h4 fw-bold">Registro de Litigio</h2>
-      <div style="width: 220px;">
-        <input type="date" class="form-control" v-model="form.fechaExpediente" disabled />
-      </div>
+  <div class="card p-4 shadow-2">
+    <div class="flex justify-content-between align-items-center mb-4">
+      <h2 class="text-xl font-bold">Registro de Litigio</h2>
+      <router-link to="/drawer/home" class="btn text-white me-8" style="background-color: #003870;">
+          <i class="fa-solid fa-home me-2"></i> Inicio
+        </router-link>
     </div>
 
     <form @submit.prevent="registrarLitigio">
-      <div class="row g-3">
+      <div class="grid formgrid p-fluid">
         <!-- No. Acto -->
-        <div class="col-md-4">
-          <input type="text" class="form-control" v-model="form.noActo" placeholder="No. Acto Alguacil *" />
+        <div class="field col-12 md:col-4">
+          <InputText v-model="form.noActo" placeholder="No. Acto Alguacil *" />
         </div>
 
         <!-- Fecha Acto -->
-        <div class="col-md-4">
-          <input type="date" class="form-control" v-model="form.fechaActo" placeholder="Fecha del acto" />
+        <div class="field col-12 md:col-4">
+          <Calendar v-model="form.fechaActo" dateFormat="yy-mm-dd" showIcon placeholder="Fecha del acto" />
         </div>
 
         <!-- Cédula Demandante -->
-        <div class="col-md-4">
-          <input type="text" class="form-control" v-model="form.cedulaDemandante" placeholder="Cédula del demandante" />
+        <div class="field col-12 md:col-4">
+          <InputText v-model="form.cedulaDemandante" placeholder="Cédula del demandante" />
         </div>
 
         <!-- Tipo de Demanda -->
-        <div class="col-md-6">
-          <select class="form-select" v-model="form.tipoDemanda">
-            <option disabled value="">Tipo de Demanda</option>
-            <option v-for="item in tiposDemanda" :key="item.value" :value="item.value">{{ item.label }}</option>
-          </select>
+        <div class="field col-12 md:col-6">
+          <Dropdown
+            v-model="form.tipoDemanda"
+            :options="tiposDemanda"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Tipo de Demanda"
+          />
         </div>
 
         <!-- Demandante -->
-        <div class="col-md-6">
-          <input type="text" class="form-control" v-model="form.demandante" placeholder="Nombre demandante" />
+        <div class="field col-12 md:col-6">
+          <InputText v-model="form.demandante" placeholder="Nombre demandante" />
         </div>
 
         <!-- Tipo de Demandante -->
-        <div class="col-md-4">
-          <select class="form-select" v-model="form.tiposDemandante">
-            <option disabled value="">Tipo de Demandante</option>
-            <option v-for="item in tiposDemandante" :key="item.value" :value="item.value">{{ item.label }}</option>
-          </select>
+        <div class="field col-12 md:col-4">
+          <Dropdown
+            v-model="form.tiposDemandante"
+            :options="tiposDemandante"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Tipo de Demandante"
+          />
         </div>
 
         <!-- Cédula Representante -->
-        <div class="col-md-4">
-          <input type="text" class="form-control" v-model="form.cedulaRepresentante"
-            placeholder="Cédula del representante" />
+        <div class="field col-12 md:col-4">
+          <InputText v-model="form.cedulaRepresentante" placeholder="Cédula del representante" />
         </div>
 
         <!-- Tribunal -->
-        <div class="col-md-4">
-          <select class="form-select" v-model="form.tribunal">
-            <option disabled value="">Tribunal</option>
-            <option v-for="item in tribunales" :key="item.value" :value="item.value">{{ item.label }}</option>
-          </select>
+        <div class="field col-12 md:col-4">
+          <Dropdown
+            v-model="form.tribunal"
+            :options="tribunales"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Tribunal"
+          />
         </div>
 
         <!-- Nombre Representante -->
-        <div class="col-md-6">
-          <input type="text" class="form-control" v-model="form.nombreRepresentante"
-            placeholder="Nombre del representante" />
+        <div class="field col-12 md:col-6">
+          <InputText v-model="form.nombreRepresentante" placeholder="Nombre del representante" />
         </div>
 
         <!-- Fecha Audiencia -->
-        <div class="col-md-3">
-          <input type="date" class="form-control" v-model="form.fechaAudiencia" placeholder="Fecha de audiencia" />
+        <div class="field col-12 md:col-3">
+          <Calendar v-model="form.fechaAudiencia" dateFormat="yy-mm-dd" showIcon placeholder="Fecha de audiencia" />
         </div>
 
         <!-- Estatus -->
-        <div class="col-md-3">
-          <select class="form-select" v-model="form.estatus">
-            <option disabled value="">Estatus</option>
-            <option v-for="item in estatusList" :key="item.value" :value="item.value">{{ item.label }}</option>
-          </select>
+        <div class="field col-12 md:col-3">
+          <Dropdown
+            v-model="form.estatus"
+            :options="estatusList"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Estatus"
+          />
         </div>
 
-        <!-- Documentos -->
-        <div class="col-md-4 ">
+        <!-- Subidas -->
+        <div class="field col-12 md:col-6">
+          <label class="font-bold">Cargar Expediente</label>
+          <FileUpload
+            name="Archivo"
+            customUpload
+            @uploader="handleExpedienteUpload"
+            mode="basic"
+            chooseLabel="Elegir archivo"
+          />
 
-
-          <!-- Expediente -->
-          <!-- <div class="mb-2 btn">
-            <label class="btn btn-primary w-100 custom-blue">
-              <i class="bi bi-upload me-2"></i> Cargar expediente
-              <input type="file" class="d-none" @change="handleExpedienteUpload" />
-            </label>
-          </div> -->
-
-          <!-- Otros documentos -->
-          <!-- <div class="mb-2 btn">
-            <label class="btn btn-primary w-100 custom-blue">
-              <i class="bi bi-paperclip me-2"></i> Otros documentos
-              <input type="file" class="d-none"  @change="handleOtrosUpload" />
-            </label>
-          </div> -->
-          <label class="mb-2 btn text-bold">Cargar Expediente</label>
-      <div class="mb-2 btn">
-    <file-upload
-      :url="url"
-      :thumb-url="thumbUrl"
-      :headers="headers"
-      :translations="{
-    chooseFile: 'Elegir archivo',
-    upload: 'Subir',
-    cancel: 'Cancelar'
-  }"
-      @change="handleOtrosUpload"
-      class="upload-clear-style custom-blue"
-    >
-       </file-upload>
-  </div>
-
-          <br>
-          <label class="mb-2 btn text-bold">Otras Evidencia</label>
-      <div class="mb-2 btn">
-    <file-upload
-      :url="url"
-      :overlay="false"
-      :modal-props="{ background: 'transparent' }"
-      :thumb-url="thumbUrl"
-      :headers="headers"
-      @change="handleOtrosUpload"
-      class="upload-clear-style custom-blue"
-    >
-    </file-upload>
-  </div>
-
-
-
-
-<!-- <div>
-<file-upload :url="url" :thumb-url="thumbUrl" :headers="headers" @change="onFileChange"></file-upload>
-</div> -->
-
+          <label class="font-bold mt-3">Otras Evidencias</label>
+          <FileUpload
+            name="Otros"
+            customUpload
+            @uploader="handleOtrosUpload"
+            mode="basic"
+            chooseLabel="Elegir archivo"
+          />
         </div>
-        <div class="text-center mt-4 btn-align-items-center">
-        <button type="submit" class="btn p-button custom-blue ">
-          <i class="bi bi-check-circle"></i> Registrar
-        </button>
       </div>
+
+      <div class="text-center mt-4">
+        <Button type="submit" label="Registrar" icon="pi pi-check" class="p-button-primary" />
       </div>
     </form>
   </div>
 </template>
 
+
 <script setup>
 import { ref, onMounted } from 'vue'
+import  InputText  from 'primevue/inputtext'
+import  Calendar  from 'primevue/calendar'
+import Dropdown  from 'primevue/dropdown'
+import  FileUpload  from 'primevue/fileupload'
+import  Button  from 'primevue/button'
 
 const form = ref({
   fechaExpediente: new Date().toISOString().split('T')[0],

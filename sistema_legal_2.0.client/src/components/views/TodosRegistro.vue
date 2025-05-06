@@ -1,7 +1,10 @@
 <template>
+
+
   <div class="card p-6 shadow-2">
     <div class="flex justify-content-between align-items-center mb-4">
       <h2 class="text-2xl font-semibold">Registros</h2>
+      
       <div class="flex justify-content-end">
           <span class="p-input-icon-left">
             <InputText v-model="globalFilter" placeholder="Buscar..." />
