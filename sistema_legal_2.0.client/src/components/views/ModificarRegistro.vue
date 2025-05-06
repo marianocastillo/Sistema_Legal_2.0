@@ -4,10 +4,13 @@
       <h2 class="text-2xl font-semibold">Modificar Registros</h2>
       <div style="width: 220px">
         <span class="p-float-label w-full">
-          <Calendar id="fechaExpediente" v-model="form.fechaExpediente" dateFormat="dd/mm/yy" class="w-full" disabled />
-          <!-- <label for="fechaExpediente">Fecha del expediente</label> -->
+         <!-- <label for="fechaExpediente">Fecha del expediente</label> -->
         </span>
+
       </div>
+      <router-link to="/drawer/home" class="btn text-white" style="background-color: #003870;">
+          <i class="fa-solid fa-home me-2"></i> Inicio
+        </router-link>
     </div>
 
     <div class="formgrid grid">
