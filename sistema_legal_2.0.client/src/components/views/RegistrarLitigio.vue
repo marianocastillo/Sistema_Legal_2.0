@@ -80,23 +80,56 @@
 
         <!-- Documentos -->
         <div class="col-md-4 ">
-          <label class="form-label">Adjuntar documentos del expediente</label>
+
 
           <!-- Expediente -->
-          <div class="mb-2 btn">
+          <!-- <div class="mb-2 btn">
             <label class="btn btn-primary w-100 custom-blue">
               <i class="bi bi-upload me-2"></i> Cargar expediente
               <input type="file" class="d-none" @change="handleExpedienteUpload" />
             </label>
-          </div>
+          </div> -->
 
           <!-- Otros documentos -->
-          <div class="mb-2 btn">
+          <!-- <div class="mb-2 btn">
             <label class="btn btn-primary w-100 custom-blue">
               <i class="bi bi-paperclip me-2"></i> Otros documentos
               <input type="file" class="d-none"  @change="handleOtrosUpload" />
             </label>
-          </div>
+          </div> -->
+          <label class="mb-2 btn text-bold">Cargar Expediente</label>
+      <div class="mb-2 btn">
+    <file-upload
+      :url="url"
+      :thumb-url="thumbUrl"
+      :headers="headers"
+      :translations="{
+    chooseFile: 'Elegir archivo',
+    upload: 'Subir',
+    cancel: 'Cancelar'
+  }"
+      @change="handleOtrosUpload"
+      class="upload-clear-style custom-blue"
+    >
+       </file-upload>
+  </div>
+
+          <br>
+          <label class="mb-2 btn text-bold">Otras Evidencia</label>
+      <div class="mb-2 btn">
+    <file-upload
+      :url="url"
+      :overlay="false"
+      :modal-props="{ background: 'transparent' }"
+      :thumb-url="thumbUrl"
+      :headers="headers"
+      @change="handleOtrosUpload"
+      class="upload-clear-style custom-blue"
+    >
+    </file-upload>
+  </div>
+
+
 
 
 <!-- <div>
@@ -145,6 +178,10 @@ const tiposDemandante = [
 const tiposDemanda = ref([])
 const tribunales = ref([])
 const estatusList = ref([])
+const url = ref('');
+const thumbUrl = ref('');
+const headers = ref([]);
+
 
 const cargarDatosDropdowns = async () => {
   try {
@@ -232,19 +269,5 @@ const registrarLitigio = async () => {
 </script>
 
 <style scoped>
-.card {
-  background-color: #ffffff;
-  border-radius: 0.75rem;
-  border: 1px solid #ddd;
-}
 
-
-
-
-
-.custom-blue {
-  background-color: #003870 !important;
-  border-color: #dc3545 !important;
-  color: white !important;
-}
 </style>

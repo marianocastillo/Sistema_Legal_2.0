@@ -41,21 +41,21 @@ if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    plugin(),
+    vue(), // Cambié 'plugin()' por 'vue()' que es el plugin oficial de Vue
     Components({
       resolvers: [
-        PrimeVueResolver(),
+        PrimeVueResolver()
       ],
       types: [{
         from: 'notivue',
-        names: ['push'],
-      }],
-    },
-    )
+        names: ['push']
+      }]
+    }) // Corregí el cierre de paréntesis aquí
   ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
+      
     }
   },
   base: process.env.NODE_ENV === 'production' ? '/Sistema Legal/' : '/',
@@ -64,13 +64,13 @@ export default defineConfig({
       '^/api': {
         target: 'https://localhost:7177/',
         changeOrigin: true,
-        secure: false,
+        secure: false
       }
     },
     port: 5173,
     https: {
       key: fs.readFileSync(keyFilePath),
-      cert: fs.readFileSync(certFilePath),
+      cert: fs.readFileSync(certFilePath)
     }
   },
   build: {
@@ -82,6 +82,8 @@ export default defineConfig({
         }
       }
     },
-    commonjsOptions: { transformMixedEsModules: true } // Change
-  },
+    commonjsOptions: {
+      transformMixedEsModules: true
+    }
+  }
 })

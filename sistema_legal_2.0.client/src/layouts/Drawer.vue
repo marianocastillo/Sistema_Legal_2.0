@@ -6,7 +6,7 @@
         <div class="sidebar-header">
           <div class="sidebar-brand">
             <img src="../assets/LogoBlanco.png" alt="Logo" class="img-fluid" style="max-width: 50px;" />
-            <h4 class="sidebar-title">Sistema de Litigio</h4>
+            <h4 class="sidebar-title">Sistema Sileg 2.0</h4>
           </div>
         </div>
         <br>
@@ -66,7 +66,7 @@
       </div>
 
       <footer class="sidebar-footer">
-        © 2025 Sistema Legal
+        © 2025 Sistema Sileg 2.0
       </footer>
     </aside>
 
