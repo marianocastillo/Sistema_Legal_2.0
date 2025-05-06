@@ -23,12 +23,11 @@
 
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
-
-//import Navbar from './components/Navbar.vue'
-// import Footer from './components/Footer.vue'
 import LoginView from './components/views/LoginView.vue'
 import Toast from 'primevue/toast'
 
+// No necesitas export default en <script setup>
+// Los componentes importados están disponibles automáticamente
 const route = useRoute()
 const router = useRouter()
 

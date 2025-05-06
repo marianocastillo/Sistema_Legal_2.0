@@ -1,7 +1,7 @@
 import { createApp } from 'vue';
 import store from "./store";
 import PrimeVue from 'primevue/config';
-
+import ToastService from 'primevue/toastservice'
 import {dom, library} from '@fortawesome/fontawesome-svg-core';
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import { fab } from '@fortawesome/free-brands-svg-icons';
@@ -73,3 +73,4 @@ app.mount('#app');
 app.component('PrimeColumn', Column)
 app.component('PrimeRow', Row)
 app.component('ColumnGroup', ColumnGroup)
+app.use(ToastService)
