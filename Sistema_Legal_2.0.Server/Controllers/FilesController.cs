@@ -173,7 +173,66 @@ namespace Sistema_Legal_2._0.Server.Controllers
         }
 
 
+        [HttpGet("comentarios-evidencias/{idLitigio}")]
+        public async Task<IActionResult> ObtenerComentariosEvidenciasPorLitigio(int idLitigio)
+        {
+            using var connection = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal"));
+            var parametros = new DynamicParameters();
+            parametros.Add("@IdLitigio", idLitigio);
 
+            var resultado = await connection.QueryAsync<dynamic>(
+                "sp_OComentariosEvidenciasID",
+                parametros,
+                commandType: CommandType.StoredProcedure
+            );
+
+            return Ok(resultado);
+        }
+
+
+        [HttpPost("subir-evidencia-comentario")]
+        public async Task<IActionResult> SubirEvidenciaYComentario([FromForm] EvidenciaComentarioDTO modelo)
+        {
+            var archivo = modelo.Archivo;
+            if (archivo == null || archivo.Length == 0)
+                return BadRequest("Archivo no proporcionado.");
+
+            var basePath = _configuration.GetValue<string>("FilesServerPath");
+            var nombreOriginal = Path.GetFileNameWithoutExtension(archivo.FileName);
+            var extension = Path.GetExtension(archivo.FileName);
+            var fechaActual = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+            var nombreCarpeta = $"{nombreOriginal}_{fechaActual}";
+            var carpetaDestino = Path.Combine(basePath, nombreCarpeta);
+
+            if (!Directory.Exists(carpetaDestino))
+                Directory.CreateDirectory(carpetaDestino);
+
+            var rutaArchivo = Path.Combine(carpetaDestino, archivo.FileName);
+
+            using (var stream = new FileStream(rutaArchivo, FileMode.Create))
+            {
+                await archivo.CopyToAsync(stream);
+            }
+
+            using var connection = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal"));
+            var parametros = new DynamicParameters();
+            parametros.Add("@IdUsuario", modelo.IdUsuario);
+            parametros.Add("@IdLitigio", modelo.IdLitigio);
+            parametros.Add("@TextoComentario", modelo.Comentario);
+            parametros.Add("@NombreArchivo", archivo.FileName);
+            parametros.Add("@RutaArchivo", Path.Combine(nombreCarpeta, archivo.FileName));
+            parametros.Add("@ComentarioId", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            parametros.Add("@EvidenciaId", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            await connection.ExecuteAsync("sp_InsertarComentarioYArchivo", parametros, commandType: CommandType.StoredProcedure);
+
+            return Ok(new
+            {
+                mensaje = "Evidencia y comentario guardados correctamente.",
+                comentarioId = parametros.Get<int>("@ComentarioId"),
+                evidenciaId = parametros.Get<int>("@EvidenciaId")
+            });
+        }
 
 
 
