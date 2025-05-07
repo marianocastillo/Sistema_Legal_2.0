@@ -2,6 +2,11 @@
   <div class="card p-6 shadow-2">
     <div class="flex justify-content-between align-items-center mb-4">
       <h2 class="text-2xl font-semibold">Detalle del Litigio</h2>
+
+      <router-link to="/drawer/home" class="btn text-white ms-auto" style="background-color: #003870;">
+        <i class="fa-solid fa-home me-2"></i> Inicio
+      </router-link>
+
       <VaButton @click="$emit('close')" icon="close" color="danger" size="small" class="p-2" />
     </div>
 

@@ -74,16 +74,16 @@ export default {
   name: 'FormularioView',
   data() {
     return {
-      Cedula: '',
+
       usuario: {
-        cedula: '',
+    
                 nombreUsuario: '',
                 nombres: '',
                 apellidos: '',
                 idPerfil: 0,
-                withData: false,
+                IdSupervisor: 0,
+            },
 
-      },
       idUsuario: this.$route.params.idUsuario,
       errors: {},
       usuariosAsociados: [],
@@ -107,9 +107,13 @@ export default {
       await this.LoadUsuario();
       await this.LoadPerfiles();
     },
+
+
+
+
     async LoadUsuario() {
       if (this.idUsuario) {
-        const response = await api.get(`/api/Usuarios/UsuariosConPerfil/${this.idUsuario}`);
+        const response = await api.get(`/api/Usuarios/${this.idUsuario}`);
         console.log(this.usuario)
         if (response.data) {
           this.usuario = response.data;
@@ -119,6 +123,10 @@ export default {
         else push.warning({ title: "Advertencia", message: response.data.message });
       }
     },
+
+
+
+
     async LoadUsuarioByAD() {
       if (this.usuario.nombreUsuario) {
         if (this.LastADSearch === this.usuario.nombreUsuario) return;
@@ -133,6 +141,10 @@ export default {
         else push.warning({ title: "Advertencia", message: "No se encontró el usuario en el Active Directory" });
       }
     },
+
+
+
+
     async LoadPerfiles() {
       const response = await api.get('/api/Perfiles');
       if (response.data) {
@@ -140,19 +152,34 @@ export default {
       }
       else push.warning({ title: "Advertencia", message: response.data.message });
     },
+
+
+
+
     async Guardar() {
             const response = await api[this.FormMode == this.FormModes.Editar ? 'put' : 'post']('/api/Usuarios', this.usuario);
 
             if (response.data.success) {
                 push.success({ title: 'Operación exitosa', message: response.data.message});
                 this.errors = {};
-                this.$router.push('/drawer/listadodeusuario');
+
+                this.usuario = {
+                nombreUsuario: '',
+                nombres: '',
+                apellidos: '',
+                idPerfil: 0,
+                activo: false
+                };
+                this.$router.push('/drawer/formulario');
             }
             else {
                 if (response.data.errors) this.errors = response.data.errors;
                 push.warning({ title: 'Advertencia', message: response.data.message});
             }
         },
+
+
+
 
 
     GetFormMode() {

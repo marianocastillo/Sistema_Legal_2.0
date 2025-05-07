@@ -1,27 +1,24 @@
 <template>
-
-
   <div class="card p-6 shadow-2">
     <div class="flex justify-content-between align-items-center mb-4">
       <h2 class="text-2xl font-semibold">Registros</h2>
-      
+
       <div class="flex justify-content-end">
-          <span class="p-input-icon-left">
-            <InputText v-model="globalFilter" placeholder="Buscar..." />
-          </span>
-        </div>
+        <span class="p-input-icon-left">
+          <InputText v-model="globalFilter" placeholder="Buscar..." />
+        </span>
+      </div>
     </div>
 
     <DataTable
-    :value="data"
-  :paginator="true"
-  :rows="5"
-  :filters="filters"
-  :globalFilterFields="['ltg_acto', 'ltg_Cedula_Demandante', 'ltg_Demandante']"
-  class="p-datatable-sm"
-  responsiveLayout="scroll"
+      :value="data"
+      :paginator="true"
+      :rows="5"
+      :filters="filters"
+      :globalFilterFields="['ltg_acto', 'ltg_Cedula_Demandante', 'ltg_Demandante']"
+      class="p-datatable-sm"
+      responsiveLayout="scroll"
     >
-
       <Column field="ltg_acto" header="No.Acto" />
       <Column field="ltg_Fecha_Acto" header="Fecha acto">
         <template #body="{ data }">
@@ -58,36 +55,32 @@
         </template>
       </Column>
     </DataTable>
-
-
   </div>
 </template>
 
 <script setup>
-
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
+import { ref, onMounted } from 'vue';
+import api from '@/utilities/api.js';
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
+import InputText from 'primevue/inputtext';
 
-import { ref, onMounted } from 'vue'
-import api from '@/utilities/api.js'
-import  DataTable  from 'primevue/datatable'
-import Column from 'primevue/column'
-import  InputText  from 'primevue/inputtext'
-
-
-const data = ref([])
-/* const filters = ref({
+const data = ref([]);
+const globalFilter = ref(null); // Define globalFilter como un ref
+const filters = ref({ // Define filters como un ref
   global: { value: null, matchMode: FilterMatchMode.CONTAINS }
-})
- */
+});
+
 onMounted(async () => {
   try {
-    const response = await api.get('/api/Litigio/Litigio_detallado')
-    data.value = response.data
+    const response = await api.get('/api/Litigio/Litigio_detallado');
+    data.value = response.data;
   } catch (error) {
-    console.error('Error al cargar los litigios:', error)
+    console.error('Error al cargar los litigios:', error);
   }
-})
+});
 </script>
 
 <style scoped>

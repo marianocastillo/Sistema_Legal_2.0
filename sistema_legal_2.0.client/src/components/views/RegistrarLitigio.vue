@@ -8,24 +8,60 @@
     </div>
 
     <form @submit.prevent="registrarLitigio">
-      <div class="grid formgrid p-fluid">
-        <!-- No. Acto -->
-        <div class="field col-12 md:col-4">
-          <InputText v-model="form.noActo" placeholder="No. Acto Alguacil *" />
-        </div>
+  <div class="grid formgrid p-fluid">
 
-        <!-- Fecha Acto -->
-        <div class="field col-12 md:col-4">
-          <Calendar v-model="form.fechaActo" dateFormat="yy-mm-dd" showIcon placeholder="Fecha del acto" />
-        </div>
+    <!-- DATOS DEL DEMANDANTE -->
+    <fieldset class="col-12 border-1 border-round p-3 mb-3">
+      <legend class="font-bold text-lg">Datos del Demandante</legend>
 
-        <!-- Cédula Demandante -->
+      <div class="grid">
         <div class="field col-12 md:col-4">
           <InputText v-model="form.cedulaDemandante" placeholder="Cédula del demandante" />
         </div>
+        <div class="field col-12 md:col-4">
+          <InputText v-model="form.demandante" placeholder="Nombre del demandante" />
+        </div>
 
-        <!-- Tipo de Demanda -->
-        <div class="field col-12 md:col-6">
+
+        <div class="field col-12 md:col-3">
+          <Dropdown
+            id="tipoDemandante"
+            v-model="form.tipoDemandante"
+            :options="tiposDemandante"
+            optionLabel="label"
+            optionValue="value"
+            class="w-full p-dropdown"
+            placeholder="Tipo de Demandante"
+          />
+        </div>
+
+        <div class="field col-12 md:col-4" v-if="form.tipoDemandante === 'Otros'">
+          <span class="p-float-label">
+            <InputText
+              id="otrosDemandante"
+              v-model="form.otrosDemandante"
+              class="w-full"
+              placeholder="Especifique tipo de demandante"
+            />
+
+          </span>
+        </div>
+
+      </div>
+    </fieldset>
+
+    <!-- INFORMACIÓN DEL LITIGIO -->
+    <fieldset class="col-12 border-1 border-round p-3 mb-3">
+      <legend class="font-bold text-lg">Información del Litigio</legend>
+
+      <div class="grid">
+        <div class="field col-12 md:col-4">
+          <InputText v-model="form.noActo" placeholder="No. Acto Alguacil *" />
+        </div>
+        <div class="field col-12 md:col-4">
+          <Calendar v-model="form.fechaActo" dateFormat="yy-mm-dd" showIcon placeholder="Fecha del acto" />
+        </div>
+        <div class="field col-12 md:col-4">
           <Dropdown
             v-model="form.tipoDemanda"
             :options="tiposDemanda"
@@ -35,28 +71,9 @@
           />
         </div>
 
-        <!-- Demandante -->
-        <div class="field col-12 md:col-6">
-          <InputText v-model="form.demandante" placeholder="Nombre demandante" />
-        </div>
-
-        <!-- Tipo de Demandante -->
         <div class="field col-12 md:col-4">
-          <Dropdown
-            v-model="form.tiposDemandante"
-            :options="tiposDemandante"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Tipo de Demandante"
-          />
+          <Calendar v-model="form.fechaAudiencia" dateFormat="yy-mm-dd" showIcon placeholder="Fecha de audiencia" />
         </div>
-
-        <!-- Cédula Representante -->
-        <div class="field col-12 md:col-4">
-          <InputText v-model="form.cedulaRepresentante" placeholder="Cédula del representante" />
-        </div>
-
-        <!-- Tribunal -->
         <div class="field col-12 md:col-4">
           <Dropdown
             v-model="form.tribunal"
@@ -66,19 +83,7 @@
             placeholder="Tribunal"
           />
         </div>
-
-        <!-- Nombre Representante -->
-        <div class="field col-12 md:col-6">
-          <InputText v-model="form.nombreRepresentante" placeholder="Nombre del representante" />
-        </div>
-
-        <!-- Fecha Audiencia -->
-        <div class="field col-12 md:col-3">
-          <Calendar v-model="form.fechaAudiencia" dateFormat="yy-mm-dd" showIcon placeholder="Fecha de audiencia" />
-        </div>
-
-        <!-- Estatus -->
-        <div class="field col-12 md:col-3">
+        <div class="field col-12 md:col-4">
           <Dropdown
             v-model="form.estatus"
             :options="estatusList"
@@ -87,8 +92,28 @@
             placeholder="Estatus"
           />
         </div>
+      </div>
+    </fieldset>
 
-        <!-- Subidas -->
+    <!-- DATOS DEL REPRESENTANTE -->
+    <fieldset class="col-12 border-1 border-round p-3 mb-3">
+      <legend class="font-bold text-lg">Datos del Representante</legend>
+
+      <div class="grid">
+        <div class="field col-12 md:col-6">
+          <InputText v-model="form.cedulaRepresentante" placeholder="Cédula del representante" />
+        </div>
+        <div class="field col-12 md:col-6">
+          <InputText v-model="form.nombreRepresentante" placeholder="Nombre del representante" />
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- ARCHIVOS -->
+    <fieldset class="col-12 border-1 border-round p-3 mb-3">
+      <legend class="font-bold text-lg">Documentos</legend>
+
+      <div class="grid">
         <div class="field col-12 md:col-6">
           <label class="font-bold">Cargar Expediente</label>
           <FileUpload
@@ -98,8 +123,10 @@
             mode="basic"
             chooseLabel="Elegir archivo"
           />
+        </div>
 
-          <label class="font-bold mt-3">Otras Evidencias</label>
+        <div class="field col-12 md:col-6">
+          <label class="font-bold">Otras Evidencias</label>
           <FileUpload
             name="Otros"
             customUpload
@@ -109,11 +136,15 @@
           />
         </div>
       </div>
+    </fieldset>
+  </div>
 
-      <div class="text-center mt-4">
-        <Button type="submit" label="Registrar" icon="pi pi-check" class="p-button-primary" />
-      </div>
-    </form>
+  <!-- BOTÓN -->
+  <div class="text-center mt-4">
+    <Button type="submit" label="Registrar" icon="pi pi-check" class="p-button-primary" />
+  </div>
+</form>
+
   </div>
 </template>
 
@@ -139,7 +170,9 @@ const form = ref({
   nombreRepresentante: '',
   fechaAudiencia: '',
   estatus: '',
-  id_usuario: 1 // Asegúrate de establecerlo correctamente
+  id_usuario: 1,
+  tipoDemandante: '',
+  otrosDemandante: '',
 })
 
 const expedienteFile = ref(null)
@@ -215,7 +248,7 @@ const registrarLitigio = async () => {
   formData.append('ltg_Cedula_Demandante', form.value.cedulaDemandante)
   formData.append('ltg_Nacionalidad', '') // Modifica si tienes este dato
   formData.append('ltg_Demandante', form.value.demandante)
-  formData.append('ltg_Tipo_Demandante', form.value.tiposDemandante)
+  formData.append('ltg_Tipo_Demandante', form.value.tipoDemandante === 'Otros' ? form.value.otrosDemandante : form.value.tipoDemandante)
   formData.append('ltg_Cedula_Representante', form.value.cedulaRepresentante)
   formData.append('ltg_Nombre_Representante', form.value.nombreRepresentante)
   formData.append('ltg_Fecha_Audiencia', form.value.fechaAudiencia || '')

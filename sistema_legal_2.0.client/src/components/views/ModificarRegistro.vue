@@ -1,121 +1,87 @@
 <template>
   <div class="card p-6 shadow-2">
-    <div class="flex justify-content-between align-items-center mb-2">
+    <div class="flex justify-content-between align-items-center mb-4">
       <h2 class="text-2xl font-semibold">Modificar Registros</h2>
-      <div style="width: 220px">
-        <span class="p-float-label w-full">
-         <!-- <label for="fechaExpediente">Fecha del expediente</label> -->
-        </span>
-
-      </div>
       <router-link to="/drawer/home" class="btn text-white" style="background-color: #003870;">
-          <i class="fa-solid fa-home me-2"></i> Inicio
-        </router-link>
+        <i class="fa-solid fa-home me-2"></i> Inicio
+      </router-link>
     </div>
 
     <div class="formgrid grid">
-      <!-- No. Acto y Fecha del Acto -->
-      <div class="field col-12 md:col-4">
-        <span class="p-float-label">
-          <InputText id="noActo" v-model="form.noActo" class="w-full" placeholder="No. Acto Alguacil *" />
-        </span>
+
+      <!-- DATOS DEL DEMANDANTE -->
+      <fieldset class="col-12 border-1 border-round p-3 mb-3">
+        <legend class="font-bold text-lg">Datos del Demandante</legend>
+        <div class="grid">
+          <div class="field col-12 md:col-4">
+            <InputText v-model="form.cedulaDemandante" class="w-full" placeholder="Cédula del demandante" />
+          </div>
+          <div class="field col-12 md:col-4">
+            <InputText v-model="form.demandante" class="w-full" placeholder="Nombre del demandante" />
+          </div>
+          <div class="field col-12 md:col-4">
+            <Dropdown v-model="form.tiposDemandante" :options="tiposDemandante" optionLabel="label" placeholder="Tipo de Demandante" class="w-full" />
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- INFORMACIÓN DEL LITIGIO -->
+      <fieldset class="col-12 border-1 border-round p-3 mb-3">
+        <legend class="font-bold text-lg">Información del Litigio</legend>
+        <div class="grid">
+          <div class="field col-12 md:col-4">
+            <InputText v-model="form.noActo" class="w-full" placeholder="No. Acto Alguacil *" />
+          </div>
+          <div class="field col-12 md:col-4">
+            <Calendar v-model="form.fechaActo" dateFormat="dd/mm/yy" class="w-full" placeholder="Fecha del acto" />
+          </div>
+          <div class="field col-12 md:col-4">
+            <Dropdown v-model="form.tipoDemanda" :options="tiposDemanda" optionLabel="label" placeholder="Tipo de Demanda" class="w-full" />
+          </div>
+          <div class="field col-12 md:col-4">
+            <Calendar v-model="form.fechaAudiencia" dateFormat="dd/mm/yy" class="w-full" placeholder="Fecha de audiencia" />
+          </div>
+          <div class="field col-12 md:col-4">
+            <Dropdown v-model="form.tribunal" :options="tribunales" optionLabel="label" placeholder="Tribunal" class="w-full" />
+          </div>
+          <div class="field col-12 md:col-4">
+            <Dropdown v-model="form.estatus" :options="estatusList" optionLabel="label" placeholder="Estatus" class="w-full" />
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- DATOS DEL REPRESENTANTE -->
+      <fieldset class="col-12 border-1 border-round p-3 mb-3">
+        <legend class="font-bold text-lg">Datos del Representante</legend>
+        <div class="grid">
+          <div class="field col-12 md:col-6">
+            <InputText v-model="form.cedulaRepresentante" class="w-full" placeholder="Cédula del representante" />
+          </div>
+          <div class="field col-12 md:col-6">
+            <InputText v-model="form.nombreRepresentante" class="w-full" placeholder="Nombre del representante" />
+          </div>
+        </div>
+      </fieldset>
+
+     <!-- ARCHIVOS -->
+    <fieldset class="col-12 border-1 border-round p-3 mb-3">
+          <div class="grid">
+          <div class="field col-12 md:col-6">
+          <label class="font-bold">Otras Evidencias</label>
+          <FileUpload
+            name="Otros"
+            customUpload
+            @uploader="handleOtrosUpload"
+            mode="basic"
+            chooseLabel="Elegir archivo"
+          />
+        </div>
       </div>
-      <div class="field col-12 md:col-4">
-        <span class="p-float-label">
-          <Calendar id="fechaActo" v-model="form.fechaActo" dateFormat="dd/mm/yy" class="w-full"
-            placeholder="Fecha del acto " />
-        </span>
-      </div>
-
-      <div class="field col-12 md:col-4">
-        <span class="p-float-label">
-          <InputText id="cedulaDemandante" v-model="form.cedulaDemandante" class="w-full"
-            placeholder="Cédula del demandante" />
-          <!-- <label for="cedulaDemandante">Cédula del demandante</label> -->
-        </span>
-      </div>
-
-      <!-- Tipo de Demanda -->
-      <div class="field col-12 md:col-6">
-        <span class="p-float-label">
-          <!-- <label for="tipoDemanda">Tipo de Demanda</label> -->
-          <Dropdown id="tipoDemanda" v-model="form.tipoDemanda" :options="tiposDemanda" optionLabel="label"
-            class="w-full w-full p-dropdown" placeholder="Tipo de Demanda" />
-
-        </span>
-      </div>
-
-      <!-- Datos del Demandante -->
-
-      <div class="field col-12 md:col-6">
-        <span class="p-float-label">
-          <InputText id="demandante" v-model="form.demandante" class="w-full" placeholder="Demandante" />
-          <!-- <label for="demandante">Demandante</label> -->
-        </span>
-      </div>
-      <div class="field col-12 md:col-4">
-        <span class="p-float-label">
-          <!-- <label for="tipoDemanda">Tipo de Demanda</label> -->
-          <Dropdown id="tipoDemandante" v-model="form.tiposDemandante" :options="tiposDemandante" optionLabel="label"
-            class="w-full w-full p-dropdown" placeholder="Tipo de Demandante" />
-        </span>
-      </div>
-
-      <!-- Representante -->
-      <div class="field col-12 md:col-4">
-        <span class="p-float-label">
-          <InputText id="cedulaRepresentante" v-model="form.cedulaRepresentante" class="w-full"
-            placeholder="Cédula del representante" />
-          <!-- <label for="cedulaRepresentante">Cédula del representante</label> -->
-        </span>
-      </div>
-
-      <div class="field col-12 md:col-4">
-        <span class="p-float-label">
-          <Dropdown id="tribunal" v-model="form.tribunal" :options="tribunales" optionLabel="label"
-            class="w-full w-full p-dropdown" placeholder="Tribunal" />
-          <!-- <label for="tribunal">Tribunal</label> -->
-        </span>
-      </div>
-
-      <div class="field col-12 md:col-6">
-        <span class="p-float-label">
-          <InputText id="nombreRepresentante" v-model="form.nombreRepresentante" class="w-full"
-            placeholder="Nombre del representante" />
-          <!-- <label for="nombreRepresentante">Nombre del representante</label> -->
-        </span>
-      </div>
-
-      <!-- Tribunal -->
-
-      <!-- Fecha Audiencia -->
-      <div class="field col-12 md:col-3">
-        <span class="p-float-label">
-          <Calendar id="fechaAudiencia" v-model="form.fechaAudiencia" dateFormat="dd/mm/yy" class="w-full"
-            placeholder="Fecha de audiencia" />
-          <!-- <label for="fechaAudiencia">Fecha de audiencia</label> -->
-        </span>
-      </div>
-
-      <!-- Estatus -->
-      <div class="field col-12 md:col-3">
-        <span class="p-dropdown">
-          <Dropdown id="estatus" v-model="form.estatus" :options="estatusList" optionLabel="label"
-            class="w-full p-dropdown mb-2" placeholder="Estatus" />
-          <!-- <label class="block mb-5" for="estatus">Estatus</label> -->
-        </span>
-      </div>
-      <br>
-
-      <!-- Adjuntar documentos -->
-      <div class="field col-4 align-left">
-
-        <FileUpload mode="basic" name="otros" url="/api/upload" accept=".pdf,.doc,.docx" auto class="p-button custom-blue"
-          chooseLabel="Evidencias Extra" />
-      </div>
+    </fieldset>
 
     </div>
 
+    <!-- BOTÓN -->
     <div class="flex justify-content-center mt-4">
       <Button label="Actualizar Litigio" icon="pi pi-check" class="p-button custom-blue" @click="registrarLitigio" />
     </div>

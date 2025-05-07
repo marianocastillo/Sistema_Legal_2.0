@@ -28,7 +28,7 @@ public class UsuariosRepo : Repository<Usuarios, UsuariosModel>
                         {
                             IdUsuario = u.idUsuario,
                             NombreUsuario = u.nombreUsuario,  
-                            nombrePerfil = p.Nombre ?? "",
+                           
                             Nombres = u.nombres,
                             Apellidos = u.apellidos,                            
                             FechaCreacion = (DateTime)u.fechaCreacion,                      

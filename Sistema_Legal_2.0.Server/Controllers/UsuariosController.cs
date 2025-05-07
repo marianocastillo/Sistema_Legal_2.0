@@ -88,6 +88,9 @@ namespace Sistema_Legal_2._0.Server.Controller
 
 
 
+
+
+
         /// <summary>
         /// Crea un nuevo usuario.
         /// </summary>
@@ -95,13 +98,13 @@ namespace Sistema_Legal_2._0.Server.Controller
         /// <returns>Resultado de la operacin.</returns>
         [HttpPost(Name = "SaveUsuario")]
         [AllowAnonymous]
-        public OperationResult Post([FromBody] UsuariosModel usuariosModel)
+        public OperationResult Post(UsuariosModel usuariosModel)
         {
-            try
+                       try
             {
-                if (usuariosRepo.Any(x => x.nombreUsuario == usuariosModel.NombreUsuario)) 
+                if (usuariosRepo.Any(x => x.nombreUsuario == usuariosModel.NombreUsuario))
                     return new OperationResult(false, "Este usuario ya tiene acceso al sistema");
-                    
+
                 usuariosModel.FechaCreacion = DateTime.Now;
 
                 var created = usuariosRepo.Add(usuariosModel);
@@ -115,35 +118,43 @@ namespace Sistema_Legal_2._0.Server.Controller
             }
         }
 
+
+
+
+
+
+
+
+
         /// <summary>
         /// Actualiza un usuario existente.
         /// </summary>
         /// <param name="usuariosModel">Datos del usuario a actualizar.</param>
         /// <returns>Resultado de la operacin.</returns>
-       
-        
-        //[HttpPut(Name = "UpdateUsuario")]
-        //[AllowAnonymous]
-        //public OperationResult Put(UsuariosModel usuariosModel)
-        //{
-        //    try
-        //    {
-        //        var usuario = usuariosRepo.Get(x => x.idUsuario == usuariosModel.IdUsuario).FirstOrDefault();
 
-        //        if (usuario == null) return new OperationResult(false, "El usuario no se ha encontrado");
-        //        usuario.IdPerfil = usuariosModel.IdPerfil;
-        //        usuario.Activo = usuariosModel.Activo;             
 
-        //        usuariosRepo.Edit(usuario);
-        //        _logger.LogHttpRequest(usuariosModel);
-        //        return new OperationResult(true, "Usuario modificado exitosamente", usuario);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex);
-        //        throw;
-        //    }
-        //}
+        [HttpPut(Name = "UpdateUsuario")]
+        [AllowAnonymous]
+        public OperationResult Put(UsuariosModel usuariosModel)
+        {
+            try
+            {
+                var usuario = usuariosRepo.Get(x => x.idUsuario == usuariosModel.IdUsuario).FirstOrDefault();
+
+                if (usuario == null) return new OperationResult(false, "El usuario no se ha encontrado");
+                usuario.IdPerfil = usuariosModel.IdPerfil;
+                usuario.Activo = usuariosModel.Activo;
+
+                usuariosRepo.Edit(usuario);
+                _logger.LogHttpRequest(usuariosModel);
+                return new OperationResult(true, "Usuario modificado exitosamente", usuario);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex);
+                throw;
+            }
+        }
 
 
 
