@@ -1,3 +1,4 @@
+
 <template>
   <div class="card p-4 shadow-2">
     <div class="flex justify-content-between align-items-center mb-4">
@@ -63,10 +64,10 @@
         </div>
         <div class="field col-12 md:col-4">
           <Dropdown
-            v-model="form.tipoDemanda"
+          v-model="form.id_demanda"
             :options="tiposDemanda"
-            optionLabel="label"
-            optionValue="value"
+            optionLabel="nombre"
+            optionValue="id_demanda"
             placeholder="Tipo de Demanda"
           />
         </div>
@@ -76,20 +77,20 @@
         </div>
         <div class="field col-12 md:col-4">
           <Dropdown
-            v-model="form.tribunal"
+            v-model="form.id_Tribunal"
             :options="tribunales"
-            optionLabel="label"
-            optionValue="value"
+            optionLabel="nombre_Tribunal"
+            optionValue="id_Tribunal"
             placeholder="Tribunal"
             class="w-7"
           />
         </div>
         <div class="field col-12 md:col-4">
           <Dropdown
-            v-model="form.estatus"
-            :options="estatusList"
-            optionLabel="label"
-            optionValue="value"
+            v-model="form.ltg_estatus"
+            :options="estatusLitigios"
+            optionLabel="ltg_description"
+            optionValue="ltg_estatus"
             placeholder="Estatus"
             class="w-7"
           />
@@ -127,15 +128,15 @@
           />
         </div>
 
-         <!-- BOTÓN -->
-  <div class="text-center mt-4">
-    <Button type="submit" label="Registrar" icon="pi pi-check" class="p-button-primary" />
-  </div>
+
       </div>
     </fieldset>
   </div>
 
-
+  <!-- BOTÓN -->
+  <div class="text-center mt-4">
+    <Button type="submit" label="Registrar" icon="pi pi-check" class="p-button-primary" />
+  </div>
 </form>
 
   </div>
@@ -143,14 +144,15 @@
 
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
 import  InputText  from 'primevue/inputtext'
 import  Calendar  from 'primevue/calendar'
 import Dropdown  from 'primevue/dropdown'
 import  FileUpload  from 'primevue/fileupload'
 import  Button  from 'primevue/button'
 
-const form = ref({
+
+const form = reactive({
   fechaExpediente: new Date().toISOString().split('T')[0],
   noActo: '',
   fechaActo: '',
@@ -159,16 +161,18 @@ const form = ref({
   demandante: '',
   tiposDemandante: '',
   cedulaRepresentante: '',
-  tribunal: '',
+  id_Tribunal: null,
   nombreRepresentante: '',
   fechaAudiencia: '',
-  estatus: '',
+  ltg_estatus: null,
   id_usuario: 1,
-  tipoDemandante: '',
+  id_demanda: null,
   otrosDemandante: '',
 })
 
-const expedienteFile = ref(null)
+const tiposDemanda = ref([])
+const estatusLitigios = ref ([])
+const tribunales = ref ([])
 const otrosFile = ref(null)
 
 const tiposDemandante = [
@@ -177,66 +181,49 @@ const tiposDemandante = [
   { label: 'Otros', value: 'Otros' },
 ]
 
-const tiposDemanda = ref([])
-const tribunales = ref([])
-const estatusList = ref([])
-const url = ref('');
-const thumbUrl = ref('');
-const headers = ref([]);
-
-
 const cargarDatosDropdowns = async () => {
   try {
     const response = await fetch('/api/Litigio/datos-litigio')
     const data = await response.json()
 
-    tiposDemanda.value = data.tiposDemanda.map(d => ({
-      value: d.id_demanda,
-      label: d.nombre
-    }))
-
-    tribunales.value = data.tribunales.map(t => ({
-      value: t.id_Tribunal,
-      label: t.nombre_Tribunal
-    }))
-
-    estatusList.value = data.estatusLitigios.map(e => ({
-      value: e.ltg_estatus,
-      label: e.ltg_description
-    }))
+    tiposDemanda.value = data.tiposDemanda // sin map
+    tribunales.value = data.tribunales     // sin map
+    estatusLitigios.value = data.estatusLitigios // sin map
   } catch (error) {
     console.error('Error al cargar los datos de los dropdowns:', error)
   }
 }
 
+
 onMounted(() => {
-  form.value.fechaExpediente = new Date().toISOString().substring(0, 10)
+  form.fechaExpediente = new Date().toISOString().substring(0, 10)
   cargarDatosDropdowns()
 })
 
-const handleExpedienteUpload = (e) => {
-  expedienteFile.value = e.target.files[0]
+
+const handleExpedienteUpload = (event) => {
+  expedienteFile.value = event.files[0];
   if (expedienteFile.value) {
-    console.log('Expediente seleccionado:', expedienteFile.value.name)
+    console.log('Expediente seleccionado:', expedienteFile.value.name);
   }
 }
 
-const handleOtrosUpload = (e) => {
-  otrosFile.value = e.target.files[0]
-  if (otrosFile.value) {
-    console.log('Otro documento seleccionado:', otrosFile.value.name)
-  }
+const formatearFecha = (fecha) => {
+  if (!fecha) return '';
+  const d = new Date(fecha);
+  const dia = String(d.getDate()).padStart(2, '0');
+  const mes = String(d.getMonth() + 1).padStart(2, '0');
+  const anio = d.getFullYear();
+  return `${dia}-${mes}-${anio}`;
 }
+
+
 
 const registrarLitigio = async () => {
-  if (!expedienteFile.value) {
-    alert('Debe adjuntar un archivo de expediente.')
-    return
-  }
 
   const formData = new FormData()
   formData.append('ltg_acto', form.value.noActo)
-  formData.append('ltg_Fecha_Acto', form.value.fechaActo)
+  formData.append('ltg_Fecha_Acto', formatearFecha(form.value.fechaActo));
   formData.append('id_Tipo_Demanda', form.value.tipoDemanda)
   formData.append('ltg_Cedula_Demandante', form.value.cedulaDemandante)
   formData.append('ltg_Nacionalidad', '') // Modifica si tienes este dato
@@ -244,8 +231,8 @@ const registrarLitigio = async () => {
   formData.append('ltg_Tipo_Demandante', form.value.tipoDemandante === 'Otros' ? form.value.otrosDemandante : form.value.tipoDemandante)
   formData.append('ltg_Cedula_Representante', form.value.cedulaRepresentante)
   formData.append('ltg_Nombre_Representante', form.value.nombreRepresentante)
-  formData.append('ltg_Fecha_Audiencia', form.value.fechaAudiencia || '')
-  formData.append('ltg_Fecha_Actualizacion', new Date().toISOString())
+  formData.append('ltg_Fecha_Audiencia', formatearFecha(form.value.fechaAudiencia));
+  formData.append('ltg_Fecha_Actualizacion', formatearFecha(new Date()));
   formData.append('id_Tribunal', form.value.tribunal)
   formData.append('id_Sentencia', '') // Modifica si corresponde
   formData.append('id_usuario', form.value.id_usuario)
@@ -254,7 +241,7 @@ const registrarLitigio = async () => {
   formData.append('Archivo', expedienteFile.value)
 
   try {
-    const response = await fetch('https://localhost:7177/api/TuControlador/Subir_Litigio_Con_Archivo', {
+    const response = await fetch('/api/Litigio/Subir_Litigio_Con_Archivo', {
       method: 'POST',
       body: formData
     })
