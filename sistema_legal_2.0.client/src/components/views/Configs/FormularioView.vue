@@ -76,7 +76,7 @@ export default {
     return {
 
       usuario: {
-    
+
                 nombreUsuario: '',
                 nombres: '',
                 apellidos: '',
@@ -170,7 +170,7 @@ export default {
                 idPerfil: 0,
                 activo: false
                 };
-                this.$router.push('/drawer/formulario');
+                this.$router.push('/drawer/listadodeusuario');
             }
             else {
                 if (response.data.errors) this.errors = response.data.errors;
@@ -184,7 +184,7 @@ export default {
 
     GetFormMode() {
       if (this.$route.name == "Nuevo Usuario") return this.FormModes.Nuevo;
-      if (this.$route.name == "Editar Usuario") return this.FormModes.Editar;
+      if (this.$route.name == "formulario") return this.FormModes.Editar;
     },
   }
 }

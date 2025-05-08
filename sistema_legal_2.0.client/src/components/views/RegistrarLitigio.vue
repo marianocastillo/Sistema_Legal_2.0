@@ -59,7 +59,7 @@
           <InputText v-model="form.noActo" placeholder="No. Acto Alguacil *" />
         </div>
         <div class="field col-12 md:col-4">
-          <Calendar v-model="form.fechaActo" dateFormat="yy-mm-dd" showIcon placeholder="Fecha del acto" />
+          <Calendar v-model="form.fechaActo" dateFormat="yy-mm-dd" showIcon placeholder="Fecha del acto" class="w-7" />
         </div>
         <div class="field col-12 md:col-4">
           <Dropdown
@@ -72,7 +72,7 @@
         </div>
 
         <div class="field col-12 md:col-4">
-          <Calendar v-model="form.fechaAudiencia" dateFormat="yy-mm-dd" showIcon placeholder="Fecha de audiencia" />
+          <Calendar v-model="form.fechaAudiencia" dateFormat="yy-mm-dd" showIcon placeholder="Fecha de audiencia" class="w-8"/>
         </div>
         <div class="field col-12 md:col-4">
           <Dropdown
@@ -81,6 +81,7 @@
             optionLabel="label"
             optionValue="value"
             placeholder="Tribunal"
+            class="w-7"
           />
         </div>
         <div class="field col-12 md:col-4">
@@ -90,6 +91,7 @@
             optionLabel="label"
             optionValue="value"
             placeholder="Estatus"
+            class="w-7"
           />
         </div>
       </div>
@@ -101,10 +103,10 @@
 
       <div class="grid">
         <div class="field col-12 md:col-6">
-          <InputText v-model="form.cedulaRepresentante" placeholder="Cédula del representante" />
+          <InputText v-model="form.cedulaRepresentante" placeholder="Cédula del representante"  />
         </div>
         <div class="field col-12 md:col-6">
-          <InputText v-model="form.nombreRepresentante" placeholder="Nombre del representante" />
+          <InputText v-model="form.nombreRepresentante" placeholder="Nombre del representante" class="w-7"/>
         </div>
       </div>
     </fieldset>
@@ -125,24 +127,15 @@
           />
         </div>
 
-        <div class="field col-12 md:col-6">
-          <label class="font-bold">Otras Evidencias</label>
-          <FileUpload
-            name="Otros"
-            customUpload
-            @uploader="handleOtrosUpload"
-            mode="basic"
-            chooseLabel="Elegir archivo"
-          />
-        </div>
+         <!-- BOTÓN -->
+  <div class="text-center mt-4">
+    <Button type="submit" label="Registrar" icon="pi pi-check" class="p-button-primary" />
+  </div>
       </div>
     </fieldset>
   </div>
 
-  <!-- BOTÓN -->
-  <div class="text-center mt-4">
-    <Button type="submit" label="Registrar" icon="pi pi-check" class="p-button-primary" />
-  </div>
+
 </form>
 
   </div>

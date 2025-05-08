@@ -14,7 +14,7 @@
         <legend class="font-bold text-lg">Datos del Demandante</legend>
         <div class="grid">
           <div class="field col-12 md:col-4">
-            <InputText v-model="form.cedulaDemandante" class="w-full" placeholder="Cédula del demandante" />
+            <InputText v-model="form.cedulaDemandante" class="w-8" placeholder="Cédula del demandante" />
           </div>
           <div class="field col-12 md:col-4">
             <InputText v-model="form.demandante" class="w-full" placeholder="Nombre del demandante" />
@@ -30,38 +30,39 @@
         <legend class="font-bold text-lg">Información del Litigio</legend>
         <div class="grid">
           <div class="field col-12 md:col-4">
-            <InputText v-model="form.noActo" class="w-full" placeholder="No. Acto Alguacil *" />
+            <InputText v-model="form.noActo" class="w-7" placeholder="No. Acto Alguacil *" />
           </div>
           <div class="field col-12 md:col-4">
-            <Calendar v-model="form.fechaActo" dateFormat="dd/mm/yy" class="w-full" placeholder="Fecha del acto" />
+            <Calendar v-model="form.fechaActo" dateFormat="dd/mm/yy" class="w-6" placeholder="Fecha del acto" />
           </div>
           <div class="field col-12 md:col-4">
-            <Dropdown v-model="form.tipoDemanda" :options="tiposDemanda" optionLabel="label" placeholder="Tipo de Demanda" class="w-full" />
+            <Dropdown v-model="form.tipoDemanda" :options="tiposDemanda" optionLabel="label" placeholder="Tipo de Demanda" class="w-8" />
           </div>
           <div class="field col-12 md:col-4">
-            <Calendar v-model="form.fechaAudiencia" dateFormat="dd/mm/yy" class="w-full" placeholder="Fecha de audiencia" />
+            <Calendar v-model="form.fechaAudiencia" dateFormat="dd/mm/yy" class="w-7" placeholder="Fecha de audiencia" />
           </div>
           <div class="field col-12 md:col-4">
-            <Dropdown v-model="form.tribunal" :options="tribunales" optionLabel="label" placeholder="Tribunal" class="w-full" />
+            <Dropdown v-model="form.tribunal" :options="tribunales" optionLabel="label" placeholder="Tribunal" class="w-6" />
           </div>
           <div class="field col-12 md:col-4">
-            <Dropdown v-model="form.estatus" :options="estatusList" optionLabel="label" placeholder="Estatus" class="w-full" />
+            <Dropdown v-model="form.estatus" :options="estatusList" optionLabel="label" placeholder="Estatus" class="w-6" />
           </div>
         </div>
       </fieldset>
 
       <!-- DATOS DEL REPRESENTANTE -->
-      <fieldset class="col-12 border-1 border-round p-3 mb-3">
-        <legend class="font-bold text-lg">Datos del Representante</legend>
-        <div class="grid">
-          <div class="field col-12 md:col-6">
-            <InputText v-model="form.cedulaRepresentante" class="w-full" placeholder="Cédula del representante" />
-          </div>
-          <div class="field col-12 md:col-6">
-            <InputText v-model="form.nombreRepresentante" class="w-full" placeholder="Nombre del representante" />
-          </div>
+    <fieldset class="col-12 border-1 border-round p-3 mb-3">
+      <legend class="font-bold text-lg">Datos del Representante</legend>
+
+      <div class="grid">
+        <div class="field col-12 md:col-6">
+          <InputText v-model="form.cedulaRepresentante" placeholder="Cédula del representante"  class="w-6"/>
         </div>
-      </fieldset>
+        <div class="field col-12 md:col-6 ">
+          <InputText v-model="form.nombreRepresentante" placeholder="Nombre del representante" class="w-6"/>
+        </div>
+      </div>
+    </fieldset>
 
      <!-- ARCHIVOS -->
     <fieldset class="col-12 border-1 border-round p-3 mb-3">

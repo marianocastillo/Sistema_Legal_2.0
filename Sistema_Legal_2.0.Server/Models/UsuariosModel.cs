@@ -27,7 +27,6 @@ public class UsuariosModel
     [Unicode(false)]
     public string Nombres { get; set; }
 
-    
 
     [Required(ErrorMessage = "Se debe especificar los apellidos")]
     [StringLength(100, ErrorMessage = "No puede exceder los 100 carácteres")]

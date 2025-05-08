@@ -20,7 +20,7 @@
           <th @click="sort('nombreUsuario')">Nombre de Usuario</th>
           <th @click="sort('nombres')">Nombres</th>
           <th @click="sort('apellidos')">Apellidos</th>
-          <th @click="sort('nombrePerfil')">Perfil</th>
+          <th @click="sort('idPerfil')">Perfil</th>
           <th @click="sort('fechaCrea')">Fecha de Creación</th>
           <th @click="sort('activo')">Estado</th>
           <th>Acciones</th>
@@ -31,7 +31,7 @@
           <td>{{ usuario.nombreUsuario }}</td>
           <td>{{ usuario.nombres }}</td>
           <td>{{ usuario.apellidos }}</td>
-          <td>{{ usuario.nombrePerfil }}</td>
+          <td>{{ usuario.nombrePerfil}}</td>
           <td>{{ new Date(usuario.fechaCreacion).toLocaleDateString() }}</td>
           <td>
             <span :class="['badge', usuario.activo ? 'bg-success' : 'bg-warning']">

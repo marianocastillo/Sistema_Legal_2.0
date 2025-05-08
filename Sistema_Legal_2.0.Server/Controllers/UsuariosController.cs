@@ -28,13 +28,12 @@ namespace Sistema_Legal_2._0.Server.Controller
         }
 
         [HttpGet("UsuariosConPerfil")]
-        public async Task<IActionResult> GetUsuariosConPerfil()
+        public IActionResult GetUsuariosConPerfil()
         {
             try
             {
-                var usuarios = await _db_silegContext.Usuarios
-                    .FromSqlRaw("EXEC sp_ObtenerUsuariosConPerfil")
-                    .ToListAsync();
+                // Esto hace el JOIN con Perfiles y trae nombrePerfil incluido
+                var usuarios = usuariosRepo.GetWithPerfil(u => true);
 
                 return Ok(usuarios);
             }
@@ -43,6 +42,7 @@ namespace Sistema_Legal_2._0.Server.Controller
                 return StatusCode(500, new { message = "Error al obtener los usuarios.", error = ex.Message });
             }
         }
+
 
 
         /// <summary>
@@ -106,7 +106,6 @@ namespace Sistema_Legal_2._0.Server.Controller
                     return new OperationResult(false, "Este usuario ya tiene acceso al sistema");
 
                 usuariosModel.FechaCreacion = DateTime.Now;
-
                 var created = usuariosRepo.Add(usuariosModel);
                 _logger.LogHttpRequest(usuariosModel);
                 return new OperationResult(true, "Usuario creado exitosamente", created);
