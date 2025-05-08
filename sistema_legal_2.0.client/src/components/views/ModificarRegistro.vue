@@ -66,9 +66,10 @@
 
      <!-- ARCHIVOS -->
     <fieldset class="col-12 border-1 border-round p-3 mb-3">
+      <legend class="font-bold text-lg">Otras evidencias</legend>
           <div class="grid">
           <div class="field col-12 md:col-6">
-          <label class="font-bold">Otras Evidencias</label>
+
           <FileUpload
             name="Otros"
             customUpload

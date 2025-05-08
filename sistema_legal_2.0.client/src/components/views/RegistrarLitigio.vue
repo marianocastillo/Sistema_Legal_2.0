@@ -114,11 +114,12 @@
 
     <!-- ARCHIVOS -->
     <fieldset class="col-12 border-1 border-round p-3 mb-3">
+
       <legend class="font-bold text-lg">Documentos</legend>
 
       <div class="grid">
         <div class="field col-12 md:col-6">
-          <label class="font-bold">Cargar Expediente</label>
+          <label class="font-bold" style="color: #003870;">Cargar Expediente</label>
           <FileUpload
             name="Archivo"
             customUpload
@@ -131,6 +132,8 @@
 
       </div>
     </fieldset>
+
+
   </div>
 
   <!-- BOTÓN -->
@@ -144,6 +147,7 @@
 
 
 <script setup>
+
 import { reactive, ref, onMounted } from 'vue'
 import  InputText  from 'primevue/inputtext'
 import  Calendar  from 'primevue/calendar'
@@ -257,6 +261,22 @@ const registrarLitigio = async () => {
 }
 </script>
 
-<style scoped>
+<style scope>
+legend {
+  float: none !important;
+  display: inline-block !important;
+  padding: 0 5px 0 5px!important;
+  margin-bottom: 0.5rem!important;
+  line-height: inherit!important;
+  font-size: calc(1.275rem + 0.3vw)!important;
+  /* Elimina el ancho fijo */
+  width: auto!important;
+  color: #003870;
+}
+
+.border-1{
+  color: red;
+}
+
 
 </style>
