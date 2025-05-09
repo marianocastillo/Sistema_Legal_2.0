@@ -235,8 +235,7 @@ body {
   overflow: hidden;
 }
 
-/* Navbar */
-/* .navbar {
+.navbar {
   height: 64px;
   background-color: #fff;
   border-bottom: 1px solid #ddd;
@@ -244,8 +243,11 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 0 1rem;
-  position: relative;
-} */
+  position: sticky; /* mejor que fixed en este caso */
+  top: 0;
+  z-index: 10;
+}
+
 
 .menu-placeholder {
   display: flex;
