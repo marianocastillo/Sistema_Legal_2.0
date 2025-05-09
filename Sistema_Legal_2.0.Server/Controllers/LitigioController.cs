@@ -81,6 +81,8 @@ namespace Sistema_Legal_2._0.Server.Controllers
         [DisableRequestSizeLimit, RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueCountLimit = int.MaxValue)]
         public async Task<IActionResult> SubirLitigioConArchivo([FromForm] LitigioConArchivo datos)
         {
+            Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(datos));
+
             if (datos.Archivo == null || datos.Archivo.Length == 0)
                 return BadRequest("No se recibió ningún archivo.");
 
@@ -110,7 +112,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@ltg_acto", datos.ltg_acto);
-                    command.Parameters.AddWithValue("@ltg_Fecha_Acto", datos.ltg_Fecha_Acto.ToString("dd-MM-yyyy"));
+                    command.Parameters.AddWithValue("@ltg_Fecha_Acto", datos.ltg_Fecha_Acto);
                     command.Parameters.AddWithValue("@id_Tipo_Demanda", datos.id_Tipo_Demanda);
                     command.Parameters.AddWithValue("@ltg_Cedula_Demandante", datos.ltg_Cedula_Demandante);
                     command.Parameters.AddWithValue("@ltg_Nacionalidad", datos.ltg_Nacionalidad);
