@@ -19,9 +19,15 @@
         <div class="field col-12 md:col-4">
           <InputText v-model="form.cedulaDemandante" placeholder="Cédula del demandante" />
         </div>
+
         <div class="field col-12 md:col-4">
           <InputText v-model="form.demandante" placeholder="Nombre del demandante" />
         </div>
+
+        <div class="field col-12 md:col-4">
+          <InputText v-model="form.demandante" placeholder="Nacionalidad" />
+        </div>
+
 
 
         <div class="field col-12 md:col-3">
