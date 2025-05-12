@@ -128,6 +128,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                     command.Parameters.AddWithValue("@id_Estatus", datos.id_Estatus);
                     command.Parameters.AddWithValue("@ruta_archivo", rutaRelativa);
 
+
                     var result = await command.ExecuteScalarAsync();
                     return Ok(new { mensaje = "Litigio y archivo subidos correctamente.", id_litigio = result, rutaRelativa });
                 }

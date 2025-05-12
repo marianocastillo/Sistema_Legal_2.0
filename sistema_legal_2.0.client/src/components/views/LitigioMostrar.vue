@@ -142,7 +142,7 @@
 
       <!-- Pie de documento -->
       <div class="flex justify-content-between mt-4 pt-3 border-top-1 surface-border ">
-        <small class="text-500-dark">Sistema Judicial - {{ new Date().getFullYear() }}</small>
+        <small class="text-500-dark">Sistema Sileg 2.0 - {{ new Date().getFullYear() }}</small>
         <Button label="Imprimir" icon="pi pi-print" class="p-button-sm p-button-text-dark" @click="printDocument" />
       </div>
     </div>
