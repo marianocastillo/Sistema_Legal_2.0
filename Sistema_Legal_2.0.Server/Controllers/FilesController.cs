@@ -107,9 +107,6 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
       
 
-
-
-
         [HttpGet("rutas/{id}")]
         public async Task<IActionResult> ObtenerRutasPorLitigio(int id)
         {
@@ -125,13 +122,6 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
             return Ok(rutas);
         }
-
-
-
-
-
-
-
 
         [HttpGet("rutaspor/{id}")]
         public async Task<IActionResult> GetRutaPorId(int id)
@@ -183,14 +173,6 @@ namespace Sistema_Legal_2._0.Server.Controllers
         }
 
 
-
-
-
-
-
-
-
-
         [HttpGet("comentarios-evidencias/{idLitigio}")]
         public async Task<IActionResult> ObtenerComentariosEvidenciasPorLitigio(int idLitigio)
         {
@@ -206,14 +188,6 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
             return Ok(resultado);
         }
-
-
-
-
-
-
-
-
 
 
         [HttpPost("subir-evidencia-comentario")]
