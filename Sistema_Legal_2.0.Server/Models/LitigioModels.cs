@@ -27,6 +27,5 @@ namespace Sistema_Legal_2._0.Server.Models
         public string NombreCarpeta { get; set; }
 
 
-
     }
 }
