@@ -142,6 +142,16 @@
 
       <!-- Pie de documento -->
       <div class="flex justify-content-between mt-4 pt-3 border-top-1 surface-border ">
+        <button class="btn" @click="togglePopUp(id)">Agregar Evidencia</button>
+
+    <teleport to="body">
+      <transition name="fade">
+        <AgregarEvidencias v-if="popUp"
+        :id ="litigioactual"
+        @close="togglePopUp" />
+      </transition>
+    </teleport>
+
         <small class="text-500-dark">Sistema Judicial - {{ new Date().getFullYear() }}</small>
         <Button label="Imprimir" icon="pi pi-print" class="p-button-sm p-button-text-dark" @click="printDocument" />
       </div>
@@ -153,6 +163,18 @@
 import { ref, onMounted } from 'vue'
 // import axios from 'axios';
 import api from '@/utilities/api.js'
+import AgregarEvidencias from '@/components/views/AgregarEvidencias.vue';
+
+const popUp = ref(false);
+const litigioactual = ref(null);
+
+// Métodos
+function togglePopUp(id) {
+  popUp.value = !popUp.value;
+  litigioactual.value = id;
+  console.log('popup:', popUp.value);
+}
+
 
 const props = defineProps({
   id: {
@@ -253,6 +275,10 @@ const getStatusSeverity = (status) => {
 const printDocument = () => {
   window.print()
 }
+
+
+
+
 </script>
 
 
@@ -283,4 +309,7 @@ const printDocument = () => {
   padding-left: 1rem;
   /* Espacio a la izquierda de comentarios */
 }
+
 </style>
+
+

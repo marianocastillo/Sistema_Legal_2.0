@@ -23,6 +23,12 @@
                 :placeholder="form.tiposDemandante === 'Empresa' ? 'Nombre de la empresa' : 'Nombre del demandante'" />
             </div>
             <div class="field col-12 md:col-4">
+              <InputText v-model="form.Nacionalidad"
+                :placeholder="form.tiposDemandante === 'Empresa' ? 'País de constitución' : 'Nacionalidad'"
+                class="w-full"
+              />
+            </div>
+            <div class="field col-12 md:col-4">
               <Dropdown v-model="form.tiposDemandante" :options="tiposDemandante" optionLabel="label" optionValue="value"
                 class="w-full" placeholder="Tipo de Demandante" />
             </div>
@@ -114,6 +120,7 @@ const form = ref({
   otrosDemandante: '',
   cedulaRepresentante: '',
   nombreRepresentante: '',
+  Nacionalidad: '',
   tribunal: null,
   lugar: '',
   abogado: [],
