@@ -8,6 +8,7 @@ import ModificarRegistro from '../components/views/ModificarRegistro.vue';
 import LitigioModal from '../components/views/LitigioMostrar.vue';
 import ListadoUsuariosView from '../components/views/Configs/ListadoUsuariosView.vue';
 import FormularioView from '../components/views/Configs/FormularioView.vue';
+import BuscarLitigio from '@/components/views/BuscarLitigio.vue';
 
 const routes = [
   { path: '/', name: 'Login', component: LoginView },
@@ -19,6 +20,7 @@ const routes = [
       // { path: 'modal', name: 'LitigioModal', component: LitigioModal },
       { path: 'home', name: 'TodosRegistro', component: TodosRegistro },
       { path: 'registrar', name: 'RegistroLitigio', component: RegistroLitigio },
+      {path: 'buscarlitigio', name:'BuscarLitigio', component: BuscarLitigio},
       { path: 'edit', name: 'TableView', component: TableView },
       { path: 'modificarregistro', name: 'ModificarRegistro', component: ModificarRegistro },
       {path: 'listadodeusuario', name: 'ListadoUsuariosVie', component: ListadoUsuariosView},
