@@ -153,6 +153,7 @@
     </teleport>
 
         <small class="text-500-dark">Sistema Judicial - {{ new Date().getFullYear() }}</small>
+        <small class="text-500-dark">Sistema Sileg 2.0 - {{ new Date().getFullYear() }}</small>
         <Button label="Imprimir" icon="pi pi-print" class="p-button-sm p-button-text-dark" @click="printDocument" />
       </div>
     </div>
