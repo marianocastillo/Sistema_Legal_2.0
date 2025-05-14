@@ -262,43 +262,6 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
             return Ok(datos);
         }
-        [HttpGet("Buscar")]
-        public async Task<IActionResult> BuscarPorCedulaOActo(string valor)
-        {
-            using var connection = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal"));
-
-            // 1. Buscar ID del litigio usando el valor (cédula o número de acto)
-            var parametrosBusqueda = new DynamicParameters();
-            parametrosBusqueda.Add("@valor", valor.Trim());
-
-            var litigioBase = await connection.QueryFirstOrDefaultAsync<dynamic>(
-                "sp_BuscarLitigioPorCedulaOActo",
-                parametrosBusqueda,
-                commandType: CommandType.StoredProcedure
-            );
-
-            if (litigioBase == null)
-                return NotFound("No se encontró litigio con ese valor.");
-
-            int id_Ltg = litigioBase.id_Ltg;
-
-            // 2. Obtener los datos completos usando el nuevo SP
-            var parametrosDetalle = new DynamicParameters();
-            parametrosDetalle.Add("@IdLitigio", id_Ltg);
-
-            var litigioCompleto = await connection.QueryFirstOrDefaultAsync<LitigioDetallado>(
-                "sp_ObtenerLitigioPorId",
-                parametrosDetalle,
-                commandType: CommandType.StoredProcedure
-            );
-
-            if (litigioCompleto == null)
-                return NotFound("No se encontró información detallada para el litigio.");
-
-            return Ok(litigioCompleto);
-        }
-
-
 
 
 

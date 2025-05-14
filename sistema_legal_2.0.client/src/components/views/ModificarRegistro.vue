@@ -9,6 +9,7 @@
 
     <form @submit.prevent="registrarLitigio">
       <div class="grid formgrid p-fluid">
+
         <!-- DATOS DEL DEMANDANTE -->
         <fieldset class="col-12 border-1 border-round p-3 mb-3">
           <legend class="font-bold text-lg">Datos del Demandante</legend>
@@ -20,11 +21,6 @@
             <div class="field col-12 md:col-4">
               <InputText v-model="form.demandante" class="w-full"
                 :placeholder="form.tiposDemandante === 'Empresa' ? 'Nombre de la empresa' : 'Nombre del demandante'" />
-            </div>
-            <div class="field col-12 md:col-4">
-              <InputText v-model="form.Nacionalidad"
-                :placeholder="form.tiposDemandante === 'Empresa' ? 'País de constitución' : 'Nacionalidad'"
-                class="w-full" />
             </div>
             <div class="field col-12 md:col-4">
               <Dropdown v-model="form.tiposDemandante" :options="tiposDemandante" optionLabel="label" optionValue="value"
@@ -47,23 +43,19 @@
               <Calendar v-model="form.fechaActo" dateFormat="yy-mm-dd" showIcon placeholder="Fecha del acto" class="w-full" />
             </div>
             <div class="field col-12 md:col-4">
-              <Dropdown v-model="form.tipoDemanda"
-              :options="tiposDemanda"
-               optionLabel="nombre"
-                optionValue="id_demanda"
-                placeholder="Tipo de Demanda"
-                class="w-full" />
+              <Dropdown v-model="form.tipoDemanda" :options="tiposDemanda" optionLabel="label" optionValue="value"
+                placeholder="Tipo de Demanda" class="w-full" />
             </div>
             <div class="field col-12 md:col-4">
               <Calendar v-model="form.fechaAudiencia" dateFormat="yy-mm-dd" showIcon placeholder="Fecha de audiencia"
                 class="w-full" />
             </div>
             <div class="field col-12 md:col-4">
-              <Dropdown v-model="form.tribunal" :options="tribunales" optionLabel="nombre_Tribunal" optionValue="id_Tribunal"
+              <Dropdown v-model="form.tribunal" :options="tribunales" optionLabel="label" optionValue="value"
                 placeholder="Tribunal" class="w-full" />
             </div>
             <div class="field col-12 md:col-4">
-              <Dropdown v-model="form.estatus" :options="estatusList" optionLabel="ltg_description" optionValue="ltg_estatus"
+              <Dropdown v-model="form.estatus" :options="estatusList" optionLabel="label" optionValue="value"
                 placeholder="Estatus" class="w-full" />
             </div>
           </div>
@@ -83,7 +75,16 @@
         </fieldset>
 
         <!-- ARCHIVOS -->
-
+        <fieldset class="col-12 border-1 border-round p-3 mb-3">
+          <legend class="font-bold text-lg">Otras Evidencias</legend>
+          <div class="grid">
+            <div class="field col-12 md:col-6">
+              <label class="font-bold" style="color: #003870;">Cargar Archivo</label>
+              <FileUpload name="Otros" customUpload @uploader="handleOtrosUpload" mode="basic"
+                chooseLabel="Elegir archivo" class="w-full md:w-20rem" />
+            </div>
+          </div>
+        </fieldset>
       </div>
 
       <!-- BOTÓN -->
@@ -99,133 +100,63 @@ import { ref, onMounted } from 'vue'
 import InputText from 'primevue/inputtext'
 import Calendar from 'primevue/calendar'
 import Dropdown from 'primevue/dropdown'
-
+import FileUpload from 'primevue/fileupload'
 import Button from 'primevue/button'
 
 const form = ref({
-  id_Ltg: null,
   noActo: '',
-  fechaActo: '',
+  fechaActo: null,
+  fechaExpediente: null,
   tipoDemanda: null,
   cedulaDemandante: '',
-  Nacionalidad: '',
   demandante: '',
   tiposDemandante: null,
   otrosDemandante: '',
   cedulaRepresentante: '',
   nombreRepresentante: '',
-  fechaAudiencia: '',
   tribunal: null,
-  estatus: null,
-  id_usuario: null,
-  id_Sentencia: null
+  lugar: '',
+  abogado: [],
+  fechaAudiencia: null,
+  estatus: null
 })
 
-const tiposDemanda = ref([])
+onMounted(() => {
+  form.value.fechaExpediente = new Date()
+})
+
+const tiposDemanda = [
+  { label: 'Civil', value: 'civil' },
+  { label: 'Penal', value: 'penal' },
+  { label: 'Laboral', value: 'laboral' }
+]
+
 const tiposDemandante = [
   { label: 'Empleado', value: 'Empleado' },
   { label: 'Empresa', value: 'Empresa' },
   { label: 'Otros', value: 'Otros' }
 ]
-const tribunales = ref([])
-const estatusList = ref([])
 
-const cargarDatosDropdowns = async () => {
-  try {
-    const res = await fetch('/api/Litigio/datos-litigio')
-    const data = await res.json()
-    tiposDemanda.value = data.tiposDemanda
-    tribunales.value = data.tribunales
-    estatusList.value = data.estatusLitigios
-  } catch (error) {
-    console.error('Error al cargar listas:', error)
-  }
+const tribunales = [
+  { label: 'Tribunal DN', value: 'dn' },
+  { label: 'Tribunal San Cristóbal', value: 'sc' },
+  { label: 'Tribunal SDE', value: 'sde' }
+]
+
+const estatusList = [
+  { label: 'Option 1', value: '1' },
+  { label: 'Option 2', value: '2' },
+  { label: 'Option 3', value: '3' }
+]
+
+const registrarLitigio = () => {
+  console.log('Formulario enviado:', form.value)
+  alert('Litigio actualizado con éxito!')
 }
 
-onMounted(async () => {
-  await cargarDatosDropdowns()
-
-  console.log('form:', form.value)
-  console.log('tiposDemanda:', tiposDemanda.value)
-  console.log('tribunales:', tribunales.value)
-  console.log('estatusList:', estatusList.value)
-
-
-  const almacenado = localStorage.getItem('litigioModificacion')
-  console.log("Contenido en localStorage:", almacenado)
-
-  if (almacenado) {
-    const data = JSON.parse(almacenado)
-
-    // Verifica en consola lo que recibes
-    console.log('Litigio cargado:', data)
-
-    form.value = {
-  id_Ltg: data.id_Ltg,
-  noActo: data.ltg_acto,
-  fechaActo: data.ltg_Fecha_Acto?.substring(0, 10),
-  tipoDemanda: data.id_Tipo_Demanda ?? data.tipoDemanda_Id ?? null,
-  cedulaDemandante: data.ltg_Cedula_Demandante,
-  Nacionalidad: data.ltg_Nacionalidad,
-  demandante: data.ltg_Demandante,
-  tiposDemandante: data.ltg_Tipo_Demandante,
-  otrosDemandante: data.ltg_Tipo_Demandante === 'Otros' ? data.otrosDemandante || '' : '',
-  cedulaRepresentante: data.ltg_Cedula_Representante,
-  nombreRepresentante: data.ltg_Nombre_Representante,
-  fechaAudiencia: data.ltg_Fecha_Audiencia?.substring(0, 10),
-  tribunal: data.id_Tribunal,
-  estatus: data.id_Estatus ?? data.ltg_estatus ?? null,
-  id_usuario: data.id_usuario ?? data.idUsuario ?? null,
-  id_Sentencia: data.id_Sentencia ?? null
+const handleOtrosUpload = (event) => {
+  console.log('Archivo cargado:', event.files[0]?.name || 'Sin archivo')
 }
-
-  }
-})
-
-
-const registrarLitigio = async () => {
-  const payload = {
-    id_Ltg: form.value.id_Ltg,
-    ltg_acto: form.value.noActo,
-    ltg_Fecha_Acto: form.value.fechaActo,
-    id_Tipo_Demanda: form.value.tipoDemanda,
-    ltg_Cedula_Demandante: form.value.cedulaDemandante,
-    ltg_Nacionalidad: form.value.Nacionalidad,
-    ltg_Demandante: form.value.demandante,
-    ltg_Tipo_Demandante: form.value.tiposDemandante === 'Otros' ? form.value.otrosDemandante : form.value.tiposDemandante,
-    ltg_Cedula_Representante: form.value.cedulaRepresentante,
-    ltg_Nombre_Representante: form.value.nombreRepresentante,
-    ltg_Fecha_Audiencia: form.value.fechaAudiencia,
-    ltg_Fecha_Actualizacion: new Date().toISOString().substring(0, 10),
-    id_Tribunal: form.value.tribunal,
-    id_Sentencia: form.value.id_Sentencia,
-    id_usuario: form.value.id_usuario,
-    id_Estatus: form.value.estatus
-  }
-
-  try {
-    const response = await fetch('/api/Litigio/EditarLitigio', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    })
-
-    const data = await response.json()
-
-    if (response.ok) {
-      alert(data.mensaje)
-      localStorage.removeItem('litigioModificacion')
-    } else {
-      alert('Error: ' + data)
-    }
-  } catch (err) {
-    console.error('Error al actualizar:', err)
-    alert('Error de conexión.')
-  }
-}
-
 </script>
 
 <style scoped>
