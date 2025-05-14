@@ -74,7 +74,7 @@
       </div>
 
       <!-- Detalles del proceso -->
-      <div class="surface-50 p-4 mb-5 border-round-lg border bg-white">
+      <div class=" card surface-50 p-4 mb-5 border-round-lg border bg-white ">
         <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Detalles del Proceso</h4>
         <div class="grid">
           <div class="col-12 md:col-4 field">
@@ -101,37 +101,47 @@
       </div>
 
       <!-- Documentos y sentencia -->
-      <div class="grid">
-        <!-- Columna izquierda: Documentos (4 unidades en pantallas medianas/grandes) -->
-        <div class="col-12 md:col-6">
-          <div class="surface-50 p-4 border-round-lg h-full bg-white">
-            <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Documentos</h4>
-            <div v-if="rutas.length > 0">
-              <div v-for="(ruta, index) in rutas" :key="index"
-                class="flex align-items-center mb-3 p-3 border rounded-3 surface-100 bg-white cursor-pointer hover:surface-200 transition-duration-150"
-                @click="mostrarArchivo(ruta.id_Ruta)">
-                <i class="pi pi-file-pdf mr-2" style="color: #e74c3c;"></i>
-                <span>{{ ruta.ruta_Nombre }}</span>
-              </div>
-            </div>
-            <p v-else class="m-0 text-500-dark">No hay documentos adjuntos</p>
-          </div>
+     <div class="grid">
+  <!-- Título -->
+  <div class="col-12">
+    <h4 class="text-lg mb-3" style="color: #003870;">Historial de Evidencias</h4>
+  </div>
+
+  <!-- Tarjetas en columnas -->
+  <div
+    v-for="item in evidencias"
+    :key="item.id_Evidencias"
+    class="col-12 md:col-6"
+  >
+    <div class="card surface-50 p-4 mb-5 border-round-lg border bg-white" style="background: #f8f9fa;">
+      <div class="flex flex-column md:flex-row">
+
+        <!-- Comentario -->
+        <div class="md:col-8 mb-3 md:mb-0">
+           <p class="text-sm text-500 mt-1">Subido: {{ formatFecha(item.FechaSubida) }}</p>
+          <h5 class="text-md mb-1" style="color: #003870;">Comentario</h5>
+          <p class="m-0">{{ item.comentario }}</p>
         </div>
 
-        <!-- Columna derecha: Comentarios (8 unidades en pantallas medianas/grandes) -->
-        <div class="col-12 md:col-6">
-          <div class="surface-50 p-4 border-round-lg h-full bg-white">
-            <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Comentarios</h4>
-            <div v-if="comentarios.length > 0">
-              <div v-for="(item, index) in comentarios" :key="index"
-                class="mb-3 p-3 border rounded-3 surface-100 bg-white">
-                <p class="m-0 font-medium">{{ item.comentario }}</p>
-                <small class="text-500-dark">{{ formatCommentDate(item.fecha) }}</small>
-              </div>
-            </div>
-            <p v-else class="m-0 text-500">Sin comentarios</p>
-          </div>
+        <!-- Documento -->
+        <div class="md:col-4 text-right">
+          <br><br>
+          <h5 class="text-md mb-1" style="color: #003870;">Documento</h5>
+          <a
+            :href="rutaBase + '/' + item.RutaArchivo"
+            target="_blank"
+            class="text-primary"
+            title="Abrir documento"
+          >
+         <i :class="getFileIcon(item.NombreArchivo)" style="color: #ff0000;"></i>
+            {{ item.NombreArchivo }}
+          </a>
+
         </div>
+
+      </div>
+    </div>
+  </div>
       </div>
       <div class="col-12 md:col-2 m-3">
         <div class="surface-50 p-4 border-round-lg border h-full bg-white">
@@ -147,12 +157,11 @@
     <teleport to="body">
       <transition name="fade">
         <AgregarEvidencias v-if="popUp"
-        :id ="litigioactual"
-        @close="togglePopUp" />
+        :id_Ltg ="litigioactual"
+        @close="togglePopUp"
+        @actualizar="obtenerComentariosConEvidencias"  />
       </transition>
     </teleport>
-
-        <small class="text-500-dark">Sistema Judicial - {{ new Date().getFullYear() }}</small>
         <small class="text-500-dark">Sistema Sileg 2.0 - {{ new Date().getFullYear() }}</small>
         <Button label="Imprimir" icon="pi pi-print" class="p-button-sm p-button-text-dark" @click="printDocument" />
       </div>
@@ -162,13 +171,21 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-// import axios from 'axios';
 import api from '@/utilities/api.js'
 import AgregarEvidencias from '@/components/views/AgregarEvidencias.vue';
 
 const popUp = ref(false);
 const litigioactual = ref(null);
 
+
+function getFileIcon(nombre) {
+  const ext = nombre.split('.').pop().toLowerCase();
+  if (ext === 'pdf') return 'pi pi-file-pdf';
+  if (['jpg', 'jpeg', 'png'].includes(ext)) return 'pi pi-image';
+  if (['doc', 'docx'].includes(ext)) return 'pi pi-file-word';
+  if (['xls', 'xlsx'].includes(ext)) return 'pi pi-file-excel';
+  return 'pi pi-file';
+}
 // Métodos
 function togglePopUp(id) {
   popUp.value = !popUp.value;
@@ -193,14 +210,11 @@ const props = defineProps({
 
 const litigio = ref(null)
 const loading = ref(true)
-const comentarios = ref([])
-const rutas = ref([])
+const evidencias = ref([]);
+const rutaBase = `C:/Users/mariancastillo/Desktop/SistemaLitigio`;
 
 // Función para abrir el documento en una nueva pestaña
-const mostrarArchivo = (idRuta) => {
-  const apiUrl = import.meta.env.VITE_API_URL || ''; // O déjalo en '' si no usas variable de entorno
-  window.open(`${apiUrl}/api/Files/rutas/${idRuta}`, '_blank');
-}
+
 
 // Función para formatear fechas
 const formatDate = (dateString) => {
@@ -213,28 +227,27 @@ const formatDate = (dateString) => {
 }
 
 // Función para formatear la fecha de comentarios
-const formatCommentDate = (dateString) => {
-  if (!dateString) return 'Fecha no disponible'
+function formatFecha(fechaISO) {
+  const fecha = new Date(fechaISO);
+  return fecha.toLocaleDateString() + ' ' + fecha.toLocaleTimeString();
+}
+async function obtenerComentariosConEvidencias() {
   try {
-    const options = {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }
-    return new Date(dateString).toLocaleDateString('es-ES', options)
-  } catch {
-    return dateString // Si falla el formateo, muestra la fecha original
+    const response = await api.get(`/api/Files/comentarios-evidencias/${props.id}`);
+    evidencias.value = response.data || [];
+  } catch (error) {
+    console.error('Error al obtener evidencias unificadas:', error);
   }
 }
 
 // Cargar información cuando el componente se monta
 onMounted(async () => {
+
   if (!props.id) {
     console.error('ID no proporcionado o inválido:', props.id)
     loading.value = false
     return
+
   }
 
   try {
@@ -247,12 +260,7 @@ onMounted(async () => {
     litigio.value = response.data
 
     // Obtener comentarios
-    const comentariosResponse = await api.get(`/api/Litigio/comentarios/${props.id}`)
-    comentarios.value = comentariosResponse.data || []
-
-    // Obtener rutas
-    const rutasResponse = await api.get(`/api/Files/rutas/${props.id}`)
-    rutas.value = rutasResponse.data || []
+obtenerComentariosConEvidencias();
 
   } catch (error) {
     console.error('Error al cargar litigio:', error)
@@ -311,6 +319,22 @@ const printDocument = () => {
   /* Espacio a la izquierda de comentarios */
 }
 
+.card {
+  border-left: 4px solid #003870;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  background-color: #f8f9fa;
+}
+
+.text-primary {
+  color: #003870;
+}
+
+@media print {
+  .card {
+    box-shadow: none !important;
+    border: none !important;
+  }
+}
 </style>
 
 

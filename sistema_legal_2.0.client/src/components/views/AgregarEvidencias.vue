@@ -38,12 +38,14 @@ import FileUpload from 'primevue/fileupload';
 import axios from 'axios'; // Importamos axios
 
 
+const emit = defineEmits(['close', 'actualizar']);
+
+
 const archivo = ref(null);
 const Comentario = ref('');
-const IdUsuario = 1; // Aquí agregas el id del usuario, puede venir de un store o contexto global
-
+const IdUsuario = 1;
 const props = defineProps({
-  IdLitigio: {
+  id_Ltg: {
     type: Number,
     required: true
   }
@@ -63,7 +65,7 @@ async function guardar() {
   formData.append('Archivo', archivo.value);
   formData.append('Comentario', Comentario.value);
   formData.append('IdUsuario', IdUsuario);
-   formData.append('IdLitigio', props.idLitigio); // <- ¡Ahora dinámico!
+   formData.append('IdLitigio', props.id_Ltg); // <- ¡Ahora dinámico!
 
 
   try {
@@ -73,6 +75,10 @@ async function guardar() {
     },
   });
 
+   alert('Evidencia guardada correctamente');
+
+    emit('actualizar'); // 🔄 Emitir para que el padre actualice la información
+    emit('close');
   console.log('Archivo subido:', response.data);
 
 } catch (error) {

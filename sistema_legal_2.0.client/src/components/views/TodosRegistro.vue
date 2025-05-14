@@ -5,20 +5,14 @@
 
       <div class="flex justify-content-end">
         <span class="p-input-icon-left">
-          <InputText v-model="globalFilter" placeholder="Buscar..." />
+          <InputText v-model="filters.global.value" placeholder="Buscar..." />
         </span>
       </div>
     </div>
 
-    <DataTable
-      :value="data"
-      :paginator="true"
-      :rows="5"
-      :filters="filters"
-      :globalFilterFields="['ltg_acto', 'ltg_Cedula_Demandante', 'ltg_Demandante']"
-      class="p-datatable-sm"
-      responsiveLayout="scroll"
-    >
+    <DataTable :value="data" :paginator="true" :rows="5" :filters="filters"
+      :globalFilterFields="['ltg_acto', 'ltg_Cedula_Demandante', 'ltg_Fecha_Acto' ,'ltg_Demandante']" class="p-datatable-sm"
+      responsiveLayout="scroll">
       <Column field="ltg_acto" header="No.Acto" />
       <Column field="ltg_Fecha_Acto" header="Fecha acto">
         <template #body="{ data }">
@@ -37,19 +31,9 @@
       <Column header="Acciones" style="width: 140px">
         <template #body="{ data }">
           <div class="btn-group">
-            <router-link
-              :to="`/litigio/detalle/${data.id_Ltg}`"
-              class="btn btn-sm"
-              style="background-color: #003870; border-color: #003870;"
-            >
+            <router-link :to="`/litigio/detalle/${data.id_Ltg}`" class="btn btn-sm"
+              style="background-color: #003870; border-color: #003870;">
               <i class="pi pi-eye white-icon"></i>
-            </router-link>
-            <router-link
-              to="/drawer/modificarregistro"
-              class="btn btn-sm"
-              style="background-color: #003870; border-color: #003870;"
-            >
-              <i class="pi pi-pencil white-icon"></i>
             </router-link>
           </div>
         </template>
@@ -60,7 +44,8 @@
 
 <script setup>
 import { FilterMatchMode } from '@primevue/core/api';
-import { useToast } from 'primevue/usetoast';
+
+
 import { ref, onMounted } from 'vue';
 import api from '@/utilities/api.js';
 import DataTable from 'primevue/datatable';
@@ -68,8 +53,7 @@ import Column from 'primevue/column';
 import InputText from 'primevue/inputtext';
 
 const data = ref([]);
-const globalFilter = ref(null); // Define globalFilter como un ref
-const filters = ref({ // Define filters como un ref
+const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
 

@@ -66,24 +66,34 @@ const buscarLitigio = async () => {
 
   try {
     const response = await fetch(`/api/Litigio/Buscar?valor=${busqueda.value.trim()}`)
+
+    if (!response.ok) {
+      resultado.value = null
+      push.warning('No se encontró ningún litigio con esos datos.')
+      return
+    }
+
     const data = await response.json()
 
-    if (data) {
+    // Verificamos que el objeto tenga un campo obligatorio
+    if (data && data.ltg_acto) {
       resultado.value = data
       push.success('Litigio encontrado exitosamente.')
     } else {
       resultado.value = null
       push.warning('No se encontró ningún litigio con esos datos.')
     }
+
   } catch (error) {
     console.error('Error al buscar litigio:', error)
     push.error('Ocurrió un error al realizar la búsqueda.')
   }
 }
 
+
 const irAModificar = () => {
   localStorage.setItem('litigioModificacion', JSON.stringify(resultado.value))
-  router.push('/drawer/modificar')
+  router.push('/drawer/modificarregistro')
 }
 </script>
 

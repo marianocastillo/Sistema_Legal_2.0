@@ -15,44 +15,27 @@
           <legend class="font-bold text-lg">Datos del Demandante</legend>
           <div class="grid">
             <div class="field col-12 md:col-4">
-              <InputText
-                v-model="form.ltg_Cedula_Demandante"
+              <InputText v-model="form.ltg_Cedula_Demandante"
                 :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'RNC de la empresa' : 'Cédula del demandante'"
-                class="w-full"
-              />
+                class="w-full" />
             </div>
             <div class="field col-12 md:col-4">
-              <InputText
-                v-model="form.ltg_Demandante"
+              <InputText v-model="form.ltg_Demandante"
                 :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'Nombre de la empresa' : 'Nombre del demandante'"
-                class="w-full"
-              />
+                class="w-full" />
             </div>
             <div class="field col-12 md:col-4">
-              <InputText
-                v-model="form.ltg_Nacionalidad"
+              <InputText v-model="form.ltg_Nacionalidad"
                 :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'País de constitución' : 'Nacionalidad'"
-                class="w-full"
-              />
+                class="w-full" />
             </div>
             <div class="field col-12 md:col-4">
-              <Dropdown
-                id="tipoDemandante"
-                v-model="form.ltg_Tipo_Demandante"
-                :options="tiposDemandante"
-                optionLabel="label"
-                optionValue="value"
-                class="w-full"
-                placeholder="Tipo de Demandante"
-              />
+              <Dropdown id="tipoDemandante" v-model="form.ltg_Tipo_Demandante" :options="tiposDemandante"
+                optionLabel="label" optionValue="value" class="w-full" placeholder="Tipo de Demandante" />
             </div>
             <div class="field col-12 md:col-4" v-if="form.ltg_Tipo_Demandante === 'Otros'">
-              <InputText
-                id="otrosDemandante"
-                v-model="form.otrosDemandante"
-                class="w-full"
-                placeholder="Especifique tipo de demandante"
-              />
+              <InputText id="otrosDemandante" v-model="form.otrosDemandante" class="w-full"
+                placeholder="Especifique tipo de demandante" />
             </div>
           </div>
         </fieldset>
@@ -65,40 +48,24 @@
               <InputText v-model="form.ltg_acto" placeholder="No. Acto Alguacil *" class="w-full" />
             </div>
             <div class="field col-12 md:col-4">
-              <Calendar v-model="form.ltg_Fecha_Acto" dateFormat="yy-mm-dd" showIcon placeholder="Fecha del acto" class="w-full" />
+              <Calendar v-model="form.ltg_Fecha_Acto" dateFormat="yy-mm-dd" showIcon placeholder="Fecha del acto"
+                class="w-full" />
             </div>
             <div class="field col-12 md:col-4">
-              <Dropdown
-                v-model="form.id_Tipo_Demanda"
-                :options="tiposDemanda"
-                optionLabel="nombre"
-                optionValue="id_demanda"
-                placeholder="Tipo de Demanda"
-                class="w-full"
-              />
+              <Dropdown v-model="form.id_Tipo_Demanda" :options="tiposDemanda" optionLabel="nombre"
+                optionValue="id_demanda" placeholder="Tipo de Demanda" class="w-full" />
             </div>
             <div class="field col-12 md:col-4">
-              <Calendar v-model="form.ltg_Fecha_Audiencia" dateFormat="yy-mm-dd" showIcon placeholder="Fecha de audiencia" class="w-full" />
+              <Calendar v-model="form.ltg_Fecha_Audiencia" dateFormat="yy-mm-dd" showIcon
+                placeholder="Fecha de audiencia" class="w-full" />
             </div>
             <div class="field col-12 md:col-4">
-              <Dropdown
-                v-model="form.id_Tribunal"
-                :options="tribunales"
-                optionLabel="nombre_Tribunal"
-                optionValue="id_Tribunal"
-                placeholder="Tribunal"
-                class="w-full"
-              />
+              <Dropdown v-model="form.id_Tribunal" :options="tribunales" optionLabel="nombre_Tribunal"
+                optionValue="id_Tribunal" placeholder="Tribunal" class="w-full" />
             </div>
             <div class="field col-12 md:col-4">
-              <Dropdown
-                v-model="form.id_Estatus"
-                :options="estatusLitigios"
-                optionLabel="ltg_description"
-                optionValue="ltg_estatus"
-                placeholder="Estatus"
-                class="w-full"
-              />
+              <Dropdown v-model="form.id_Estatus" :options="estatusLitigios" optionLabel="ltg_description"
+                optionValue="ltg_estatus" placeholder="Estatus" class="w-full" />
             </div>
           </div>
         </fieldset>
@@ -108,10 +75,12 @@
           <legend class="font-bold text-lg">Datos del Representante</legend>
           <div class="grid">
             <div class="field col-12 md:col-6">
-              <InputText v-model="form.ltg_Cedula_Representante" placeholder="Cédula del representante" class="w-full" />
+              <InputText v-model="form.ltg_Cedula_Representante" placeholder="Cédula del representante"
+                class="w-full" />
             </div>
             <div class="field col-12 md:col-6">
-              <InputText v-model="form.ltg_Nombre_Representante" placeholder="Nombre del representante" class="w-full" />
+              <InputText v-model="form.ltg_Nombre_Representante" placeholder="Nombre del representante"
+                class="w-full" />
             </div>
           </div>
         </fieldset>
@@ -122,7 +91,8 @@
           <div class="grid">
             <div class="field col-12 md:col-6">
               <label class="font-bold text-primary">Cargar Expediente</label>
-              <FileUpload name="Archivo" customUpload @select="handleExpedienteUpload" mode="basic" chooseLabel="Elegir archivo" class="w-full md:w-20rem" />
+              <FileUpload name="Archivo" customUpload @select="handleExpedienteUpload" mode="basic"
+                chooseLabel="Elegir archivo" class="w-full md:w-20rem" />
             </div>
           </div>
         </fieldset>
@@ -138,11 +108,13 @@
 
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
+import { push } from 'notivue'
 import InputText from 'primevue/inputtext'
 import Calendar from 'primevue/calendar'
 import Dropdown from 'primevue/dropdown'
 import FileUpload from 'primevue/fileupload'
 import Button from 'primevue/button'
+
 
 const form = reactive({
   fechaExpediente: new Date().toISOString().split('T')[0],
@@ -162,6 +134,9 @@ const form = reactive({
   otrosDemandante: '',
   id_sentencia: 3,
 })
+
+
+
 
 const tiposDemanda = ref([])
 const estatusLitigios = ref([])
@@ -203,6 +178,7 @@ const formatearFechaISO = (fecha) => {
 
 const registrarLitigio = async () => {
   if (!form.ltg_acto || !expedienteFile.value) {
+    push.warning('Favor de llenar los campos con datos validos')
     console.error("Faltan datos obligatorios como el acto o el archivo.")
     return
   }
@@ -219,7 +195,9 @@ const registrarLitigio = async () => {
   formData.append('ltg_Nombre_Representante', form.ltg_Nombre_Representante)
   formData.append("ltg_Fecha_Audiencia", formatearFechaISO(form.ltg_Fecha_Audiencia))
   formData.append('ltg_Fecha_Actualizacion', formatearFechaISO(new Date()))
-  formData.append('id_Tribunal', parseInt(form.id_Tribunal))
+  if (form.id_Tribunal !== null && form.id_Tribunal !== '') {
+    formData.append('id_Tribunal', parseInt(form.id_Tribunal));
+  }
   formData.append('ltg_Nacionalidad', form.ltg_Nacionalidad)
   formData.append('id_Sentencia', parseInt(form.id_sentencia))
   formData.append('id_usuario', parseInt(form.id_usuario))
@@ -236,8 +214,11 @@ const registrarLitigio = async () => {
       body: formData
     })
     const result = await response.json()
+    push.success('El litigio a sido cargado de forma exitosa')
     console.log('Respuesta del backend:', result)
+
   } catch (error) {
+
     console.error('Error al registrar el litigio:', error)
   }
 }
