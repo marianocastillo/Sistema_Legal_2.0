@@ -101,47 +101,39 @@
       </div>
 
       <!-- Documentos y sentencia -->
-     <div class="grid">
-  <!-- Título -->
-  <div class="col-12">
-    <h4 class="text-lg mb-3" style="color: #003870;">Historial de Evidencias</h4>
-  </div>
-
-  <!-- Tarjetas en columnas -->
-  <div
-    v-for="item in evidencias"
-    :key="item.id_Evidencias"
-    class="col-12 md:col-6"
-  >
-    <div class="card surface-50 p-4 mb-5 border-round-lg border bg-white" style="background: #f8f9fa;">
-      <div class="flex flex-column md:flex-row">
-
-        <!-- Comentario -->
-        <div class="md:col-8 mb-3 md:mb-0">
-           <p class="text-sm text-500 mt-1">Subido: {{ formatFecha(item.FechaSubida) }}</p>
-          <h5 class="text-md mb-1" style="color: #003870;">Comentario</h5>
-          <p class="m-0">{{ item.comentario }}</p>
+      <div class="grid">
+        <!-- Título -->
+        <div class="col-12">
+          <h4 class="text-lg mb-3" style="color: #003870;">Historial de Evidencias</h4>
         </div>
 
-        <!-- Documento -->
-        <div class="md:col-4 text-right">
-          <br><br>
-          <h5 class="text-md mb-1" style="color: #003870;">Documento</h5>
-          <a
-            :href="rutaBase + '/' + item.RutaArchivo"
-            target="_blank"
-            class="text-primary"
-            title="Abrir documento"
-          >
-         <i :class="getFileIcon(item.NombreArchivo)" style="color: #ff0000;"></i>
-            {{ item.NombreArchivo }}
-          </a>
+        <!-- Tarjetas en columnas -->
+        <div v-for="item in evidenciasOrdenadas" :key="item.id_Evidencias" class="col-12 md:col-6">
+          <div class="card surface-50 p-4 mb-5 border-round-lg border bg-white" style="background: #f8f9fa;">
+            <div class="flex flex-column md:flex-row">
 
+              <!-- Comentario -->
+              <div class="md:col-8 mb-3 md:mb-0">
+                <p class="text-sm text-500 mt-1">Subido: {{ formatFecha(item.FechaSubida) }}</p>
+                <h5 class="text-md mb-1" style="color: #003870;">Comentario</h5>
+                <p class="m-0">{{ item.comentario }}</p>
+              </div>
+
+              <!-- Documento -->
+              <div class="md:col-4 text-right">
+                <br><br>
+                <h5 class="text-md mb-1" style="color: #003870;">Documento</h5>
+                <a :href="rutaBase + '/' + item.RutaArchivo" target="_blank"   class="text-blue-600 no-underline hover:underline"
+                  title="Abrir documento" >
+                  <i :class="getFileIcon(item.NombreArchivo)" style="color: #ff0000;"></i>
+                  {{ item.NombreArchivo }}
+                </a>
+
+              </div>
+
+            </div>
+          </div>
         </div>
-
-      </div>
-    </div>
-  </div>
       </div>
       <div class="col-12 md:col-2 m-3">
         <div class="surface-50 p-4 border-round-lg border h-full bg-white">
@@ -152,18 +144,17 @@
 
       <!-- Pie de documento -->
       <div class="flex justify-content-between mt-4 pt-3 border-top-1 surface-border ">
-        <button class="btn" @click="togglePopUp(id)">Agregar Evidencia</button>
+        <Button label="Agregar Evidencia y Comentario" icon="pi pi-comment"  class="p-button-sm p-button-text-dark"
+          @click="togglePopUp(id)" />
 
-    <teleport to="body">
-      <transition name="fade">
-        <AgregarEvidencias v-if="popUp"
-        :id_Ltg ="litigioactual"
-        @close="togglePopUp"
-        @actualizar="obtenerComentariosConEvidencias"  />
-      </transition>
-    </teleport>
+        <teleport to="body">
+          <transition name="fade">
+            <AgregarEvidencias v-if="popUp" :id_Ltg="litigioactual" @close="togglePopUp"
+              @actualizar="obtenerComentariosConEvidencias" />
+          </transition>
+        </teleport>
         <small class="text-500-dark">Sistema Sileg 2.0 - {{ new Date().getFullYear() }}</small>
-        <Button label="Imprimir" icon="pi pi-print" class="p-button-sm p-button-text-dark" @click="printDocument" />
+
       </div>
     </div>
   </div>
@@ -173,7 +164,7 @@
 import { ref, onMounted } from 'vue'
 import api from '@/utilities/api.js'
 import AgregarEvidencias from '@/components/views/AgregarEvidencias.vue';
-
+import { computed } from 'vue';
 const popUp = ref(false);
 const litigioactual = ref(null);
 
@@ -186,6 +177,10 @@ function getFileIcon(nombre) {
   if (['xls', 'xlsx'].includes(ext)) return 'pi pi-file-excel';
   return 'pi pi-file';
 }
+
+const evidenciasOrdenadas = computed(() => {
+  return [...evidencias.value].sort((a, b) => new Date(a.FechaSubida) - new Date(b.FechaSubida))
+});
 // Métodos
 function togglePopUp(id) {
   popUp.value = !popUp.value;
@@ -260,7 +255,7 @@ onMounted(async () => {
     litigio.value = response.data
 
     // Obtener comentarios
-obtenerComentariosConEvidencias();
+    obtenerComentariosConEvidencias();
 
   } catch (error) {
     console.error('Error al cargar litigio:', error)
@@ -278,11 +273,6 @@ const getStatusSeverity = (status) => {
     'finalizado': 'info'
   }
   return statusMap[status?.toLowerCase()] || null
-}
-
-// Imprimir documento
-const printDocument = () => {
-  window.print()
 }
 
 
@@ -321,7 +311,7 @@ const printDocument = () => {
 
 .card {
   border-left: 4px solid #003870;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   background-color: #f8f9fa;
 }
 
@@ -335,6 +325,24 @@ const printDocument = () => {
     border: none !important;
   }
 }
+
+.pop-up {
+position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5); /* fondo semitransparente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pop-up-content {
+  background: white;
+  padding: 20px;
+  width: 600px; /* <-- Este valor controla el ancho */
+  height: 400px; /* <-- Este valor controla la altura */
+  border-radius: 8px;
+}
 </style>
-
-

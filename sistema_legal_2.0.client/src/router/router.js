@@ -5,7 +5,6 @@ import TodosRegistro from '../components/views/TodosRegistro.vue';
 import RegistroLitigio from '../components/views/RegistrarLitigio.vue';
 import TableView from '../components/views/TableView.vue';
 import ModificarRegistro from '../components/views/ModificarRegistro.vue';
-import LitigioModal from '../components/views/LitigioMostrar.vue';
 import ListadoUsuariosView from '../components/views/Configs/ListadoUsuariosView.vue';
 import FormularioView from '../components/views/Configs/FormularioView.vue';
 import BuscarLitigio from '@/components/views/BuscarLitigio.vue';

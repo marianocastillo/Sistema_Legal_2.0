@@ -1,9 +1,9 @@
 <template>
-  <div class="pop-up">
-    <div class="pop-up-inner">
+  <div class="pop-up" >
+    <div class="pop-up-inner" >
       <span class="pop-up-close" @click="$emit('close')">&times;</span>
 
-      <h2>Agregar Documento</h2>
+      <h2>Agregar evidencia y comentario</h2>
 
       <!-- Usamos el componente FileUpload -->
       <div class="file-container">
@@ -27,7 +27,7 @@
         ></textarea>
       </div>
 
-      <button class="btn" @click="guardar">Guardar</button>
+      <Button class="p-button-sm p-button-text-dark" @click="guardar">Guardar</button>
     </div>
   </div>
 </template>
@@ -90,16 +90,20 @@ async function guardar() {
 
 <style scoped>
 .pop-up {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 9999;
-  padding: 32px 16px 120px;
-  height: 100vh;
-  width: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: grid;
-  place-items: center;
+  width: 600px;
+  height: 400px;
+  background-color: rgba(0,0,0,0.5); /* fondo semitransparente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pop-up-content {
+  background: white;
+  padding: 20px;
+  width: 600px; /* <-- Este valor controla el ancho */
+  height: 400px; /* <-- Este valor controla la altura */
+  border-radius: 8px;
 }
 
 .pop-up-close {
