@@ -74,7 +74,7 @@
       </div>
 
       <!-- Detalles del proceso -->
-      <div class=" card surface-50 p-4 mb-5 border-round-lg border bg-white ">
+      <div class="surface-50 p-4 mb-5 border-round-lg border bg-white">
         <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Detalles del Proceso</h4>
         <div class="grid">
           <div class="col-12 md:col-4 field">
@@ -102,6 +102,7 @@
 
       <!-- Documentos y sentencia -->
       <div class="grid">
+<<<<<<< HEAD
         <!-- Título -->
         <div class="col-12">
           <h4 class="text-lg mb-3" style="color: #003870;">Historial de Evidencias</h4>
@@ -132,6 +133,36 @@
               </div>
 
             </div>
+=======
+        <!-- Columna izquierda: Documentos (4 unidades en pantallas medianas/grandes) -->
+        <div class="col-12 md:col-6">
+          <div class="surface-50 p-4 border-round-lg h-full bg-white">
+            <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Documentos</h4>
+            <div v-if="rutas.length > 0">
+              <div v-for="(ruta, index) in rutas" :key="index"
+                class="flex align-items-center mb-3 p-3 border rounded-3 surface-100 bg-white cursor-pointer hover:surface-200 transition-duration-150"
+                @click="mostrarArchivo(ruta.id_Ruta)">
+                <i class="pi pi-file-pdf mr-2" style="color: #e74c3c;"></i>
+                <span>{{ ruta.ruta_Nombre }}</span>
+              </div>
+            </div>
+            <p v-else class="m-0 text-500-dark">No hay documentos adjuntos</p>
+          </div>
+        </div>
+
+        <!-- Columna derecha: Comentarios (8 unidades en pantallas medianas/grandes) -->
+        <div class="col-12 md:col-6">
+          <div class="surface-50 p-4 border-round-lg h-full bg-white">
+            <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Comentarios</h4>
+            <div v-if="comentarios.length > 0">
+              <div v-for="(item, index) in comentarios" :key="index"
+                class="mb-3 p-3 border rounded-3 surface-100 bg-white">
+                <p class="m-0 font-medium">{{ item.comentario }}</p>
+                <small class="text-500-dark">{{ formatCommentDate(item.fecha) }}</small>
+              </div>
+            </div>
+            <p v-else class="m-0 text-500">Sin comentarios</p>
+>>>>>>> a72055ba9fea1bcde3237ef78c47129e4cf667c7
           </div>
         </div>
       </div>
@@ -144,6 +175,7 @@
 
       <!-- Pie de documento -->
       <div class="flex justify-content-between mt-4 pt-3 border-top-1 surface-border ">
+<<<<<<< HEAD
         <Button label="Agregar Evidencia y Comentario" icon="pi pi-comment"  class="p-button-sm p-button-text-dark"
           @click="togglePopUp(id)" />
 
@@ -153,6 +185,8 @@
               @actualizar="obtenerComentariosConEvidencias" />
           </transition>
         </teleport>
+=======
+>>>>>>> a72055ba9fea1bcde3237ef78c47129e4cf667c7
         <small class="text-500-dark">Sistema Sileg 2.0 - {{ new Date().getFullYear() }}</small>
 
       </div>
@@ -162,7 +196,9 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+// import axios from 'axios';
 import api from '@/utilities/api.js'
+<<<<<<< HEAD
 import AgregarEvidencias from '@/components/views/AgregarEvidencias.vue';
 import { computed } from 'vue';
 const popUp = ref(false);
@@ -188,6 +224,8 @@ function togglePopUp(id) {
   console.log('popup:', popUp.value);
 }
 
+=======
+>>>>>>> a72055ba9fea1bcde3237ef78c47129e4cf667c7
 
 const props = defineProps({
   id: {
@@ -205,11 +243,13 @@ const props = defineProps({
 
 const litigio = ref(null)
 const loading = ref(true)
-const evidencias = ref([]);
-const rutaBase = `C:/Users/mariancastillo/Desktop/SistemaLitigio`;
+const comentarios = ref([])
+const rutas = ref([])
 
-// Función para abrir el documento en una nueva pestaña
-
+const mostrarArchivo = (idRuta) => {
+  const apiUrl = import.meta.env.VITE_API_URL || '';
+  window.open(`${apiUrl}/api/Files/rutas/${idRuta}`, '_blank');
+};
 
 // Función para formatear fechas
 const formatDate = (dateString) => {
@@ -222,27 +262,28 @@ const formatDate = (dateString) => {
 }
 
 // Función para formatear la fecha de comentarios
-function formatFecha(fechaISO) {
-  const fecha = new Date(fechaISO);
-  return fecha.toLocaleDateString() + ' ' + fecha.toLocaleTimeString();
-}
-async function obtenerComentariosConEvidencias() {
+const formatCommentDate = (dateString) => {
+  if (!dateString) return 'Fecha no disponible'
   try {
-    const response = await api.get(`/api/Files/comentarios-evidencias/${props.id}`);
-    evidencias.value = response.data || [];
-  } catch (error) {
-    console.error('Error al obtener evidencias unificadas:', error);
+    const options = {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }
+    return new Date(dateString).toLocaleDateString('es-ES', options)
+  } catch {
+    return dateString // Si falla el formateo, muestra la fecha original
   }
 }
 
 // Cargar información cuando el componente se monta
 onMounted(async () => {
-
   if (!props.id) {
     console.error('ID no proporcionado o inválido:', props.id)
     loading.value = false
     return
-
   }
 
   try {
@@ -255,7 +296,16 @@ onMounted(async () => {
     litigio.value = response.data
 
     // Obtener comentarios
+<<<<<<< HEAD
     obtenerComentariosConEvidencias();
+=======
+    const comentariosResponse = await api.get(`/api/Litigio/comentarios/${props.id}`)
+    comentarios.value = comentariosResponse.data || []
+
+    // Obtener rutas
+    const rutasResponse = await api.get(`/api/Files/rutas/${props.id}`)
+    rutas.value = rutasResponse.data || []
+>>>>>>> a72055ba9fea1bcde3237ef78c47129e4cf667c7
 
   } catch (error) {
     console.error('Error al cargar litigio:', error)
@@ -275,9 +325,16 @@ const getStatusSeverity = (status) => {
   return statusMap[status?.toLowerCase()] || null
 }
 
+<<<<<<< HEAD
 
 
 
+=======
+// Imprimir documento
+const printDocument = () => {
+  window.print()
+}
+>>>>>>> a72055ba9fea1bcde3237ef78c47129e4cf667c7
 </script>
 
 
@@ -308,6 +365,7 @@ const getStatusSeverity = (status) => {
   padding-left: 1rem;
   /* Espacio a la izquierda de comentarios */
 }
+<<<<<<< HEAD
 
 .card {
   border-left: 4px solid #003870;
@@ -345,4 +403,6 @@ position: fixed;
   height: 400px; /* <-- Este valor controla la altura */
   border-radius: 8px;
 }
+=======
+>>>>>>> a72055ba9fea1bcde3237ef78c47129e4cf667c7
 </style>

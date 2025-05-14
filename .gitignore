@@ -361,3 +361,4 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/sistema_legal_2.0.client/src/components/views/LitigioMostrar.vue

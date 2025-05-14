@@ -27,7 +27,7 @@
             </li>
 
             <li>
-              <router-link to="/drawer/buscarlitigio" class="sidebar-link" exact-active-class="active">
+              <router-link to="/drawer/modificarregistro" class="sidebar-link" exact-active-class="active">
                 <i class="pi pi-pencil" />
                 <span>Modificar</span>
               </router-link>
