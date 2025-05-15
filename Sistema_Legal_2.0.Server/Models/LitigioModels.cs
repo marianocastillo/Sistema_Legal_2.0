@@ -23,6 +23,9 @@ namespace Sistema_Legal_2._0.Server.Models
         public int? id_usuario { get; set; }
         public int id_Estatus { get; set; }
 
+        public string comentario { get; set; }
+
+
         public IFormFile Archivo { get; set; }
         public string NombreCarpeta { get; set; }
 
