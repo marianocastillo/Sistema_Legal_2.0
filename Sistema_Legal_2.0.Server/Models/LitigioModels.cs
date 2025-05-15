@@ -27,7 +27,6 @@ namespace Sistema_Legal_2._0.Server.Models
 
 
         public IFormFile Archivo { get; set; }
-        public string NombreCarpeta { get; set; }
 
 
     }

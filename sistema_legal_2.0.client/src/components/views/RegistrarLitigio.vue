@@ -93,13 +93,18 @@
 
         <!-- ARCHIVOS -->
         <fieldset class="col-12 border-1 border-round p-3 mb-3">
-          <legend class="font-bold text-lg">Documentos</legend>
+          <legend class="font-bold text-lg">Documentación</legend>
           <div class="grid">
+
             <div class="field col-12 md:col-6">
               <label class="font-bold text-primary">Cargar Expediente</label>
               <FileUpload name="Archivo" customUpload @select="handleExpedienteUpload" mode="basic"
                 chooseLabel="Elegir archivo" class="w-full md:w-20rem" />
             </div>
+         <div class="field col-12 md:col-6">
+  <label class="font-bold text-primary">Comentario</label>
+  <Textarea v-model="form.comentario" class="w-full" rows="6" autoResize />
+</div>
           </div>
         </fieldset>
       </div>
@@ -139,6 +144,7 @@ const form = reactive({
   ltg_Nacionalidad: '',
   otrosDemandante: '',
   id_sentencia: 3,
+  comentario : '',
 })
 
 
@@ -206,6 +212,7 @@ const registrarLitigio = async () => {
   formData.append('ltg_Demandante', form.ltg_Demandante)
   formData.append('ltg_Tipo_Demandante', form.ltg_Tipo_Demandante === 'Otros' ? form.otrosDemandante : form.ltg_Tipo_Demandante)
   formData.append('ltg_Cedula_Representante', form.ltg_Cedula_Demandante)
+  formData.append('comentario', form.comentario)
   formData.append('ltg_Nombre_Representante', form.ltg_Nombre_Representante)
   formData.append("ltg_Fecha_Audiencia", formatearFechaISO(form.ltg_Fecha_Audiencia))
   formData.append('ltg_Fecha_Actualizacion', formatearFechaISO(new Date()))
