@@ -1,0 +1,47 @@
+{
+  "name": "sistema_legal_2.0.client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --fix"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.7.2",
+    "@fortawesome/free-brands-svg-icons": "^6.7.2",
+    "@fortawesome/free-regular-svg-icons": "^6.7.2",
+    "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "@fortawesome/vue-fontawesome": "^3.0.8",
+    "@popperjs/core": "^2.11.8",
+    "@primeuix/themes": "^1.0.0",
+    "@primevue/themes": "^4.3.2",
+    "@surely-vue/table": "^5.0.2",
+    "axios": "^1.8.4",
+    "bootstrap": "^5.3.5",
+    "datatables.net": "^2.2.2",
+    "datatables.net-bs5": "^2.2.2",
+    "jquery": "^3.7.1",
+    "notivue": "^2.4.5",
+    "primeflex": "^4.0.0",
+    "primeicons": "^7.0.0",
+    "primevue": "^4.3.3",
+    "unimport": "^4.1.2",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0",
+    "vuex": "^4.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.21.0",
+    "@primevue/auto-import-resolver": "^4.3.2",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "eslint": "^9.21.0",
+    "eslint-plugin-vue": "~10.0.0",
+    "globals": "^16.0.0",
+    "unplugin-vue-components": "^28.4.1",
+    "vite": "^6.3.4",
+    "vite-plugin-vue-devtools": "^7.7.2"
+  }
+}
