@@ -96,7 +96,7 @@ import { ref, onMounted } from 'vue'
 import InputText from 'primevue/inputtext'
 import Calendar from 'primevue/calendar'
 import Dropdown from 'primevue/dropdown'
-import { useRouter } from 'vue-router'
+
 import Button from 'primevue/button'
 
 const form = ref({
@@ -126,7 +126,6 @@ const tiposDemandante = [
 ]
 const tribunales = ref([])
 const estatusList = ref([])
-const router = useRouter()
 
 
 const cargarDatosDropdowns = async () => {
@@ -219,9 +218,6 @@ const registrarLitigio = async () => {
     if (response.ok) {
       alert(data.mensaje)
       localStorage.removeItem('litigioModificacion')
-
-      router.push(`/litigio/detalle/${form.value.id_Ltg}`)
-
     } else {
       alert('Error: ' + data)
     }

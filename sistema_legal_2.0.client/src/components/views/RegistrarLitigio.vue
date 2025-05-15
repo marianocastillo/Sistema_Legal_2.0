@@ -114,7 +114,7 @@
 
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
-import { push, router } from 'notivue'
+import { push } from 'notivue'
 import InputText from 'primevue/inputtext'
 import Calendar from 'primevue/calendar'
 import Dropdown from 'primevue/dropdown'
@@ -231,6 +231,7 @@ const registrarLitigio = async () => {
     push.success('El litigio a sido cargado de forma exitosa')
     console.log('Respuesta del backend:', result)
     window.location.reload()
+    // eslint-disable-next-line no-undef
     router.push('/drawer/home')
 
   } catch (error) {
