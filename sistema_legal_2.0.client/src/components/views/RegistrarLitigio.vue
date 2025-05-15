@@ -15,10 +15,22 @@
           <legend class="font-bold text-lg">Datos del Demandante</legend>
           <div class="grid">
             <div class="field col-12 md:col-4">
-              <InputText v-model="form.ltg_Cedula_Demandante"
-                :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'RNC de la empresa' : 'Cédula del demandante'"
-                class="w-full" />
+              <Dropdown id="tipoDemandante" v-model="form.ltg_Tipo_Demandante" :options="tiposDemandante"
+                optionLabel="label" optionValue="value" class="w-full"
+                placeholder="--Seleccione Tipo de demandante--" />
             </div>
+            <div class="field col-12 md:col-4" v-if="form.ltg_Tipo_Demandante === 'Otros'">
+              <InputText id="otrosDemandante" v-model="form.otrosDemandante" class="w-full"
+                placeholder="Especifique tipo de demandante" />
+            </div>
+            <div class="field col-12 md:col-4">
+              <InputText v-model="form.ltg_Cedula_Demandante" :placeholder="form.ltg_Tipo_Demandante === 'Empresa'
+                ? 'RNC de la empresa'
+                : (form.ltg_Tipo_Demandante === 'Otros'
+                  ? 'Identificación del demandante'
+                  : 'Cédula del demandante')" class="w-full" />
+            </div>
+
             <div class="field col-12 md:col-4">
               <InputText v-model="form.ltg_Demandante"
                 :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'Nombre de la empresa' : 'Nombre del demandante'"
@@ -29,14 +41,8 @@
                 :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'País de constitución' : 'Nacionalidad'"
                 class="w-full" />
             </div>
-            <div class="field col-12 md:col-4">
-              <Dropdown id="tipoDemandante" v-model="form.ltg_Tipo_Demandante" :options="tiposDemandante"
-                optionLabel="label" optionValue="value" class="w-full" placeholder="Tipo de Demandante" />
-            </div>
-            <div class="field col-12 md:col-4" v-if="form.ltg_Tipo_Demandante === 'Otros'">
-              <InputText id="otrosDemandante" v-model="form.otrosDemandante" class="w-full"
-                placeholder="Especifique tipo de demandante" />
-            </div>
+
+
           </div>
         </fieldset>
 
@@ -53,7 +59,7 @@
             </div>
             <div class="field col-12 md:col-4">
               <Dropdown v-model="form.id_Tipo_Demanda" :options="tiposDemanda" optionLabel="nombre"
-                optionValue="id_demanda" placeholder="Tipo de Demanda" class="w-full" />
+                optionValue="id_demanda" placeholder="--Seleccione el Tipo de Demanda--" class="w-full" />
             </div>
             <div class="field col-12 md:col-4">
               <Calendar v-model="form.ltg_Fecha_Audiencia" dateFormat="yy-mm-dd" showIcon
@@ -61,11 +67,11 @@
             </div>
             <div class="field col-12 md:col-4">
               <Dropdown v-model="form.id_Tribunal" :options="tribunales" optionLabel="nombre_Tribunal"
-                optionValue="id_Tribunal" placeholder="Tribunal" class="w-full" />
+                optionValue="id_Tribunal" placeholder="--Seleccione Tribunal--" class="w-full" />
             </div>
             <div class="field col-12 md:col-4">
               <Dropdown v-model="form.id_Estatus" :options="estatusLitigios" optionLabel="ltg_description"
-                optionValue="ltg_estatus" placeholder="Estatus" class="w-full" />
+                optionValue="ltg_estatus" placeholder="--Seleccione el Estatus--" class="w-full" />
             </div>
           </div>
         </fieldset>
@@ -143,6 +149,7 @@ const estatusLitigios = ref([])
 const tribunales = ref([])
 const expedienteFile = ref(null)
 
+
 const tiposDemandante = [
   { label: 'Empleado', value: 'Empleado' },
   { label: 'Empresa', value: 'Empresa' },
@@ -159,8 +166,11 @@ const cargarDatosDropdowns = async () => {
     const response = await fetch('/api/Litigio/datos-litigio')
     const data = await response.json()
     tiposDemanda.value = data.tiposDemanda
-    tribunales.value = data.tribunales
     estatusLitigios.value = data.estatusLitigios
+    tribunales.value = [
+      { id_Tribunal: null, nombre_Tribunal: '--Seleccione Tribunal--' },
+      ...data.tribunales
+    ]
   } catch (error) {
     console.error('Error al cargar los datos de los dropdowns:', error)
   }
@@ -175,6 +185,10 @@ const formatearFechaISO = (fecha) => {
   const d = new Date(fecha)
   return d.toISOString().split('T')[0]
 }
+
+
+
+
 
 const registrarLitigio = async () => {
   if (!form.ltg_acto || !expedienteFile.value) {

@@ -45,20 +45,29 @@ namespace Sistema_Legal_2._0.Server.Controllers
             {
                 await connection.OpenAsync();
 
+                litigio.ltg_acto = string.IsNullOrWhiteSpace(litigio.ltg_acto) ? null : litigio.ltg_acto;
+                litigio.ltg_Cedula_Demandante = string.IsNullOrWhiteSpace(litigio.ltg_Cedula_Demandante) ? null : litigio.ltg_Cedula_Demandante;
+                litigio.ltg_Nacionalidad = string.IsNullOrWhiteSpace(litigio.ltg_Nacionalidad) ? null : litigio.ltg_Nacionalidad;
+                litigio.ltg_Demandante = string.IsNullOrWhiteSpace(litigio.ltg_Demandante) ? null : litigio.ltg_Demandante;
+                litigio.ltg_Tipo_Demandante = string.IsNullOrWhiteSpace(litigio.ltg_Tipo_Demandante) ? null : litigio.ltg_Tipo_Demandante;
+                litigio.ltg_Cedula_Representante = string.IsNullOrWhiteSpace(litigio.ltg_Cedula_Representante) ? null : litigio.ltg_Cedula_Representante;
+                litigio.ltg_Nombre_Representante = string.IsNullOrWhiteSpace(litigio.ltg_Nombre_Representante) ? null : litigio.ltg_Nombre_Representante;
+
+
                 using (SqlCommand cmd = new SqlCommand("sp_EditarLitigio", connection))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
 
                     cmd.Parameters.AddWithValue("@id_Ltg", litigio.id_Ltg);
-                    cmd.Parameters.AddWithValue("@ltg_acto", litigio.ltg_acto);
+                    cmd.Parameters.AddWithValue("@ltg_acto", (object?)litigio.ltg_acto ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@ltg_Fecha_Acto", litigio.ltg_Fecha_Acto);
                     cmd.Parameters.AddWithValue("@id_Tipo_Demanda", litigio.id_Tipo_Demanda);
-                    cmd.Parameters.AddWithValue("@ltg_Cedula_Demandante", litigio.ltg_Cedula_Demandante);
-                    cmd.Parameters.AddWithValue("@ltg_Nacionalidad", litigio.ltg_Nacionalidad);
-                    cmd.Parameters.AddWithValue("@ltg_Demandante", litigio.ltg_Demandante);
+                    cmd.Parameters.AddWithValue("@ltg_Cedula_Demandante", (object?)litigio.ltg_Cedula_Demandante?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@ltg_Nacionalidad", (object?)litigio.ltg_Nacionalidad ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@ltg_Demandante", (object?)litigio.ltg_Demandante ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@ltg_Tipo_Demandante", litigio.ltg_Tipo_Demandante);
-                    cmd.Parameters.AddWithValue("@ltg_Cedula_Representante", litigio.ltg_Cedula_Representante);
-                    cmd.Parameters.AddWithValue("@ltg_Nombre_Representante", litigio.ltg_Nombre_Representante);
+                    cmd.Parameters.AddWithValue("@ltg_Cedula_Representante", (object?)litigio.ltg_Cedula_Representante ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@ltg_Nombre_Representante", (object?)litigio.ltg_Nombre_Representante ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@ltg_Fecha_Audiencia", (object?)litigio.ltg_Fecha_Audiencia ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@ltg_Fecha_Actualizacion", litigio.ltg_Fecha_Actualizacion);
                     cmd.Parameters.AddWithValue("@id_Tribunal", litigio.id_Tribunal);

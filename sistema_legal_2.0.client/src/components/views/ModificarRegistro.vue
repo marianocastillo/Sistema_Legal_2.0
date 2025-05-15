@@ -27,8 +27,8 @@
                 class="w-full" />
             </div>
             <div class="field col-12 md:col-4">
-              <Dropdown v-model="form.tiposDemandante" :options="tiposDemandante" optionLabel="label" optionValue="value"
-                class="w-full" placeholder="Tipo de Demandante" />
+              <Dropdown v-model="form.tiposDemandante" :options="tiposDemandante" optionLabel="label"
+                optionValue="value" class="w-full" placeholder="Tipo de Demandante" />
             </div>
             <div class="field col-12 md:col-4" v-if="form.tiposDemandante === 'Otros'">
               <InputText v-model="form.otrosDemandante" class="w-full" placeholder="Especifique tipo de demandante" />
@@ -44,27 +44,24 @@
               <InputText v-model="form.noActo" class="w-full" placeholder="No. Acto Alguacil *" />
             </div>
             <div class="field col-12 md:col-4">
-              <Calendar v-model="form.fechaActo" dateFormat="yy-mm-dd" showIcon placeholder="Fecha del acto" class="w-full" />
+              <Calendar v-model="form.fechaActo" dateFormat="yy-mm-dd" showIcon placeholder="Fecha del acto"
+                class="w-full" />
             </div>
             <div class="field col-12 md:col-4">
-              <Dropdown v-model="form.tipoDemanda"
-              :options="tiposDemanda"
-               optionLabel="nombre"
-                optionValue="id_demanda"
-                placeholder="Tipo de Demanda"
-                class="w-full" />
+              <Dropdown v-model="form.tipoDemanda" :options="tiposDemanda" optionLabel="nombre" optionValue="id_demanda"
+                placeholder="Tipo de Demanda" class="w-full" />
             </div>
             <div class="field col-12 md:col-4">
               <Calendar v-model="form.fechaAudiencia" dateFormat="yy-mm-dd" showIcon placeholder="Fecha de audiencia"
                 class="w-full" />
             </div>
             <div class="field col-12 md:col-4">
-              <Dropdown v-model="form.tribunal" :options="tribunales" optionLabel="nombre_Tribunal" optionValue="id_Tribunal"
-                placeholder="Tribunal" class="w-full" />
+              <Dropdown v-model="form.tribunal" :options="tribunales" optionLabel="nombre_Tribunal"
+                optionValue="id_Tribunal" placeholder="--Seleccione Tribunal--" class="w-full" />
             </div>
             <div class="field col-12 md:col-4">
-              <Dropdown v-model="form.estatus" :options="estatusList" optionLabel="ltg_description" optionValue="ltg_estatus"
-                placeholder="Estatus" class="w-full" />
+              <Dropdown v-model="form.estatus" :options="estatusList" optionLabel="ltg_description"
+                optionValue="ltg_estatus" placeholder="--Seleccione Estatus--" class="w-full" />
             </div>
           </div>
         </fieldset>
@@ -130,15 +127,19 @@ const tiposDemandante = [
 const tribunales = ref([])
 const estatusList = ref([])
 
+
 const cargarDatosDropdowns = async () => {
   try {
-    const res = await fetch('/api/Litigio/datos-litigio')
-    const data = await res.json()
+    const response = await fetch('/api/Litigio/datos-litigio')
+    const data = await response.json()
     tiposDemanda.value = data.tiposDemanda
-    tribunales.value = data.tribunales
     estatusList.value = data.estatusLitigios
+    tribunales.value = [
+      { id_Tribunal: null, nombre_Tribunal: '--Quitar Tribunal--' },
+      ...data.tribunales
+    ]
   } catch (error) {
-    console.error('Error al cargar listas:', error)
+    console.error('Error al cargar los datos de los dropdowns:', error)
   }
 }
 
@@ -161,23 +162,23 @@ onMounted(async () => {
     console.log('Litigio cargado:', data)
 
     form.value = {
-  id_Ltg: data.id_Ltg,
-  noActo: data.ltg_acto,
-  fechaActo: data.ltg_Fecha_Acto?.substring(0, 10),
-  tipoDemanda: data.id_Tipo_Demanda ?? data.tipoDemanda_Id ?? null,
-  cedulaDemandante: data.ltg_Cedula_Demandante,
-  Nacionalidad: data.ltg_Nacionalidad,
-  demandante: data.ltg_Demandante,
-  tiposDemandante: data.ltg_Tipo_Demandante,
-  otrosDemandante: data.ltg_Tipo_Demandante === 'Otros' ? data.otrosDemandante || '' : '',
-  cedulaRepresentante: data.ltg_Cedula_Representante,
-  nombreRepresentante: data.ltg_Nombre_Representante,
-  fechaAudiencia: data.ltg_Fecha_Audiencia?.substring(0, 10),
-  tribunal: data.id_Tribunal,
-  estatus: data.id_Estatus ?? data.ltg_estatus ?? null,
-  id_usuario: data.id_usuario ?? data.idUsuario ?? null,
-  id_Sentencia: data.id_Sentencia ?? null
-}
+      id_Ltg: data.id_Ltg,
+      noActo: data.ltg_acto,
+      fechaActo: data.ltg_Fecha_Acto?.substring(0, 10),
+      tipoDemanda: data.id_Tipo_Demanda ?? data.tipoDemanda_Id ?? null,
+      cedulaDemandante: data.ltg_Cedula_Demandante,
+      Nacionalidad: data.ltg_Nacionalidad,
+      demandante: data.ltg_Demandante,
+      tiposDemandante: data.ltg_Tipo_Demandante,
+      otrosDemandante: data.ltg_Tipo_Demandante === 'Otros' ? data.otrosDemandante || '' : '',
+      cedulaRepresentante: data.ltg_Cedula_Representante,
+      nombreRepresentante: data.ltg_Nombre_Representante,
+      fechaAudiencia: data.ltg_Fecha_Audiencia?.substring(0, 10),
+      tribunal: data.id_Tribunal,
+      estatus: data.id_Estatus ?? data.ltg_estatus ?? null,
+      id_usuario: data.id_usuario ?? data.idUsuario ?? null,
+      id_Sentencia: data.id_Sentencia ?? null
+    }
 
   }
 })
@@ -222,7 +223,7 @@ const registrarLitigio = async () => {
     }
   } catch (err) {
     console.error('Error al actualizar:', err)
-    alert('Error de conexión.')
+    alert('Recuerde llenar todos los campos.')
   }
 }
 
