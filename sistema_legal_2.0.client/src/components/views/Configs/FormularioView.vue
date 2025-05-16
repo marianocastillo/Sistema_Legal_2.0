@@ -57,6 +57,7 @@
               </option>
             </select>
             <div class="invalid-feedback" v-if="errors.IdPerfil">{{ errors.IdPerfil }}</div>
+
           </div>
         </div>
       </div>
@@ -76,13 +77,13 @@ export default {
     return {
 
       usuario: {
-
-                nombreUsuario: '',
-                nombres: '',
-                apellidos: '',
-                idPerfil: 0,
-                IdSupervisor: 0,
-            },
+        idUsuario: 0,
+        nombreUsuario: '',
+        nombres: '',
+        apellidos: '',
+        idPerfil: 0,
+        IdSupervisor: 0,
+      },
 
       idUsuario: this.$route.params.idUsuario,
       errors: {},
@@ -157,26 +158,31 @@ export default {
 
 
     async Guardar() {
-            const response = await api[this.FormMode == this.FormModes.Editar ? 'put' : 'post']('/api/Usuarios', this.usuario);
+      const usuarioLogueado = JSON.parse(localStorage.getItem('usuario'))
+      this.usuario.IdSupervisor = usuarioLogueado?.idUsuario || 0
 
-            if (response.data.success) {
-                push.success({ title: 'Operación exitosa', message: response.data.message});
-                this.errors = {};
+      
+      const response = await api[this.FormMode == this.FormModes.Editar ? 'put' : 'post']('/api/Usuarios', this.usuario);
 
-                this.usuario = {
-                nombreUsuario: '',
-                nombres: '',
-                apellidos: '',
-                idPerfil: 0,
-                activo: false
-                };
-                this.$router.push('/drawer/listadodeusuario');
-            }
-            else {
-                if (response.data.errors) this.errors = response.data.errors;
-                push.warning({ title: 'Advertencia', message: response.data.message});
-            }
-        },
+      if (response.data.success) {
+        push.success({ title: 'Operación exitosa', message: response.data.message });
+        this.errors = {};
+
+        this.usuario = {
+          nombreUsuario: '',
+          nombres: '',
+          apellidos: '',
+          idPerfil: 0,
+          activo: false,
+          IdSupervisor: usuarioLogueado?.idUsuario || 0
+        };
+        this.$router.push('/drawer/listadodeusuario');
+      }
+      else {
+        if (response.data.errors) this.errors = response.data.errors;
+        push.warning({ title: 'Advertencia', message: response.data.message });
+      }
+    },
 
 
 

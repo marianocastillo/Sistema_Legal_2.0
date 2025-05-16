@@ -140,7 +140,6 @@ const form = reactive({
   ltg_Nombre_Representante: '',
   ltg_Fecha_Audiencia: '',
   id_Estatus: '',
-  id_usuario: 1,
   ltg_Nacionalidad: '',
   otrosDemandante: '',
   id_sentencia: 3,
@@ -197,11 +196,18 @@ const formatearFechaISO = (fecha) => {
 
 
 const registrarLitigio = async () => {
+
+
+const usuarioLogueado = JSON.parse(localStorage.getItem('usuario'));
+  form.id_usuario = usuarioLogueado.idUsuario;
+
   if (!form.ltg_acto || !expedienteFile.value) {
     push.warning('Favor de llenar los campos con datos validos')
     console.error("Faltan datos obligatorios como el acto o el archivo.")
     return
   }
+
+
 
   const formData = new FormData()
 

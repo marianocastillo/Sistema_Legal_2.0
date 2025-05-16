@@ -122,7 +122,7 @@ export default {
       if (user) {
         const token = 'mockToken'
         localStorage.setItem('token', token)
-        localStorage.setItem('usuario', JSON.stringify({ nombre: user.nombreUsuario, rol: user.rol }))
+        localStorage.setItem('usuario', JSON.stringify({ nombre: user.nombreUsuario, rol: user.rol}))
         localStorage.setItem('sessionExpireTime', new Date().getTime() + 30 * 60 * 1000)
         this.$store.commit('setUser', user)
         push.success(`Bienvenido ${user.nombreUsuario}`)
@@ -143,6 +143,7 @@ export default {
       localStorage.setItem('user', usuario.nombreUsuario)
       localStorage.setItem('sessionExpireTime', new Date().getTime() + 30 * 60 * 1000)
       localStorage.setItem('usuario', JSON.stringify({
+        idUsuario: usuario.idUsuario,
         nombre: usuario.nombreUsuario,
         rol: usuario.nombrePerfil || 'Usuario'
       }))
