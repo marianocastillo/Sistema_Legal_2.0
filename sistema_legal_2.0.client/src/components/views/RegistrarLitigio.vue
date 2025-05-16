@@ -120,12 +120,15 @@
 
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { push } from 'notivue'
 import InputText from 'primevue/inputtext'
 import Calendar from 'primevue/calendar'
 import Dropdown from 'primevue/dropdown'
 import FileUpload from 'primevue/fileupload'
 import Button from 'primevue/button'
+
+const router = useRouter()
 
 
 const form = reactive({
@@ -193,9 +196,6 @@ const formatearFechaISO = (fecha) => {
 }
 
 
-
-
-
 const registrarLitigio = async () => {
 
 
@@ -244,9 +244,12 @@ const usuarioLogueado = JSON.parse(localStorage.getItem('usuario'));
     const result = await response.json()
     push.success('El litigio a sido cargado de forma exitosa')
     console.log('Respuesta del backend:', result)
-    window.location.reload()
-    // eslint-disable-next-line no-undef
-    router.push('/drawer/home')
+
+    setTimeout(() => {
+        router.push('/drawer/home')
+    }, 1000);
+
+
 
   } catch (error) {
 

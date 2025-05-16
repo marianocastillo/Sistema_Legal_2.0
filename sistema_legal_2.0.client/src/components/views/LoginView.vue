@@ -152,7 +152,7 @@ export default {
       push.success(response.data.message)
       this.$router.push('/drawer/home')
 
-      setTimeout(() => window.location.reload(), 500)
+      // setTimeout(() => window.location.reload(), 500)
     } else {
       push.warning(response.data.message)
     }

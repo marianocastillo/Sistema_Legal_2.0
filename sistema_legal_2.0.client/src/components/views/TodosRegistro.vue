@@ -43,8 +43,13 @@
         <template #body="{ data }">
           <div class="btn-group">
             <router-link :to="`/litigio/detalle/${data.id_Ltg}`" class="btn btn-sm"
-              style="background-color: #003870; border-color: #003870;">
+              style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;">
               <i class="pi pi-eye white-icon"></i>
+            </router-link>
+
+            <router-link :to="`/drawer/modificarregistro`" class="btn btn-sm"
+              style="background-color: #003870; border-color: #003870;">
+              <i class="pi pi-user-edit white-icon" title="Asignar abogado"></i>
             </router-link>
           </div>
         </template>

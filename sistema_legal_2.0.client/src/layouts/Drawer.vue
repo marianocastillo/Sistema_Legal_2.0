@@ -107,6 +107,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { cerrarSesion } from '@/utilities/auth'
 
 import Button from 'primevue/button'
 import { Notivue, Notifications, NotivueSwipe, pastelTheme } from 'notivue'
@@ -146,10 +147,10 @@ onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
 })
 
-const cerrarSesion = () => {
-  localStorage.removeItem('usuario')
-  router.push('/login')
-}
+// const cerrarSesion = () => {
+//   localStorage.removeItem('usuario')
+//   router.push('/login')
+// }
 </script>
 
 <style scoped>

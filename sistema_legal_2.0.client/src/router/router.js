@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import LoginView from '../components/views/LoginView.vue';
-import Drawer from '../layouts/Drawer.vue'; // Importa el layout
+import Drawer from '../layouts/Drawer.vue';
 import TodosRegistro from '../components/views/TodosRegistro.vue';
 import RegistroLitigio from '../components/views/RegistrarLitigio.vue';
 import TableView from '../components/views/TableView.vue';
@@ -15,18 +15,18 @@ const routes = [
     path: '/drawer',
     component: Drawer,
     children: [
-      { path: '', redirect: '/drawer/home' }, // 👈 Redirige a 'home' cuando accedes a '/sidebar'
-      // { path: 'modal', name: 'LitigioModal', component: LitigioModal },
+      { path: '', redirect: '/drawer/home' },
       { path: 'home', name: 'TodosRegistro', component: TodosRegistro },
       { path: 'registrar', name: 'RegistroLitigio', component: RegistroLitigio },
-      {path: 'buscarlitigio', name:'BuscarLitigio', component: BuscarLitigio},
+      { path: 'buscarlitigio', name: 'BuscarLitigio', component: BuscarLitigio },
       { path: 'edit', name: 'TableView', component: TableView },
       { path: 'modificarregistro', name: 'ModificarRegistro', component: ModificarRegistro },
-      {path: 'listadodeusuario', name: 'ListadoUsuariosVie', component: ListadoUsuariosView},
-      { path: 'formulario', name: 'nuevoUsuario', component: FormularioView},
-      {path: 'formulario/:idUsuario', name: 'formulario', component: FormularioView},
+      { path: 'listadodeusuario', name: 'ListadoUsuariosVie', component: ListadoUsuariosView },
+      { path: 'formulario', name: 'nuevoUsuario', component: FormularioView },
+      { path: 'formulario/:idUsuario', name: 'formulario', component: FormularioView },
       {
-        path: '/litigio/detalle/:id', name: 'LitigioDetalle',
+        path: '/litigio/detalle/:id',
+        name: 'LitigioDetalle',
         component: () => import('../components/views/LitigioMostrar.vue'),
         props: true
       }
@@ -34,10 +34,21 @@ const routes = [
   }
 ];
 
-
 const router = createRouter({
   history: createWebHistory(),
   routes
+});
+
+// ✅ Protege rutas privadas si no hay token
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('token');
+  const rutaPublica = to.name === 'Login';
+
+  if (!rutaPublica && !token) {
+    return next({ name: 'Login' });
+  }
+
+  next();
 });
 
 export default router;
