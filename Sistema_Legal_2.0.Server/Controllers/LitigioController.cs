@@ -116,8 +116,8 @@ namespace Sistema_Legal_2._0.Server.Controllers
                     command.Parameters.AddWithValue("@ltg_Nacionalidad", datos.ltg_Nacionalidad);
                     command.Parameters.AddWithValue("@ltg_Demandante", datos.ltg_Demandante);
                     command.Parameters.AddWithValue("@ltg_Tipo_Demandante", datos.ltg_Tipo_Demandante);
-                    command.Parameters.AddWithValue("@ltg_Cedula_Representante", datos.ltg_Cedula_Representante);
-                    command.Parameters.AddWithValue("@ltg_Nombre_Representante", datos.ltg_Nombre_Representante);
+                    command.Parameters.AddWithValue("@ltg_Cedula_Representante", (object?)datos.ltg_Cedula_Representante ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@ltg_Nombre_Representante", (object?)datos.ltg_Nombre_Representante ?? DBNull.Value);
                     command.Parameters.AddWithValue("@ltg_Fecha_Audiencia", (object?)datos.ltg_Fecha_Audiencia ?? DBNull.Value);
                     command.Parameters.AddWithValue("@ltg_Fecha_Actualizacion", (object?)datos.ltg_Fecha_Actualizacion ?? DBNull.Value);
                     command.Parameters.AddWithValue("@id_Tribunal", (object?)datos.id_Tribunal ?? DBNull.Value);
