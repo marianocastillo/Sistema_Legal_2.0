@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Sistema_Legal_2.Server.Models;
-
-namespace RegistroVisitas.Server.Repositories
+using Sistema_Legal_2._0.Server.Models;
+using Sistema_Legal_2._0.Server.Entities;
+namespace Sistema_Legal_2._0.Server.Repositories
 {
     /// <summary>
     /// Creates methos for a crud with the database, but working with a model class

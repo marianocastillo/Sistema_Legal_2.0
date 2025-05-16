@@ -1,6 +1,6 @@
 import axios from "axios";
-import store from "@/store";
-import router from "@/router";
+import store from "../store/index";
+import router from "../router/router";
 import { push } from "notivue";
 
 const baseURL = import.meta.env.BASE_URL;
@@ -16,7 +16,7 @@ api.interceptors.request.use((config) => {
   if (requireLoading) {
     store.commit('setLoading', true);
   }
-  
+
   const token = localStorage.getItem("token");
 
   if (token) {

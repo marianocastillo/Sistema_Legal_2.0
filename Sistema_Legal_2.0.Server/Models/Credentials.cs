@@ -9,10 +9,10 @@ public class Credentials
     [Required]
     [StringLength(50)]
     [Unicode(false)]
-    public string UserName { get; set; }
+    public string? UserName { get; set; }
 
     [Required]
     [StringLength(50)]
     [Unicode(false)]
-    public string Password { get; set; }
+    public string? Password { get; set; }
 }

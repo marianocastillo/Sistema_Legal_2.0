@@ -5,6 +5,7 @@
         Inicio = 1,         
         Usuarios = 2,        
         Nuevo_Usuario = 3,
-        Editar_Usuario = 4
+        Editar_Usuario = 4,
+        Editar_Perfil = 5
     }
 }

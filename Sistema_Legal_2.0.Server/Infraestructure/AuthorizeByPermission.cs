@@ -1,13 +1,22 @@
+<<<<<<< HEAD
 ﻿using Sistema_Legal_2._0.Server.Repositories;
+=======
+﻿
+>>>>>>> Developer-Fronk
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sistema_Legal_2._0.Server.Models.Enums;
 using Sistema_Legal_2._0.Server.Models;
+<<<<<<< HEAD
 
 
 
 
+=======
+using Sistema_Legal_2._0.Server.Repositories;
+using Sistema_Legal_2._0.Server.Entities;
+>>>>>>> Developer-Fronk
 namespace Sistema_Legal_2._0.Server.Infraestructure
 {
     /// <summary>
@@ -72,7 +81,11 @@ namespace Sistema_Legal_2._0.Server.Infraestructure
                 if (AllowAnyRole) return true;
 
                 var configuration = context?.HttpContext?.RequestServices.GetService<IConfiguration>();
+<<<<<<< HEAD
                 var connectionString = configuration?.GetConnectionString("EjecucionGasto");
+=======
+                var connectionString = configuration?.GetConnectionString("Sistema_Legal");
+>>>>>>> Developer-Fronk
 
                 var contextOptions = new DbContextOptionsBuilder<db_silegContext>().UseSqlServer(connectionString).Options;
 

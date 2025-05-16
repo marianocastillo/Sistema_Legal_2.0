@@ -1,11 +1,17 @@
-﻿
-using Sistema_Legal_2.Server.Models;
+﻿using Sistema_Legal_2._0.Server.Models;
 using Microsoft.EntityFrameworkCore;
+<<<<<<< HEAD
 using RegistroVisitas.Server.Repositories;
 using System.Linq;
 using Sistema_Legal_2._0.Server.Models;
 using System;
 using Sistema_Legal_2.Server.Repositories;
+=======
+using System.Reflection;
+using Sistema_Legal_2._0.Server.Entities;
+using Humanizer;
+using Sistema_Legal_2._0.Server.Controller;
+>>>>>>> Developer-Fronk
 
 namespace Sistema_Legal_2._0.Server.Repositories
 {
@@ -42,18 +48,21 @@ namespace Sistema_Legal_2._0.Server.Repositories
         public IEnumerable<VistasModel> GetPermisos(int? idPerfil)
         {
             int id = idPerfil ?? 0;
-            var permisosSet = dbContext.Set<PerfilesVistas>().Where(p => p.idPerfil == id);
-            return from v in dbContext.Set<Vistas>()
-                   select new VistasModel()
-                   {
-                       idVista = v.idVista,
-                       Nombre = v.Nombre,
-                       Descripcion = v.Descripcion,
-                       Url = v.Url,
-                       Permiso = permisosSet.Any(a => a.idVista == v.idVista),                      
-                       idModulo = v.idModulo,
-                      
-                   };
+
+            var permisos = from p in dbContext.Set<perfilesVistas>()
+                           join v in dbContext.Set<vistas>() on p.idVista equals v.idVista
+                           where p.idPerfil == id
+                           select new VistasModel()
+                           {
+                               idVista = v.idVista,
+                               Nombre = v.nombre,
+                               Descripcion = v.descripcion,
+                               Url = v.url,
+                               Permiso = true,
+                               idModulo = v.idModulo
+                           };
+
+            return permisos.ToList();
         }
 
         public IEnumerable<UsuariosModel> GetUsuarios(int idPerfil)
@@ -65,16 +74,15 @@ namespace Sistema_Legal_2._0.Server.Repositories
 
         public bool CanAccess(int idUsuario, int[] idVistas)
         {
-            var PVSet = from u in dbContext.Set<Usuarios>().Where(u => u.idUsuario == idUsuario && u.Activo)
-                        join pv in dbContext.Set<PerfilesVistas>().Where(a => idVistas.ToList().Contains((int)a.idVista))
-                        on u.idPerfil equals pv.idPerfil
+            var PVSet = from u in dbContext.Set<Usuarios>().Where(u => u.idUsuario == idUsuario && u.Activo == true)
+                        join pv in dbContext.Set<perfilesVistas>().Where(a => idVistas.Contains(a.idVista)) on u.idPerfil equals pv.idPerfil
                         select pv;
 
             return PVSet.Any();
         }
         public int GetPerfilDefault()
         {
-            var perfilDefault = base.Get(x => x.PorDefecto == true).First();
+            var perfilDefault = base.Get(x => x.porDefecto == true).First();
             return perfilDefault.idPerfil;
         }
 

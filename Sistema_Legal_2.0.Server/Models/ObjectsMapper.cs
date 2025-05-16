@@ -1,4 +1,4 @@
-﻿namespace Sistema_Legal_2.Server.Models
+﻿namespace Sistema_Legal_2._0.Server.Models
 {   
     /// <summary>
     /// Maps an object properties to another object

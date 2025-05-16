@@ -1,10 +1,9 @@
 ﻿
-using Sistema_Legal_2._0.Server.Models;
-
 using System.DirectoryServices.AccountManagement;
+using Sistema_Legal_2._0.Server.Models;
 using DirectoryEntry = System.DirectoryServices.DirectoryEntry;
 
-namespace Sistema_Legal_2.Server.Repositories
+namespace Sistema_Legal_2._0.Server.Repositories
 {
     public class ADRepository
     {

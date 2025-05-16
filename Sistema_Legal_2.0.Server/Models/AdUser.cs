@@ -12,5 +12,6 @@
         public string Departamento { get; set; }
         public string Ubicacion { get; set; }
         public byte[] ThumbnailPhoto { get; set; }
+        public int id_usuario { get; set; }
     }
 }

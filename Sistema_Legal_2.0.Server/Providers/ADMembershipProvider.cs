@@ -1,6 +1,6 @@
 ﻿using System.DirectoryServices.AccountManagement;
 
-namespace Sistema_Legal_2.Server.Providers
+namespace Sistema_Legal_2._0.Server.Providers
 {
     public class ActiveDirectoryAuthenticationService
     {
