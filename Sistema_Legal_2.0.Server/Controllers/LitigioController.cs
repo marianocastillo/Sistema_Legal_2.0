@@ -124,7 +124,6 @@ namespace Sistema_Legal_2._0.Server.Controllers
                     command.Parameters.AddWithValue("@id_Sentencia", (object?)datos.id_Sentencia ?? DBNull.Value);
                     command.Parameters.AddWithValue("@id_usuario", datos.id_usuario);
                     command.Parameters.AddWithValue("@id_Estatus", datos.id_Estatus);
-
                     command.Parameters.AddWithValue("@ruta_archivo", ""); // temporal
                     command.Parameters.AddWithValue("@nombre_archivo", nombreArchivo);
                     command.Parameters.AddWithValue("@comentario", datos.comentario);
