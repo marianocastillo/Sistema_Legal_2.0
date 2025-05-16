@@ -1,13 +1,24 @@
 <template>
   <div class="card p-6 shadow-2">
-    <div class="flex justify-content-between align-items-center mb-4">
+    <div class="flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
       <h2 class="text-2xl font-semibold">Registros</h2>
 
-      <div class="flex justify-content-end">
-        <span class="p-input-icon-left">
-          <InputText v-model="filters.global.value" placeholder="Buscar..." />
-        </span>
-      </div>
+          <div class="search-container">
+            <span class="p-input-icon-left search-input-wrapper">
+              <i class="pi pi-search search-icon" />
+              <InputText
+                v-model="filters.global.value"
+                placeholder="Buscar litigio..."
+                class="search-input"
+              />
+              <i
+                v-if="filters.global.value"
+                class="pi pi-times search-clear"
+                @click="filters.global.value = ''"
+              />
+            </span>
+          </div>
+
     </div>
 
     <DataTable :value="data" :paginator="true" :rows="5" :filters="filters"
@@ -75,4 +86,53 @@ onMounted(async () => {
 .btn-group .btn {
   margin: 0 2px;
 }
+
+
+.search-container {
+  max-width: 250px;
+  width: 100%;
+  position: relative;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: block;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.5rem 2.5rem 0.5rem 2rem; /* top right bottom left */
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #003870;
+  box-shadow: 0 0 5px rgba(0,56,112,0.3);
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  pointer-events: none;
+  font-size: 1rem;
+}
+
+.search-clear {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
 </style>
