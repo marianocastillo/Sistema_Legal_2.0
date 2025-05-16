@@ -160,9 +160,17 @@ const cargarDatosDropdowns = async () => {
 onMounted(async () => {
   await cargarDatosDropdowns()
 
+  console.log('form:', form.value)
+  console.log('tiposDemanda:', tiposDemanda.value)
+  console.log('tribunales:', tribunales.value)
+  console.log('estatusList:', estatusList.value)
+
   const almacenado = localStorage.getItem('litigioModificacion')
+  console.log("Contenido en localStorage:", almacenado)
+
   if (almacenado) {
     const data = JSON.parse(almacenado)
+    console.log('Litigio cargado:', data)
 
     form.value = {
       id_Ltg: data.id_Ltg,
@@ -184,6 +192,7 @@ onMounted(async () => {
     }
   }
 })
+
 
 // ✅ Validación dinámica para cédula o RNC según el tipo
 const validarIdentificacion = (valor, tipo) => {

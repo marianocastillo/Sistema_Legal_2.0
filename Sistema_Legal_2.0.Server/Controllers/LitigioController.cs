@@ -85,7 +85,10 @@ namespace Sistema_Legal_2._0.Server.Controllers
             }
         }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 3591f943cc82611f7e15ad8f5d338003275fafee
         [HttpPost("Subir_Litigio_Con_Archivo")]
         [DisableRequestSizeLimit, RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueCountLimit = int.MaxValue)]
         public async Task<IActionResult> SubirLitigioConArchivo([FromForm] LitigioConArchivo datos)
@@ -95,6 +98,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
             if (datos.Archivo == null || datos.Archivo.Length == 0)
                 return BadRequest("No se recibió ningún archivo.");
 
+<<<<<<< HEAD
             string rutaBase = @"C:\Users\mariancastillo\Desktop\SistemaLitigio";
             string rutaActo = Path.Combine(rutaBase, datos.ltg_acto);
             string rutaFinal = Path.Combine(rutaActo, datos.ltg_acto);
@@ -112,6 +116,13 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
             // Ruta relativa para guardar en BD
             string rutaRelativa = Path.Combine(datos.ltg_acto, datos.NombreCarpeta, nombreArchivo);
+=======
+            string nombreArchivo = Path.GetFileName(datos.Archivo.FileName);
+            string nombreCarpeta = Path.GetFileNameWithoutExtension(nombreArchivo); // Carpeta con el nombre del archivo
+
+            string rutaRelativa = "";
+            int idLitigio;
+>>>>>>> 3591f943cc82611f7e15ad8f5d338003275fafee
 
             using (SqlConnection connection = new SqlConnection(_cadenaSQL))
             {
@@ -135,6 +146,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                     command.Parameters.AddWithValue("@id_Sentencia", (object?)datos.id_Sentencia ?? DBNull.Value);
                     command.Parameters.AddWithValue("@id_usuario", datos.id_usuario);
                     command.Parameters.AddWithValue("@id_Estatus", datos.id_Estatus);
+<<<<<<< HEAD
                     command.Parameters.AddWithValue("@ruta_archivo", rutaRelativa);
                     command.Parameters.AddWithValue("@nombre_archivo", nombreArchivo);
                     command.Parameters.AddWithValue("@comentario", datos.comentario);
@@ -145,6 +157,41 @@ namespace Sistema_Legal_2._0.Server.Controllers
         }
 
       
+=======
+                    command.Parameters.AddWithValue("@ruta_archivo", ""); // temporal
+                    command.Parameters.AddWithValue("@nombre_archivo", nombreArchivo);
+                    command.Parameters.AddWithValue("@comentario", datos.comentario);
+
+                    var result = await command.ExecuteScalarAsync();
+                    idLitigio = Convert.ToInt32(result);
+                }
+            }
+
+            // Construcción de ruta: /id_litigio/ltg_acto/nombreArchivoSinExtension/archivo.pdf
+            string rutaBase = @"C:\Users\mariancastillo\Desktop\SistemaLitigio";
+            string rutaFinal = Path.Combine(rutaBase, idLitigio.ToString(), datos.ltg_acto, nombreCarpeta);
+
+            Directory.CreateDirectory(rutaFinal);
+
+            string rutaArchivoCompleta = Path.Combine(rutaFinal, nombreArchivo);
+            using (var stream = new FileStream(rutaArchivoCompleta, FileMode.Create))
+            {
+                await datos.Archivo.CopyToAsync(stream);
+            }
+
+            rutaRelativa = Path.Combine(idLitigio.ToString(), datos.ltg_acto, nombreCarpeta, nombreArchivo);
+
+            return Ok(new
+            {
+                mensaje = "Litigio y archivo subidos correctamente.",
+                id_litigio = idLitigio,
+                rutaRelativa
+            });
+        }
+
+
+
+>>>>>>> 3591f943cc82611f7e15ad8f5d338003275fafee
         [HttpGet("Litigio_detallado")]
         public async Task<ActionResult<IEnumerable<LitigioDetallado>>> ObtenerLitigiosDetallados()
         {
