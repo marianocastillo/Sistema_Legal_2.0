@@ -19,6 +19,7 @@
                 optionLabel="label" optionValue="value" class="w-full"
                 placeholder="--Seleccione Tipo de demandante--" />
             </div>
+
             <div class="field col-12 md:col-4" v-if="form.ltg_Tipo_Demandante === 'Otros'">
               <InputText id="otrosDemandante" v-model="form.otrosDemandante" class="w-full"
                 placeholder="Especifique tipo de demandante" />
@@ -185,10 +186,6 @@ const formatearFechaISO = (fecha) => {
   const d = new Date(fecha)
   return d.toISOString().split('T')[0]
 }
-
-
-
-
 
 const registrarLitigio = async () => {
   if (!form.ltg_acto || !expedienteFile.value) {

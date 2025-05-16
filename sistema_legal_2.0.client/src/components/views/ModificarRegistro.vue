@@ -14,8 +14,21 @@
           <legend class="font-bold text-lg">Datos del Demandante</legend>
           <div class="grid">
             <div class="field col-12 md:col-4">
-              <InputText v-model="form.cedulaDemandante" class="w-full"
-                :placeholder="form.tiposDemandante === 'Empresa' ? 'RNC de la empresa' : 'Cédula del demandante'" />
+              <Dropdown v-model="form.tiposDemandante" :options="tiposDemandante" optionLabel="label"
+              optionValue="value" class="w-full" placeholder="Tipo de Demandante" />
+            </div>
+            <div class="field col-12 md:col-4">
+              <InputText
+                v-model="form.cedulaDemandante"
+                class="w-full"
+                :class="{ 'p-invalid': cedulaInvalida }"
+                :maxlength="form.tiposDemandante === 'Empresa' ? 9 : 11"
+                @input="handleCedulaInput"
+                :placeholder="form.tiposDemandante === 'Empresa' ? 'RNC de la empresa' : 'Cédula del demandante'"
+              />
+              <small v-if="cedulaInvalida" class="p-error">
+                {{ form.tiposDemandante === 'Empresa' ? 'Debe tener 9 dígitos numéricos (RNC).' : 'Debe tener 11 dígitos numéricos (cédula).' }}
+              </small>
             </div>
             <div class="field col-12 md:col-4">
               <InputText v-model="form.demandante" class="w-full"
@@ -25,10 +38,6 @@
               <InputText v-model="form.Nacionalidad"
                 :placeholder="form.tiposDemandante === 'Empresa' ? 'País de constitución' : 'Nacionalidad'"
                 class="w-full" />
-            </div>
-            <div class="field col-12 md:col-4">
-              <Dropdown v-model="form.tiposDemandante" :options="tiposDemandante" optionLabel="label"
-                optionValue="value" class="w-full" placeholder="Tipo de Demandante" />
             </div>
             <div class="field col-12 md:col-4" v-if="form.tiposDemandante === 'Otros'">
               <InputText v-model="form.otrosDemandante" class="w-full" placeholder="Especifique tipo de demandante" />
@@ -92,12 +101,15 @@
 </template>
 
 <script setup>
+import { push } from 'notivue'
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import InputText from 'primevue/inputtext'
 import Calendar from 'primevue/calendar'
 import Dropdown from 'primevue/dropdown'
-
 import Button from 'primevue/button'
+
+const router = useRouter()
 
 const form = ref({
   id_Ltg: null,
@@ -118,6 +130,9 @@ const form = ref({
   id_Sentencia: null
 })
 
+// ✅ Estado visual de error para cédula o RNC
+const cedulaInvalida = ref(false)
+
 const tiposDemanda = ref([])
 const tiposDemandante = [
   { label: 'Empleado', value: 'Empleado' },
@@ -126,7 +141,6 @@ const tiposDemandante = [
 ]
 const tribunales = ref([])
 const estatusList = ref([])
-
 
 const cargarDatosDropdowns = async () => {
   try {
@@ -146,20 +160,9 @@ const cargarDatosDropdowns = async () => {
 onMounted(async () => {
   await cargarDatosDropdowns()
 
-  console.log('form:', form.value)
-  console.log('tiposDemanda:', tiposDemanda.value)
-  console.log('tribunales:', tribunales.value)
-  console.log('estatusList:', estatusList.value)
-
-
   const almacenado = localStorage.getItem('litigioModificacion')
-  console.log("Contenido en localStorage:", almacenado)
-
   if (almacenado) {
     const data = JSON.parse(almacenado)
-
-    // Verifica en consola lo que recibes
-    console.log('Litigio cargado:', data)
 
     form.value = {
       id_Ltg: data.id_Ltg,
@@ -179,12 +182,36 @@ onMounted(async () => {
       id_usuario: data.id_usuario ?? data.idUsuario ?? null,
       id_Sentencia: data.id_Sentencia ?? null
     }
-
   }
 })
 
+// ✅ Validación dinámica para cédula o RNC según el tipo
+const validarIdentificacion = (valor, tipo) => {
+  if (!valor) return false
+  const regex = tipo === 'Empresa' ? /^\d{9}$/ : /^\d{11}$/
+  return regex.test(valor)
+}
+
+// ✅ Manejo de input: solo números y longitud según tipo
+const handleCedulaInput = (event) => {
+  const soloNumeros = event.target.value.replace(/\D/g, '')
+  const tipo = form.value.tiposDemandante
+  const maxLength = tipo === 'Empresa' ? 9 : 11
+  form.value.cedulaDemandante = soloNumeros.slice(0, maxLength)
+  cedulaInvalida.value = !validarIdentificacion(form.value.cedulaDemandante, tipo)
+}
 
 const registrarLitigio = async () => {
+  const tipo = form.value.tiposDemandante
+  if (!validarIdentificacion(form.value.cedulaDemandante, tipo)) {
+    cedulaInvalida.value = true
+    const tipoTexto = tipo === 'Empresa' ? 'RNC (9 dígitos)' : 'Cédula (11 dígitos)'
+    push.error(`Debe ingresar un ${tipoTexto} válido.`)
+    return
+  } else {
+    cedulaInvalida.value = false
+  }
+
   const payload = {
     id_Ltg: form.value.id_Ltg,
     ltg_acto: form.value.noActo,
@@ -193,7 +220,7 @@ const registrarLitigio = async () => {
     ltg_Cedula_Demandante: form.value.cedulaDemandante,
     ltg_Nacionalidad: form.value.Nacionalidad,
     ltg_Demandante: form.value.demandante,
-    ltg_Tipo_Demandante: form.value.tiposDemandante === 'Otros' ? form.value.otrosDemandante : form.value.tiposDemandante,
+    ltg_Tipo_Demandante: tipo === 'Otros' ? form.value.otrosDemandante : tipo,
     ltg_Cedula_Representante: form.value.cedulaRepresentante,
     ltg_Nombre_Representante: form.value.nombreRepresentante,
     ltg_Fecha_Audiencia: form.value.fechaAudiencia,
@@ -216,18 +243,20 @@ const registrarLitigio = async () => {
     const data = await response.json()
 
     if (response.ok) {
-      alert(data.mensaje)
+      push.success('Litigio actualizado exitosamente.')
       localStorage.removeItem('litigioModificacion')
+      router.push('/drawer/home')
     } else {
-      alert('Error: ' + data)
+      push.error('Error al actualizar el litigio.')
     }
   } catch (err) {
     console.error('Error al actualizar:', err)
-    alert('Recuerde llenar todos los campos.')
+    push.error('Error de red o campos incompletos.')
   }
 }
-
 </script>
+
+
 
 <style scoped>
 legend {
