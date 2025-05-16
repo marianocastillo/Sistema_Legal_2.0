@@ -199,8 +199,6 @@ const formatearFechaISO = (fecha) => {
 const registrarLitigio = async () => {
 
 
-const usuarioLogueado = JSON.parse(localStorage.getItem('usuario'));
-  form.id_usuario = usuarioLogueado.idUsuario;
 
   if (!form.ltg_acto || !expedienteFile.value) {
     push.warning('Favor de llenar los campos con datos validos')
@@ -208,6 +206,8 @@ const usuarioLogueado = JSON.parse(localStorage.getItem('usuario'));
     return
   }
 
+const usuarioLogueado = JSON.parse(localStorage.getItem('usuario'));
+  form.id_usuario = usuarioLogueado.idUsuario;
 
 
   const formData = new FormData()
@@ -252,7 +252,6 @@ const usuarioLogueado = JSON.parse(localStorage.getItem('usuario'));
 
 
   } catch (error) {
-
     console.error('Error al registrar el litigio:', error)
   }
 }
