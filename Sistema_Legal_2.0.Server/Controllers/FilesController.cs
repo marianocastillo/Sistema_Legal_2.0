@@ -38,7 +38,6 @@ namespace Sistema_Legal_2._0.Server.Controllers
         }
 
 
-
         [HttpPost("SubirEvidencia")]
         [DisableRequestSizeLimit, RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueCountLimit = int.MaxValue)]
         public async Task<IActionResult> SubirEvidencia([FromForm] EvidenciasUploadModel evidencia)
@@ -107,6 +106,9 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
       
 
+
+
+
         [HttpGet("rutas/{id}")]
         public async Task<IActionResult> ObtenerRutasPorLitigio(int id)
         {
@@ -122,6 +124,12 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
             return Ok(rutas);
         }
+
+
+
+
+
+
 
         [HttpGet("rutaspor/{id}")]
         public async Task<IActionResult> GetRutaPorId(int id)
@@ -171,6 +179,10 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 _ => "application/octet-stream",
             };
         }
+
+
+
+
 
 
         [HttpGet("comentarios-evidencias/{idLitigio}")]
