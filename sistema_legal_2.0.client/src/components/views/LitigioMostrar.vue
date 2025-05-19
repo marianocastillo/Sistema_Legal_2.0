@@ -101,40 +101,39 @@
       </div>
 
       <!-- Documentos y sentencia -->
-      <div class="grid">
-        <!-- Título -->
-        <div class="col-12">
-          <h4 class="text-lg mb-3" style="color: #003870;">Historial de Evidencias</h4>
+ <div class="grid">
+  <div
+    v-for="item in evidenciasOrdenadas"
+    :key="item.id_Evidencias"
+    class="col-12 md:col-6"
+  >
+    <Accordion :activeIndex="null" multiple>
+      <AccordionTab :header="`Evidencia #${item.id_Evidencias}`">
+        <p class="text-sm text-500">Subido: {{ formatFecha(item.FechaSubida) }}</p>
+
+        <div class="mb-2">
+          <strong>Comentario:</strong>
+          <p class="m-0">{{ item.comentario }}</p>
         </div>
 
-        <!-- Tarjetas en columnas -->
-        <div v-for="item in evidenciasOrdenadas" :key="item.id_Evidencias" class="col-12 md:col-6">
-          <div class="card surface-50 p-4 mb-5 border-round-lg border bg-white" style="background: #f8f9fa;">
-            <div class="flex flex-column md:flex-row">
-
-              <!-- Comentario -->
-              <div class="md:col-8 mb-3 md:mb-0">
-                <p class="text-sm text-500 mt-1">Subido: {{ formatFecha(item.FechaSubida) }}</p>
-                <h5 class="text-md mb-1" style="color: #003870;">Comentario</h5>
-                <p class="m-0">{{ item.comentario }}</p>
-              </div>
-
-              <!-- Documento -->
-              <div class="md:col-4 text-right">
-                <br><br>
-                <h5 class="text-md mb-1" style="color: #003870;">Documento</h5>
-                <a :href="rutaBase + '/' + item.RutaArchivo" target="_blank"   class="text-blue-600 no-underline hover:underline"
-                  title="Abrir documento" >
-                  <i :class="getFileIcon(item.NombreArchivo)" style="color: #ff0000;"></i>
-                  {{ item.NombreArchivo }}
-                </a>
-
-              </div>
-
-            </div>
-          </div>
+        <div>
+          <strong>Archivo:</strong>
+          <a
+            :href="`https://localhost:7177/api/Files/rutaspor/${item.id_Ruta}`"
+            target="_blank"
+            class="text-blue-600 hover:underline ml-2"
+          >
+            <i :class="getFileIcon(item.NombreArchivo)" style="color: #ff0000;"></i>
+            {{ item.NombreArchivo }}
+          </a>
         </div>
-      </div>
+      </AccordionTab>
+    </Accordion>
+  </div>
+</div>
+
+
+
       <div class="col-12 md:col-2 m-3">
         <div class="surface-50 p-4 border-round-lg border h-full bg-white">
           <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Sentencia</h4>
@@ -144,7 +143,7 @@
 
       <!-- Pie de documento -->
       <div class="flex justify-content-between mt-4 pt-3 border-top-1 surface-border ">
-        <Button label="Agregar Evidencia y Comentario" icon="pi pi-comment"  class="p-button-sm p-button-text-dark"
+        <Button label="Agregar Evidencia y Comentario" icon="pi pi-comment" class="p-button-sm p-button-text-dark"
           @click="togglePopUp(id)" />
 
         <teleport to="body">
@@ -161,6 +160,9 @@
 </template>
 
 <script setup>
+import Accordion from 'primevue/accordion';
+import AccordionTab from 'primevue/accordiontab';
+
 import { ref, onMounted } from 'vue'
 import api from '@/utilities/api.js'
 import AgregarEvidencias from '@/components/views/AgregarEvidencias.vue';
@@ -168,6 +170,10 @@ import { computed } from 'vue';
 const popUp = ref(false);
 const litigioactual = ref(null);
 
+const components = {
+  Accordion,
+  AccordionTab
+};
 
 function getFileIcon(nombre) {
   const ext = nombre.split('.').pop().toLowerCase();
@@ -327,12 +333,13 @@ const getStatusSeverity = (status) => {
 }
 
 .pop-up {
-position: fixed;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.5); /* fondo semitransparente */
+  background-color: rgba(0, 0, 0, 0.5);
+  /* fondo semitransparente */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -341,8 +348,10 @@ position: fixed;
 .pop-up-content {
   background: white;
   padding: 20px;
-  width: 600px; /* <-- Este valor controla el ancho */
-  height: 400px; /* <-- Este valor controla la altura */
+  width: 600px;
+  /* <-- Este valor controla el ancho */
+  height: 400px;
+  /* <-- Este valor controla la altura */
   border-radius: 8px;
 }
 </style>
