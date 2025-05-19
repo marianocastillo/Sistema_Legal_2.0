@@ -44,7 +44,8 @@
 
       />
       <Button label="Asignar" @click="asignarAbogado" class="ml-2" />
-      <Button label="Cerrar" class="p-button-secondary ml-2" @click="$emit('close')" />
+<br><br>
+      <Button label="Cerrar" class="p-button-secondary" @click="$emit('close')" />
     </div>
   </Dialog>
 </template>

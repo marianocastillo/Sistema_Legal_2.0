@@ -105,7 +105,7 @@
   <div
     v-for="item in evidenciasOrdenadas"
     :key="item.id_Evidencias"
-    class="col-12 md:col-6"
+    class="col-12 md:col-4"
   >
     <Accordion :activeIndex="null" multiple>
       <AccordionTab :header="`Evidencia #${item.id_Evidencias}`">
