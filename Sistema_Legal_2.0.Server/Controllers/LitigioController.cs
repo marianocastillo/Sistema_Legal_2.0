@@ -148,17 +148,22 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 await conn.OpenAsync();
 
                 // INSERTAR en Ruta_archivos
-                using (SqlCommand insertRuta = new SqlCommand(
-                    @"INSERT INTO Ruta_archivos (Ruta, fecha_creacion, id_usuario, id_Ltg, Nombre)
-          VALUES (@ruta, GETDATE(), @id_usuario, @id_Ltg, @nombreArchivo)", conn))
-                {
+
+
+                int idEvidencia;
+
+                using(SqlCommand insertRuta = new SqlCommand(
+    @"INSERT INTO Ruta_archivos (Ruta, fecha_creacion, id_usuario, id_Ltg, Nombre)
+      VALUES (@ruta, GETDATE(), @id_usuario, @id_Ltg, @nombreArchivo);
+      SELECT SCOPE_IDENTITY();", conn))
+{
                     insertRuta.Parameters.AddWithValue("@ruta", rutaRelativa);
                     insertRuta.Parameters.AddWithValue("@id_usuario", datos.id_usuario);
                     insertRuta.Parameters.AddWithValue("@id_Ltg", idLitigio);
                     insertRuta.Parameters.AddWithValue("@nombreArchivo", nombreArchivo);
-                    await insertRuta.ExecuteNonQueryAsync();
-                }
 
+                    idEvidencia = Convert.ToInt32(await insertRuta.ExecuteScalarAsync());
+                }
                 // INSERTAR comentario
                 using (SqlCommand insertComentario = new SqlCommand(
                     @"INSERT INTO ComentariosLitigio (id_usuario, id_litigio, comentario, fecha)
@@ -173,11 +178,13 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
                     // INSERTAR en Evidencias_Y_Comentarios
                     using (SqlCommand insertEyc = new SqlCommand(
-                        @"INSERT INTO Evidencias_Y_Comentarios (Id_comentarios, id_Evidencias, id_Litigio)
-              VALUES (@idComentario, SCOPE_IDENTITY(), @idLitigio)", conn))
+                        @"INSERT INTO Evidencias_Y_Comentarios (Id_comentarios, id_Evidencias, id_Litigio,Nombre)
+              VALUES (@idComentario, @idEvidencia, @idLitigio,@Nombre)", conn))
                     {
                         insertEyc.Parameters.AddWithValue("@idComentario", idComentario);
+                        insertEyc.Parameters.AddWithValue("@idEvidencia", idEvidencia);
                         insertEyc.Parameters.AddWithValue("@idLitigio", idLitigio);
+                        insertEyc.Parameters.AddWithValue("@Nombre", datos.NombreEvidencia);
                         await insertEyc.ExecuteNonQueryAsync();
                     }
                 }
