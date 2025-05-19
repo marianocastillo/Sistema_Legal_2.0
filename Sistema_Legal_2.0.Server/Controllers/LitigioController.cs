@@ -124,10 +124,6 @@ namespace Sistema_Legal_2._0.Server.Controllers
                     command.Parameters.AddWithValue("@id_Sentencia", (object?)datos.id_Sentencia ?? DBNull.Value);
                     command.Parameters.AddWithValue("@id_usuario", datos.id_usuario);
                     command.Parameters.AddWithValue("@id_Estatus", datos.id_Estatus);
-                    command.Parameters.AddWithValue("@ruta_archivo", ""); // temporal
-                    command.Parameters.AddWithValue("@nombre_archivo", nombreArchivo);
-                    command.Parameters.AddWithValue("@comentario", datos.comentario);
-
                     var result = await command.ExecuteScalarAsync();
                     idLitigio = Convert.ToInt32(result);
                 }
@@ -146,6 +142,46 @@ namespace Sistema_Legal_2._0.Server.Controllers
             }
 
             rutaRelativa = Path.Combine(idLitigio.ToString(), datos.ltg_acto, nombreCarpeta, nombreArchivo);
+
+            using (SqlConnection conn = new SqlConnection(_cadenaSQL))
+            {
+                await conn.OpenAsync();
+
+                // INSERTAR en Ruta_archivos
+                using (SqlCommand insertRuta = new SqlCommand(
+                    @"INSERT INTO Ruta_archivos (Ruta, fecha_creacion, id_usuario, id_Ltg, Nombre)
+          VALUES (@ruta, GETDATE(), @id_usuario, @id_Ltg, @nombreArchivo)", conn))
+                {
+                    insertRuta.Parameters.AddWithValue("@ruta", rutaRelativa);
+                    insertRuta.Parameters.AddWithValue("@id_usuario", datos.id_usuario);
+                    insertRuta.Parameters.AddWithValue("@id_Ltg", idLitigio);
+                    insertRuta.Parameters.AddWithValue("@nombreArchivo", nombreArchivo);
+                    await insertRuta.ExecuteNonQueryAsync();
+                }
+
+                // INSERTAR comentario
+                using (SqlCommand insertComentario = new SqlCommand(
+                    @"INSERT INTO ComentariosLitigio (id_usuario, id_litigio, comentario, fecha)
+          VALUES (@id_usuario, @id_litigio, @comentario, GETDATE()); 
+          SELECT SCOPE_IDENTITY();", conn))
+                {
+                    insertComentario.Parameters.AddWithValue("@id_usuario", datos.id_usuario);
+                    insertComentario.Parameters.AddWithValue("@id_litigio", idLitigio);
+                    insertComentario.Parameters.AddWithValue("@comentario", datos.comentario);
+
+                    var idComentario = Convert.ToInt32(await insertComentario.ExecuteScalarAsync());
+
+                    // INSERTAR en Evidencias_Y_Comentarios
+                    using (SqlCommand insertEyc = new SqlCommand(
+                        @"INSERT INTO Evidencias_Y_Comentarios (Id_comentarios, id_Evidencias, id_Litigio)
+              VALUES (@idComentario, SCOPE_IDENTITY(), @idLitigio)", conn))
+                    {
+                        insertEyc.Parameters.AddWithValue("@idComentario", idComentario);
+                        insertEyc.Parameters.AddWithValue("@idLitigio", idLitigio);
+                        await insertEyc.ExecuteNonQueryAsync();
+                    }
+                }
+            }
 
             return Ok(new
             {
