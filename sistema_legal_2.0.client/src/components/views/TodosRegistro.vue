@@ -39,27 +39,39 @@
           {{ data.ltg_Fecha_Audiencia?.split('T')[0] || 'Sin fecha' }}
         </template>
       </Column>
-      <Column header="Acciones" style="width: 140px">
-        <template #body="{ data }">
-          <div class="btn-group">
-            <router-link :to="`/litigio/detalle/${data.id_Ltg}`" class="btn btn-sm"
-              style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;">
-              <i class="pi pi-eye white-icon"></i>
-            </router-link>
+<Column header="Acciones" style="width: 140px">
+  <template #body="{ data }">
+    <div class="btn-group">
+      <router-link :to="`/litigio/detalle/${data.id_Ltg}`" class="btn btn-sm"
+        style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;">
+        <i class="pi pi-eye white-icon"></i>
+      </router-link>
 
-            <router-link :to="`/drawer/modificarregistro`" class="btn btn-sm"
-              style="background-color: #003870; border-color: #003870;">
-              <i class="pi pi-user-edit white-icon" title="Asignar abogado"></i>
-            </router-link>
-          </div>
-        </template>
-      </Column>
+      <button class="btn btn-sm" @click="togglePopUp(data)"
+        style="background-color: #003870; border-color: #003870;">
+        <i class="pi pi-user-edit white-icon" title="Asignar abogado"></i>
+      </button>
+    </div>
+  </template>
+</Column>
+
+<teleport to="body">
+  <transition name="fade">
+  <AsignarAbogado
+  v-if="popUp"
+  :id_Ltg="litigioActual.id_Ltg"
+  :ltg_acto="litigioActual.ltg_acto"
+  @close="togglePopUp"
+/>
+  </transition>
+</teleport>
     </DataTable>
   </div>
 </template>
 
 <script setup>
 import { FilterMatchMode } from '@primevue/core/api';
+import AsignarAbogado from '@/components/views/AsignarAbogado.vue' // cambia la ruta si es necesario
 
 
 import { ref, onMounted } from 'vue';
@@ -67,6 +79,14 @@ import api from '@/utilities/api.js';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import InputText from 'primevue/inputtext';
+
+const popUp = ref(false)
+const litigioActual = ref({})
+
+function togglePopUp(litigio = null) {
+  popUp.value = !popUp.value
+  litigioActual.value = litigio || {}
+}
 
 const data = ref([]);
 const filters = ref({
