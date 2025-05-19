@@ -108,7 +108,7 @@
     class="col-12 md:col-4"
   >
     <Accordion :activeIndex="null" multiple>
-      <AccordionTab :header="`Evidencia #${item.id_Evidencias}`">
+      <AccordionTab :header="`-Evidencia- ${item.Nombre}`">
         <p class="text-sm text-500">Subido: {{ formatFecha(item.FechaSubida) }}</p>
 
         <div class="mb-2">
