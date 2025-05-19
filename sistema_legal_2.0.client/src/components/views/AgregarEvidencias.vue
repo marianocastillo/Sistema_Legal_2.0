@@ -4,21 +4,26 @@
       <span class="pop-up-close" @click="$emit('close')">&times;</span>
 
       <h2>Agregar evidencia y comentario</h2>
-
-      <!-- Usamos el componente FileUpload -->
-      <div class="file-container">
+<br>
+      <div class=" ms-3 file-container">
         <FileUpload
           name="Archivo"
           customUpload
           @select="handleExpedienteUpload"
           mode="basic"
           chooseLabel="Elegir archivo"
-          class="w-full md:w-20rem"
+          class="w-full md:w-19rem"
         />
       </div>
 
-      <!-- Textarea para el comentario -->
       <div class="comment-container">
+  <textarea
+          v-model="NombreEvidencia"
+          placeholder="Nombre de la evidencia"
+          rows="1"
+          cols="1"
+        ></textarea>
+        <br>
         <textarea
           v-model="Comentario"
           placeholder="Descripción del documento"
@@ -27,7 +32,7 @@
         ></textarea>
       </div>
 
-      <Button class="p-button-sm p-button-text-dark" @click="guardar">Guardar</button>
+      <Button class="p-button-sm p-button-text-dark ms-3 " @click="guardar">Guardar</button>
     </div>
   </div>
 </template>
@@ -35,14 +40,14 @@
 <script setup>
 import { ref } from 'vue';
 import FileUpload from 'primevue/fileupload';
-import axios from 'axios'; // Importamos axios
-
+import axios from 'axios';
 
 const emit = defineEmits(['close', 'actualizar']);
 
 
 const archivo = ref(null);
 const Comentario = ref('');
+const NombreEvidencia = ref ('');
 const IdUsuario = 1;
 const props = defineProps({
   id_Ltg: {
@@ -54,19 +59,33 @@ function handleExpedienteUpload(event) {
   archivo.value = event.files[0];  // Guardamos el archivo en la referencia
 }
 
+function getNombreSinExtension(nombre) {
+  return nombre.replace(/\.[^/.]+$/, '');
+}
+
 async function guardar() {
-  if (!archivo.value || !Comentario.value) {
+  if (!archivo.value) {
     alert('Por favor, complete todos los campos.');
     return;
   }
+const nombreAuto = NombreEvidencia.value?.trim() || getNombreSinExtension(archivo.value.name);
 
-  // Creamos el objeto FormData para enviar el archivo y el comentario
+  // Si no se llenó el comentario, usar un texto genérico
+  const comentarioAuto = Comentario.value?.trim() || 'Documento subido sin descripción.';
+
+
+
   const formData = new FormData();
   formData.append('Archivo', archivo.value);
-  formData.append('Comentario', Comentario.value);
+  formData.append('Comentario', comentarioAuto);
   formData.append('IdUsuario', IdUsuario);
-   formData.append('IdLitigio', props.id_Ltg); // <- ¡Ahora dinámico!
+  formData.append('Nombre',nombreAuto)
 
+   formData.append('IdLitigio', props.id_Ltg);
+
+for (let [key, value] of formData.entries()) {
+  console.log(`${key}: ${value}`);
+}
 
   try {
   const response = await axios.post(`/api/Files/subir-evidencia-comentario`, formData, {
@@ -77,7 +96,7 @@ async function guardar() {
 
    alert('Evidencia guardada correctamente');
 
-    emit('actualizar'); // 🔄 Emitir para que el padre actualice la información
+    emit('actualizar');
     emit('close');
   console.log('Archivo subido:', response.data);
 
@@ -92,7 +111,7 @@ async function guardar() {
 .pop-up {
   width: 600px;
   height: 400px;
-  background-color: rgba(0,0,0,0.5); /* fondo semitransparente */
+  background-color: rgba(0,0,0,0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -101,8 +120,8 @@ async function guardar() {
 .pop-up-content {
   background: white;
   padding: 20px;
-  width: 600px; /* <-- Este valor controla el ancho */
-  height: 400px; /* <-- Este valor controla la altura */
+  width: 600px;
+  height: 400px;
   border-radius: 8px;
 }
 
@@ -121,7 +140,7 @@ async function guardar() {
   padding: 30px;
   border-radius: 10px;
   width: 90%;
-  max-width: 500px;
+  max-width: 600px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   position: relative;
 }
