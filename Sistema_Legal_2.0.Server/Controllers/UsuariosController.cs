@@ -6,6 +6,7 @@ using Sistema_Legal_2._0.Server.Infraestructure;
 using Sistema_Legal_2._0.Server.Models.Enums;
 using Sistema_Legal_2._0.Server.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 
 namespace Sistema_Legal_2._0.Server.Controller
 {
@@ -17,13 +18,15 @@ namespace Sistema_Legal_2._0.Server.Controller
         private readonly PerfilesRepo perfilesRepo;
         private readonly db_silegContext _db_silegContext;
         private readonly Logger _logger;
+        private readonly IConfiguration _configuration;
         private int idUsuarioOnline;
-        public UsuariosController(db_silegContext db_silegContext_, IUserAccessor userAccessor, Logger logger)
+        public UsuariosController(db_silegContext db_silegContext_, IConfiguration configuration, IUserAccessor userAccessor, Logger logger)
         {
             _db_silegContext = db_silegContext_;
             usuariosRepo = new UsuariosRepo(db_silegContext_);
             perfilesRepo = new PerfilesRepo(db_silegContext_);
             _logger = logger;
+            _configuration = configuration;
             idUsuarioOnline = userAccessor.idUsuario;
         }
 
@@ -72,8 +75,8 @@ namespace Sistema_Legal_2._0.Server.Controller
             if (adUser == null) return null;
 
             UsuariosModel usuario = new UsuariosModel()
-            {                
-               
+            {
+
                 Nombres = adUser.firstName.ToString(),
                 Apellidos = adUser.lastName.ToString(),
                 NombreUsuario = nombreUsuario.ToLower(),
@@ -100,7 +103,7 @@ namespace Sistema_Legal_2._0.Server.Controller
         [AllowAnonymous]
         public OperationResult Post(UsuariosModel usuariosModel)
         {
-                       try
+            try
             {
                 if (usuariosRepo.Any(x => x.nombreUsuario == usuariosModel.NombreUsuario))
                     return new OperationResult(false, "Este usuario ya tiene acceso al sistema");
@@ -179,6 +182,116 @@ namespace Sistema_Legal_2._0.Server.Controller
                 throw;
             }
         }
+
+        [HttpPost("Asignar-Litigio")]
+        [AllowAnonymous]
+        public IActionResult Asignar([FromBody] Asignaciones_Ltg model)
+        {
+            if (model == null || model.IdUsuario <= 0 || model.IdLtg <= 0)
+                return BadRequest("Datos inválidos.");
+
+            string connectionString = _configuration.GetConnectionString("Sistema_Legal");
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                string query = "INSERT INTO Asignaciones_Litigios (IdUsuario, Id_Ltg) VALUES (@idUsuario, @id_Ltg)";
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@idUsuario", model.IdUsuario);
+                    cmd.Parameters.AddWithValue("@id_Ltg", model.IdLtg);
+
+                    conn.Open();
+                    int rows = cmd.ExecuteNonQuery();
+                    conn.Close();
+
+                    if (rows > 0)
+                        return Ok("Asociación guardada correctamente.");
+                    else
+                        return StatusCode(500, "No se pudo guardar.");
+                }
+            }
+        }
+
+        [HttpGet("Asignados/{idLtg}")]
+        public IActionResult GetAsignados(int idLtg)
+        {
+            try
+            {
+                string connectionString = _configuration.GetConnectionString("Sistema_Legal");
+                var asignados = new List<object>();
+
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    string query = @"
+                SELECT u.idUsuario, u.nombres, u.apellidos
+                FROM Asignaciones_Litigios a
+                INNER JOIN Usuarios u ON u.idUsuario = a.IdUsuario
+                WHERE a.Id_Ltg = @idLtg
+            ";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@idLtg", idLtg);
+                        conn.Open();
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                asignados.Add(new
+                                {
+                                    idUsuario = reader["idUsuario"],
+                                    nombres = reader["nombres"].ToString().Trim(),
+                                    apellidos = reader["apellidos"].ToString().Trim()
+                                });
+                            }
+                        }
+                        conn.Close();
+                    }
+                }
+
+                return Ok(asignados);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al obtener asignados.", error = ex.Message });
+            }
+        }
+
+        [HttpDelete("EliminarAsignacion")]
+        public IActionResult EliminarAsignacion([FromQuery] int idUsuario, [FromQuery] int idLtg)
+        {
+            if (idUsuario <= 0 || idLtg <= 0)
+                return BadRequest("Parámetros inválidos.");
+
+            try
+            {
+                string connectionString = _configuration.GetConnectionString("Sistema_Legal");
+
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    string query = "DELETE FROM Asignaciones_Litigios WHERE IdUsuario = @idUsuario AND Id_Ltg = @idLtg";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@idUsuario", idUsuario);
+                        cmd.Parameters.AddWithValue("@idLtg", idLtg);
+
+                        conn.Open();
+                        int filas = cmd.ExecuteNonQuery();
+                        conn.Close();
+
+                        if (filas > 0)
+                            return Ok("Asignación eliminada correctamente.");
+                        else
+                            return NotFound("No se encontró la asignación.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al eliminar asignación.", error = ex.Message });
+            }
+        }
+
 
     }
 }
