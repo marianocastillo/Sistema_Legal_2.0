@@ -22,25 +22,46 @@
               <Calendar v-model="form.ltg_Fecha_Acto" dateFormat="yy-mm-dd" showIcon placeholder="Fecha del acto"
                 class="w-full" />
             </div>
+
             <div class="field col-12 md:col-4">
-              <Dropdown v-model="form.id_Tipo_Demanda" :options="tiposDemanda" optionLabel="nombre"
-                optionValue="id_demanda" placeholder="--Seleccione el Tipo de Demanda--" class="w-full" />
+              <input list="tiposDemanda" id="tipoDemanda" v-model="form.nombre_Tipo_Demanda"
+                class="p-inputtext p-component w-full" placeholder="--Seleccione el Tipo de Demanda--" />
+              <datalist id="tiposDemanda">
+                <option v-for="tipo in tiposDemanda" :key="tipo.id_demanda" :value="tipo.nombre" />
+              </datalist>
             </div>
+
+            <!-- <div class="field col-12 md:col-4">
+              <Dropdown v-model="form.id_Tipo_Demanda" :options="tiposDemanda" optionLabel="nombre"
+              optionValue="id_demanda" placeholder="--Seleccione el Tipo de Demanda--" class="w-full" />
+            </div> -->
+
             <div class="field col-12 md:col-4">
               <Calendar v-model="form.ltg_Fecha_Audiencia" dateFormat="yy-mm-dd" showIcon
                 placeholder="Fecha de audiencia" class="w-full" />
             </div>
+
             <div class="field col-12 md:col-4">
+              <input list="listaTribunales" id="tribunal" v-model="form.nombre_Tribunal"
+                class="p-inputtext p-component w-full" placeholder="--Seleccione Tribunal--" />
+              <datalist id="listaTribunales">
+                <option v-for="tribunal in tribunales" :key="tribunal.id_Tribunal" :value="tribunal.nombre_Tribunal" />
+              </datalist>
+            </div>
+
+            <!-- <div class="field col-12 md:col-4">
               <Dropdown v-model="form.id_Tribunal" :options="tribunales" optionLabel="nombre_Tribunal"
                 optionValue="id_Tribunal" placeholder="--Seleccione Tribunal--" class="w-full" />
-            </div>
+            </div> -->
+
+
+
             <!-- <div class="field col-12 md:col-4">
               <Dropdown v-model="form.id_Estatus" :options="estatusLitigios" optionLabel="ltg_description"
-                optionValue="ltg_estatus" placeholder="--Seleccione el Estatus--" class="w-full" />
+              optionValue="ltg_estatus" placeholder="--Seleccione el Estatus--" class="w-full" />
             </div> -->
           </div>
         </fieldset>
-        
         <!-- DATOS DEL DEMANDANTE -->
         <fieldset class="col-12 border-1 border-round p-3 mb-3">
           <legend class="font-bold text-lg">Datos del Demandante</legend>
@@ -55,7 +76,7 @@
               <InputText id="otrosDemandante" v-model="form.otrosDemandante" class="w-full"
                 placeholder="Especifique tipo de demandante" />
             </div>
-            <div class="field col-12 md:col-4">
+            <div class="field col-12 md:col-3">
               <InputText v-model="form.ltg_Cedula_Demandante" :placeholder="form.ltg_Tipo_Demandante === 'Empresa'
                 ? 'RNC de la empresa'
                 : (form.ltg_Tipo_Demandante === 'Otros'
@@ -63,7 +84,7 @@
                   : 'Cédula del demandante')" class="w-full" />
             </div>
 
-            <div class="field col-12 md:col-4">
+            <div class="field col-12 md:col-5">
               <InputText v-model="form.ltg_Demandante"
                 :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'Nombre de la empresa' : 'Nombre del demandante'"
                 class="w-full" />
@@ -82,11 +103,11 @@
         <fieldset class="col-12 border-1 border-round p-3 mb-3">
           <legend class="font-bold text-lg">Datos del Representante</legend>
           <div class="grid">
-            <div class="field col-12 md:col-6">
+            <div class="field col-12 md:col-3">
               <InputText v-model="form.ltg_Cedula_Representante" placeholder="Cédula del representante"
                 class="w-full" />
             </div>
-            <div class="field col-12 md:col-6">
+            <div class="field col-12 md:col-9">
               <InputText v-model="form.ltg_Nombre_Representante" placeholder="Nombre del representante"
                 class="w-full" />
             </div>
@@ -100,23 +121,23 @@
 
             <div class="field col-12 md:col-4">
               <label class="font-bold text-primary">Cargar Expediente</label>
-               <InputText v-model="form.NombreEvidencia" placeholder="Nombrar Evidencia"
-                class="w-full" />
-                <br> <br>
+              <InputText v-model="form.NombreEvidencia" placeholder="Nombrar Evidencia" class="w-full" />
+              <br> <br>
               <FileUpload name="Archivo" customUpload @select="handleExpedienteUpload" mode="basic"
-                chooseLabel="Elegir archivo" class="w-full md:w-20rem" />
+                chooseLabel="Elegir archivo" class="w-full md:w-20rem" style="background-color: #003870;" />
             </div>
-         <div class="field col-12 md:col-8">
-  <label class="font-bold text-primary">Comentario</label>
-  <Textarea v-model="form.comentario" class="w-full" rows="5" autoResize />
-</div>
+            <div class="field col-12 md:col-8">
+              <label class="font-bold text-primary">Comentario</label>
+              <Textarea v-model="form.comentario" class="w-full" rows="5" autoResize />
+            </div>
           </div>
         </fieldset>
       </div>
 
       <!-- BOTÓN -->
       <div class="text-center mt-4">
-        <Button type="submit" label="Registrar" icon="pi pi-check" class="p-button-primary" />
+        <Button type="submit" label="Registrar" icon="pi pi-check" class="p-button-primary"
+          style="background-color: #003870;" />
       </div>
     </form>
   </div>
@@ -151,7 +172,7 @@ const form = reactive({
   ltg_Nacionalidad: '',
   otrosDemandante: '',
   id_sentencia: 3,
-  comentario : '',
+  comentario: '',
   NombreEvidencia: '',
 })
 
@@ -211,7 +232,7 @@ const registrarLitigio = async () => {
     return
   }
 
-const usuarioLogueado = JSON.parse(localStorage.getItem('usuario'));
+  const usuarioLogueado = JSON.parse(localStorage.getItem('usuario'));
   form.id_usuario = usuarioLogueado.idUsuario;
 
 
@@ -225,7 +246,7 @@ const usuarioLogueado = JSON.parse(localStorage.getItem('usuario'));
   formData.append('ltg_Tipo_Demandante', form.ltg_Tipo_Demandante === 'Otros' ? form.otrosDemandante : form.ltg_Tipo_Demandante)
   formData.append('ltg_Cedula_Representante', form.ltg_Cedula_Demandante)
   formData.append('comentario', form.comentario)
-   formData.append('NombreEvidencia', form.NombreEvidencia)
+  formData.append('NombreEvidencia', form.NombreEvidencia)
   formData.append('ltg_Nombre_Representante', form.ltg_Nombre_Representante)
   formData.append("ltg_Fecha_Audiencia", formatearFechaISO(form.ltg_Fecha_Audiencia))
   formData.append('ltg_Fecha_Actualizacion', formatearFechaISO(new Date()))
@@ -252,7 +273,7 @@ const usuarioLogueado = JSON.parse(localStorage.getItem('usuario'));
     console.log('Respuesta del backend:', result)
 
     setTimeout(() => {
-        router.push('/drawer/home')
+      router.push('/drawer/home')
     }, 1000);
 
 

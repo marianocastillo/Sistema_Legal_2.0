@@ -139,8 +139,7 @@
 
       <!-- Pie de documento -->
       <div class="flex justify-content-between mt-4 pt-3 border-top-1 surface-border ">
-        <Button label="Agregar Evidencia y Comentario" icon="pi pi-comment" class="p-button-sm p-button-text-dark"
-          @click="togglePopUp(id)" />
+        <Button label="Agregar Evidencia y Comentario" icon="pi pi-comment" class="p-button-sm p-button-text-dark" @click="togglePopUp(id)" style="background-color: #003870;" />
 
         <teleport to="body">
           <transition name="fade">

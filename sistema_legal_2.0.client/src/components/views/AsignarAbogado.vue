@@ -24,7 +24,7 @@
           class="p-button-rounded p-button-text p-button-sm text-danger"
           v-tooltip.top="'Eliminar abogado'"
           aria-label="Eliminar"
-          @click="confirmarEliminacion(abogado.idUsuario)"
+          @click="confirmarEliminacion(abogado.idUsuario)" style="background-color: #003870;"
         />
       </div>
 
@@ -64,7 +64,7 @@
   </Dialog>
 
   <!-- ConfirmDialog visual -->
-  <ConfirmDialog />
+  <ConfirmDialog  />
 </template>
 
 <script setup>
@@ -157,7 +157,8 @@ function confirmarEliminacion(idUsuario) {
     icon: 'pi pi-exclamation-triangle',
     acceptLabel: 'Sí',
     rejectLabel: 'Cancelar',
-    acceptClass: 'p-button-danger',
+    acceptClass: 'p-button p-button-danger',
+
     accept: async () => {
       try {
         await axios.delete(`/api/Usuarios/EliminarAsignacion`, {
@@ -175,6 +176,12 @@ function confirmarEliminacion(idUsuario) {
 </script>
 
 <style scoped>
+.p-button {
+  background-color: #003870 !important;
+  border: none;
+  color: white;
+}
+
 .dialog-asignacion {
   width: 32vw;
 }

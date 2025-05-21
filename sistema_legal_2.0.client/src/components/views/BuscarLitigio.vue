@@ -23,7 +23,7 @@
           label="Buscar"
           icon="pi pi-search"
           class="p-button-primary mt-2 md:mt-0"
-          @click="buscarLitigio"
+          @click="buscarLitigio" style="background-color: #003870;"
         />
       </div>
     </div>
@@ -40,7 +40,7 @@
           label="Modificar"
           icon="pi pi-pencil"
           class="mt-3 p-button-warning"
-          @click="irAModificar"
+          @click="irAModificar" style="background-color: #003870;"
         />
       </div>
     </div>
