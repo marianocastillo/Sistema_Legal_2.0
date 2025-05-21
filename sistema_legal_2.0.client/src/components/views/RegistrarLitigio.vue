@@ -10,6 +10,37 @@
     <form @submit.prevent="registrarLitigio">
       <div class="grid formgrid p-fluid">
 
+
+        <!-- INFORMACIÓN DEL LITIGIO -->
+        <fieldset class="col-12 border-1 border-round p-3 mb-3">
+          <legend class="font-bold text-lg">Información del Litigio</legend>
+          <div class="grid">
+            <div class="field col-12 md:col-4">
+              <InputText v-model="form.ltg_acto" placeholder="No. Acto Alguacil *" class="w-full" />
+            </div>
+            <div class="field col-12 md:col-4">
+              <Calendar v-model="form.ltg_Fecha_Acto" dateFormat="yy-mm-dd" showIcon placeholder="Fecha del acto"
+                class="w-full" />
+            </div>
+            <div class="field col-12 md:col-4">
+              <Dropdown v-model="form.id_Tipo_Demanda" :options="tiposDemanda" optionLabel="nombre"
+                optionValue="id_demanda" placeholder="--Seleccione el Tipo de Demanda--" class="w-full" />
+            </div>
+            <div class="field col-12 md:col-4">
+              <Calendar v-model="form.ltg_Fecha_Audiencia" dateFormat="yy-mm-dd" showIcon
+                placeholder="Fecha de audiencia" class="w-full" />
+            </div>
+            <div class="field col-12 md:col-4">
+              <Dropdown v-model="form.id_Tribunal" :options="tribunales" optionLabel="nombre_Tribunal"
+                optionValue="id_Tribunal" placeholder="--Seleccione Tribunal--" class="w-full" />
+            </div>
+            <!-- <div class="field col-12 md:col-4">
+              <Dropdown v-model="form.id_Estatus" :options="estatusLitigios" optionLabel="ltg_description"
+                optionValue="ltg_estatus" placeholder="--Seleccione el Estatus--" class="w-full" />
+            </div> -->
+          </div>
+        </fieldset>
+        
         <!-- DATOS DEL DEMANDANTE -->
         <fieldset class="col-12 border-1 border-round p-3 mb-3">
           <legend class="font-bold text-lg">Datos del Demandante</legend>
@@ -44,36 +75,6 @@
             </div>
 
 
-          </div>
-        </fieldset>
-
-        <!-- INFORMACIÓN DEL LITIGIO -->
-        <fieldset class="col-12 border-1 border-round p-3 mb-3">
-          <legend class="font-bold text-lg">Información del Litigio</legend>
-          <div class="grid">
-            <div class="field col-12 md:col-4">
-              <InputText v-model="form.ltg_acto" placeholder="No. Acto Alguacil *" class="w-full" />
-            </div>
-            <div class="field col-12 md:col-4">
-              <Calendar v-model="form.ltg_Fecha_Acto" dateFormat="yy-mm-dd" showIcon placeholder="Fecha del acto"
-                class="w-full" />
-            </div>
-            <div class="field col-12 md:col-4">
-              <Dropdown v-model="form.id_Tipo_Demanda" :options="tiposDemanda" optionLabel="nombre"
-                optionValue="id_demanda" placeholder="--Seleccione el Tipo de Demanda--" class="w-full" />
-            </div>
-            <div class="field col-12 md:col-4">
-              <Calendar v-model="form.ltg_Fecha_Audiencia" dateFormat="yy-mm-dd" showIcon
-                placeholder="Fecha de audiencia" class="w-full" />
-            </div>
-            <div class="field col-12 md:col-4">
-              <Dropdown v-model="form.id_Tribunal" :options="tribunales" optionLabel="nombre_Tribunal"
-                optionValue="id_Tribunal" placeholder="--Seleccione Tribunal--" class="w-full" />
-            </div>
-            <div class="field col-12 md:col-4">
-              <Dropdown v-model="form.id_Estatus" :options="estatusLitigios" optionLabel="ltg_description"
-                optionValue="ltg_estatus" placeholder="--Seleccione el Estatus--" class="w-full" />
-            </div>
           </div>
         </fieldset>
 
@@ -234,7 +235,7 @@ const usuarioLogueado = JSON.parse(localStorage.getItem('usuario'));
   formData.append('ltg_Nacionalidad', form.ltg_Nacionalidad)
   formData.append('id_Sentencia', parseInt(form.id_sentencia))
   formData.append('id_usuario', parseInt(form.id_usuario))
-  formData.append('id_Estatus', parseInt(form.id_Estatus))
+  formData.append('id_Estatus', 1)
   formData.append('NombreCarpeta', form.ltg_acto)
 
   if (expedienteFile.value) {

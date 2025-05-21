@@ -48,10 +48,6 @@
                 <label class="text-sm font-medium text-600-dark">Tipo</label>
                 <p class="m-0">{{ litigio?.ltg_Tipo_Demandante || 'N/A' }}</p>
               </div>
-              <div class="col-6 field">
-                <label class="text-sm font-medium text-600-dark">Nacionalidad</label>
-                <p class="m-0">{{ litigio?.ltg_Nacionalidad || 'N/A' }}</p>
-              </div>
             </div>
           </div>
         </div>

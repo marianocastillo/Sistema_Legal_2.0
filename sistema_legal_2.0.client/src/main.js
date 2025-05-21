@@ -1,12 +1,18 @@
 import { createApp } from 'vue';
 import store from "./store";
 import PrimeVue from 'primevue/config';
+import Tooltip from 'primevue/tooltip'
 import ToastService from 'primevue/toastservice'
 import {dom, library} from '@fortawesome/fontawesome-svg-core';
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import { fab } from '@fortawesome/free-brands-svg-icons';
 import { far } from '@fortawesome/free-regular-svg-icons';
 import App from './App.vue';
+import ConfirmDialog from 'primevue/confirmdialog'
+import ConfirmationService from 'primevue/confirmationservice'
+
+
+
 import Aura from '@primeuix/themes/aura';
 import router from './router/router';
 import { createNotivue } from 'notivue'
@@ -30,7 +36,6 @@ import './assets/main.css';
 //import 'notivue/animations.css'
 import 'primeflex/primeflex.css'
 import 'primeicons/primeicons.css'
-import Tooltip from 'primevue/tooltip';
 
 
 
@@ -73,4 +78,6 @@ app.mount('#app');
 app.component('PrimeColumn', Column)
 app.component('PrimeRow', Row)
 app.component('ColumnGroup', ColumnGroup)
+app.use(ConfirmationService)
+app.component('ConfirmDialog', ConfirmDialog)
 app.use(ToastService)

@@ -222,9 +222,10 @@ namespace Sistema_Legal_2._0.Server.Controller
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
                     string query = @"
-                SELECT u.idUsuario, u.nombres, u.apellidos
+                SELECT u.idUsuario, u.nombres, u.apellidos, p.nombre AS perfil
                 FROM Asignaciones_Litigios a
                 INNER JOIN Usuarios u ON u.idUsuario = a.IdUsuario
+                INNER JOIN Perfiles p ON u.idPerfil = p.idPerfil
                 WHERE a.Id_Ltg = @idLtg
             ";
 
@@ -232,6 +233,7 @@ namespace Sistema_Legal_2._0.Server.Controller
                     {
                         cmd.Parameters.AddWithValue("@idLtg", idLtg);
                         conn.Open();
+
                         using (var reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
@@ -240,10 +242,12 @@ namespace Sistema_Legal_2._0.Server.Controller
                                 {
                                     idUsuario = reader["idUsuario"],
                                     nombres = reader["nombres"].ToString().Trim(),
-                                    apellidos = reader["apellidos"].ToString().Trim()
+                                    apellidos = reader["apellidos"].ToString().Trim(),
+                                    perfil = reader["perfil"].ToString().Trim()
                                 });
                             }
                         }
+
                         conn.Close();
                     }
                 }
@@ -255,6 +259,7 @@ namespace Sistema_Legal_2._0.Server.Controller
                 return StatusCode(500, new { message = "Error al obtener asignados.", error = ex.Message });
             }
         }
+
 
         [HttpDelete("EliminarAsignacion")]
         public IActionResult EliminarAsignacion([FromQuery] int idUsuario, [FromQuery] int idLtg)
