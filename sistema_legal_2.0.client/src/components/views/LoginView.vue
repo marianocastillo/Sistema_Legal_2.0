@@ -141,6 +141,7 @@ export default {
 
       localStorage.setItem('token', token)
       localStorage.setItem('user', usuario.nombreUsuario)
+      localStorage.setItem('idUsuario', usuario.idUsuario)
       localStorage.setItem('sessionExpireTime', new Date().getTime() + 30 * 60 * 1000)
       localStorage.setItem('usuario', JSON.stringify({
         idUsuario: usuario.idUsuario,
