@@ -142,16 +142,24 @@ export default {
       localStorage.setItem('token', token)
       localStorage.setItem('user', usuario.nombreUsuario)
       localStorage.setItem('idUsuario', usuario.idUsuario)
+      localStorage.setItem('idPerfil', usuario.idPerfil)
       localStorage.setItem('sessionExpireTime', new Date().getTime() + 30 * 60 * 1000)
       localStorage.setItem('usuario', JSON.stringify({
         idUsuario: usuario.idUsuario,
         nombre: usuario.nombreUsuario,
-        rol: usuario.nombrePerfil || 'Usuario'
+        rol: usuario.nombrePerfil || 'Usuario',
+        perfil: usuario.idPerfil
       }))
 
       this.$store.commit('setUser', usuario)
       push.success(response.data.message)
-      this.$router.push('/drawer/home')
+      if(usuario.idPerfil == 4 ){
+          this.$router.push('/drawer/inicio')
+        } else{
+          this.$router.push('/drawer/home')
+        }
+
+      // this.$router.push('/drawer/home')
 
       // setTimeout(() => window.location.reload(), 500)
     } else {

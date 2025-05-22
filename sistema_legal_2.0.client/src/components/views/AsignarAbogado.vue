@@ -57,7 +57,7 @@
       <Button
         label="Cerrar"
         icon="pi pi-times"
-        class="p-button-secondary p-button-sm"
+        class="p-button-sm btn-aceptar"
         @click="emit('close')"
       />
     </div>

@@ -24,13 +24,13 @@
       </Column>
       <Column field="ltg_Cedula_Demandante" header="Cédula demandante" />
       <Column field="ltg_Demandante" header="Nombre demandante" />
-      <Column field="tipoDemanda_Nombre" header="Tipo de Demanda" />
+      <Column field="nombre_Tipo_Demanda" header="Tipo de Demanda" />
       <Column field="ltg_Fecha_Audiencia" header="Fecha audiencia">
         <template #body="{ data }">
           {{ data.ltg_Fecha_Audiencia?.split('T')[0] || 'Sin fecha' }}
         </template>
       </Column>
-      <Column field="estatus_Descripcion" header="Estatus" />
+      <Column field="ltg_description" header="Estatus" />
       <Column header="Acciones" style="width: 140px">
         <template #body="{ data }">
           <div class="btn-group">
@@ -39,10 +39,10 @@
               <i class="pi pi-eye white-icon"></i>
             </router-link>
 
-            <button class="btn btn-sm" @click="togglePopUp(data)"
+            <!-- <button class="btn btn-sm" @click="togglePopUp(data)"
               style="background-color: #003870; border-color: #003870;">
               <i class="pi pi-user-edit white-icon" title="Asignar abogado"></i>
-            </button>
+            </button> -->
           </div>
         </template>
       </Column>

@@ -144,6 +144,7 @@
 </template>
 
 <script setup>
+import { watch } from 'vue';
 import { reactive, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { push } from 'notivue'
@@ -161,7 +162,8 @@ const form = reactive({
   ltg_acto: '',
   ltg_Fecha_Acto: '',
   ltg_Cedula_Demandante: '',
-  id_Tipo_Demanda: '',
+  nombre_Tipo_Demanda: '',
+  id_Tipo_Demanda: null,
   ltg_Demandante: '',
   ltg_Tipo_Demandante: '',
   ltg_Cedula_Representante: '',
@@ -177,6 +179,13 @@ const form = reactive({
 })
 
 
+watch(
+  () => form.nombre_Tipo_Demanda,
+  (nombre) => {
+    const tipo = tiposDemanda.value.find(t => t.nombre === nombre);
+    form.id_Tipo_Demanda = tipo ? tipo.id_demanda : null;
+  }
+);
 
 
 const tiposDemanda = ref([])
@@ -210,6 +219,8 @@ const cargarDatosDropdowns = async () => {
     console.error('Error al cargar los datos de los dropdowns:', error)
   }
 }
+
+
 
 onMounted(() => {
   cargarDatosDropdowns()
