@@ -13,6 +13,7 @@
           mode="basic"
           chooseLabel="Elegir archivo"
           class="w-full md:w-19rem"
+          style="background-color: #003870;"
         />
       </div>
 
@@ -32,7 +33,7 @@
         ></textarea>
       </div>
 
-      <Button class="p-button-sm p-button-text-dark ms-3 " @click="guardar">Guardar</button>
+      <Button class="p-button-sm p-button-text-dark ms-custom" @click="guardar"  style="background-color: #003870;">Guardar</button>
     </div>
   </div>
 </template>
@@ -73,8 +74,6 @@ const nombreAuto = NombreEvidencia.value?.trim() || getNombreSinExtension(archiv
   // Si no se llenó el comentario, usar un texto genérico
   const comentarioAuto = Comentario.value?.trim() || 'Documento subido sin descripción.';
 
-
-
   const formData = new FormData();
   formData.append('Archivo', archivo.value);
   formData.append('Comentario', comentarioAuto);
@@ -107,7 +106,14 @@ for (let [key, value] of formData.entries()) {
 }
 </script>
 
+
+
 <style scoped>
+
+.ms-custom {
+  margin-left: 4.3rem; /* o lo que necesites */
+}
+
 .pop-up {
   width: 600px;
   height: 400px;

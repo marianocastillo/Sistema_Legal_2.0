@@ -7,3 +7,17 @@
 }
 
 
+
+.btn-aceptar,
+.btn-cancelar {
+  background-color: #003870 !important;
+  border: none !important;
+  color: #fff !important;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.btn-aceptar:hover,
+.btn-cancelar:hover {
+  background-color: #0054a0 !important;  /* azul un poco más claro */
+  cursor: pointer;
+}

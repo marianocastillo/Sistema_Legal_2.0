@@ -157,7 +157,8 @@ function confirmarEliminacion(idUsuario) {
     icon: 'pi pi-exclamation-triangle',
     acceptLabel: 'Sí',
     rejectLabel: 'Cancelar',
-    acceptClass: 'p-button p-button-danger',
+    acceptClass: 'p-button btn-aceptar',
+    rejectClass: 'p-button btn-cancelar',
 
     accept: async () => {
       try {
@@ -176,12 +177,6 @@ function confirmarEliminacion(idUsuario) {
 </script>
 
 <style scoped>
-.p-button {
-  background-color: #003870 !important;
-  border: none;
-  color: white;
-}
-
 .dialog-asignacion {
   width: 32vw;
 }

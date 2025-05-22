@@ -101,10 +101,10 @@
   <div
     v-for="item in evidenciasOrdenadas"
     :key="item.id_Evidencias"
-    class="col-12 md:col-4"
+    class="col-12 md:col-12"
   >
     <Accordion :activeIndex="null" multiple>
-      <AccordionTab :header="`-Evidencia- ${item.Nombre}`">
+      <AccordionTab :header="`${item.Nombre}`">
         <p class="text-sm text-500">Subido: {{ formatFecha(item.FechaSubida) }}</p>
 
         <div class="mb-2">
