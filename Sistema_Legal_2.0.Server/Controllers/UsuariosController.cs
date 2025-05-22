@@ -212,53 +212,98 @@ namespace Sistema_Legal_2._0.Server.Controller
         }
 
         [HttpGet("Asignados/{idLtg}")]
-        public IActionResult GetAsignados(int idLtg)
+        public IActionResult GetAbogadosAsignadosConCantidad(int idLtg)
         {
-            try
+            var lista = new List<object>();
+            string connectionString = _configuration.GetConnectionString("Sistema_Legal");
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                string connectionString = _configuration.GetConnectionString("Sistema_Legal");
-                var asignados = new List<object>();
+                string query = @"
+            SELECT 
+                u.idUsuario,
+                u.nombres,
+                u.apellidos,
+                p.nombre AS perfil,
+                (
+                    SELECT COUNT(*) 
+                    FROM Asignaciones_Litigios 
+                    WHERE IdUsuario = u.idUsuario
+                ) AS cantidadAsignaciones
+            FROM Asignaciones_Litigios a
+            INNER JOIN Usuarios u ON u.idUsuario = a.IdUsuario
+            INNER JOIN Perfiles p ON u.idPerfil = p.idPerfil
+            WHERE a.Id_Ltg = @idLtg";
 
-                using (SqlConnection conn = new SqlConnection(connectionString))
+                using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
-                    string query = @"
-                SELECT u.idUsuario, u.nombres, u.apellidos, p.nombre AS perfil
-                FROM Asignaciones_Litigios a
-                INNER JOIN Usuarios u ON u.idUsuario = a.IdUsuario
-                INNER JOIN Perfiles p ON u.idPerfil = p.idPerfil
-                WHERE a.Id_Ltg = @idLtg
-            ";
+                    cmd.Parameters.AddWithValue("@idLtg", idLtg);
+                    conn.Open();
 
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (var reader = cmd.ExecuteReader())
                     {
-                        cmd.Parameters.AddWithValue("@idLtg", idLtg);
-                        conn.Open();
-
-                        using (var reader = cmd.ExecuteReader())
+                        while (reader.Read())
                         {
-                            while (reader.Read())
+                            lista.Add(new
                             {
-                                asignados.Add(new
-                                {
-                                    idUsuario = reader["idUsuario"],
-                                    nombres = reader["nombres"].ToString().Trim(),
-                                    apellidos = reader["apellidos"].ToString().Trim(),
-                                    perfil = reader["perfil"].ToString().Trim()
-                                });
-                            }
+                                idUsuario = reader["idUsuario"],
+                                nombres = reader["nombres"].ToString().Trim(),
+                                apellidos = reader["apellidos"].ToString().Trim(),
+                                perfil = reader["perfil"].ToString().Trim(),
+                                cantidadAsignaciones = Convert.ToInt32(reader["cantidadAsignaciones"])
+                            });
                         }
+                    }
 
-                        conn.Close();
+                    conn.Close();
+                }
+            }
+
+            return Ok(lista);
+        }
+
+        [HttpGet("AbogadosConAsignaciones")]
+        public IActionResult GetAbogadosConCantidadAsignaciones()
+        {
+            var lista = new List<object>();
+            string connectionString = _configuration.GetConnectionString("Sistema_Legal");
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                string query = @"
+            SELECT u.idUsuario, u.nombres, u.apellidos, p.nombre AS nombrePerfil,
+                   COUNT(a.Id_Ltg) AS cantidadAsignaciones
+            FROM Usuarios u
+            INNER JOIN Perfiles p ON u.idPerfil = p.idPerfil
+            LEFT JOIN Asignaciones_Litigios a ON a.IdUsuario = u.idUsuario
+            WHERE u.idPerfil = 4
+            GROUP BY u.idUsuario, u.nombres, u.apellidos, p.nombre";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    conn.Open();
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            lista.Add(new
+                            {
+                                idUsuario = reader.GetInt32(0),
+                                nombres = reader["nombres"].ToString(),
+                                apellidos = reader["apellidos"].ToString(),
+                                nombrePerfil = reader["nombrePerfil"].ToString(),
+                                cantidadAsignaciones = reader.GetInt32(reader.GetOrdinal("cantidadAsignaciones"))
+                            });
+                        }
                     }
                 }
+            }
 
-                return Ok(asignados);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error al obtener asignados.", error = ex.Message });
-            }
+            return Ok(lista);
         }
+
+
+
 
 
         [HttpDelete("EliminarAsignacion")]
