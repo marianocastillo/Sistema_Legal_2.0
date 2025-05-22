@@ -36,21 +36,27 @@
           <div class="surface-50 p-3 border-round-lg border bg-white">
             <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Demandante</h4>
             <div class="grid ">
-              <div class="col-6 field ">
+              <div class="col-3 field">
+                <label class="text-sm ">Cédula</label>
+                <p class="m-0">{{ litigio?.ltg_Cedula_Demandante || 'N/A' }}</p>
+              </div>
+              <div class="col-3 field ">
                 <label class="text-sm font-medium text-600-dark">Nombre</label>
                 <p class="m-0">{{ litigio?.ltg_Demandante || 'N/A' }}</p>
               </div>
-              <div class="col-6 field">
-                <label class="text-sm font-medium text-600-dark">Cédula</label>
-                <p class="m-0">{{ litigio?.ltg_Cedula_Demandante || 'N/A' }}</p>
-              </div>
-              <div class="col-6 field">
+
+              <div class="col-3 field">
                 <label class="text-sm font-medium text-600-dark">Tipo</label>
                 <p class="m-0">{{ litigio?.ltg_Tipo_Demandante || 'N/A' }}</p>
+              </div>
+              <div class="col-3 field">
+                <label class="text-sm font-medium text-600-dark">Nacionalidad</label>
+                <p class="m-0">{{ litigio?.ltg_Nacionalidad || 'N/A' }}</p>
               </div>
             </div>
           </div>
         </div>
+
 
         <div class="col-12 md:col-6">
           <div class="surface-50 p-3 border-round-lg border bg-white">
@@ -64,6 +70,7 @@
                 <label class="text-sm font-medium text-600-dark">Cédula</label>
                 <p class="m-0">{{ litigio?.ltg_Cedula_Representante || 'N/A' }}</p>
               </div>
+
             </div>
           </div>
         </div>
@@ -97,36 +104,29 @@
       </div>
 
       <!-- Documentos y sentencia -->
- <div class="grid">
-  <div
-    v-for="item in evidenciasOrdenadas"
-    :key="item.id_Evidencias"
-    class="col-12 md:col-12"
-  >
-    <Accordion :activeIndex="null" multiple>
-      <AccordionTab :header="`${item.Nombre}`">
-        <p class="text-sm text-500">Subido: {{ formatFecha(item.FechaSubida) }}</p>
+      <div class="grid">
+        <div v-for="item in evidenciasOrdenadas" :key="item.id_Evidencias" class="col-12 md:col-12">
+          <Accordion :activeIndex="null" multiple>
+            <AccordionTab :header="`${item.Nombre}`">
+              <p class="text-sm text-500">Subido: {{ formatFecha(item.FechaSubida) }}</p>
 
-        <div class="mb-2">
-          <strong>Comentario:</strong>
-          <p class="m-0">{{ item.comentario }}</p>
-        </div>
+              <div class="mb-2">
+                <strong>Comentario:</strong>
+                <p class="m-0">{{ item.comentario }}</p>
+              </div>
 
-        <div>
-          <strong>Archivo:</strong>
-          <a
-            :href="`https://localhost:7177/api/Files/rutaspor/${item.id_Ruta}`"
-            target="_blank"
-            class="text-blue-600 hover:underline ml-2"
-          >
-            <i :class="getFileIcon(item.NombreArchivo)" style="color: #ff0000;"></i>
-            {{ item.NombreArchivo }}
-          </a>
+              <div>
+                <strong>Archivo:</strong>
+                <a :href="`https://localhost:7177/api/Files/rutaspor/${item.id_Ruta}`" target="_blank"
+                  class="text-blue-600 hover:underline ml-2">
+                  <i :class="getFileIcon(item.NombreArchivo)" style="color: #ff0000;"></i>
+                  {{ item.NombreArchivo }}
+                </a>
+              </div>
+            </AccordionTab>
+          </Accordion>
         </div>
-      </AccordionTab>
-    </Accordion>
-  </div>
-</div>
+      </div>
 
 
 
@@ -139,7 +139,8 @@
 
       <!-- Pie de documento -->
       <div class="flex justify-content-between mt-4 pt-3 border-top-1 surface-border ">
-        <Button label="Agregar Evidencia y Comentario" icon="pi pi-comment" class="p-button-sm p-button-text-dark" @click="togglePopUp(id)" style="background-color: #003870;" />
+        <Button label="Agregar Evidencia y Comentario" icon="pi pi-comment" class="p-button-sm p-button-text-dark"
+          @click="togglePopUp(id)" style="background-color: #003870;" />
 
         <teleport to="body">
           <transition name="fade">
@@ -338,6 +339,11 @@ const getStatusSeverity = (status) => {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.text-sm {
+  font-size: 1.10rem !important;
+  font-weight: 600;
 }
 
 .pop-up-content {
