@@ -1,31 +1,18 @@
 <template>
-  <Dialog
-    v-model:visible="visible"
-    modal
-    class="dialog-asignacion"
-    :closable="false"
-    :draggable="false"
-    :header="`Abogados asignados - Acto No. ${props.ltg_acto}`"
-  >
+  <Dialog v-model:visible="visible" modal class="dialog-asignacion" :closable="false" :draggable="false"
+    :header="`Abogados asignados - Acto No. ${props.ltg_acto}`">
     <!-- Lista de abogados asignados como tarjetas -->
     <div class="abogados-lista mt-3">
-      <div
-        v-for="abogado in abogadosAsignados"
-        :key="abogado.idUsuario"
-        class="abogado-card"
-      >
+      <div v-for="abogado in abogadosAsignados" :key="abogado.idUsuario" class="abogado-card">
         <div class="abogado-nombre">
           <span class="nombre">
-            {{ abogado.nombres }} {{ abogado.apellidos }} – {{ abogado.perfil }}
+            {{ abogado.nombres }} {{ abogado.apellidos }} – {{ abogado.perfil }} - ({{ abogado.cantidadAsignaciones }}
+            casos)
           </span>
         </div>
-        <Button
-          icon="pi pi-trash"
-          class="p-button-rounded p-button-text p-button-sm text-danger"
-          v-tooltip.top="'Eliminar abogado'"
-          aria-label="Eliminar"
-          @click="confirmarEliminacion(abogado.idUsuario)" style="background-color: #003870;"
-        />
+        <Button icon="pi pi-trash" class="p-button-rounded p-button-text p-button-sm text-danger"
+          v-tooltip.top="'Eliminar abogado'" aria-label="Eliminar" @click="confirmarEliminacion(abogado.idUsuario)"
+          style="background-color: #003870;" />
       </div>
 
       <div v-if="abogadosAsignados.length === 0" class="text-center text-muted mt-2">
@@ -35,36 +22,18 @@
 
     <!-- Dropdown + botones -->
     <div class="dropdown-section mt-4 d-flex align-items-center gap-2 flex-wrap">
-      <Dropdown
-        v-model="usuarioSeleccionado"
-        :options="usuariosFiltrados"
-        optionLabel="nombre"
-        optionValue="id"
-        placeholder="Selecciona un abogado"
-        appendTo="body"
-        style="min-width: 300px"
-        emptyMessage="-- No hay más abogados --"
-      />
-      <Button
-        label="Asignar"
-        icon="pi pi-user-plus"
-        class="p-button-sm text-white border-0"
-        :style="{ backgroundColor: '#003870' }"
-        :disabled="!usuarioSeleccionado"
-        @click="asignarAbogado"
-      />
+      <Dropdown v-model="usuarioSeleccionado" :options="usuariosFiltrados" optionLabel="nombre" optionValue="id"
+        placeholder="Selecciona un abogado" appendTo="body" style="min-width: 300px"
+        emptyMessage="-- No hay más abogados --" />
+      <Button label="Asignar" icon="pi pi-user-plus" class="p-button-sm text-white border-0"
+        :style="{ backgroundColor: '#003870' }" :disabled="!usuarioSeleccionado" @click="asignarAbogado" />
 
-      <Button
-        label="Cerrar"
-        icon="pi pi-times"
-        class="p-button-secondary p-button-sm"
-        @click="emit('close')"
-      />
+      <Button label="Cerrar" icon="pi pi-times" class="p-button-secondary p-button-sm" @click="emit('close')" />
     </div>
   </Dialog>
 
   <!-- ConfirmDialog visual -->
-  <ConfirmDialog  />
+  <ConfirmDialog />
 </template>
 
 <script setup>
@@ -99,23 +68,22 @@ watch(() => props.id_Ltg, cargarAsignados)
 
 async function cargarUsuarios() {
   try {
-    const response = await axios.get('/api/Usuarios/UsuariosConPerfil')
-    const todos = response.data.filter(u => u.idPerfil === 4)
+    const response = await axios.get('/api/Usuarios/AbogadosConAsignaciones');
+    const todos = response.data;
 
-    const idsAsignados = abogadosAsignados.value.map(a => a.idUsuario)
+    const idsAsignados = abogadosAsignados.value.map(a => a.idUsuario);
 
     usuariosFiltrados.value = todos
       .filter(u => !idsAsignados.includes(u.idUsuario))
       .map(u => ({
         id: u.idUsuario,
-        nombre: `${u.nombres} ${u.apellidos} – ${u.nombrePerfil}`.trim()
-      }))
+        nombre: `${u.nombres} ${u.apellidos}  (${u.cantidadAsignaciones} casos)`
+      }));
   } catch (error) {
-    console.error("Error al cargar usuarios:", error)
-    push.error('Error al cargar usuarios disponibles')
+    console.error("Error al cargar usuarios:", error);
+    push.error('Error al cargar usuarios disponibles');
   }
 }
-
 async function cargarAsignados() {
   try {
     const { data } = await axios.get(`/api/Usuarios/Asignados/${props.id_Ltg}`)
@@ -128,7 +96,7 @@ async function cargarAsignados() {
 
 async function asignarAbogado() {
   cargarAsignados()
-  if (!usuarioSeleccionado.value ) return
+  if (!usuarioSeleccionado.value) return
 
   if (abogadosAsignados.value.some(a => a.idUsuario === usuarioSeleccionado.value)) {
     push.warning('Este abogado ya está asignado.')
@@ -204,6 +172,8 @@ function confirmarEliminacion(idUsuario) {
   background-color: #fff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
+
+
 
 .abogado-nombre {
   display: flex;
