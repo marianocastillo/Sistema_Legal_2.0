@@ -241,6 +241,7 @@ body {
   background-color: #fff;
   border-bottom: 1px solid #ddd;
   display: flex;
+  font-family: Arial, sans-serif;
   align-items: center;
   justify-content: space-between;
   padding: 0 1rem;

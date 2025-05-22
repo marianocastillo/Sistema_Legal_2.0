@@ -27,6 +27,7 @@
               :feedback="false"
               toggleMask
               placeholder="Contraseña"
+              autocomplete="current-password"
               class="custom-input"
               :class="{ 'input-error': invalid.password }"
             />
@@ -96,7 +97,7 @@ export default {
       this.invalid.userName = !this.credentials.userName
       this.invalid.password = !this.credentials.password
 
-      console.log('VITE_USE_MOCK:', import.meta.env.VITE_USE_MOCK)
+      // console.log('VITE_USE_MOCK:', import.meta.env.VITE_USE_MOCK)
 
       if (this.invalid.userName || this.invalid.password) {
         push.warning('Por favor, rellene todos los campos')
@@ -147,7 +148,7 @@ export default {
       localStorage.setItem('usuario', JSON.stringify({
         idUsuario: usuario.idUsuario,
         nombre: usuario.nombreUsuario,
-        rol: usuario.nombrePerfil || 'Usuario',
+        rol: nombrePerfil(usuario.idPerfil),
         perfil: usuario.idPerfil
       }))
 
@@ -173,6 +174,25 @@ export default {
 
   }
 }
+
+
+
+const nombrePerfil = (idPerfil) => {
+  switch (idPerfil) {
+    case 1:
+      return 'Administrador';
+    case 2:
+      return 'Supervisor';
+    case 3:
+      return 'Digitador';
+    case 4:
+      return 'Abogado Litigante';
+    default:
+      return 'Perfil desconocido';
+  }
+};
+
+
 </script>
 
 <style scoped>

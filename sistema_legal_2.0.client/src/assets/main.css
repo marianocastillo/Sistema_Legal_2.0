@@ -21,3 +21,7 @@
   background-color: #0054a0 !important;  /* azul un poco más claro */
   cursor: pointer;
 }
+
+.p-select-label{
+  width: 320px !important;
+}

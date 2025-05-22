@@ -2,7 +2,7 @@
   <Toast /> <!-- Notificaciones globales -->
 
   <!-- Vista de login sin layout -->
-  <template v-if="route.path === '/login'">
+  <template v-if="esLogin">
     <LoginView @loginSuccess="handleLoginSuccess" />
   </template>
 
@@ -23,6 +23,7 @@
 
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
+import { computed } from 'vue'
 import LoginView from './components/views/LoginView.vue'
 import Toast from 'primevue/toast'
 
@@ -30,6 +31,7 @@ import Toast from 'primevue/toast'
 // Los componentes importados están disponibles automáticamente
 const route = useRoute()
 const router = useRouter()
+const esLogin = computed(() => route.path === '/login')
 
 const handleLoginSuccess = () => {
   localStorage.setItem('token', 'true')
