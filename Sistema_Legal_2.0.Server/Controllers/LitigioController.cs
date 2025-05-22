@@ -215,6 +215,53 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
 
 
+        [HttpGet("Litigio_Asignaciones")]
+        public async Task<ActionResult<IEnumerable<LitigiosAsignadosAbogados>>> GetLitigiosAsignados([FromQuery] int idUsuario)
+        {
+            var lista = new List<LitigiosAsignadosAbogados>();
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal")))
+                {
+                    using (SqlCommand cmd = new SqlCommand("sp_MostrarAsignacionesAbogados", conn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@idUsuario", idUsuario);
+
+                        await conn.OpenAsync();
+                        using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                lista.Add(new LitigiosAsignadosAbogados
+                                {
+                                    id_Ltg = reader.GetInt32(reader.GetOrdinal("id_Ltg")),
+                                    ltg_acto = reader["ltg_acto"]?.ToString(),
+                                    ltg_Fecha_Acto = reader["ltg_Fecha_Acto"] as DateTime?,
+                                    ltg_Fecha_Audiencia = reader["ltg_Fecha_Audiencia"] as DateTime?,
+                                    Nombre_Tipo_Demanda = reader["Nombre_Tipo_Demanda"]?.ToString(),
+                                    ltg_Demandante = reader["ltg_Demandante"]?.ToString(),
+                                    ltg_Cedula_Demandante = reader["ltg_Cedula_Demandante"]?.ToString(),
+                                    desc_Sentencia = reader["desc_Sentencia"]?.ToString(),
+                                    idUsuario = idUsuario,
+                                    ltg_description = reader["ltg_description"]?.ToString()
+                                });
+                            }
+                        }
+                    }
+                }
+
+                return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno: {ex.Message}");
+            }
+        }
+
+
+
         [HttpGet("detallados/{id}")]
         public async Task<ActionResult<LitigioDetallado>> ObtenerLitigioPorId(int id)
         {

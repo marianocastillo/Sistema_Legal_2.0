@@ -127,7 +127,8 @@ async function cargarAsignados() {
 }
 
 async function asignarAbogado() {
-  if (!usuarioSeleccionado.value) return
+  cargarAsignados()
+  if (!usuarioSeleccionado.value ) return
 
   if (abogadosAsignados.value.some(a => a.idUsuario === usuarioSeleccionado.value)) {
     push.warning('Este abogado ya está asignado.')
@@ -166,6 +167,7 @@ function confirmarEliminacion(idUsuario) {
           params: { idUsuario, idLtg: props.id_Ltg }
         })
         push.success('Abogado eliminado correctamente')
+        cargarUsuarios()
         await Promise.all([cargarAsignados(), cargarUsuarios()])
       } catch (error) {
         console.error("Error al eliminar asignación:", error)
