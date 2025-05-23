@@ -249,6 +249,7 @@ const registrarLitigio = async () => {
       body: JSON.stringify(payload)
     })
 
+    // eslint-disable-next-line no-unused-vars
     const data = await response.json()
 
     if (response.ok) {

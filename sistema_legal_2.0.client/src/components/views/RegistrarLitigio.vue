@@ -120,15 +120,13 @@
           <div class="grid">
 
             <div class="field col-12 md:col-4">
-              <label class="font-bold text-primary">Cargar Expediente</label>
               <InputText v-model="form.NombreEvidencia" placeholder="Nombrar Evidencia" class="w-full" />
               <br> <br>
               <FileUpload name="Archivo" customUpload @select="handleExpedienteUpload" mode="basic"
                 chooseLabel="Elegir archivo" class="w-full md:w-20rem" style="background-color: #003870;" />
             </div>
             <div class="field col-12 md:col-8">
-              <label class="font-bold text-primary">Comentario</label>
-              <Textarea v-model="form.comentario" class="w-full" rows="5" autoResize />
+              <Textarea v-model="form.comentario" placeholder="Añadir comentario" class="w-full" rows="5" autoResize />
             </div>
           </div>
         </fieldset>

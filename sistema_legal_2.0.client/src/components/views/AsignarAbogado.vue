@@ -151,7 +151,7 @@ function confirmarEliminacion(idUsuario) {
 }
 </script>
 
-<style >
+<style>
 .dialog-asignacion {
   width: 32vw;
 }
@@ -173,7 +173,10 @@ function confirmarEliminacion(idUsuario) {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-
+.p-dropdown.p-focus {
+  border-color: #003870 !important; /* azul oscuro, cambia si necesitas otro tono */
+  box-shadow: 0 0 0 0.2rem rgba(0, 56, 112, 0.25); /* sombra azul suave */
+}
 
 .abogado-nombre {
   display: flex;

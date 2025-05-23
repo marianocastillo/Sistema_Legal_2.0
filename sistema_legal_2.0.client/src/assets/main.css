@@ -6,7 +6,46 @@
   display:none;
 }
 
+.p-inputtext.p-component:focus {
+  border: 1px solid #003870 !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 56, 112, 0.25) !important;
+  outline: none !important;
+}
 
+.p-textarea.p-component:focus {
+  border: 1px solid #003870 !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 56, 112, 0.25) !important;
+  outline: none !important;
+}
+
+.p-dropdown-items .p-dropdown-item.p-highlight {
+  background-color: #e0ecff !important; 
+  color: #003870 !important;
+}
+
+.p-button {
+  border: 1px solid #003870 !important;
+  background-color: #003870 !important;
+  color: white !important;
+}
+
+.p-button:hover {
+  background-color: #004b9a !important;
+  border-color: #003870 !important;
+}
+
+.p-button:focus,
+.p-button.p-focus {
+  box-shadow: 0 0 0 0.2rem rgba(0, 56, 112, 0.25) !important;
+  outline: none !important;
+}
+
+
+.p-inputwrapper.p-focus {
+  border: 1px solid #003870 !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 56, 112, 0.25) !important;
+  border-radius: 6px;
+}
 
 .btn-aceptar,
 .btn-cancelar {
@@ -18,7 +57,7 @@
 
 .btn-aceptar:hover,
 .btn-cancelar:hover {
-  background-color: #0054a0 !important;  /* azul un poco más claro */
+  background-color: #0054a0 !important;
   cursor: pointer;
 }
 
