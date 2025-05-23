@@ -30,8 +30,21 @@
           {{ data.ltg_Fecha_Audiencia?.split('T')[0] || 'Sin fecha' }}
         </template>
       </Column>
-      <Column field="estatus_Descripcion" header="Estatus" />
-      <Column header="Acciones" style="width: 140px">
+      <Column field="estatus_Descripcion">
+  <template #header>
+    <div class="custom-header-center">Estatus</div>
+  </template>
+  <template #body="slotProps">
+    <div class="text-center">
+      <span class="tag" :class="getStatusClass(slotProps.data.estatus_Descripcion)">
+        {{ slotProps.data.estatus_Descripcion }}
+      </span>
+    </div>
+  </template>
+</Column>
+
+
+      <Column header="Acciones">
         <template #body="{ data }">
           <div class="btn-group">
             <router-link :to="`/litigio/detalle/${data.id_Ltg}`" class="btn btn-sm"
@@ -59,8 +72,7 @@
 
 <script setup>
 import { FilterMatchMode } from '@primevue/core/api';
-import AsignarAbogado from '@/components/views/AsignarAbogado.vue' // cambia la ruta si es necesario
-
+import AsignarAbogado from '@/components/views/AsignarAbogado.vue'; // cambia la ruta si es necesario
 
 import { ref, onMounted } from 'vue';
 import api from '@/utilities/api.js';
@@ -68,12 +80,12 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import InputText from 'primevue/inputtext';
 
-const popUp = ref(false)
-const litigioActual = ref({})
+const popUp = ref(false);
+const litigioActual = ref({});
 
 function togglePopUp(litigio = null) {
-  popUp.value = !popUp.value
-  litigioActual.value = litigio || {}
+  popUp.value = !popUp.value;
+  litigioActual.value = litigio || {};
 }
 
 const data = ref([]);
@@ -89,9 +101,36 @@ onMounted(async () => {
     console.error('Error al cargar los litigios:', error);
   }
 });
+
+// Función para determinar la severidad del estatus
+function getStatusClass(status) {
+  switch (status) {
+    case 'Recibido':
+      return 'status-recibido';
+    case 'Análisis':
+      return 'status-analisis';
+    case 'En Tribunal':
+      return 'status-tribunal';
+    case 'Sentencia':
+    case 'Sentencia Definitiva':
+      return 'status-sentencia';
+    case 'Recurso de Casación':
+      return 'status-casacion';
+    case 'Cierre del Caso':
+      return 'status-cierre';
+    default:
+      return '';
+  }
+}
+
 </script>
 
+
 <style scoped>
+/* ::v-deep(.p-datatable thead th:nth-child(7)) {
+  text-align: center !important;
+} */
+
 .white-icon {
   color: white !important;
 }
@@ -148,4 +187,54 @@ onMounted(async () => {
   font-size: 1rem;
   cursor: pointer;
 }
+
+.tag {
+  padding: 0.3rem 0.75rem;
+  width: 100%;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-block;
+  text-align: center;
+}
+
+.status-recibido {
+  background-color: #c2e4fc;
+  color: #0d47a1;
+}
+
+.status-analisis {
+  background-color: #9cdbff;
+  color: #276264;
+}
+
+.status-tribunal {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-sentencia {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-casacion {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.status-cierre {
+  background-color: #c8e6c9;
+  color: #2e7d32;
+}
+
+.custom-header-center {
+  text-align: center !important;
+  font-weight: 600;
+  color: #2e3842;
+  font-size: 1rem;
+  display: block;
+  width: 100%;
+}
+
 </style>
