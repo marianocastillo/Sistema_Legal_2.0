@@ -81,7 +81,9 @@
                 ? 'RNC de la empresa'
                 : (form.ltg_Tipo_Demandante === 'Otros'
                   ? 'Identificación del demandante'
-                  : 'Cédula del demandante')" class="w-full" />
+                  : 'Cédula del demandante')" class="w-full" @blur="obtenerDatosPorDocumento" />
+
+
             </div>
 
             <div class="field col-12 md:col-5">
@@ -216,6 +218,27 @@ const cargarDatosDropdowns = async () => {
   } catch (error) {
     console.error('Error al cargar los datos de los dropdowns:', error)
   }
+}
+
+const obtenerDatosPorDocumento = async () => {
+  const documento = form.ltg_Cedula_Demandante?.trim()
+  if (!documento || documento.length < 9) return
+
+  try {
+    const res = await fetch(`/api/Litigio/BuscarDocumento/${documento}`)
+    const data = await res.json()
+
+    console.log("Respuesta del backend:", data)
+
+    form.ltg_Demandante = data.nombre
+    form.ltg_Nacionalidad = data.nacionalidad
+  } catch (error) {
+    console.warn('No se encontró el documento:', error)
+    form.ltg_Demandante = ''
+    form.ltg_Nacionalidad = ''
+  }
+
+  console.log("Nombre:", form.ltg_Demandante, "Nacionalidad:", form.ltg_Nacionalidad)
 }
 
 

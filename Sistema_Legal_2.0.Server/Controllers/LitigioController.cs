@@ -199,6 +199,56 @@ namespace Sistema_Legal_2._0.Server.Controllers
         }
 
 
+        [HttpGet("BuscarDocumento/{documento}")]
+        [AllowAnonymous]
+        public IActionResult BuscarDocumento(string documento)
+        {
+            if (string.IsNullOrWhiteSpace(documento)) return BadRequest("Documento vacío");
+
+            var resultado = new
+            {
+                Nombre = "",
+                Nacionalidad = ""
+            };
+
+            using (SqlConnection conn = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal")))
+            {
+                using (SqlCommand cmd = new SqlCommand("sp_Consulta_Documento", conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@Documento", documento);
+
+                    conn.Open();
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            // Si es persona
+                            if (reader.FieldCount == 3)
+                            {
+                                resultado = new
+                                {
+                                    Nombre = reader["Nombre_Completo"].ToString(),
+                                    Nacionalidad = reader["Nacionalidad"].ToString()
+                                };
+                            }
+                            // Si es empresa
+                            else if (reader.FieldCount == 2)
+                            {
+                                resultado = new
+                                {
+                                    Nombre = reader["Empresa"].ToString(),
+                                    Nacionalidad = "DOMINICANA"
+                                };
+                            }
+                        }
+                    }
+                }
+            }
+
+            return Ok(resultado);
+        }
+
 
         [HttpGet("Litigio_detallado")]
         public async Task<ActionResult<IEnumerable<LitigioDetallado>>> ObtenerLitigiosDetallados()
