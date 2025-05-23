@@ -10,7 +10,7 @@
             casos)
           </span>
         </div>
-        <Button icon="pi pi-trash" class="p-button-rounded p-button-text p-button-sm text-danger"
+        <Button icon="pi pi-trash thicker-icon" class="p-button-rounded p-button-text p-button-sm text-danger"
           v-tooltip.top="'Eliminar abogado'" aria-label="Eliminar" @click="confirmarEliminacion(abogado.idUsuario)"
           style="background-color: #003870;" />
       </div>
@@ -151,7 +151,7 @@ function confirmarEliminacion(idUsuario) {
 }
 </script>
 
-<style scoped>
+<style >
 .dialog-asignacion {
   width: 32vw;
 }
@@ -189,4 +189,9 @@ function confirmarEliminacion(idUsuario) {
   font-size: 0.875rem;
   color: #555;
 }
+.thicker-icon {
+  color: #fff;
+  font-weight: 600 !important;
+}
+
 </style>
