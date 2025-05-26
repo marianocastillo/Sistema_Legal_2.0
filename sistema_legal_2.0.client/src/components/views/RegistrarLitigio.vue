@@ -38,7 +38,7 @@
 
             <div class="field col-12 md:col-4">
               <Calendar v-model="form.ltg_Fecha_Audiencia" dateFormat="yy-mm-dd" showIcon
-                placeholder="Fecha de audiencia" class="w-full" />
+                placeholder="Fecha de audiencia" class="w-full" :minDate="hoy" />
             </div>
 
             <div class="field col-12 md:col-4">
@@ -141,14 +141,8 @@
 
       <!-- BOTÓN -->
       <div class="text-center mt-4">
-       <Button
-  type="submit"
-  label="Registrar"
-  icon="pi pi-check"
-  class="p-button-primary"
-  :disabled="enviando"
-  style="background-color: #003870;"
-/>
+        <Button type="submit" label="Registrar" icon="pi pi-check" class="p-button-primary" :disabled="enviando"
+          style="background-color: #003870;" />
       </div>
     </form>
   </div>
@@ -166,7 +160,7 @@ import FileUpload from 'primevue/fileupload'
 import Button from 'primevue/button'
 
 const router = useRouter()
-
+const hoy = ref(new Date()) // Esto representa la fecha de hoy
 
 const form = reactive({
   fechaExpediente: new Date().toISOString().split('T')[0],
@@ -270,7 +264,7 @@ const formatearFechaISO = (fecha) => {
 
 const registrarLitigio = async () => {
 
- if (enviando.value) return
+  if (enviando.value) return
   enviando.value = true
 
   if (!form.ltg_acto || !expedienteFile.value || !form.ltg_Cedula_Demandante || !form.ltg_Cedula_Representante || !form.ltg_Fecha_Acto || !form.ltg_Tipo_Demandante) {
@@ -328,7 +322,7 @@ const registrarLitigio = async () => {
       body: formData
     })
 
-      const result = await response.json()
+    const result = await response.json()
 
     if (!response.ok) {
       console.error('Error del backend:', result)

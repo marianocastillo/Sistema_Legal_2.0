@@ -15,17 +15,12 @@
           <div class="grid">
             <div class="field col-12 md:col-4">
               <Dropdown v-model="form.tiposDemandante" :options="tiposDemandante" optionLabel="label"
-              optionValue="value" class="w-full" placeholder="Tipo de Demandante" />
+                optionValue="value" class="w-full" placeholder="Tipo de Demandante" />
             </div>
             <div class="field col-12 md:col-4">
-              <InputText
-                v-model="form.cedulaDemandante"
-                class="w-full"
-                :class="{ 'p-invalid': cedulaInvalida }"
-                :maxlength="form.tiposDemandante === 'Empresa' ? 9 : 11"
-                @input="handleCedulaInput"
-                :placeholder="form.tiposDemandante === 'Empresa' ? 'RNC de la empresa' : 'Cédula del demandante'"
-              />
+              <InputText v-model="form.cedulaDemandante" class="w-full" :class="{ 'p-invalid': cedulaInvalida }"
+                :maxlength="form.tiposDemandante === 'Empresa' ? 9 : 11" @input="handleCedulaInput"
+                :placeholder="form.tiposDemandante === 'Empresa' ? 'RNC de la empresa' : 'Cédula del demandante'" />
               <small v-if="cedulaInvalida" class="p-error">
                 {{ form.tiposDemandante === 'Empresa' ? 'Debe tener 9 dígitos numéricos (RNC).' : 'Debe tener 11 dígitos numéricos (cédula).' }}
               </small>
@@ -62,7 +57,7 @@
             </div>
             <div class="field col-12 md:col-4">
               <Calendar v-model="form.fechaAudiencia" dateFormat="yy-mm-dd" showIcon placeholder="Fecha de audiencia"
-                class="w-full" />
+                class="w-full" :minDate="hoy" />
             </div>
             <div class="field col-12 md:col-4">
               <Dropdown v-model="form.tribunal" :options="tribunales" optionLabel="nombre_Tribunal"
@@ -110,6 +105,7 @@ import Dropdown from 'primevue/dropdown'
 import Button from 'primevue/button'
 
 const router = useRouter()
+const hoy = ref(new Date()) // Esto representa la fecha de hoy
 
 const form = ref({
   id_Ltg: null,
