@@ -66,7 +66,7 @@
         <fieldset class="col-12 border-1 border-round p-3 mb-3">
           <legend class="font-bold text-lg">Datos del Demandante</legend>
           <div class="grid">
-            <div class="field col-12 md:col-4">
+            <div class="field col-12 md:col-3">
               <Dropdown id="tipoDemandante" v-model="form.ltg_Tipo_Demandante" :options="tiposDemandante"
                 optionLabel="label" optionValue="value" class="w-full"
                 placeholder="--Seleccione Tipo de demandante--" />
@@ -76,22 +76,19 @@
               <InputText id="otrosDemandante" v-model="form.otrosDemandante" class="w-full"
                 placeholder="Especifique tipo de demandante" />
             </div>
-            <div class="field col-12 md:col-3">
-              <InputText v-model="form.ltg_Cedula_Demandante" :placeholder="form.ltg_Tipo_Demandante === 'Empresa'
-                ? 'RNC de la empresa'
-                : (form.ltg_Tipo_Demandante === 'Otros'
-                  ? 'Identificación del demandante'
-                  : 'Cédula del demandante')" class="w-full" @blur="obtenerDatosPorDocumento" />
-
+            <div class="field col-12 md:col-2">
+              <InputText v-model="form.ltg_Cedula_Demandante"
+                @blur="() => buscarPersonaPorDocumento(form.ltg_Cedula_Demandante, 'ltg_Demandante', 'ltg_Nacionalidad')"
+                class="w-full" placeholder="Cedula del demandante" />
 
             </div>
 
-            <div class="field col-12 md:col-5">
+            <div class="field col-12 md:col-4">
               <InputText v-model="form.ltg_Demandante"
                 :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'Nombre de la empresa' : 'Nombre del demandante'"
                 class="w-full" />
             </div>
-            <div class="field col-12 md:col-4">
+            <div class="field col-12 md:col-3">
               <InputText v-model="form.ltg_Nacionalidad"
                 :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'País de constitución' : 'Nacionalidad'"
                 class="w-full" />
@@ -105,12 +102,20 @@
         <fieldset class="col-12 border-1 border-round p-3 mb-3">
           <legend class="font-bold text-lg">Datos del Representante</legend>
           <div class="grid">
-            <div class="field col-12 md:col-3">
-              <InputText v-model="form.ltg_Cedula_Representante" placeholder="Cédula del representante"
+
+            <div class="field col-12 md:col-2">
+              <InputText v-model="form.ltg_Cedula_Representante"
+                @blur="() => buscarPersonaPorDocumento(form.ltg_Cedula_Representante, 'ltg_Nombre_Representante', 'ltg_Nacionalidad_Representante')"
+                class="w-full" placeholder="Cedula del Representante" />
+
+            </div>
+
+            <div class="field col-12 md:col-5">
+              <InputText v-model="form.ltg_Nombre_Representante" placeholder="Nombre del representante"
                 class="w-full" />
             </div>
-            <div class="field col-12 md:col-9">
-              <InputText v-model="form.ltg_Nombre_Representante" placeholder="Nombre del representante"
+            <div class="field col-12 md:col-5">
+              <InputText v-model="form.ltg_Nacionalidad_Representante" placeholder="Nacionalidad del representante"
                 class="w-full" />
             </div>
           </div>
@@ -136,8 +141,14 @@
 
       <!-- BOTÓN -->
       <div class="text-center mt-4">
-        <Button type="submit" label="Registrar" icon="pi pi-check" class="p-button-primary"
-          style="background-color: #003870;" />
+       <Button
+  type="submit"
+  label="Registrar"
+  icon="pi pi-check"
+  class="p-button-primary"
+  :disabled="enviando"
+  style="background-color: #003870;"
+/>
       </div>
     </form>
   </div>
@@ -176,6 +187,8 @@ const form = reactive({
   id_sentencia: 3,
   comentario: '',
   NombreEvidencia: '',
+  ltg_Nacionalidad_Representante: '',
+
 })
 
 
@@ -186,6 +199,14 @@ watch(
     form.id_Tipo_Demanda = tipo ? tipo.id_demanda : null;
   }
 );
+
+watch(
+  () => form.nombre_Tribunal,
+  (nombre) => {
+    const tribunal = tribunales.value.find(t => t.nombre_Tribunal === nombre)
+    form.id_Tribunal = tribunal ? tribunal.id_Tribunal : null
+  }
+)
 
 
 const tiposDemanda = ref([])
@@ -211,35 +232,28 @@ const cargarDatosDropdowns = async () => {
     const data = await response.json()
     tiposDemanda.value = data.tiposDemanda
     estatusLitigios.value = data.estatusLitigios
-    tribunales.value = [
-      { id_Tribunal: null, nombre_Tribunal: '--Seleccione Tribunal--' },
-      ...data.tribunales
-    ]
+    tribunales.value = data.tribunales
   } catch (error) {
     console.error('Error al cargar los datos de los dropdowns:', error)
   }
 }
 
-const obtenerDatosPorDocumento = async () => {
-  const documento = form.ltg_Cedula_Demandante?.trim()
-  if (!documento || documento.length < 9) return
+const buscarPersonaPorDocumento = async (documento, campoNombre, campoNacionalidad) => {
+  if (!documento || documento.trim().length < 9) return
 
   try {
-    const res = await fetch(`/api/Litigio/BuscarDocumento/${documento}`)
+    const res = await fetch(`/api/Litigio/BuscarDocumento/${documento.trim()}`)
     const data = await res.json()
 
-    console.log("Respuesta del backend:", data)
-
-    form.ltg_Demandante = data.nombre
-    form.ltg_Nacionalidad = data.nacionalidad
+    form[campoNombre] = data.nombre
+    form[campoNacionalidad] = data.nacionalidad
   } catch (error) {
-    console.warn('No se encontró el documento:', error)
-    form.ltg_Demandante = ''
-    form.ltg_Nacionalidad = ''
+    console.warn(`No se encontró el documento ${documento}`, error)
+    form[campoNombre] = ''
+    form[campoNacionalidad] = ''
   }
-
-  console.log("Nombre:", form.ltg_Demandante, "Nacionalidad:", form.ltg_Nacionalidad)
 }
+const enviando = ref(false)
 
 
 
@@ -256,9 +270,10 @@ const formatearFechaISO = (fecha) => {
 
 const registrarLitigio = async () => {
 
+ if (enviando.value) return
+  enviando.value = true
 
-
-  if (!form.ltg_acto || !expedienteFile.value) {
+  if (!form.ltg_acto || !expedienteFile.value || !form.ltg_Cedula_Demandante || !form.ltg_Cedula_Representante || !form.ltg_Fecha_Acto || !form.ltg_Tipo_Demandante) {
     push.warning('Favor de llenar los campos con datos validos')
     console.error("Faltan datos obligatorios como el acto o el archivo.")
     return
@@ -266,6 +281,7 @@ const registrarLitigio = async () => {
 
   const usuarioLogueado = JSON.parse(localStorage.getItem('usuario'));
   form.id_usuario = usuarioLogueado.idUsuario;
+
 
 
   const formData = new FormData()
@@ -277,8 +293,18 @@ const registrarLitigio = async () => {
   formData.append('ltg_Demandante', form.ltg_Demandante)
   formData.append('ltg_Tipo_Demandante', form.ltg_Tipo_Demandante === 'Otros' ? form.otrosDemandante : form.ltg_Tipo_Demandante)
   formData.append('ltg_Cedula_Representante', form.ltg_Cedula_Demandante)
-  formData.append('comentario', form.comentario)
-  formData.append('NombreEvidencia', form.NombreEvidencia)
+  formData.append('NombreEvidencia',
+    form.NombreEvidencia?.trim()
+      ? form.NombreEvidencia
+      : expedienteFile.value?.name?.split(".")[0] || "Evidencia"
+  )
+
+  formData.append('comentario',
+    form.comentario?.trim()
+      ? form.comentario
+      : "Archivo subido sin nombre."
+  )
+
   formData.append('ltg_Nombre_Representante', form.ltg_Nombre_Representante)
   formData.append("ltg_Fecha_Audiencia", formatearFechaISO(form.ltg_Fecha_Audiencia))
   formData.append('ltg_Fecha_Actualizacion', formatearFechaISO(new Date()))
@@ -286,6 +312,7 @@ const registrarLitigio = async () => {
     formData.append('id_Tribunal', parseInt(form.id_Tribunal));
   }
   formData.append('ltg_Nacionalidad', form.ltg_Nacionalidad)
+  formData.append('ltg_Nacionalidad_Representante', form.ltg_Nacionalidad_Representante)
   formData.append('id_Sentencia', parseInt(form.id_sentencia))
   formData.append('id_usuario', parseInt(form.id_usuario))
   formData.append('id_Estatus', 1)
@@ -300,18 +327,24 @@ const registrarLitigio = async () => {
       method: 'POST',
       body: formData
     })
-    const result = await response.json()
-    push.success('El litigio a sido cargado de forma exitosa')
-    console.log('Respuesta del backend:', result)
 
-    setTimeout(() => {
-      router.push('/drawer/home')
-    }, 1000);
+      const result = await response.json()
 
-
+    if (!response.ok) {
+      console.error('Error del backend:', result)
+      push.error(result.mensaje || 'Error al guardar el litigio')
+    } else {
+      push.success('El litigio ha sido cargado de forma exitosa')
+      setTimeout(() => {
+        router.push('/drawer/home')
+      }, 1000)
+    }
 
   } catch (error) {
-    console.error('Error al registrar el litigio:', error)
+    console.error('Error inesperado al registrar el litigio:', error)
+    push.error('Error inesperado al registrar el litigio')
+  } finally {
+    enviando.value = false
   }
 }
 </script>

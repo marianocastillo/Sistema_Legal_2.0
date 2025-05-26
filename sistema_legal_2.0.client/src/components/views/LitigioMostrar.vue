@@ -50,6 +50,8 @@
                 <p class="m-0">{{ litigio?.ltg_Demandante || 'N/A' }}</p>
               </div>
 
+
+
               <div class="col-2 field">
                 <label class="text-sm font-medium text-600-dark">Tipo</label>
                 <p class="m-0">{{ litigio?.ltg_Tipo_Demandante || 'N/A' }}</p>
@@ -67,13 +69,17 @@
           <div class="surface-50 p-3 border-round-lg border bg-white">
             <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Representante</h4>
             <div class="grid">
-              <div class="col-6 field">
+              <div class="col-4 field">
                 <label class="text-sm font-medium text-600-dark">Nombre</label>
                 <p class="m-0">{{ litigio?.ltg_Nombre_Representante || 'N/A' }}</p>
               </div>
-              <div class="col-6 field">
+              <div class="col-3 field">
                 <label class="text-sm font-medium text-600-dark">Cédula</label>
                 <p class="m-0">{{ litigio?.ltg_Cedula_Representante || 'N/A' }}</p>
+              </div>
+                <div class="col-4 field">
+                <label class="text-sm font-medium text-600-dark">Nacionalidad</label>
+                <p class="m-0">{{ litigio?.ltg_Nacionalidad_Representante || 'N/A' }}</p>
               </div>
 
             </div>

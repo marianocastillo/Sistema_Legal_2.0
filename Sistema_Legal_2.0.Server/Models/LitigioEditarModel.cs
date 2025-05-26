@@ -8,6 +8,7 @@
         public int? id_Tipo_Demanda { get; set; }
         public string? ltg_Cedula_Demandante { get; set; }
         public string? ltg_Nacionalidad { get; set; }
+        public string? ltg_Nacionalidad_Representante { get; set; }
         public string? ltg_Demandante { get; set; }
         public string? ltg_Tipo_Demandante { get; set; }
         public string? ltg_Cedula_Representante { get; set; }

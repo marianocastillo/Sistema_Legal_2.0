@@ -64,6 +64,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                     cmd.Parameters.AddWithValue("@id_Tipo_Demanda", litigio.id_Tipo_Demanda);
                     cmd.Parameters.AddWithValue("@ltg_Cedula_Demandante", (object?)litigio.ltg_Cedula_Demandante?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@ltg_Nacionalidad", (object?)litigio.ltg_Nacionalidad ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@ltg_Nacionalidad_Representante", (object?)litigio.ltg_Nacionalidad_Representante ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@ltg_Demandante", (object?)litigio.ltg_Demandante ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@ltg_Tipo_Demandante", litigio.ltg_Tipo_Demandante);
                     cmd.Parameters.AddWithValue("@ltg_Cedula_Representante", (object?)litigio.ltg_Cedula_Representante ?? DBNull.Value);
@@ -90,7 +91,9 @@ namespace Sistema_Legal_2._0.Server.Controllers
         [DisableRequestSizeLimit, RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueCountLimit = int.MaxValue)]
         public async Task<IActionResult> SubirLitigioConArchivo([FromForm] LitigioConArchivo datos)
         {
-            Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(datos));
+            try
+            {
+                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(datos)); Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(datos));
 
             if (datos.Archivo == null || datos.Archivo.Length == 0)
                 return BadRequest("No se recibió ningún archivo.");
@@ -114,6 +117,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                     command.Parameters.AddWithValue("@id_Tipo_Demanda", datos.id_Tipo_Demanda);
                     command.Parameters.AddWithValue("@ltg_Cedula_Demandante", datos.ltg_Cedula_Demandante);
                     command.Parameters.AddWithValue("@ltg_Nacionalidad", datos.ltg_Nacionalidad);
+                    command.Parameters.AddWithValue("@ltg_Nacionalidad_Representante", datos.ltg_Nacionalidad_Representante);
                     command.Parameters.AddWithValue("@ltg_Demandante", datos.ltg_Demandante);
                     command.Parameters.AddWithValue("@ltg_Tipo_Demandante", datos.ltg_Tipo_Demandante);
                     command.Parameters.AddWithValue("@ltg_Cedula_Representante", (object?)datos.ltg_Cedula_Representante ?? DBNull.Value);
@@ -124,8 +128,17 @@ namespace Sistema_Legal_2._0.Server.Controllers
                     command.Parameters.AddWithValue("@id_Sentencia", (object?)datos.id_Sentencia ?? DBNull.Value);
                     command.Parameters.AddWithValue("@id_usuario", datos.id_usuario);
                     command.Parameters.AddWithValue("@id_Estatus", datos.id_Estatus);
-                    var result = await command.ExecuteScalarAsync();
-                    idLitigio = Convert.ToInt32(result);
+                    try
+                    {
+                        var result = await command.ExecuteScalarAsync();
+                        idLitigio = Convert.ToInt32(result);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Error ejecutando sp_CrearLitigio:", ex.Message);
+                        return StatusCode(500, new { mensaje = "Error al crear el litigio", detalle = ex.Message });
+                    }
+                   
                 }
             }
 
@@ -143,59 +156,63 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
             rutaRelativa = Path.Combine(idLitigio.ToString(), datos.ltg_acto, nombreCarpeta, nombreArchivo);
 
-            using (SqlConnection conn = new SqlConnection(_cadenaSQL))
-            {
-                await conn.OpenAsync();
+            if (string.IsNullOrWhiteSpace(datos.NombreEvidencia))
+                datos.NombreEvidencia = Path.GetFileNameWithoutExtension(nombreArchivo);
 
-                // INSERTAR en Ruta_archivos
+            if (string.IsNullOrWhiteSpace(datos.comentario))
+                datos.comentario = "Archivo subido sin nombre.";
 
-
-                int idEvidencia;
-
-                using(SqlCommand insertRuta = new SqlCommand(
-    @"INSERT INTO Ruta_archivos (Ruta, fecha_creacion, id_usuario, id_Ltg, Nombre)
-      VALUES (@ruta, GETDATE(), @id_usuario, @id_Ltg, @nombreArchivo);
-      SELECT SCOPE_IDENTITY();", conn))
-{
-                    insertRuta.Parameters.AddWithValue("@ruta", rutaRelativa);
-                    insertRuta.Parameters.AddWithValue("@id_usuario", datos.id_usuario);
-                    insertRuta.Parameters.AddWithValue("@id_Ltg", idLitigio);
-                    insertRuta.Parameters.AddWithValue("@nombreArchivo", nombreArchivo);
-
-                    idEvidencia = Convert.ToInt32(await insertRuta.ExecuteScalarAsync());
-                }
-                // INSERTAR comentario
-                using (SqlCommand insertComentario = new SqlCommand(
-                    @"INSERT INTO ComentariosLitigio (id_usuario, id_litigio, comentario, fecha)
-          VALUES (@id_usuario, @id_litigio, @comentario, GETDATE()); 
-          SELECT SCOPE_IDENTITY();", conn))
+                using (SqlConnection conn = new SqlConnection(_cadenaSQL))
                 {
-                    insertComentario.Parameters.AddWithValue("@id_usuario", datos.id_usuario);
-                    insertComentario.Parameters.AddWithValue("@id_litigio", idLitigio);
-                    insertComentario.Parameters.AddWithValue("@comentario", datos.comentario);
+                    await conn.OpenAsync();
 
-                    var idComentario = Convert.ToInt32(await insertComentario.ExecuteScalarAsync());
+                    int idEvidencia;
+                    int idComentario;
 
-                    // INSERTAR en Evidencias_Y_Comentarios
-                    using (SqlCommand insertEyc = new SqlCommand(
-                        @"INSERT INTO Evidencias_Y_Comentarios (Id_comentarios, id_Evidencias, id_Litigio,Nombre)
-              VALUES (@idComentario, @idEvidencia, @idLitigio,@Nombre)", conn))
+                    using (SqlCommand sp = new SqlCommand("sp_InsertarComentarioYArchivo", conn))
                     {
-                        insertEyc.Parameters.AddWithValue("@idComentario", idComentario);
-                        insertEyc.Parameters.AddWithValue("@idEvidencia", idEvidencia);
-                        insertEyc.Parameters.AddWithValue("@idLitigio", idLitigio);
-                        insertEyc.Parameters.AddWithValue("@Nombre", datos.NombreEvidencia);
-                        await insertEyc.ExecuteNonQueryAsync();
+                        sp.CommandType = CommandType.StoredProcedure;
+
+                        sp.Parameters.AddWithValue("@IdUsuario", datos.id_usuario);
+                        sp.Parameters.AddWithValue("@IdLitigio", idLitigio);
+                        sp.Parameters.AddWithValue("@TextoComentario", datos.comentario);
+                        sp.Parameters.AddWithValue("@NombreArchivo", nombreArchivo);
+                        sp.Parameters.AddWithValue("@RutaArchivo", rutaRelativa);
+                        sp.Parameters.AddWithValue("@Nombre", datos.NombreEvidencia);
+
+                        SqlParameter outputComentario = new SqlParameter("@ComentarioId", SqlDbType.Int)
+                        {
+                            Direction = ParameterDirection.Output
+                        };
+                        SqlParameter outputEvidencia = new SqlParameter("@EvidenciaId", SqlDbType.Int)
+                        {
+                            Direction = ParameterDirection.Output
+                        };
+
+                        sp.Parameters.Add(outputComentario);
+                        sp.Parameters.Add(outputEvidencia);
+
+                        await sp.ExecuteNonQueryAsync();
+
+                        idComentario = Convert.ToInt32(outputComentario.Value);
+                        idEvidencia = Convert.ToInt32(outputEvidencia.Value);
+
+                        Console.WriteLine($"ComentarioId: {idComentario}, EvidenciaId: {idEvidencia}");
                     }
                 }
-            }
 
-            return Ok(new
+                return Ok(new
             {
                 mensaje = "Litigio y archivo subidos correctamente.",
                 id_litigio = idLitigio,
                 rutaRelativa
             });
+                }
+                catch (Exception ex)
+            {
+                Console.WriteLine("ERROR GENERAL:", ex.ToString());
+                return StatusCode(500, new { mensaje = "Error interno del servidor", detalle = ex.Message });
+            }
         }
 
 
