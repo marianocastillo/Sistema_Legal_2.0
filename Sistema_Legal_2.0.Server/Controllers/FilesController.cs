@@ -163,7 +163,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
             var contentType = GetContentType(rutaArchivoCompleta);  // Aquí se usa el método GetContentType
             var nombreArchivo = Path.GetFileName(rutaArchivoCompleta);
 
-            return File(memory, contentType, nombreArchivo);
+            return File(memory, contentType);
         }
 
         private string GetContentType(string path)
