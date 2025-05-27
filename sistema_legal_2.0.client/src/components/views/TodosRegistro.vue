@@ -31,9 +31,11 @@
         </template>
       </Column>
       <Column field="estatus_Descripcion">
+        
   <template #header>
     <div class="custom-header-center">Estatus</div>
   </template>
+
   <template #body="slotProps">
     <div class="text-center">
       <span class="tag" :class="getStatusClass(slotProps.data.estatus_Descripcion)">
