@@ -1,6 +1,6 @@
 <template>
   <div class="layout">
-    <!-- Sidebar (oculto en pantallas pequeñas si isSidebarVisible es false) -->
+    <!-- Sidebar -->
     <aside class="sidebar" :class="{ hidden: !isSidebarVisible && isMobile }">
       <div class="sidebar-top">
         <div class="sidebar-header">
@@ -9,9 +9,10 @@
             <h4 class="sidebar-title">Sistema Sileg 2.0</h4>
           </div>
         </div>
-        <br>
+        <br />
         <nav class="sidebar-menu">
           <ul style="color: white;">
+            <!-- Inicio: Todos los roles -->
             <li>
               <router-link to="/drawer/home" class="sidebar-link" exact-active-class="active">
                 <i class="pi pi-home" />
@@ -19,20 +20,23 @@
               </router-link>
             </li>
 
-            <li>
+            <!-- Registrar: Admin, Supervisor, Digitador -->
+            <li v-if="['Administrador', 'Supervisor', 'Digitador'].includes(usuario.rol)">
               <router-link to="/drawer/registrar" class="sidebar-link" exact-active-class="active">
                 <i class="pi pi-file-edit" />
                 <span>Registrar</span>
               </router-link>
             </li>
 
-            <li>
+            <!-- Modificar: Admin, Supervisor, Abogado Litigante -->
+            <li v-if="['Administrador', 'Supervisor', 'Abogado Litigante'].includes(usuario.rol)">
               <router-link to="/drawer/buscarlitigio" class="sidebar-link" exact-active-class="active">
                 <i class="pi pi-pencil" />
                 <span>Modificar</span>
               </router-link>
             </li>
 
+            <!-- Configuración: visible para todos -->
             <li ref="submenuRef">
               <div class="sidebar-link" @click="toggleSubmenu" style="cursor: pointer;">
                 <i class="pi pi-cog" />
@@ -41,20 +45,21 @@
               </div>
 
               <ul v-if="mostrarSubmenu" class="submenu">
-                <li>
-                  <router-link to="/drawer/listadodeusuario"> <Button label="Lista de Usuario" icon="pi pi-user"
-                      class="p-button-text p-button-sm w-full pl-4" /></router-link>
+                <!-- Solo Admin -->
+                <li v-if="usuario.rol === 'Administrador'">
+                  <router-link to="/drawer/listadodeusuario">
+                    <Button label="Lista de Usuario" icon="pi pi-user" class="p-button-text p-button-sm w-full pl-4" />
+                  </router-link>
                 </li>
-              </ul>
 
-              <ul v-if="mostrarSubmenu" class="submenu">
-                <li>
-                  <router-link to="/drawer/formulario"> <Button label="Añadir Usuario" icon="pi pi-user"
-                      class="p-button-text p-button-sm w-full pl-4" /></router-link>
+                <!-- Solo Admin -->
+                <li v-if="usuario.rol === 'Administrador'">
+                  <router-link to="/drawer/formulario">
+                    <Button label="Añadir Usuario" icon="pi pi-user" class="p-button-text p-button-sm w-full pl-4" />
+                  </router-link>
                 </li>
-              </ul>
 
-              <ul v-if="mostrarSubmenu" class="submenu">
+                <!-- Todos -->
                 <li>
                   <Button label="Cerrar sesión" icon="pi pi-sign-out" class="p-button-text p-button-sm w-full pl-4"
                     @click="cerrarSesion" />
@@ -62,6 +67,7 @@
               </ul>
             </li>
           </ul>
+
         </nav>
       </div>
 
@@ -70,16 +76,14 @@
       </footer>
     </aside>
 
-    <!-- Contenedor principal (Header + contenido dinámico) -->
+    <!-- Main Content -->
     <div class="main-wrapper">
-      <!-- Header -->
       <header class="navbar">
         <div class="menu-placeholder">
           <button class="menu-button" @click="toggleSidebar" aria-label="Abrir menú">
             <i class="pi pi-bars" />
           </button>
         </div>
-
         <div class="user-profile" v-if="usuario.nombre">
           <div class="user-info">
             <div class="user-name">{{ usuario.nombre }}</div>
@@ -88,7 +92,6 @@
         </div>
       </header>
 
-      <!-- Contenido de la ruta -->
       <main class="main-content">
         <router-view />
       </main>
@@ -101,24 +104,21 @@
       </NotivueSwipe>
     </Notivue>
   </div>
-
 </template>
+
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { cerrarSesion } from '@/utilities/auth'
-
 import Button from 'primevue/button'
 import { Notivue, Notifications, NotivueSwipe, pastelTheme } from 'notivue'
 
 const router = useRouter()
-
 const mostrarSubmenu = ref(false)
 const submenuRef = ref(null)
 const isSidebarVisible = ref(true)
 const usuario = ref({ nombre: '', rol: '' })
-
 const isMobile = computed(() => window.innerWidth <= 768)
 
 const toggleSubmenu = () => {
@@ -146,12 +146,8 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
 })
-
-// const cerrarSesion = () => {
-//   localStorage.removeItem('usuario')
-//   router.push('/login')
-// }
 </script>
+
 
 <style scoped>
 *,
@@ -245,7 +241,8 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 0 1rem;
-  position: sticky; /* mejor que fixed en este caso */
+  position: sticky;
+  /* mejor que fixed en este caso */
   top: 0;
   z-index: 10;
 }

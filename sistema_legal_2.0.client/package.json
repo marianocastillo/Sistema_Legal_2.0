@@ -24,6 +24,7 @@
     "datatables.net": "^2.2.2",
     "datatables.net-bs5": "^2.2.2",
     "jquery": "^3.7.1",
+    "jwt-decode": "^4.0.0",
     "notivue": "^2.4.5",
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",

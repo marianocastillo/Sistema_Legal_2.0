@@ -117,7 +117,7 @@ onUnmounted(() => {
 function calculateRows() {
   const tableHeight = window.innerHeight - 300; // Ajusta según el layout
   const estimatedRowHeight = 50;
-  rows.value = Math.max(Math.floor(tableHeight / estimatedRowHeight) - 2, 1); // Asegura mínimo 1 fila
+  rows.value = Math.max(Math.floor(tableHeight / estimatedRowHeight) - 1, 1); // Asegura mínimo 1 fila
 }
 
 
