@@ -218,6 +218,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
         [HttpGet("BuscarDocumento/{documento}")]
         [AllowAnonymous]
+
         public IActionResult BuscarDocumento(string documento)
         {
             if (string.IsNullOrWhiteSpace(documento)) return BadRequest("Documento vacío");
