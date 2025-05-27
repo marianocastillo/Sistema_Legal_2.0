@@ -13,9 +13,13 @@
 
     </div>
 
-    <DataTable :value="data" :paginator="true" :rows="5" :filters="filters"
-      :globalFilterFields="['ltg_acto', 'ltg_Cedula_Demandante', 'ltg_Fecha_Acto', 'ltg_Demandante', 'estatus_Descripcion']"
-      class="p-datatable-sm" responsiveLayout="scroll">
+    <DataTable :value="data" :paginator="true" :rows="rows" :filters="filters" :globalFilterFields="[
+      'ltg_acto',
+      'ltg_Cedula_Demandante',
+      'ltg_Fecha_Acto',
+      'ltg_Demandante',
+      'estatus_Descripcion'
+    ]" class="p-datatable-sm" responsiveLayout="scroll">
       <Column field="ltg_acto" header="No.Acto" />
       <Column field="ltg_Fecha_Acto" header="Fecha acto">
         <template #body="{ data }">
@@ -31,32 +35,28 @@
         </template>
       </Column>
       <Column field="estatus_Descripcion">
-        
-  <template #header>
-    <div class="custom-header-center">Estatus</div>
-  </template>
-
-  <template #body="slotProps">
-    <div class="text-center">
-      <span class="tag" :class="getStatusClass(slotProps.data.estatus_Descripcion)">
-        {{ slotProps.data.estatus_Descripcion }}
-      </span>
-    </div>
-  </template>
-</Column>
+        <template #header>
+          <div class="custom-header-center">Estatus</div>
+        </template>
+        <template #body="slotProps">
+          <div class="text-center">
+            <span class="tag" :class="getStatusClass(slotProps.data.estatus_Descripcion)">
+              {{ slotProps.data.estatus_Descripcion }}
+            </span>
+          </div>
+        </template>
+      </Column>
 
 
       <Column header="Acciones">
         <template #body="{ data }">
-          <div class="btn-group">
-            <router-link :to="`/litigio/detalle/${data.id_Ltg}`" class="btn btn-sm"
-              style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;">
-              <i class="pi pi-eye white-icon"></i>
+          <div class="btn-group flex gap-2 justify-center">
+            <router-link :to="`/litigio/detalle/${data.id_Ltg}`" class="action-btn" title="Ver Detalle">
+              <i class="pi pi-eye"></i>
             </router-link>
 
-            <button class="btn btn-sm" @click="togglePopUp(data)"
-              style="background-color: #003870; border-color: #003870;">
-              <i class="pi pi-user-edit white-icon" title="Asignar abogado"></i>
+            <button class="action-btn" @click="togglePopUp(data)" title="Asignar Abogado">
+              <i class="pi pi-user-edit"></i>
             </button>
           </div>
         </template>
@@ -76,13 +76,15 @@
 import { FilterMatchMode } from '@primevue/core/api';
 import AsignarAbogado from '@/components/views/AsignarAbogado.vue'; // cambia la ruta si es necesario
 
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import api from '@/utilities/api.js';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import InputText from 'primevue/inputtext';
 
 const popUp = ref(false);
+const rows = ref(10); // valor inicial, será reemplazado en mounted
+
 const litigioActual = ref({});
 
 function togglePopUp(litigio = null) {
@@ -99,10 +101,26 @@ onMounted(async () => {
   try {
     const response = await api.get('/api/Litigio/Litigio_detallado');
     data.value = response.data;
+
+    calculateRows();
+    window.addEventListener('resize', calculateRows);
   } catch (error) {
     console.error('Error al cargar los litigios:', error);
   }
 });
+
+onUnmounted(() => {
+  window.removeEventListener('resize', calculateRows);
+});
+
+
+function calculateRows() {
+  const tableHeight = window.innerHeight - 300; // Ajusta según el layout
+  const estimatedRowHeight = 50;
+  rows.value = Math.max(Math.floor(tableHeight / estimatedRowHeight) - 3, 1); // Asegura mínimo 1 fila
+}
+
+
 
 // Función para determinar la severidad del estatus
 function getStatusClass(status) {
@@ -191,14 +209,16 @@ function getStatusClass(status) {
 }
 
 .tag {
-  padding: 0.3rem 0.75rem;
-  width: 100%;
+  padding: 0.4rem 0.75rem;
   border-radius: 9999px;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
   display: inline-block;
   text-align: center;
+  min-width: 120px;
+  text-transform: capitalize;
 }
+
 
 .status-recibido {
   background-color: #c2e4fc;
@@ -230,6 +250,7 @@ function getStatusClass(status) {
   color: #2e7d32;
 }
 
+
 .custom-header-center {
   text-align: center !important;
   font-weight: 600;
@@ -237,6 +258,49 @@ function getStatusClass(status) {
   font-size: 1rem;
   display: block;
   width: 100%;
+}
+
+::v-deep(.p-datatable thead th) {
+  background-color: #f4f6f8;
+  font-weight: 700;
+  color: #2e3842;
+  font-size: 1.02rem;
+  padding: 1rem 0.75rem;
+  border-bottom: 1.2px solid #e0e0e0;
+}
+
+
+::v-deep(.p-datatable .p-datatable-tbody > tr:nth-child(even)) {
+  background-color: #f9fafb;
+}
+
+.action-btn {
+  background-color: #003870;
+  color: white;
+  border: 1px solid transparent;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+.action-btn i {
+  font-size: 0.9rem;
+}
+
+.action-btn:hover {
+  background-color: #004a99;
+  border-color: #002c5c;
+}
+
+
+::v-deep(.p-datatable .p-datatable-tbody > tr > td),
+::v-deep(.p-datatable .p-datatable-thead > tr > th) {
+  border-right: 1px solid #ebebeb;
+}
+
+::v-deep(.p-datatable .p-datatable-tbody > tr > td:last-child),
+::v-deep(.p-datatable .p-datatable-thead > tr > th:last-child) {
+  border-right: none;
 }
 
 </style>
