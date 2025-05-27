@@ -2,7 +2,7 @@
   <div class="card p-6 shadow-2">
     <div class="flex justify-content-between align-items-center mb-4">
       <h2 class="text-2xl font-semibold p-4">Detalle del Litigio</h2>
-      <Tag :value="litigio?.desc_Sentencia" :severity="getSentenciaSeverity(litigio?.desc_Sentencia)"/>
+      <Tag :value="litigio?.desc_Sentencia" :severity="getSentenciaSeverity(litigio?.desc_Sentencia)" />
 
       <router-link to="/drawer/home" class="btn text-white ms-auto" style="background-color: #003870;">
         <i class="fa-solid fa-home me-2"></i> Inicio
@@ -42,8 +42,9 @@
             <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Demandante</h4>
             <div class="grid ">
               <div class="col-2 field">
-                <label class="text-sm ">Cédula</label>
-                <p class="m-0">{{ litigio?.ltg_Cedula_Demandante || 'N/A' }}</p>
+                <label class="text-sm ">
+                  {{ (litigio?.ltg_Cedula_Demandante?.trim().length || 0) < 10 ? 'RNC' : 'Cédula' }} </label>
+                    <p class="m-0">{{ litigio?.ltg_Cedula_Demandante || 'N/A' }}</p>
               </div>
               <div class="col-4 field ">
                 <label class="text-sm font-medium text-600-dark">Nombre</label>
@@ -77,7 +78,7 @@
                 <label class="text-sm font-medium text-600-dark">Cédula</label>
                 <p class="m-0">{{ litigio?.ltg_Cedula_Representante || 'N/A' }}</p>
               </div>
-                <div class="col-4 field">
+              <div class="col-4 field">
                 <label class="text-sm font-medium text-600-dark">Nacionalidad</label>
                 <p class="m-0">{{ litigio?.ltg_Nacionalidad_Representante || 'N/A' }}</p>
               </div>

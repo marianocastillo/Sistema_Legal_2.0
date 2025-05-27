@@ -79,7 +79,9 @@
             <div class="field col-12 md:col-2">
               <InputText v-model="form.ltg_Cedula_Demandante"
                 @blur="() => buscarPersonaPorDocumento(form.ltg_Cedula_Demandante, 'ltg_Demandante', 'ltg_Nacionalidad')"
-                class="w-full" placeholder="Cedula del demandante" />
+                class="w-full"
+                :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'RNC de la empresa' : 'Cédula del demandante'" />
+
 
             </div>
 
@@ -212,7 +214,6 @@ const expedienteFile = ref(null)
 const tiposDemandante = [
   { label: 'Empleado', value: 'Empleado' },
   { label: 'Empresa', value: 'Empresa' },
-  { label: 'Otros', value: 'Otros' },
 ]
 
 const handleExpedienteUpload = (event) => {
@@ -317,6 +318,12 @@ const registrarLitigio = async () => {
   }
 
   try {
+
+    const notif = push.promise('Subiendo archivo...');
+
+    // Esperar 2 segundos aunque se suba rápido
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
     const response = await fetch('/api/Litigio/Subir_Litigio_Con_Archivo', {
       method: 'POST',
       body: formData
@@ -325,13 +332,13 @@ const registrarLitigio = async () => {
     const result = await response.json()
 
     if (!response.ok) {
-      console.error('Error del backend:', result)
-      push.error(result.mensaje || 'Error al guardar el litigio')
+      console.error('Error del backend:', result);
+      notif.reject(result.mensaje || 'Error al guardar el litigio');
     } else {
-      push.success('El litigio ha sido cargado de forma exitosa')
+      notif.resolve('El litigio ha sido cargado de forma exitosa');
       setTimeout(() => {
-        router.push('/drawer/home')
-      }, 1000)
+        router.push('/drawer/home');
+      }, 1000);
     }
 
   } catch (error) {
