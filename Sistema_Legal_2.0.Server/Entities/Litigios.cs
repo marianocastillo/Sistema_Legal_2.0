@@ -30,8 +30,6 @@ public partial class Litigios
 
     public DateTime? ltg_Fecha_Audiencia { get; set; }
 
-    public DateTime? ltg_Fecha_Actualizacion { get; set; }
-
     public int? id_Tribunal { get; set; }
 
     public int? id_Sentencia { get; set; }

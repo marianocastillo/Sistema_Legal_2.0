@@ -4,6 +4,7 @@
       <h2 class="text-2xl font-semibold p-4">Detalle del Litigio</h2>
       <Tag :value="litigio?.desc_Sentencia" :severity="getSentenciaSeverity(litigio?.desc_Sentencia)" />
 
+
       <router-link to="/drawer/home" class="btn text-white ms-auto" style="background-color: #003870;">
         <i class="fa-solid fa-home me-2"></i> Inicio
       </router-link>
@@ -34,6 +35,71 @@
           </div>
         </div>
       </div>
+  <div class=" card surface-50 p-4 mb-5 border-round-lg border bg-white ">
+  <h2 class="text-xl font-semibold mb-3" style="color: #003870;">Historial del Litigio</h2>
+
+  <div style="overflow-x: auto;">
+    <div style="min-width: max-content;">
+      <Timeline
+        :value="events"
+        align="left"
+        layout="horizontal"
+        class="customized-timeline"
+      >
+
+
+<template #marker="slotProps">
+  <div
+    style="
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: #000;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    "
+    :style="{ backgroundColor: slotProps.item.color }"
+  >
+    <i
+      :class="slotProps.item.icon "
+      style="color: white; font-size: 16px;"
+    ></i>
+  </div>
+</template>
+
+<template #content="slotProps">
+  <Card
+    v-if="slotProps.item.content !== null"
+    class="mt-2"
+    style="height: 154px;"
+
+  >
+    <template #title>
+      <span class="text-sm font-medium">{{ slotProps.item.status }}</span>
+    </template>
+    <template #subtitle>
+      <span class="text-xs text-gray-500">{{ slotProps.item.date }}</span>
+    </template>
+    <template #content>
+      <p class="text-xs text-gray-700 mt-2 whitespace-pre-wrap">
+        {{ slotProps.item.content }}
+      </p>
+    </template>
+  </Card>
+
+  <!-- 📦 Bloque vacío invisible que conserva el espacio -->
+<div
+  v-else
+  class="mt-4"
+  style="height: 153px; width: 100%; visibility: hidden;"
+></div>
+</template>
+
+  </Timeline>
+  </div>
+  </div>
+</div>
 
       <!-- Sección de información principal -->
       <div class="grid mb-5">
@@ -170,10 +236,11 @@
   </div>
 </template>
 
+
 <script setup>
 import Accordion from 'primevue/accordion';
 import AccordionTab from 'primevue/accordiontab';
-
+import Timeline from 'primevue/timeline';
 import { ref, onMounted } from 'vue'
 import api from '@/utilities/api.js'
 import AgregarEvidencias from '@/components/views/AgregarEvidencias.vue';
@@ -217,15 +284,35 @@ const props = defineProps({
   }
 })
 
+
 const litigio = ref(null)
 const loading = ref(true)
 const evidencias = ref([]);
-/* const rutaBase = `C:/Users/mariancastillo/Desktop/SistemaLitigio`; */
+const events = ref([
+  {
+    status: 'Cambio de tribunal',
+    date: '2025-05-28',
+    icon: 'pi pi-building',
+    color: '#2196F3',
+    content: 'De Manoguayabo a San Cristóbal'
+  },
+  {
+    status: 'Cambio de estatus',
+    date: '2025-05-28',
+    icon: 'pi pi-info-circle',
+    color: '#FFC107',
+    content: 'De Recibido a Recurso de Casación'
+  },
+  {
+    status: 'Cambio de tribunal',
+    date: '2025-06-19',
+    icon: 'pi pi-building',
+    color: '#2196F3',
+    content: 'De San Cristóbal a Manoguayabo'
+  }
 
-// Función para abrir el documento en una nueva pestaña
+]);
 
-
-// Función para formatear fechas
 const formatDate = (dateString) => {
   if (!dateString) return 'N/A'
   return new Date(dateString).toLocaleDateString('es-ES', {
@@ -249,6 +336,26 @@ async function obtenerComentariosConEvidencias() {
   }
 }
 
+async function LineaDeTiempo() {
+  try {
+    const res = await api.get(`/api/Litigio/historial/${props.id}`)
+    events.value = res.data
+
+    events.value.push({
+  status: '',
+  date: '',
+  icon: 'pi pi-check-circle',
+  color: '#4CAF50',
+  content: null // nada de contenido
+});
+
+  } catch (error) {
+    console.error('No se pudo cargar la línea de tiempo', error)
+  }
+}
+
+
+
 // Cargar información cuando el componente se monta
 onMounted(async () => {
 
@@ -259,6 +366,8 @@ onMounted(async () => {
 
   }
 
+
+
   try {
     const response = await api.get(`/api/Litigio/detallados/${props.id}`)
 
@@ -268,7 +377,9 @@ onMounted(async () => {
 
     litigio.value = response.data
 
-    // Obtener comentarios
+    LineaDeTiempo()
+
+
     obtenerComentariosConEvidencias();
 
   } catch (error) {
@@ -343,6 +454,10 @@ const getSentenciaSeverity = (sentencia) => {
   color: #003870;
 }
 
+.timeline:hover {
+  transform: scale(1.05);
+  transition: transform 0.2s ease;
+}
 @media print {
   .card {
     box-shadow: none !important;

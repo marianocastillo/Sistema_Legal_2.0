@@ -77,7 +77,7 @@ async function guardar() {
 
   try {
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 500));
     const response = await axios.post(`/api/Files/subir-evidencia-comentario`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',

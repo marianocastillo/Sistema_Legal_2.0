@@ -31,10 +31,14 @@
               </datalist>
             </div>
 
-            <!-- <div class="field col-12 md:col-4">
-              <Dropdown v-model="form.id_Tipo_Demanda" :options="tiposDemanda" optionLabel="nombre"
-              optionValue="id_demanda" placeholder="--Seleccione el Tipo de Demanda--" class="w-full" />
-            </div> -->
+          </div>
+        </fieldset>
+
+
+         <fieldset class="col-12 border-1 border-round p-3 mb-3">
+          <legend class="font-bold text-lg">Información de la audienica</legend>
+          <div class="grid">
+
 
             <div class="field col-12 md:col-4">
               <Calendar v-model="form.ltg_Fecha_Audiencia" dateFormat="yy-mm-dd" showIcon
@@ -49,17 +53,12 @@
               </datalist>
             </div>
 
-            <!-- <div class="field col-12 md:col-4">
-              <Dropdown v-model="form.id_Tribunal" :options="tribunales" optionLabel="nombre_Tribunal"
-                optionValue="id_Tribunal" placeholder="--Seleccione Tribunal--" class="w-full" />
-            </div> -->
+            <div class="field col-12 md:col-4">
+              <Dropdown id="tipoDemandante" v-model="form.Tipo_audiencia" :options="tiposAudiencia"
+                optionLabel="label" optionValue="value" class="w-full"
+                placeholder="--Seleccione Tipo de Audiencia--" />
 
-
-
-            <!-- <div class="field col-12 md:col-4">
-              <Dropdown v-model="form.id_Estatus" :options="estatusLitigios" optionLabel="ltg_description"
-              optionValue="ltg_estatus" placeholder="--Seleccione el Estatus--" class="w-full" />
-            </div> -->
+                  </div>
           </div>
         </fieldset>
         <!-- DATOS DEL DEMANDANTE -->
@@ -184,6 +183,7 @@ const form = reactive({
   comentario: '',
   NombreEvidencia: '',
   ltg_Nacionalidad_Representante: '',
+  Tipo_audiencia: '',
 
 })
 
@@ -214,6 +214,12 @@ const expedienteFile = ref(null)
 const tiposDemandante = [
   { label: 'Empleado', value: 'Empleado' },
   { label: 'Empresa', value: 'Empresa' },
+]
+
+const tiposAudiencia = [
+  { label: 'Audiencia previa', value: 'Audiencia previa' },
+  { label: 'Preliminar', value: 'Preliminar' },
+  { label: 'Juicio', value: 'Juicio' },
 ]
 
 const handleExpedienteUpload = (event) => {
@@ -299,7 +305,7 @@ const registrarLitigio = async () => {
       ? form.comentario
       : "Archivo subido sin nombre."
   )
-
+formData.append('Tipo_audiencia', form.Tipo_audiencia)
   formData.append('ltg_Nombre_Representante', form.ltg_Nombre_Representante)
   formData.append("ltg_Fecha_Audiencia", formatearFechaISO(form.ltg_Fecha_Audiencia))
   formData.append('ltg_Fecha_Actualizacion', formatearFechaISO(new Date()))

@@ -20,7 +20,6 @@
         public string? ltg_Nombre_Representante { get; set; }
 
         public DateTime? ltg_Fecha_Audiencia { get; set; }
-        public DateTime? ltg_Fecha_Actualizacion { get; set; }
 
         public int? Id_Tribunal { get; set; }
         public string? Nombre_Tribunal { get; set; }

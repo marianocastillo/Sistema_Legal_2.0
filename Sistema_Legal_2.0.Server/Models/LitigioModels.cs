@@ -14,11 +14,11 @@ namespace Sistema_Legal_2._0.Server.Models
         public string? ltg_Nacionalidad { get; set; }
         public string? ltg_Nacionalidad_Representante { get; set; }
 
+        public string? Tipo_audiencia { get; set; }
         public string ltg_Tipo_Demandante { get; set; }
         public string? ltg_Cedula_Representante { get; set; }
         public string? ltg_Nombre_Representante { get; set; }
         public DateTime? ltg_Fecha_Audiencia { get; set; }
-        public DateTime? ltg_Fecha_Actualizacion { get; set; }
         public int? id_Tribunal { get; set; }
         public int? id_Sentencia { get; set; }
         public int? id_usuario { get; set; }
