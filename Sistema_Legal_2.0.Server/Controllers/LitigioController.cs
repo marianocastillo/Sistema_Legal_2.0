@@ -503,10 +503,11 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 await connection.OpenAsync();
 
                 var command = new SqlCommand(@"
-            SELECT Tipo_cambio, Valor_anterior, Valor_nuevo, Fecha_cambio
-            FROM Historico_Litigio
-            WHERE Id_litigio = @Id
-            ORDER BY Fecha_cambio ASC", connection);
+                    SELECT h.Tipo_cambio, h.Valor_anterior, h.Valor_nuevo, h.Fecha_cambio, u.nombreUsuario AS UsuarioNombre
+                    FROM Historico_Litigio h
+                    LEFT JOIN Usuarios u ON h.Usuario_id = u.idUsuario
+                    WHERE h.Id_litigio = @Id
+                    ORDER BY h.Fecha_cambio ASC", connection);
                 command.Parameters.AddWithValue("@Id", id);
 
                 using var reader = await command.ExecuteReaderAsync();
@@ -515,16 +516,20 @@ namespace Sistema_Legal_2._0.Server.Controllers
                     var tipo = reader["Tipo_cambio"].ToString();
                     var anterior = reader["Valor_anterior"]?.ToString();
                     var nuevo = reader["Valor_nuevo"]?.ToString();
-                    var fecha = ((DateTime)reader["Fecha_cambio"]).ToString("yyyy-MM-dd");
+                    var fecha = ((DateTime)reader["Fecha_cambio"]).ToString("o"); // "o" = ISO 8601
+                    var usuarioNombre = reader["UsuarioNombre"]?.ToString();
 
-                    result.Add(new LineaTiempoItemDto
+
+
+                result.Add(new LineaTiempoItemDto
                     {
                         Status = tipo,
                         Date = fecha,
                         Content = anterior != null ? $"De {anterior} a {nuevo}" : nuevo,
                         Icon = IconoPorTipo(tipo),
-                        Color = ColorPorTipo(tipo)
-                    });
+                        Color = ColorPorTipo(tipo),
+                        Usuario = usuarioNombre
+                });
                 }
 
                 return Ok(result);

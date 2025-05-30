@@ -165,28 +165,37 @@ onMounted(async () => {
   console.log("Contenido en localStorage:", almacenado)
 
   if (almacenado) {
-    const data = JSON.parse(almacenado)
-    console.log('Litigio cargado:', data)
+  const data = JSON.parse(almacenado)
+  console.log('Litigio cargado:', data)
 
-    form.value = {
-      id_Ltg: data.id_Ltg,
-      noActo: data.ltg_acto,
-      fechaActo: data.ltg_Fecha_Acto?.substring(0, 10),
-      tipoDemanda: data.id_Tipo_Demanda ?? data.tipoDemanda_Id ?? null,
-      cedulaDemandante: data.ltg_Cedula_Demandante,
-      Nacionalidad: data.ltg_Nacionalidad,
-      demandante: data.ltg_Demandante,
-      tiposDemandante: data.ltg_Tipo_Demandante,
-      otrosDemandante: data.ltg_Tipo_Demandante === 'Otros' ? data.otrosDemandante || '' : '',
-      cedulaRepresentante: data.ltg_Cedula_Representante,
-      nombreRepresentante: data.ltg_Nombre_Representante,
-      fechaAudiencia: data.ltg_Fecha_Audiencia?.substring(0, 10),
-      tribunal: data.id_Tribunal,
-      estatus: data.id_Estatus ?? data.ltg_estatus ?? null,
-      id_usuario: data.id_usuario ?? data.idUsuario ?? null,
-      id_Sentencia: data.id_Sentencia ?? null
-    }
+  form.value = {
+    id_Ltg: data.id_Ltg,
+    noActo: data.ltg_acto,
+    fechaActo: data.ltg_Fecha_Acto?.substring(0, 10),
+    tipoDemanda: data.id_Tipo_Demanda ?? data.tipoDemanda_Id ?? null,
+    cedulaDemandante: data.ltg_Cedula_Demandante,
+    Nacionalidad: data.ltg_Nacionalidad,
+    demandante: data.ltg_Demandante,
+    tiposDemandante: data.ltg_Tipo_Demandante,
+    otrosDemandante: data.ltg_Tipo_Demandante === 'Otros' ? data.otrosDemandante || '' : '',
+    cedulaRepresentante: data.ltg_Cedula_Representante,
+    nombreRepresentante: data.ltg_Nombre_Representante,
+    fechaAudiencia: data.ltg_Fecha_Audiencia?.substring(0, 10),
+    tribunal: data.id_Tribunal,
+    estatus: data.id_Estatus ?? data.ltg_estatus ?? null,
+    id_Sentencia: data.id_Sentencia ?? null
   }
+
+  const usuarioActual = localStorage.getItem('usuario');
+  if (usuarioActual) {
+    const usuarioParseado = JSON.parse(usuarioActual);
+    form.value.id_usuario = usuarioParseado?.idUsuario || null;
+  } else {
+    console.warn('No se encontró usuario en localStorage');
+  }
+
+}
+
 })
 
 

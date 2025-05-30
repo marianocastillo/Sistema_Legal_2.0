@@ -23,6 +23,7 @@
     "bootstrap": "^5.3.5",
     "datatables.net": "^2.2.2",
     "datatables.net-bs5": "^2.2.2",
+    "dayjs": "^1.11.13",
     "jquery": "^3.7.1",
     "jwt-decode": "^4.0.0",
     "notivue": "^2.4.5",
@@ -41,6 +42,7 @@
     "eslint": "^9.21.0",
     "eslint-plugin-vue": "~10.0.0",
     "globals": "^16.0.0",
+    "sass": "^1.89.0",
     "unplugin-vue-components": "^28.4.1",
     "vite": "^6.3.4",
     "vite-plugin-vue-devtools": "^7.7.2"

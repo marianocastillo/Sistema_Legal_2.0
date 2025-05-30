@@ -109,12 +109,12 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
-import { useRouter } from 'vue-router'
+// import { useRouter } from 'vue-router'
 import { cerrarSesion } from '@/utilities/auth'
 import Button from 'primevue/button'
 import { Notivue, Notifications, NotivueSwipe, pastelTheme } from 'notivue'
 
-const router = useRouter()
+// const router = useRouter()
 const mostrarSubmenu = ref(false)
 const submenuRef = ref(null)
 const isSidebarVisible = ref(true)
