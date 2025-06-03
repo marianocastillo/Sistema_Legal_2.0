@@ -57,6 +57,8 @@
 import { push } from 'notivue'
 import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
+
+import { jwtDecode } from 'jwt-decode';
 import PrimeButton from 'primevue/button'
 import api from '@/utilities/api.js'
 import { Notivue, Notifications, NotivueSwipe } from 'notivue'
@@ -155,14 +157,11 @@ export default {
       this.$store.commit('setUser', usuario)
       push.success(response.data.message)
       if(usuario.idPerfil == 4 ){
-          this.$router.push('/drawer/inicio')
+          this.$router.push('/drawer/abogado/inicio')
         } else{
+          console.log(jwtDecode(token));
           this.$router.push('/drawer/home')
         }
-
-      // this.$router.push('/drawer/home')
-
-      // setTimeout(() => window.location.reload(), 500)
     } else {
       push.warning(response.data.message)
     }

@@ -1,13 +1,28 @@
 <template>
   <div class="card p-4 shadow-2">
-    <div class="flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-      <h2 class="text-xl font-bold">Registro de Litigio</h2>
-      <router-link to="/drawer/home" class="btn text-white px-3 py-2" style="background-color: #003870;">
-        <i class="fa-solid fa-home me-2"></i> Inicio
-      </router-link>
+    <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+      <!-- Título -->
+      <h2 class="h4 fw-bold mb-2 mb-md-0">Registro de Litigio</h2>
+
+      <!-- Botones alineados a la derecha -->
+      <div class="d-flex gap-2">
+        <!-- Botón Registrar -->
+        <Button type="submit" label="Registrar" icon="pi pi-check" class="p-button-sm" :disabled="enviando"
+          @click="formRef?.requestSubmit()" style="background-color: #003870; border-color: #003870;" />
+
+        <!-- Botón Inicio -->
+        <router-link to="/drawer/home" class="btn btn-sm text-white d-flex align-items-center custom-home-btn">
+          <i class="pi pi-home me-2"></i>
+          Inicio
+        </router-link>
+      </div>
     </div>
 
-    <form @submit.prevent="registrarLitigio">
+
+
+
+
+    <form ref="formRef" @submit.prevent="registrarLitigio">
       <div class="grid formgrid p-fluid">
 
 
@@ -35,7 +50,7 @@
         </fieldset>
 
 
-         <fieldset class="col-12 border-1 border-round p-3 mb-3">
+        <fieldset class="col-12 border-1 border-round p-3 mb-3">
           <legend class="font-bold text-lg">Información de la audienica</legend>
           <div class="grid">
 
@@ -54,11 +69,10 @@
             </div>
 
             <div class="field col-12 md:col-4">
-              <Dropdown id="tipoDemandante" v-model="form.Tipo_audiencia" :options="tiposAudiencia"
-                optionLabel="label" optionValue="value" class="w-full"
-                placeholder="--Seleccione Tipo de Audiencia--" />
+              <Dropdown id="tipoDemandante" v-model="form.Tipo_audiencia" :options="tiposAudiencia" optionLabel="label"
+                optionValue="value" class="w-full" placeholder="--Seleccione Tipo de Audiencia--" />
 
-                  </div>
+            </div>
           </div>
         </fieldset>
         <!-- DATOS DEL DEMANDANTE -->
@@ -140,11 +154,6 @@
         </fieldset>
       </div>
 
-      <!-- BOTÓN -->
-      <div class="text-center mt-4">
-        <Button type="submit" label="Registrar" icon="pi pi-check" class="p-button-primary" :disabled="enviando"
-          style="background-color: #003870;" />
-      </div>
     </form>
   </div>
 </template>
@@ -204,7 +213,7 @@ watch(
   }
 )
 
-
+const formRef = ref(null);
 const tiposDemanda = ref([])
 const estatusLitigios = ref([])
 const tribunales = ref([])
@@ -305,7 +314,7 @@ const registrarLitigio = async () => {
       ? form.comentario
       : "Archivo subido sin nombre."
   )
-formData.append('Tipo_audiencia', form.Tipo_audiencia)
+  formData.append('Tipo_audiencia', form.Tipo_audiencia)
   formData.append('ltg_Nombre_Representante', form.ltg_Nombre_Representante)
   formData.append("ltg_Fecha_Audiencia", formatearFechaISO(form.ltg_Fecha_Audiencia))
   formData.append('ltg_Fecha_Actualizacion', formatearFechaISO(new Date()))
@@ -370,5 +379,18 @@ legend {
 
 .border-1 {
   border: 1px solid #ccc;
+}
+
+.custom-home-btn {
+  background-color: #003870;
+  border-color: #003870;
+  color: white;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.custom-home-btn:hover {
+  background-color: #004a99;
+  border-color: #002f66;
+  color: white;
 }
 </style>

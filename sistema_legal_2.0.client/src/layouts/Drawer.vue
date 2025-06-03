@@ -14,7 +14,7 @@
           <ul style="color: white;">
             <!-- Inicio: Todos los roles -->
             <li>
-              <router-link to="/drawer/home" class="sidebar-link" exact-active-class="active">
+              <router-link :to="rutaInicio" class="sidebar-link" exact-active-class="active">
                 <i class="pi pi-home" />
                 <span>Inicio</span>
               </router-link>
@@ -114,6 +114,9 @@ import { cerrarSesion } from '@/utilities/auth'
 import Button from 'primevue/button'
 import { Notivue, Notifications, NotivueSwipe, pastelTheme } from 'notivue'
 
+const rutaInicio = ref('/drawer/home');
+
+
 // const router = useRouter()
 const mostrarSubmenu = ref(false)
 const submenuRef = ref(null)
@@ -136,12 +139,18 @@ const handleClickOutside = (e) => {
 }
 
 onMounted(() => {
-  const stored = localStorage.getItem('usuario')
+  const stored = localStorage.getItem('usuario');
   if (stored) {
-    usuario.value = JSON.parse(stored)
+    usuario.value = JSON.parse(stored);
+
+    // Redireccionar a la vista correcta según el perfil
+    const perfilId = parseInt(usuario.value.perfil);
+    rutaInicio.value = perfilId === 4 ? '/drawer/abogado/inicio' : '/drawer/home';
   }
-  document.addEventListener('click', handleClickOutside)
-})
+
+  document.addEventListener('click', handleClickOutside);
+});
+
 
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)

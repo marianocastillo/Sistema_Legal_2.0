@@ -546,7 +546,7 @@ p {
 .fade-timeline>>>.p-timeline-event {
   opacity: 0;
   transform: translateY(12px);
-  animation: fadeInUp 2.5s ease forwards;
+  animation: fadeInUp 2s ease forwards;
 }
 
 .fade-timeline>>>.p-timeline-event:nth-child(1) {
