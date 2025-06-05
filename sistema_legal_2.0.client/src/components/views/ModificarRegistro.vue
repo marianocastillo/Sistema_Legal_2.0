@@ -171,7 +171,7 @@ onMounted(async () => {
     form.value = {
       id_Ltg: data.id_Ltg,
       noActo: data.ltg_acto,
-      fechaActo: data.ltg_Fecha_Acto? new Date(data.ltg_Fecha_Acto)
+      fechaActo: data.ltg_Fecha_Acto ? new Date(data.ltg_Fecha_Acto)
         : null,
       tipoDemanda: data.id_Tipo_Demanda ?? data.tipoDemanda_Id ?? null,
       cedulaDemandante: data.ltg_Cedula_Demandante,
@@ -265,8 +265,17 @@ const registrarLitigio = async () => {
     if (response.ok) {
       push.success('Litigio actualizado exitosamente.')
       localStorage.removeItem('litigioModificacion')
-      router.push('/home')
-    } else {
+
+      const usuarioActual = JSON.parse(localStorage.getItem('usuario'))
+      const perfil = usuarioActual?.perfil
+
+      if (perfil === 4) {
+        router.push('/abogado/inicio')
+      } else {
+        router.push('/home')
+      }
+    }
+    else {
       push.error('Error al actualizar el litigio.')
     }
   } catch (err) {

@@ -128,22 +128,30 @@ const usuario = ref({ nombre: '', rol: '', perfil: null });
 const isMobile = computed(() => window.innerWidth <= 768);
 
 // Dropdown items del usuario
-const items = ref([
-  {
-    label: 'Manejo de usuarios',
-    icon: 'pi pi-user-edit',
-    command: () => {
-      router.push('/listadodeusuario');
-    }
-  },
-  {
+const items = computed(() => {
+  const opciones = []
+
+  if (usuario.value.rol === 'Administrador') {
+    opciones.push({
+      label: 'Manejo de usuarios',
+      icon: 'pi pi-user-edit',
+      command: () => {
+        router.push('/listadodeusuario')
+      }
+    })
+  }
+
+  // Cerrar sesión siempre disponible
+  opciones.push({
     label: 'Cerrar sesión',
     icon: 'pi pi-sign-out',
     command: () => {
-      cerrarSesion();
+      cerrarSesion()
     }
-  }
-]);
+  })
+
+  return opciones
+})
 
 
 const toggleSubmenu = () => {
