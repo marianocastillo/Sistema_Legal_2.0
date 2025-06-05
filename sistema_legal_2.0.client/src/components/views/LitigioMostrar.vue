@@ -4,7 +4,7 @@
       <h2 class="text-2xl font-semibold p-4">Detalle del Litigio</h2>
       <Tag :value="litigio?.desc_Sentencia" :severity="getSentenciaSeverity(litigio?.desc_Sentencia)" />
 
-      <router-link to="/drawer/home" class="btn text-white ms-auto" style="background-color: #003870;">
+      <router-link to="/home" class="btn text-white ms-auto" style="background-color: #003870;">
         <i class="fa-solid fa-home me-2"></i> Inicio
       </router-link>
 

@@ -46,11 +46,6 @@
     </div>
   </div>
 
-  <Notivue v-slot="item">
-    <NotivueSwipe :item="item">
-      <Notifications :item="item" />
-    </NotivueSwipe>
-  </Notivue>
 </template>
 
 <script>
@@ -61,7 +56,6 @@ import Password from 'primevue/password'
 import { jwtDecode } from 'jwt-decode';
 import PrimeButton from 'primevue/button'
 import api from '@/utilities/api.js'
-import { Notivue, Notifications, NotivueSwipe } from 'notivue'
 
 
 export default {
@@ -70,9 +64,7 @@ export default {
     InputText,
     Password,
     PrimeButton,
-    Notivue,
-    Notifications,
-    NotivueSwipe
+
   },
   data() {
     return {
@@ -129,7 +121,7 @@ export default {
         localStorage.setItem('sessionExpireTime', new Date().getTime() + 30 * 60 * 1000)
         this.$store.commit('setUser', user)
         push.success(`Bienvenido ${user.nombreUsuario}`)
-        this.$router.push('/drawer/home')
+        this.$router.push('/home')
       } else {
         push.warning('Usuario o contraseña incorrectos')
       }
@@ -157,17 +149,17 @@ export default {
       this.$store.commit('setUser', usuario)
       push.success(response.data.message)
       if(usuario.idPerfil == 4 ){
-          this.$router.push('/drawer/abogado/inicio')
+          this.$router.push('/abogado/inicio')
         } else{
           console.log(jwtDecode(token));
-          this.$router.push('/drawer/home')
+          this.$router.push('/home')
         }
     } else {
       push.warning(response.data.message)
     }
   } catch (error) {
     console.error('Error en login:', error)
-    push.warning('Hubo un error al intentar iniciar sesión. Intenta nuevamente.')
+    push.error(error.response?.data?.message || 'No se pudo conectar al servidor.')
   }
     }
 

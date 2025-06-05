@@ -2,7 +2,7 @@
   <div class="card p-4 shadow-2">
     <div class="flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
       <h2 class="text-xl font-bold">Buscar Litigio</h2>
-      <router-link to="/drawer/home" class="btn text-white px-3 py-2" style="background-color: #003870;">
+      <router-link to="/home" class="btn text-white px-3 py-2" style="background-color: #003870;">
         <i class="fa-solid fa-home me-2"></i> Inicio
       </router-link>
     </div>
@@ -93,7 +93,7 @@ const buscarLitigio = async () => {
 
 const irAModificar = () => {
   localStorage.setItem('litigioModificacion', JSON.stringify(resultado.value))
-  router.push('/drawer/modificarregistro')
+  router.push('/modificarregistro')
 }
 </script>
 

@@ -12,14 +12,14 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 
-const rutaInicio = ref('/drawer/home');
+const rutaInicio = ref('/home');
 
 onMounted(() => {
   const rawUser = localStorage.getItem('usuario');
   const user = rawUser ? JSON.parse(rawUser) : null;
 
   if (user && parseInt(user.perfil) === 4) {
-    rutaInicio.value = '/drawer/abogado/inicio';
+    rutaInicio.value = '/abogado/inicio';
   }
 });
 </script>

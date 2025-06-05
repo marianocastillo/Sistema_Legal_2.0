@@ -28,17 +28,37 @@
       <Button label="Asignar" icon="pi pi-user-plus" class="p-button-sm text-white border-0"
         :style="{ backgroundColor: '#003870' }" :disabled="!usuarioSeleccionado" @click="asignarAbogado" />
 
-      <Button
-        label="Cerrar"
-        icon="pi pi-times"
-        class="p-button-sm btn-aceptar"
-        @click="emit('close')"
-      />
+      <Button label="Cerrar" icon="pi pi-times" class="p-button-sm btn-aceptar" @click="emit('close')" />
+    </div>
+  </Dialog>
+  <Dialog v-model:visible="mostrarDialogoExito" modal class="dialog-exito-style" :closable="false" :draggable="false"
+    header="Asignación exitosa">
+    <div class="d-flex align-items-start gap-3 p-3">
+      <i class="pi pi-check-circle text-success" style="font-size: 1.8rem; flex-shrink: 0;"></i>
+      <p class="m-0">El abogado litigante fue asignado correctamente.</p>
+    </div>
+    <div class="text-end px-3 pb-3">
+      <Button label="Aceptar" class="p-button-sm" :style="{ backgroundColor: '#003870', color: '#fff', border: 'none' }"
+        @click="mostrarDialogoExito = false" />
     </div>
   </Dialog>
 
+  <Dialog v-model:visible="mostrarDialogoEliminado" modal class="dialog-eliminado-style" :closable="false"
+    :draggable="false" header="Asignación eliminada">
+    <div class="d-flex align-items-start gap-3 p-3">
+      <i class="pi pi-trash text-danger" style="font-size: 1.8rem; flex-shrink: 0;"></i>
+      <p class="m-0">El abogado fue eliminado correctamente de este acto.</p>
+    </div>
+    <div class="text-end px-3 pb-3">
+      <Button label="Aceptar" class="p-button-sm" :style="{ backgroundColor: '#003870', color: '#fff', border: 'none' }"
+        @click="mostrarDialogoEliminado = false" />
+    </div>
+  </Dialog>
+
+
   <!-- ConfirmDialog visual -->
   <ConfirmDialog />
+
 </template>
 
 <script setup>
@@ -55,56 +75,79 @@ const props = defineProps({
   id_Ltg: Number,
   ltg_acto: [String, Number]
 })
+
 const emit = defineEmits(['close'])
 
 const visible = ref(true)
 const usuarioSeleccionado = ref(null)
 const usuariosFiltrados = ref([])
 const abogadosAsignados = ref([])
+const mostrarDialogoExito = ref(false)
+const mostrarDialogoEliminado = ref(false)
+
+const loadingUsuarios = ref(false)
+const loadingAsignados = ref(false)
 
 const confirm = useConfirm()
 
-onMounted(async () => {
-  await cargarAsignados()
-  await cargarUsuarios()
+onMounted(() => {
+  recargarDatos()
 })
 
-watch(() => props.id_Ltg, cargarAsignados)
+watch(() => props.id_Ltg, () => {
+  recargarDatos()
+})
+
+async function recargarDatos() {
+  await cargarAsignados()
+  await cargarUsuarios()
+}
 
 async function cargarUsuarios() {
+  loadingUsuarios.value = true
   try {
-    const response = await axios.get('/api/Usuarios/AbogadosConAsignaciones');
-    const todos = response.data;
+    const { data } = await axios.get('/api/Usuarios/AbogadosConAsignaciones')
+    const idsAsignados = abogadosAsignados.value.map(a => a.idUsuario)
 
-    const idsAsignados = abogadosAsignados.value.map(a => a.idUsuario);
-
-    usuariosFiltrados.value = todos
+    usuariosFiltrados.value = data
       .filter(u => !idsAsignados.includes(u.idUsuario))
       .map(u => ({
         id: u.idUsuario,
-        nombre: `${u.nombres} ${u.apellidos}  (${u.cantidadAsignaciones} casos)`
-      }));
+        nombre: `${u.nombres} ${u.apellidos} (${u.cantidadAsignaciones} casos)`
+      }))
   } catch (error) {
-    console.error("Error al cargar usuarios:", error);
-    push.error('Error al cargar usuarios disponibles');
+    console.error("Error al cargar usuarios:", error)
+    push.error(error.response?.data?.message || 'Error al cargar usuarios disponibles')
+  } finally {
+    loadingUsuarios.value = false
   }
 }
+
 async function cargarAsignados() {
+  loadingAsignados.value = true
   try {
     const { data } = await axios.get(`/api/Usuarios/Asignados/${props.id_Ltg}`)
     abogadosAsignados.value = data
   } catch (error) {
     console.error("Error al cargar asignados:", error)
-    push.error('Error al cargar abogados asignados')
+    push.error(error.response?.data?.message || 'Error al cargar abogados asignados')
+  } finally {
+    loadingAsignados.value = false
   }
 }
 
 async function asignarAbogado() {
-  cargarAsignados()
   if (!usuarioSeleccionado.value) return
 
-  if (abogadosAsignados.value.some(a => a.idUsuario === usuarioSeleccionado.value)) {
+  const yaAsignado = abogadosAsignados.value.some(a => a.idUsuario === usuarioSeleccionado.value)
+  if (yaAsignado) {
     push.warning('Este abogado ya está asignado.')
+    return
+  }
+
+  const esValido = usuariosFiltrados.value.some(u => u.id === usuarioSeleccionado.value)
+  if (!esValido) {
+    push.warning('El abogado seleccionado ya no está disponible.')
     return
   }
 
@@ -114,16 +157,15 @@ async function asignarAbogado() {
       idLtg: props.id_Ltg
     })
 
-    push.success('Abogado asignado correctamente')
+    mostrarDialogoExito.value = true
     usuarioSeleccionado.value = null
-    await Promise.all([cargarAsignados(), cargarUsuarios()])
+    await recargarDatos()
   } catch (error) {
     console.error("Error al asignar abogado:", error)
-    push.error('Error al asignar abogado')
+    push.error(error.response?.data?.message || 'Error al asignar abogado')
   }
 }
 
-// Nuevo método con ConfirmDialog
 function confirmarEliminacion(idUsuario) {
   confirm.require({
     message: '¿Estás seguro de eliminar esta asignación?',
@@ -133,23 +175,23 @@ function confirmarEliminacion(idUsuario) {
     rejectLabel: 'Cancelar',
     acceptClass: 'p-button btn-aceptar',
     rejectClass: 'p-button btn-cancelar',
-
     accept: async () => {
       try {
-        await axios.delete(`/api/Usuarios/EliminarAsignacion`, {
+        await axios.delete('/api/Usuarios/EliminarAsignacion', {
           params: { idUsuario, idLtg: props.id_Ltg }
         })
-        push.success('Abogado eliminado correctamente')
-        cargarUsuarios()
-        await Promise.all([cargarAsignados(), cargarUsuarios()])
+        mostrarDialogoEliminado.value = true
+        await recargarDatos()
       } catch (error) {
         console.error("Error al eliminar asignación:", error)
-        push.error('Error al eliminar asignación')
+        push.error(error.response?.data?.message || 'Error al eliminar asignación')
       }
     }
   })
 }
 </script>
+
+
 
 <style>
 .dialog-asignacion {
@@ -174,8 +216,10 @@ function confirmarEliminacion(idUsuario) {
 }
 
 .p-dropdown.p-focus {
-  border-color: #003870 !important; /* azul oscuro, cambia si necesitas otro tono */
-  box-shadow: 0 0 0 0.2rem rgba(0, 56, 112, 0.25); /* sombra azul suave */
+  border-color: #003870 !important;
+  /* azul oscuro, cambia si necesitas otro tono */
+  box-shadow: 0 0 0 0.2rem rgba(0, 56, 112, 0.25);
+  /* sombra azul suave */
 }
 
 .abogado-nombre {
@@ -192,9 +236,30 @@ function confirmarEliminacion(idUsuario) {
   font-size: 0.875rem;
   color: #555;
 }
+
 .thicker-icon {
   color: #fff;
   font-weight: 600 !important;
 }
 
+.dialog-exito-style .p-dialog,
+.dialog-eliminado-style .p-dialog {
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+.dialog-exito-style .p-dialog-header,
+.dialog-eliminado-style .p-dialog-header {
+  background-color: #f8f9fa;
+  color: #003870;
+  font-weight: 600;
+  padding: 1rem;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.dialog-exito-style .p-dialog-content,
+.dialog-eliminado-style .p-dialog-content {
+  padding: 0;
+}
 </style>

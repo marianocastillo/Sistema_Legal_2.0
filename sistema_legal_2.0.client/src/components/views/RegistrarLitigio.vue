@@ -11,7 +11,7 @@
           @click="formRef?.requestSubmit()" style="background-color: #003870; border-color: #003870;" />
 
         <!-- Botón Inicio -->
-        <router-link to="/drawer/home" class="btn btn-sm text-white d-flex align-items-center custom-home-btn">
+        <router-link to="/home" class="btn btn-sm text-white d-flex align-items-center custom-home-btn">
           <i class="pi pi-home me-2"></i>
           Inicio
         </router-link>
@@ -352,7 +352,7 @@ const registrarLitigio = async () => {
     } else {
       notif.resolve('El litigio ha sido cargado de forma exitosa');
       setTimeout(() => {
-        router.push('/drawer/home');
+        router.push('/home');
       }, 1000);
     }
 

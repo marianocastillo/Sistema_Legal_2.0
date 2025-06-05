@@ -2,7 +2,7 @@
   <div class="card p-4 shadow-2">
     <div class="flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
       <h2 class="text-xl font-bold">Modificar Litigio</h2>
-      <router-link to="/drawer/home" class="btn text-white px-3 py-2" style="background-color: #003870;">
+      <router-link to="/home" class="btn text-white px-3 py-2" style="background-color: #003870;">
         <i class="fa-solid fa-home me-2"></i> Inicio
       </router-link>
     </div>
@@ -165,36 +165,39 @@ onMounted(async () => {
   console.log("Contenido en localStorage:", almacenado)
 
   if (almacenado) {
-  const data = JSON.parse(almacenado)
-  console.log('Litigio cargado:', data)
+    const data = JSON.parse(almacenado)
+    console.log('Litigio cargado:', data)
 
-  form.value = {
-    id_Ltg: data.id_Ltg,
-    noActo: data.ltg_acto,
-    fechaActo: data.ltg_Fecha_Acto?.substring(0, 10),
-    tipoDemanda: data.id_Tipo_Demanda ?? data.tipoDemanda_Id ?? null,
-    cedulaDemandante: data.ltg_Cedula_Demandante,
-    Nacionalidad: data.ltg_Nacionalidad,
-    demandante: data.ltg_Demandante,
-    tiposDemandante: data.ltg_Tipo_Demandante,
-    otrosDemandante: data.ltg_Tipo_Demandante === 'Otros' ? data.otrosDemandante || '' : '',
-    cedulaRepresentante: data.ltg_Cedula_Representante,
-    nombreRepresentante: data.ltg_Nombre_Representante,
-    fechaAudiencia: data.ltg_Fecha_Audiencia?.substring(0, 10),
-    tribunal: data.id_Tribunal,
-    estatus: data.id_Estatus ?? data.ltg_estatus ?? null,
-    id_Sentencia: data.id_Sentencia ?? null
+    form.value = {
+      id_Ltg: data.id_Ltg,
+      noActo: data.ltg_acto,
+      fechaActo: data.ltg_Fecha_Acto? new Date(data.ltg_Fecha_Acto)
+        : null,
+      tipoDemanda: data.id_Tipo_Demanda ?? data.tipoDemanda_Id ?? null,
+      cedulaDemandante: data.ltg_Cedula_Demandante,
+      Nacionalidad: data.ltg_Nacionalidad,
+      demandante: data.ltg_Demandante,
+      tiposDemandante: data.ltg_Tipo_Demandante,
+      otrosDemandante: data.ltg_Tipo_Demandante === 'Otros' ? data.otrosDemandante || '' : '',
+      cedulaRepresentante: data.ltg_Cedula_Representante,
+      nombreRepresentante: data.ltg_Nombre_Representante,
+      fechaAudiencia: data.ltg_Fecha_Audiencia
+        ? new Date(data.ltg_Fecha_Audiencia)
+        : null,
+      tribunal: data.id_Tribunal,
+      estatus: data.id_Estatus ?? data.ltg_estatus ?? null,
+      id_Sentencia: data.id_Sentencia ?? null
+    }
+
+    const usuarioActual = localStorage.getItem('usuario');
+    if (usuarioActual) {
+      const usuarioParseado = JSON.parse(usuarioActual);
+      form.value.id_usuario = usuarioParseado?.idUsuario || null;
+    } else {
+      console.warn('No se encontró usuario en localStorage');
+    }
+
   }
-
-  const usuarioActual = localStorage.getItem('usuario');
-  if (usuarioActual) {
-    const usuarioParseado = JSON.parse(usuarioActual);
-    form.value.id_usuario = usuarioParseado?.idUsuario || null;
-  } else {
-    console.warn('No se encontró usuario en localStorage');
-  }
-
-}
 
 })
 
@@ -237,7 +240,9 @@ const registrarLitigio = async () => {
     ltg_Tipo_Demandante: tipo === 'Otros' ? form.value.otrosDemandante : tipo,
     ltg_Cedula_Representante: form.value.cedulaRepresentante,
     ltg_Nombre_Representante: form.value.nombreRepresentante,
-    ltg_Fecha_Audiencia: form.value.fechaAudiencia,
+    ltg_Fecha_Audiencia: form.value.fechaAudiencia
+      ? form.value.fechaAudiencia.toISOString().split('T')[0]
+      : null,
     ltg_Fecha_Actualizacion: new Date().toISOString().substring(0, 10),
     id_Tribunal: form.value.tribunal,
     id_Sentencia: form.value.id_Sentencia,
@@ -260,7 +265,7 @@ const registrarLitigio = async () => {
     if (response.ok) {
       push.success('Litigio actualizado exitosamente.')
       localStorage.removeItem('litigioModificacion')
-      router.push('/drawer/home')
+      router.push('/home')
     } else {
       push.error('Error al actualizar el litigio.')
     }
