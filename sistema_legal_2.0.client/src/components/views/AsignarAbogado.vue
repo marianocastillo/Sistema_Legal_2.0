@@ -137,36 +137,48 @@ async function cargarAsignados() {
 }
 
 async function asignarAbogado() {
-  if (!usuarioSeleccionado.value) return
+  if (!usuarioSeleccionado.value) return;
 
-  const yaAsignado = abogadosAsignados.value.some(a => a.idUsuario === usuarioSeleccionado.value)
+  const yaAsignado = abogadosAsignados.value.some(a => a.idUsuario === usuarioSeleccionado.value);
   if (yaAsignado) {
-    push.warning('Este abogado ya está asignado.')
-    return
-  }
-
-  const esValido = usuariosFiltrados.value.some(u => u.id === usuarioSeleccionado.value)
-  if (!esValido) {
-    push.warning('El abogado seleccionado ya no está disponible.')
-    return
+    push.warning('Este abogado ya está asignado.');
+    return;
   }
 
   try {
+    // 🟡 1. Asignar abogado
     await axios.post('/api/Usuarios/Asignar-Litigio', {
       idUsuario: usuarioSeleccionado.value,
       idLtg: props.id_Ltg
-    })
+    });
 
-    mostrarDialogoExito.value = true
-    usuarioSeleccionado.value = null
-    await recargarDatos()
+    // 🟢 2. Si es el primer abogado, cambiar estatus a "Análisis"
+    if (abogadosAsignados.value.length === 0) {
+      const { data: litigio } = await axios.get(`/api/Litigio/detallados/${props.id_Ltg}`);
+
+      const payload = construirPayloadDesdeLitigio(litigio);
+
+      await axios.put('/api/Litigio/EditarLitigio', payload);
+    }
+
+    mostrarDialogoExito.value = true;
+    usuarioSeleccionado.value = null;
+    await recargarDatos();
+    emit('asignado-con-exito');
   } catch (error) {
-    console.error("Error al asignar abogado:", error)
-    push.error(error.response?.data?.message || 'Error al asignar abogado')
+    console.error("Error al asignar abogado:", error);
+    push.error(error.response?.data?.message || 'Error al asignar abogado');
   }
 }
 
+
 function confirmarEliminacion(idUsuario) {
+  if (abogadosAsignados.value.length === 1) {
+    push.warning('No puedes eliminar el único abogado asignado. Agrega otro antes de eliminar.');
+    return;
+  }
+
+
   confirm.require({
     message: '¿Estás seguro de eliminar esta asignación?',
     header: 'Confirmar eliminación',
@@ -189,6 +201,29 @@ function confirmarEliminacion(idUsuario) {
     }
   })
 }
+
+function construirPayloadDesdeLitigio(litigio) {
+  const tipo = litigio.ltg_Tipo_Demandante || 'Empleado'
+  return {
+    id_Ltg: litigio.id_Ltg,
+    ltg_acto: litigio.ltg_acto,
+    ltg_Fecha_Acto: litigio.ltg_Fecha_Acto?.split('T')[0] || null,
+    id_Tipo_Demanda: litigio.id_Tipo_Demanda ?? litigio.tipoDemanda_Id ?? null,
+    ltg_Cedula_Demandante: litigio.ltg_Cedula_Demandante || '',
+    ltg_Nacionalidad: litigio.ltg_Nacionalidad || null,
+    ltg_Demandante: litigio.ltg_Demandante || '',
+    ltg_Tipo_Demandante: tipo === 'Otros' ? (litigio.otrosDemandante || 'Otros') : tipo,
+    ltg_Cedula_Representante: litigio.ltg_Cedula_Representante || '',
+    ltg_Nombre_Representante: litigio.ltg_Nombre_Representante || '',
+    ltg_Fecha_Audiencia: litigio.ltg_Fecha_Audiencia?.split('T')[0] || null,
+    ltg_Nacionalidad_Representante: litigio.ltg_Nacionalidad_Representante || null,
+    id_Tribunal: litigio.id_Tribunal,
+    id_Sentencia: litigio.id_Sentencia,
+    id_usuario: litigio.id_usuario || JSON.parse(localStorage.getItem('usuario'))?.idUsuario || 1,
+    id_Estatus: 2 // Análisis
+  }
+}
+
 </script>
 
 
@@ -242,24 +277,5 @@ function confirmarEliminacion(idUsuario) {
   font-weight: 600 !important;
 }
 
-.dialog-exito-style .p-dialog,
-.dialog-eliminado-style .p-dialog {
-  border-radius: 12px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
-}
 
-.dialog-exito-style .p-dialog-header,
-.dialog-eliminado-style .p-dialog-header {
-  background-color: #f8f9fa;
-  color: #003870;
-  font-weight: 600;
-  padding: 1rem;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-}
-
-.dialog-exito-style .p-dialog-content,
-.dialog-eliminado-style .p-dialog-content {
-  padding: 0;
-}
 </style>

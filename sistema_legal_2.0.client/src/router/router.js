@@ -40,7 +40,7 @@ const routes = [
       path: 'supervisor/litigios',
       name: 'SupervisorLitigios',
       component: SupervisorLitigios,
-      meta: { requiresAuth: true, roles: [2, 4] }
+      meta: { requiresAuth: true, roles: [2] }
     },
     {
       path: 'registrar',

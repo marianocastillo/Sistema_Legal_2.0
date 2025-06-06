@@ -18,9 +18,18 @@ onMounted(() => {
   const rawUser = localStorage.getItem('usuario');
   const user = rawUser ? JSON.parse(rawUser) : null;
 
-  if (user && parseInt(user.perfil) === 4) {
-    rutaInicio.value = '/abogado/inicio';
+  if (user) {
+    const perfilId = parseInt(user.perfil);
+    const rutasPorPerfil = {
+      1: '/home',
+      2: '/supervisor/litigios',
+      3: '/digitador/inicio',
+      4: '/abogado/inicio'
+    };
+
+    rutaInicio.value = rutasPorPerfil[perfilId] || '/home';
   }
+
 });
 </script>
 

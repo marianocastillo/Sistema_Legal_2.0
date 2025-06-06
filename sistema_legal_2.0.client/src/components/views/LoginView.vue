@@ -14,33 +14,16 @@
         <p>Inicie sesión para continuar</p>
 
         <form @submit.prevent="LogIn" class="form-wrapper">
-          <InputText
-            v-model="credentials.userName"
-            :class="{ 'input-error': invalid.userName }"
-            placeholder="Usuario"
-            class="custom-input"
-          />
+          <InputText v-model="credentials.userName" :class="{ 'input-error': invalid.userName }" placeholder="Usuario"
+            class="custom-input" />
 
           <div class="password-wrapper">
-            <Password
-              v-model="credentials.password"
-              :feedback="false"
-              toggleMask
-              placeholder="Contraseña"
-              autocomplete="current-password"
-              class="custom-input"
-              :class="{ 'input-error': invalid.password }"
-            />
+            <Password v-model="credentials.password" :feedback="false" toggleMask placeholder="Contraseña"
+              autocomplete="current-password" class="custom-input" :class="{ 'input-error': invalid.password }" />
           </div>
 
-          <PrimeButton
-            :label="loading ? 'Cargando...' : 'Iniciar sesión'"
-            icon="pi pi-sign-in"
-            class="login-btn"
-            :disabled="loading"
-            :loading="loading"
-            type="submit"
-          />
+          <PrimeButton :label="loading ? 'Cargando...' : 'Iniciar sesión'" icon="pi pi-sign-in" class="login-btn"
+            :disabled="loading" :loading="loading" type="submit" />
         </form>
       </div>
     </div>
@@ -64,7 +47,6 @@ export default {
     InputText,
     Password,
     PrimeButton,
-
   },
   data() {
     return {
@@ -117,7 +99,7 @@ export default {
       if (user) {
         const token = 'mockToken'
         localStorage.setItem('token', token)
-        localStorage.setItem('usuario', JSON.stringify({ nombre: user.nombreUsuario, rol: user.rol}))
+        localStorage.setItem('usuario', JSON.stringify({ nombre: user.nombreUsuario, rol: user.rol }))
         localStorage.setItem('sessionExpireTime', new Date().getTime() + 30 * 60 * 1000)
         this.$store.commit('setUser', user)
         push.success(`Bienvenido ${user.nombreUsuario}`)
@@ -128,39 +110,41 @@ export default {
     },
 
     async handleRealLogin() {
-    try {
-       const response = await api.post('https://localhost:7177/api/Auth', this.credentials)
-    if (response.data.success) {
-      const token = response.data.token
-      const { usuario } = response.data.data
+      try {
+        const response = await api.post('https://localhost:7177/api/Auth', this.credentials)
+        if (response.data.success) {
+          const token = response.data.token
+          const { usuario } = response.data.data
 
-      localStorage.setItem('token', token)
-      localStorage.setItem('user', usuario.nombreUsuario)
-      localStorage.setItem('idUsuario', usuario.idUsuario)
-      localStorage.setItem('idPerfil', usuario.idPerfil)
-      localStorage.setItem('sessionExpireTime', new Date().getTime() + 30 * 60 * 1000)
-      localStorage.setItem('usuario', JSON.stringify({
-        idUsuario: usuario.idUsuario,
-        nombre: usuario.nombreUsuario,
-        rol: nombrePerfil(usuario.idPerfil),
-        perfil: usuario.idPerfil
-      }))
+          localStorage.setItem('token', token)
+          localStorage.setItem('user', usuario.nombreUsuario)
+          localStorage.setItem('idUsuario', usuario.idUsuario)
+          localStorage.setItem('idPerfil', usuario.idPerfil)
+          localStorage.setItem('sessionExpireTime', new Date().getTime() + 30 * 60 * 1000)
+          localStorage.setItem('usuario', JSON.stringify({
+            idUsuario: usuario.idUsuario,
+            nombre: usuario.nombreUsuario,
+            rol: nombrePerfil(usuario.idPerfil),
+            perfil: usuario.idPerfil
+          }))
 
-      this.$store.commit('setUser', usuario)
-      push.success(response.data.message)
-      if(usuario.idPerfil == 4 ){
-          this.$router.push('/abogado/inicio')
-        } else{
-          console.log(jwtDecode(token));
-          this.$router.push('/home')
+          this.$store.commit('setUser', usuario)
+          push.success(response.data.message)
+          if (usuario.idPerfil == 4) {
+            this.$router.push('/abogado/inicio')
+          }else if (usuario.idPerfil == 2) {
+            this.$router.push('supervisor/litigios')
+          }  else {
+            console.log(jwtDecode(token));
+            this.$router.push('/home')
+          }
+        } else {
+          push.warning(response.data.message)
         }
-    } else {
-      push.warning(response.data.message)
-    }
-  } catch (error) {
-    console.error('Error en login:', error)
-    push.error(error.response?.data?.message || 'No se pudo conectar al servidor.')
-  }
+      } catch (error) {
+        console.error('Error en login:', error)
+        push.warning('Hubo un error al intentar iniciar sesión. Intenta nuevamente.')
+      }
     }
 
   }
@@ -313,7 +297,8 @@ const nombrePerfil = (idPerfil) => {
 }
 
 :deep(.p-password-toggle-mask-icon) {
-  top: 35% !important; /* Centrado visual */
+  top: 35% !important;
+  /* Centrado visual */
   width: 20px !important;
   height: 18px !important;
 }
@@ -395,6 +380,7 @@ const nombrePerfil = (idPerfil) => {
     opacity: 0;
     transform: translateY(40px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);

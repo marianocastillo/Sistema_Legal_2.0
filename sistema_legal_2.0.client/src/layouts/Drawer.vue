@@ -118,7 +118,7 @@ import { push } from 'notivue';
 
 const router = useRouter();
 
-const rutaInicio = ref('/home');
+const rutaInicio = ref('');
 const mostrarSubmenu = ref(false);
 const submenuRef = ref(null);
 const isSidebarVisible = ref(true);
@@ -183,7 +183,15 @@ onMounted(() => {
     usuario.value = JSON.parse(stored);
 
     const perfilId = parseInt(usuario.value.perfil);
-    rutaInicio.value = perfilId === 4 ? '/abogado/inicio' : '/home';
+    const rutasPorPerfil = {
+      1: '/home',
+      2: '/supervisor/litigios',
+      3: '/digitador/inicio',
+      4: '/abogado/inicio'
+    };
+
+    rutaInicio.value = rutasPorPerfil[perfilId] || '/home';
+
   }
 
   document.addEventListener('click', handleClickOutside);

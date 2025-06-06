@@ -11,7 +11,7 @@
           @click="formRef?.requestSubmit()" style="background-color: #003870; border-color: #003870;" />
 
         <!-- Botón Inicio -->
-        <router-link to="/home" class="btn btn-sm text-white d-flex align-items-center custom-home-btn">
+        <router-link :to="rutaInicio" class="btn btn-sm text-white d-flex align-items-center custom-home-btn">
           <i class="pi pi-home me-2"></i>
           Inicio
         </router-link>
@@ -267,9 +267,27 @@ const enviando = ref(false)
 
 
 
+const rutaInicio = ref('/home');
+
 onMounted(() => {
-  cargarDatosDropdowns()
-})
+  cargarDatosDropdowns();
+
+  const rawUser = localStorage.getItem('usuario');
+  const user = rawUser ? JSON.parse(rawUser) : null;
+
+  if (user) {
+    const perfil = parseInt(user.perfil);
+    const rutasPorPerfil = {
+      1: '/home',
+      2: '/supervisor/litigios',
+      3: '/digitador/inicio',
+      4: '/abogado/inicio'
+    };
+
+    rutaInicio.value = rutasPorPerfil[perfil] || '/home';
+  }
+});
+
 
 const formatearFechaISO = (fecha) => {
   if (!fecha) return ''
@@ -352,8 +370,18 @@ const registrarLitigio = async () => {
     } else {
       notif.resolve('El litigio ha sido cargado de forma exitosa');
       setTimeout(() => {
-        router.push('/home');
+        const usuario = JSON.parse(localStorage.getItem('usuario'));
+        const perfil = parseInt(usuario?.perfil);
+        const rutasPorPerfil = {
+          1: '/home',
+          2: '/supervisor/litigios',
+          3: '/digitador/inicio',
+          4: '/abogado/inicio'
+        };
+        const ruta = rutasPorPerfil[perfil] || '/home';
+        router.push(ruta);
       }, 1000);
+
     }
 
   } catch (error) {

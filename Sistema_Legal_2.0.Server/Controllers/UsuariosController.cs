@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+ï»¿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sistema_Legal_2._0.Server.Models;
 using Sistema_Legal_2._0.Server.Repositories;
@@ -188,28 +188,43 @@ namespace Sistema_Legal_2._0.Server.Controller
         public IActionResult Asignar([FromBody] Asignaciones_Ltg model)
         {
             if (model == null || model.IdUsuario <= 0 || model.IdLtg <= 0)
-                return BadRequest("Datos inválidos.");
+                return BadRequest("Datos invÃ¡lidos.");
 
             string connectionString = _configuration.GetConnectionString("Sistema_Legal");
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                string query = "INSERT INTO Asignaciones_Litigios (IdUsuario, Id_Ltg) VALUES (@idUsuario, @id_Ltg)";
-                using (SqlCommand cmd = new SqlCommand(query, conn))
+                conn.Open();
+
+                // ðŸŸ¡ Verificar si ya existe la asignaciÃ³n
+                string verificarQuery = "SELECT COUNT(*) FROM Asignaciones_Litigios WHERE IdUsuario = @idUsuario AND Id_Ltg = @id_Ltg";
+                using (SqlCommand verificarCmd = new SqlCommand(verificarQuery, conn))
                 {
-                    cmd.Parameters.AddWithValue("@idUsuario", model.IdUsuario);
-                    cmd.Parameters.AddWithValue("@id_Ltg", model.IdLtg);
+                    verificarCmd.Parameters.AddWithValue("@idUsuario", model.IdUsuario);
+                    verificarCmd.Parameters.AddWithValue("@id_Ltg", model.IdLtg);
 
-                    conn.Open();
-                    int rows = cmd.ExecuteNonQuery();
-                    conn.Close();
+                    int existe = (int)verificarCmd.ExecuteScalar();
+                    if (existe > 0)
+                    {
+                        return Conflict("Este abogado ya estÃ¡ asignado a este litigio.");
+                    }
+                }
 
+                // âœ… Insertar si no existÃ­a
+                string insertQuery = "INSERT INTO Asignaciones_Litigios (IdUsuario, Id_Ltg) VALUES (@idUsuario, @id_Ltg)";
+                using (SqlCommand insertCmd = new SqlCommand(insertQuery, conn))
+                {
+                    insertCmd.Parameters.AddWithValue("@idUsuario", model.IdUsuario);
+                    insertCmd.Parameters.AddWithValue("@id_Ltg", model.IdLtg);
+
+                    int rows = insertCmd.ExecuteNonQuery();
                     if (rows > 0)
-                        return Ok("Asociación guardada correctamente.");
+                        return Ok("AsociaciÃ³n guardada correctamente.");
                     else
                         return StatusCode(500, "No se pudo guardar.");
                 }
             }
         }
+
 
         [HttpGet("Asignados/{idLtg}")]
         public IActionResult GetAbogadosAsignadosConCantidad(int idLtg)
@@ -310,7 +325,7 @@ namespace Sistema_Legal_2._0.Server.Controller
         public IActionResult EliminarAsignacion([FromQuery] int idUsuario, [FromQuery] int idLtg)
         {
             if (idUsuario <= 0 || idLtg <= 0)
-                return BadRequest("Parámetros inválidos.");
+                return BadRequest("ParÃ¡metros invÃ¡lidos.");
 
             try
             {
@@ -330,15 +345,15 @@ namespace Sistema_Legal_2._0.Server.Controller
                         conn.Close();
 
                         if (filas > 0)
-                            return Ok("Asignación eliminada correctamente.");
+                            return Ok("AsignaciÃ³n eliminada correctamente.");
                         else
-                            return NotFound("No se encontró la asignación.");
+                            return NotFound("No se encontrÃ³ la asignaciÃ³n.");
                     }
                 }
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Error al eliminar asignación.", error = ex.Message });
+                return StatusCode(500, new { message = "Error al eliminar asignaciÃ³n.", error = ex.Message });
             }
         }
 

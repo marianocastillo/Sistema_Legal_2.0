@@ -2,7 +2,7 @@
   <div class="card p-4 shadow-2">
     <div class="flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
       <h2 class="text-xl font-bold">Modificar Litigio</h2>
-      <router-link to="/home" class="btn text-white px-3 py-2" style="background-color: #003870;">
+      <router-link :to="rutaInicio"  class="btn text-white px-3 py-2" style="background-color: #003870;">
         <i class="fa-solid fa-home me-2"></i> Inicio
       </router-link>
     </div>
@@ -105,7 +105,8 @@ import Dropdown from 'primevue/dropdown'
 import Button from 'primevue/button'
 
 const router = useRouter()
-const hoy = ref(new Date()) // Esto representa la fecha de hoy
+const hoy = ref(new Date())
+const rutaInicio = ref('/home');
 
 const form = ref({
   id_Ltg: null,
@@ -171,8 +172,7 @@ onMounted(async () => {
     form.value = {
       id_Ltg: data.id_Ltg,
       noActo: data.ltg_acto,
-      fechaActo: data.ltg_Fecha_Acto ? new Date(data.ltg_Fecha_Acto)
-        : null,
+      fechaActo: data.ltg_Fecha_Acto ? new Date(data.ltg_Fecha_Acto) : null,
       tipoDemanda: data.id_Tipo_Demanda ?? data.tipoDemanda_Id ?? null,
       cedulaDemandante: data.ltg_Cedula_Demandante,
       Nacionalidad: data.ltg_Nacionalidad,
@@ -181,9 +181,7 @@ onMounted(async () => {
       otrosDemandante: data.ltg_Tipo_Demandante === 'Otros' ? data.otrosDemandante || '' : '',
       cedulaRepresentante: data.ltg_Cedula_Representante,
       nombreRepresentante: data.ltg_Nombre_Representante,
-      fechaAudiencia: data.ltg_Fecha_Audiencia
-        ? new Date(data.ltg_Fecha_Audiencia)
-        : null,
+      fechaAudiencia: data.ltg_Fecha_Audiencia ? new Date(data.ltg_Fecha_Audiencia) : null,
       tribunal: data.id_Tribunal,
       estatus: data.id_Estatus ?? data.ltg_estatus ?? null,
       id_Sentencia: data.id_Sentencia ?? null
@@ -196,10 +194,24 @@ onMounted(async () => {
     } else {
       console.warn('No se encontró usuario en localStorage');
     }
-
   }
 
-})
+  // ✅ Agrega esta parte para establecer la ruta dinámica
+  const rawUser = localStorage.getItem('usuario');
+  const user = rawUser ? JSON.parse(rawUser) : null;
+
+  if (user) {
+    const perfil = parseInt(user.perfil);
+    const rutasPorPerfil = {
+      1: '/home',
+      2: '/supervisor/litigios',
+      3: '/digitador/inicio',
+      4: '/abogado/inicio'
+    };
+
+    rutaInicio.value = rutasPorPerfil[perfil] || '/home';
+  }
+});
 
 
 // ✅ Validación dinámica para cédula o RNC según el tipo
@@ -269,11 +281,15 @@ const registrarLitigio = async () => {
       const usuarioActual = JSON.parse(localStorage.getItem('usuario'))
       const perfil = usuarioActual?.perfil
 
-      if (perfil === 4) {
-        router.push('/abogado/inicio')
-      } else {
-        router.push('/home')
-      }
+      const rutasPorPerfil = {
+        1: '/home',
+        2: '/supervisor/litigios',
+        3: '/digitador/inicio',
+        4: '/abogado/inicio'
+      };
+
+      const ruta = rutasPorPerfil[perfil] || '/home';
+      router.push(ruta);
     }
     else {
       push.error('Error al actualizar el litigio.')
