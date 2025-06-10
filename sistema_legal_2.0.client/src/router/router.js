@@ -10,7 +10,7 @@ import ModificarRegistro from '../components/views/ModificarRegistro.vue';
 import ListadoUsuariosView from '../components/views/Configs/ListadoUsuariosView.vue';
 import FormularioView from '../components/views/Configs/FormularioView.vue';
 import BuscarLitigio from '@/components/views/BuscarLitigio.vue';
-import SupervisorLitigios from '@/components/views/SupervisorLitigios.vue';
+import AdministradorLitigio from '@/components/views/AdministradorLitigio.vue';
 import VistaAbogado from '@/components/views/VistaAbogado.vue';
 
 const routes = [
@@ -23,24 +23,18 @@ const routes = [
   path: '/',
   component: Drawer,
   children: [
-    { path: '', redirect: '/home' },
-    {
-      path: 'home',
-      name: 'TodosRegistro',
-      component: TodosRegistro,
-      meta: { requiresAuth: true, roles: [1, 2, 3] }
+    { path: '', redirect: '/Administrador/litigios' },
+   {
+      path: 'Administrador/litigios',
+      name: 'AdministradorLitigio',
+      component: AdministradorLitigio,
+      meta: { requiresAuth: true, roles: [1, 2] }
     },
     {
       path: 'abogado/inicio',
       name: 'VistaAbogado',
       component: VistaAbogado,
       meta: { requiresAuth: true, roles: [4] }
-    },
-    {
-      path: 'supervisor/litigios',
-      name: 'SupervisorLitigios',
-      component: SupervisorLitigios,
-      meta: { requiresAuth: true, roles: [2] }
     },
     {
       path: 'registrar',

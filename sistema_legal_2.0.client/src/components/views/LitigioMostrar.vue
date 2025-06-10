@@ -4,7 +4,7 @@
       <h2 class="text-2xl font-semibold p-4">Detalle del Litigio</h2>
       <Tag :value="litigio?.desc_Sentencia" :severity="getSentenciaSeverity(litigio?.desc_Sentencia)" />
 
-      <router-link to="/home" class="btn text-white ms-auto" style="background-color: #003870;">
+      <router-link :to="rutaInicio" class="btn text-white ms-auto" style="background-color: #003870;">
         <i class="fa-solid fa-home me-2"></i> Inicio
       </router-link>
 
@@ -342,8 +342,27 @@ const cargarLineaDeTiempo = async () => {
   }
 };
 
+const rutaInicio = ref('/Administrador/litigios');
+
 onMounted(async () => {
   try {
+    // ✅ Lógica de ruta según perfil
+    const rawUser = localStorage.getItem('usuario');
+    const user = rawUser ? JSON.parse(rawUser) : null;
+
+    if (user) {
+      const perfil = parseInt(user.perfil);
+      const rutasPorPerfil = {
+        1: '/Administrador/litigios',
+        2: '/Administrador/litigios',
+        3: '/digitador/inicio',
+        4: '/abogado/inicio'
+      };
+
+      rutaInicio.value = rutasPorPerfil[perfil] || '/Administrador/litigios';
+    }
+
+    // ✅ Carga datos del litigio
     const response = await api.get(`/api/Litigio/detallados/${props.id}`);
     if (!response.data) throw new Error('La respuesta no contiene datos');
     litigio.value = response.data;
@@ -352,22 +371,22 @@ onMounted(async () => {
     await obtenerComentariosConEvidencias();  // Carga evidencias
     await nextTick();                         // Espera render del DOM
 
-    // Mueve scroll horizontal al final (último evento visible)
+    // ✅ Mueve scroll al final
     setTimeout(() => {
       if (scrollContainer.value) {
         scrollContainer.value.scrollTo({
           left: scrollContainer.value.scrollWidth,
-          behavior: 'auto' // Cambia a 'smooth' si deseas efecto suave
+          behavior: 'auto'
         });
       }
-    }, 100); // Aumenta si el render necesita más tiempo
+    }, 100);
 
-    // 🔓 Muestra el scroll después de la animación
+    // ✅ Muestra scroll después de animación
     setTimeout(() => {
       if (scrollContainer.value) {
         scrollContainer.value.classList.add('scroll-visible');
       }
-    }, 2600); // Coincide con duración de animación (ej. 2.6s)
+    }, 2600);
 
   } catch (error) {
     console.error('Error al cargar el litigio:', error);
@@ -375,6 +394,7 @@ onMounted(async () => {
     loading.value = false;
   }
 });
+
 
 
 

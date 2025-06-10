@@ -2,22 +2,68 @@
   <div class="card p-4 shadow-2">
     <div class="flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
       <h2 class="text-xl font-bold">Modificar Litigio</h2>
-      <router-link :to="rutaInicio"  class="btn text-white px-3 py-2" style="background-color: #003870;">
+      <router-link :to="rutaInicio" class="btn text-white px-3 py-2" style="background-color: #003870;">
         <i class="fa-solid fa-home me-2"></i> Inicio
       </router-link>
     </div>
 
     <form @submit.prevent="registrarLitigio">
       <div class="grid formgrid p-fluid">
+
+           <!-- INFORMACIÓN DEL LITIGIO -->
+        <fieldset class="col-12 border-1 border-round p-3 mb-3">
+          <legend class="font-bold text-lg">Información del Litigio</legend>
+          <div class="grid">
+
+            <div class="field col-12 md:col-4">
+              <label class="block mb-2">No. Acto Alguacil *</label>
+              <InputText v-model="form.noActo" class="w-full" placeholder="No. Acto Alguacil" />
+            </div>
+
+            <div class="field col-12 md:col-4">
+              <label class="block mb-2">Fecha del Acto</label>
+              <Calendar v-model="form.fechaActo" dateFormat="yy-mm-dd" showIcon placeholder="Fecha del acto"
+                class="w-full" />
+            </div>
+
+            <div class="field col-12 md:col-4">
+              <label class="block mb-2">Tipo de Demanda</label>
+              <Dropdown v-model="form.tipoDemanda" :options="tiposDemanda" optionLabel="nombre" optionValue="id_demanda"
+                placeholder="Tipo de Demanda" class="w-full" />
+            </div>
+
+            <div class="field col-12 md:col-4">
+              <label class="block mb-2">Fecha de Audiencia</label>
+              <Calendar v-model="form.fechaAudiencia" dateFormat="yy-mm-dd" showIcon placeholder="Fecha de audiencia"
+                class="w-full" :minDate="hoy" />
+            </div>
+
+            <div class="field col-12 md:col-4">
+              <label class="block mb-2">Tribunal</label>
+              <Dropdown v-model="form.tribunal" :options="tribunales" optionLabel="nombre_Tribunal"
+                optionValue="id_Tribunal" placeholder="--Seleccione Tribunal--" class="w-full" />
+            </div>
+
+            <div class="field col-12 md:col-4">
+              <label class="block mb-2">Estatus</label>
+              <Dropdown v-model="form.estatus" :options="estatusList" optionLabel="ltg_description"
+                optionValue="ltg_estatus" placeholder="--Seleccione Estatus--" class="w-full" />
+            </div>
+
+          </div>
+        </fieldset>
         <!-- DATOS DEL DEMANDANTE -->
         <fieldset class="col-12 border-1 border-round p-3 mb-3">
           <legend class="font-bold text-lg">Datos del Demandante</legend>
           <div class="grid">
             <div class="field col-12 md:col-4">
+              <label class="block mb-2">Tipo de Demandante</label>
               <Dropdown v-model="form.tiposDemandante" :options="tiposDemandante" optionLabel="label"
                 optionValue="value" class="w-full" placeholder="Tipo de Demandante" />
             </div>
+
             <div class="field col-12 md:col-4">
+              <label class="block mb-2">Cédula o RNC del Demandante</label>
               <InputText v-model="form.cedulaDemandante" class="w-full" :class="{ 'p-invalid': cedulaInvalida }"
                 :maxlength="form.tiposDemandante === 'Empresa' ? 9 : 11" @input="handleCedulaInput"
                 :placeholder="form.tiposDemandante === 'Empresa' ? 'RNC de la empresa' : 'Cédula del demandante'" />
@@ -25,47 +71,22 @@
                 {{ form.tiposDemandante === 'Empresa' ? 'Debe tener 9 dígitos numéricos (RNC).' : 'Debe tener 11 dígitos numéricos (cédula).' }}
               </small>
             </div>
+
             <div class="field col-12 md:col-4">
+              <label class="block mb-2">Nombre del Demandante</label>
               <InputText v-model="form.demandante" class="w-full"
                 :placeholder="form.tiposDemandante === 'Empresa' ? 'Nombre de la empresa' : 'Nombre del demandante'" />
             </div>
-            <div class="field col-12 md:col-4">
-              <InputText v-model="form.Nacionalidad"
-                :placeholder="form.tiposDemandante === 'Empresa' ? 'País de constitución' : 'Nacionalidad'"
-                class="w-full" />
-            </div>
-            <div class="field col-12 md:col-4" v-if="form.tiposDemandante === 'Otros'">
-              <InputText v-model="form.otrosDemandante" class="w-full" placeholder="Especifique tipo de demandante" />
-            </div>
-          </div>
-        </fieldset>
 
-        <!-- INFORMACIÓN DEL LITIGIO -->
-        <fieldset class="col-12 border-1 border-round p-3 mb-3">
-          <legend class="font-bold text-lg">Información del Litigio</legend>
-          <div class="grid">
             <div class="field col-12 md:col-4">
-              <InputText v-model="form.noActo" class="w-full" placeholder="No. Acto Alguacil *" />
+              <label class="block mb-2">Nacionalidad o País de constitución</label>
+              <InputText v-model="form.Nacionalidad" class="w-full"
+                :placeholder="form.tiposDemandante === 'Empresa' ? 'País de constitución' : 'Nacionalidad'" />
             </div>
-            <div class="field col-12 md:col-4">
-              <Calendar v-model="form.fechaActo" dateFormat="yy-mm-dd" showIcon placeholder="Fecha del acto"
-                class="w-full" />
-            </div>
-            <div class="field col-12 md:col-4">
-              <Dropdown v-model="form.tipoDemanda" :options="tiposDemanda" optionLabel="nombre" optionValue="id_demanda"
-                placeholder="Tipo de Demanda" class="w-full" />
-            </div>
-            <div class="field col-12 md:col-4">
-              <Calendar v-model="form.fechaAudiencia" dateFormat="yy-mm-dd" showIcon placeholder="Fecha de audiencia"
-                class="w-full" :minDate="hoy" />
-            </div>
-            <div class="field col-12 md:col-4">
-              <Dropdown v-model="form.tribunal" :options="tribunales" optionLabel="nombre_Tribunal"
-                optionValue="id_Tribunal" placeholder="--Seleccione Tribunal--" class="w-full" />
-            </div>
-            <div class="field col-12 md:col-4">
-              <Dropdown v-model="form.estatus" :options="estatusList" optionLabel="ltg_description"
-                optionValue="ltg_estatus" placeholder="--Seleccione Estatus--" class="w-full" />
+
+            <div class="field col-12 md:col-4" v-if="form.tiposDemandante === 'Otros'">
+              <label class="block mb-2">Especifique tipo de demandante</label>
+              <InputText v-model="form.otrosDemandante" class="w-full" placeholder="Especifique tipo de demandante" />
             </div>
           </div>
         </fieldset>
@@ -74,12 +95,17 @@
         <fieldset class="col-12 border-1 border-round p-3 mb-3">
           <legend class="font-bold text-lg">Datos del Representante</legend>
           <div class="grid">
+
             <div class="field col-12 md:col-6">
+              <label class="block mb-2">Cédula del Representante</label>
               <InputText v-model="form.cedulaRepresentante" placeholder="Cédula del representante" class="w-full" />
             </div>
+
             <div class="field col-12 md:col-6">
+              <label class="block mb-2">Nombre del Representante</label>
               <InputText v-model="form.nombreRepresentante" placeholder="Nombre del representante" class="w-full" />
             </div>
+
           </div>
         </fieldset>
 
@@ -106,7 +132,7 @@ import Button from 'primevue/button'
 
 const router = useRouter()
 const hoy = ref(new Date())
-const rutaInicio = ref('/home');
+const rutaInicio = ref('/Administrador/litigios');
 
 const form = ref({
   id_Ltg: null,
@@ -203,13 +229,13 @@ onMounted(async () => {
   if (user) {
     const perfil = parseInt(user.perfil);
     const rutasPorPerfil = {
-      1: '/home',
-      2: '/supervisor/litigios',
+      1: '/Administrador/litigios',
+      2: '/Administrador/litigios',
       3: '/digitador/inicio',
       4: '/abogado/inicio'
     };
 
-    rutaInicio.value = rutasPorPerfil[perfil] || '/home';
+    rutaInicio.value = rutasPorPerfil[perfil] || '/Administrador/litigios';
   }
 });
 
@@ -282,13 +308,13 @@ const registrarLitigio = async () => {
       const perfil = usuarioActual?.perfil
 
       const rutasPorPerfil = {
-        1: '/home',
-        2: '/supervisor/litigios',
+        1: '/Administrador/litigios',
+        2: '/Administrador/litigios',
         3: '/digitador/inicio',
         4: '/abogado/inicio'
       };
 
-      const ruta = rutasPorPerfil[perfil] || '/home';
+      const ruta = rutasPorPerfil[perfil] || '/Administrador/litigios';
       router.push(ruta);
     }
     else {
@@ -323,5 +349,10 @@ legend {
   background-color: #003870 !important;
   border-color: #003870 !important;
   color: white !important;
+}
+
+.field label {
+  font-weight: 600;
+  color: #003870;
 }
 </style>

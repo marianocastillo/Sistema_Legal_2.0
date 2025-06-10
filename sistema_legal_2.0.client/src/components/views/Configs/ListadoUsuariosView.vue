@@ -8,7 +8,7 @@
         </router-link>
 
         <input type="text" class="form-control-sm bg-white text-dark" placeholder="Buscar..." v-model="search" />
-        <router-link to="/home" class="btn text-white" style="background-color: #003870;">
+        <router-link to="/Administrador/litigios" class="btn text-white" style="background-color: #003870;">
           <i class="fa-solid fa-home me-2"></i> Inicio
         </router-link>
       </div>

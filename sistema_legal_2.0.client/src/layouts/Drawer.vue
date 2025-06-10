@@ -184,13 +184,13 @@ onMounted(() => {
 
     const perfilId = parseInt(usuario.value.perfil);
     const rutasPorPerfil = {
-      1: '/home',
-      2: '/supervisor/litigios',
+      1: '/Administrador/litigios',
+      2: '/Administrador/litigios',
       3: '/digitador/inicio',
       4: '/abogado/inicio'
     };
 
-    rutaInicio.value = rutasPorPerfil[perfilId] || '/home';
+    rutaInicio.value = rutasPorPerfil[perfilId] || '/Administrador/litigios';
 
   }
 

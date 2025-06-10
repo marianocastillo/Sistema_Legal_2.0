@@ -18,100 +18,122 @@
       </div>
     </div>
 
-
-
-
-
     <form ref="formRef" @submit.prevent="registrarLitigio">
       <div class="grid formgrid p-fluid">
-
 
         <!-- INFORMACIÓN DEL LITIGIO -->
         <fieldset class="col-12 border-1 border-round p-3 mb-3">
           <legend class="font-bold text-lg">Información del Litigio</legend>
           <div class="grid">
+
+            <!-- Número de Acto -->
             <div class="field col-12 md:col-4">
-              <InputText v-model="form.ltg_acto" placeholder="No. Acto Alguacil *" class="w-full" />
-            </div>
-            <div class="field col-12 md:col-4">
-              <Calendar v-model="form.ltg_Fecha_Acto" dateFormat="yy-mm-dd" showIcon placeholder="Fecha del acto"
-                class="w-full" />
+              <label for="acto" class="block mb-2 font-medium text-sm">No. Acto Alguacil *</label>
+              <InputText id="acto" v-model="form.ltg_acto" class="w-full" placeholder="Ingrese el número de acto"
+                maxlength="10" />
             </div>
 
+            <!-- Fecha del Acto -->
             <div class="field col-12 md:col-4">
-              <input list="tiposDemanda" id="tipoDemanda" v-model="form.nombre_Tipo_Demanda"
-                class="p-inputtext p-component w-full" placeholder="--Seleccione el Tipo de Demanda--" />
-              <datalist id="tiposDemanda">
-                <option v-for="tipo in tiposDemanda" :key="tipo.id_demanda" :value="tipo.nombre" />
-              </datalist>
+              <label for="fechaActo" class="block mb-2 font-medium text-sm">Fecha del Acto *</label>
+              <Calendar id="fechaActo" v-model="form.ltg_Fecha_Acto" dateFormat="yy-mm-dd" showIcon class="w-full"
+                placeholder="Seleccione la fecha" />
+            </div>
+
+            <!-- Tipo de Demanda -->
+            <div class="field col-12 md:col-4">
+              <label for="tipoDemanda" class="block mb-2 font-medium text-sm">Tipo de Demanda *</label>
+              <Dropdown id="tipoDemanda" v-model="form.id_Tipo_Demanda" :options="tiposDemanda" optionLabel="nombre"
+                optionValue="id_demanda" placeholder="Seleccione una opción" class="w-full" filter />
             </div>
 
           </div>
         </fieldset>
 
 
+        <!-- Información de la Audiencia -->
         <fieldset class="col-12 border-1 border-round p-3 mb-3">
-          <legend class="font-bold text-lg">Información de la audienica</legend>
+          <legend class="font-bold text-lg">Información de la Audiencia</legend>
           <div class="grid">
 
-
+            <!-- Fecha de Audiencia -->
             <div class="field col-12 md:col-4">
-              <Calendar v-model="form.ltg_Fecha_Audiencia" dateFormat="yy-mm-dd" showIcon
-                placeholder="Fecha de audiencia" class="w-full" :minDate="hoy" />
+              <label for="fechaAudiencia" class="block mb-2 font-medium text-sm">Fecha de Audiencia *</label>
+              <Calendar id="fechaAudiencia" v-model="form.ltg_Fecha_Audiencia" dateFormat="yy-mm-dd" showIcon
+                :minDate="hoy" class="w-full" placeholder="Seleccione una fecha" />
             </div>
 
+            <!-- Tribunal -->
             <div class="field col-12 md:col-4">
-              <input list="listaTribunales" id="tribunal" v-model="form.nombre_Tribunal"
-                class="p-inputtext p-component w-full" placeholder="--Seleccione Tribunal--" />
-              <datalist id="listaTribunales">
-                <option v-for="tribunal in tribunales" :key="tribunal.id_Tribunal" :value="tribunal.nombre_Tribunal" />
-              </datalist>
+              <label for="tribunal" class="block mb-2 font-medium text-sm">Tribunal *</label>
+              <Dropdown id="tribunal" v-model="form.id_Tribunal" :options="tribunales" optionLabel="nombre_Tribunal"
+                optionValue="id_Tribunal" placeholder="Seleccione un tribunal" class="w-full" filter />
             </div>
 
+            <!-- Tipo de Audiencia -->
             <div class="field col-12 md:col-4">
-              <Dropdown id="tipoDemandante" v-model="form.Tipo_audiencia" :options="tiposAudiencia" optionLabel="label"
-                optionValue="value" class="w-full" placeholder="--Seleccione Tipo de Audiencia--" />
-
+              <label for="tipoAudiencia" class="block mb-2 font-medium text-sm">Tipo de Audiencia *</label>
+              <Dropdown id="tipoAudiencia" v-model="form.Tipo_audiencia" :options="tiposAudiencia" optionLabel="label"
+                optionValue="value" class="w-full" placeholder="Seleccione un tipo" />
             </div>
+
           </div>
         </fieldset>
+
+
         <!-- DATOS DEL DEMANDANTE -->
         <fieldset class="col-12 border-1 border-round p-3 mb-3">
           <legend class="font-bold text-lg">Datos del Demandante</legend>
           <div class="grid">
+
+            <!-- Tipo de Demandante -->
             <div class="field col-12 md:col-3">
+              <label for="tipoDemandante" class="block mb-2 font-medium text-sm">Tipo de Demandante *</label>
               <Dropdown id="tipoDemandante" v-model="form.ltg_Tipo_Demandante" :options="tiposDemandante"
-                optionLabel="label" optionValue="value" class="w-full"
-                placeholder="--Seleccione Tipo de demandante--" />
+                optionLabel="label" optionValue="value" class="w-full" placeholder="Seleccione una opción" />
             </div>
 
+            <!-- Otro tipo de demandante -->
             <div class="field col-12 md:col-4" v-if="form.ltg_Tipo_Demandante === 'Otros'">
+              <label for="otrosDemandante" class="block mb-2 font-medium text-sm">Especifique tipo de Demandante
+                *</label>
               <InputText id="otrosDemandante" v-model="form.otrosDemandante" class="w-full"
-                placeholder="Especifique tipo de demandante" />
+                placeholder="Otro tipo de demandante" />
             </div>
+
+            <!-- Cédula o RNC -->
             <div class="field col-12 md:col-2">
-              <InputText v-model="form.ltg_Cedula_Demandante"
+              <label for="cedulaDemandante" class="block mb-2 font-medium text-sm">
+                {{ form.ltg_Tipo_Demandante === 'Empresa' ? 'RNC de la Empresa *' : 'Cédula del Demandante *' }}
+              </label>
+              <InputText id="cedulaDemandante" v-model="form.ltg_Cedula_Demandante"
+                :maxlength="form.ltg_Tipo_Demandante === 'Empresa' ? 9 : 11"
+                @input="form.ltg_Cedula_Demandante = form.ltg_Cedula_Demandante.replace(/\D/g, '')"
                 @blur="() => buscarPersonaPorDocumento(form.ltg_Cedula_Demandante, 'ltg_Demandante', 'ltg_Nacionalidad')"
                 class="w-full"
-                :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'RNC de la empresa' : 'Cédula del demandante'" />
-
-
+                :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'Ej: 123456789' : 'Ej: 00112345678'" />
             </div>
 
+
+            <!-- Nombre del Demandante -->
             <div class="field col-12 md:col-4">
-              <InputText v-model="form.ltg_Demandante"
-                :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'Nombre de la empresa' : 'Nombre del demandante'"
-                class="w-full" />
-            </div>
-            <div class="field col-12 md:col-3">
-              <InputText v-model="form.ltg_Nacionalidad"
-                :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'País de constitución' : 'Nacionalidad'"
-                class="w-full" />
+              <label for="nombreDemandante" class="block mb-2 font-medium text-sm">Nombre del Demandante *</label>
+              <InputText id="nombreDemandante" v-model="form.ltg_Demandante" class="w-full"
+                :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'Nombre de la empresa' : 'Nombre completo'" />
             </div>
 
+            <!-- Nacionalidad o país -->
+            <div class="field col-12 md:col-3">
+              <label for="nacionalidadDemandante" class="block mb-2 font-medium text-sm">
+                {{ form.ltg_Tipo_Demandante === 'Empresa' ? 'País de Constitución *' : 'Nacionalidad *' }}
+              </label>
+              <InputText id="nacionalidadDemandante" v-model="form.ltg_Nacionalidad" class="w-full"
+                placeholder="Ej: Dominicana" />
+            </div>
 
           </div>
         </fieldset>
+
 
         <!-- DATOS DEL REPRESENTANTE -->
         <fieldset class="col-12 border-1 border-round p-3 mb-3">
@@ -119,39 +141,56 @@
           <div class="grid">
 
             <div class="field col-12 md:col-2">
-              <InputText v-model="form.ltg_Cedula_Representante"
-                @blur="() => buscarPersonaPorDocumento(form.ltg_Cedula_Representante, 'ltg_Nombre_Representante', 'ltg_Nacionalidad_Representante')"
-                class="w-full" placeholder="Cedula del Representante" />
-
+              <label for="cedulaRepresentante" class="block mb-2 font-medium text-sm">Cédula del Representante *</label>
+              <InputText id="cedulaRepresentante" v-model="form.ltg_Cedula_Representante" @blur="() => buscarPersonaPorDocumento(
+                form.ltg_Cedula_Representante,
+                'ltg_Nombre_Representante',
+                'ltg_Nacionalidad_Representante'
+              )" class="w-full" placeholder="Ej: 00112345678" />
             </div>
 
             <div class="field col-12 md:col-5">
-              <InputText v-model="form.ltg_Nombre_Representante" placeholder="Nombre del representante"
-                class="w-full" />
+              <label for="nombreRepresentante" class="block mb-2 font-medium text-sm">Nombre del Representante *</label>
+              <InputText id="nombreRepresentante" v-model="form.ltg_Nombre_Representante" class="w-full"
+                placeholder="Nombre completo" />
             </div>
+
             <div class="field col-12 md:col-5">
-              <InputText v-model="form.ltg_Nacionalidad_Representante" placeholder="Nacionalidad del representante"
-                class="w-full" />
+              <label for="nacionalidadRepresentante" class="block mb-2 font-medium text-sm">Nacionalidad del
+                Representante *</label>
+              <InputText id="nacionalidadRepresentante" v-model="form.ltg_Nacionalidad_Representante" class="w-full"
+                placeholder="Ej: Dominicana" />
             </div>
+
           </div>
         </fieldset>
 
-        <!-- ARCHIVOS -->
+
         <fieldset class="col-12 border-1 border-round p-3 mb-3">
           <legend class="font-bold text-lg">Documentación</legend>
           <div class="grid">
 
+            <!-- Nombre de la Evidencia y Carga de Archivo -->
             <div class="field col-12 md:col-4">
-              <InputText v-model="form.NombreEvidencia" placeholder="Nombrar Evidencia" class="w-full" />
-              <br> <br>
-              <FileUpload name="Archivo" customUpload @select="handleExpedienteUpload" mode="basic"
+              <label for="nombreEvidencia" class="block mb-2 font-medium text-sm">Nombre de la Evidencia</label>
+              <InputText id="nombreEvidencia" v-model="form.NombreEvidencia" placeholder="Ej: Acta de audiencia"
+                class="w-full" />
+
+              <label for="archivo" class="block mt-4 mb-2 font-medium text-sm">Archivo</label>
+              <FileUpload id="archivo" name="Archivo" customUpload @select="handleExpedienteUpload" mode="basic"
                 chooseLabel="Elegir archivo" class="w-full md:w-20rem" style="background-color: #003870;" />
             </div>
+
+            <!-- Comentario -->
             <div class="field col-12 md:col-8">
-              <Textarea v-model="form.comentario" placeholder="Añadir comentario" class="w-full" rows="5" autoResize />
+              <label for="comentario" class="block mb-2 font-medium text-sm">Comentario</label>
+              <Textarea id="comentario" v-model="form.comentario"
+                placeholder="Añadir comentario relacionado con el documento" class="w-full" rows="5" autoResize />
             </div>
+
           </div>
         </fieldset>
+
       </div>
 
     </form>
@@ -159,7 +198,6 @@
 </template>
 
 <script setup>
-import { watch } from 'vue';
 import { reactive, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { push } from 'notivue'
@@ -173,45 +211,32 @@ const router = useRouter()
 const hoy = ref(new Date()) // Esto representa la fecha de hoy
 
 const form = reactive({
-  fechaExpediente: new Date().toISOString().split('T')[0],
   ltg_acto: '',
   ltg_Fecha_Acto: '',
-  ltg_Cedula_Demandante: '',
-  nombre_Tipo_Demanda: '',
   id_Tipo_Demanda: null,
+  ltg_Cedula_Demandante: '',
   ltg_Demandante: '',
   ltg_Tipo_Demandante: '',
-  ltg_Cedula_Representante: '',
-  id_Tribunal: '',
-  ltg_Nombre_Representante: '',
-  ltg_Fecha_Audiencia: '',
-  id_Estatus: '',
-  ltg_Nacionalidad: '',
   otrosDemandante: '',
-  id_sentencia: 3,
+  ltg_Nacionalidad: '',
+  ltg_Cedula_Representante: '',
+  ltg_Nombre_Representante: '',
+  ltg_Nacionalidad_Representante: '',
+  ltg_Fecha_Audiencia: '',
+  id_Tribunal: '',
+  Tipo_audiencia: '',
   comentario: '',
   NombreEvidencia: '',
-  ltg_Nacionalidad_Representante: '',
-  Tipo_audiencia: '',
+  id_sentencia: 3,
+  id_Estatus: 1,
+  id_usuario: null
+});
 
-})
+function validarCedulaODocumento(doc, tipo) {
+  if (!doc) return false;
+  return tipo === 'Empresa' ? /^\d{9}$/.test(doc) : /^\d{11}$/.test(doc);
+}
 
-
-watch(
-  () => form.nombre_Tipo_Demanda,
-  (nombre) => {
-    const tipo = tiposDemanda.value.find(t => t.nombre === nombre);
-    form.id_Tipo_Demanda = tipo ? tipo.id_demanda : null;
-  }
-);
-
-watch(
-  () => form.nombre_Tribunal,
-  (nombre) => {
-    const tribunal = tribunales.value.find(t => t.nombre_Tribunal === nombre)
-    form.id_Tribunal = tribunal ? tribunal.id_Tribunal : null
-  }
-)
 
 const formRef = ref(null);
 const tiposDemanda = ref([])
@@ -267,7 +292,7 @@ const enviando = ref(false)
 
 
 
-const rutaInicio = ref('/home');
+const rutaInicio = ref('/Administrador/litigios');
 
 onMounted(() => {
   cargarDatosDropdowns();
@@ -278,13 +303,13 @@ onMounted(() => {
   if (user) {
     const perfil = parseInt(user.perfil);
     const rutasPorPerfil = {
-      1: '/home',
-      2: '/supervisor/litigios',
+      1: '/Administrador/litigios',
+      2: '/Administrador/litigios',
       3: '/digitador/inicio',
       4: '/abogado/inicio'
     };
 
-    rutaInicio.value = rutasPorPerfil[perfil] || '/home';
+    rutaInicio.value = rutasPorPerfil[perfil] || '/Administrador/litigios';
   }
 });
 
@@ -295,74 +320,91 @@ const formatearFechaISO = (fecha) => {
   return d.toISOString().split('T')[0]
 }
 
+function validarFormulario() {
+  const errores = [];
+
+  if (!form.ltg_acto.trim()) errores.push("El número de acto es obligatorio.");
+  if (!form.ltg_Fecha_Acto) errores.push("La fecha del acto es obligatoria.");
+  if (!form.id_Tipo_Demanda) errores.push("Seleccione un tipo de demanda.");
+  if (!validarCedulaODocumento(form.ltg_Cedula_Demandante, form.ltg_Tipo_Demandante)) errores.push("La cédula/RNC del demandante es inválida.");
+  if (!form.ltg_Demandante.trim()) errores.push("El nombre del demandante es obligatorio.");
+  if (!form.ltg_Tipo_Demandante) errores.push("Seleccione el tipo de demandante.");
+  if (form.ltg_Tipo_Demandante === "Otros" && !form.otrosDemandante.trim()) errores.push("Debe especificar el tipo de demandante.");
+  if (!/^\d{11}$/.test(form.ltg_Cedula_Representante)) errores.push("La cédula del representante es inválida.");
+  if (!form.ltg_Nombre_Representante.trim()) errores.push("El nombre del representante es obligatorio.");
+  if (!form.ltg_Fecha_Audiencia) errores.push("La fecha de audiencia es obligatoria.");
+  if (!form.Tipo_audiencia) errores.push("Seleccione el tipo de audiencia."); // 👈 AQUI
+  if (!expedienteFile.value) errores.push("Debe subir un archivo.");
+
+  return errores;
+}
+
 
 const registrarLitigio = async () => {
+  if (enviando.value) return;
+  enviando.value = true;
 
-  if (enviando.value) return
-  enviando.value = true
+  const errores = validarFormulario();
 
-  if (!form.ltg_acto || !expedienteFile.value || !form.ltg_Cedula_Demandante || !form.ltg_Cedula_Representante || !form.ltg_Fecha_Acto || !form.ltg_Tipo_Demandante) {
-    push.warning('Favor de llenar los campos con datos validos')
-    console.error("Faltan datos obligatorios como el acto o el archivo.")
-    return
+  if (errores.length > 0) {
+    errores.forEach(msg => push.warning(msg));
+    enviando.value = false; // Muy importante para volver a habilitar el botón
+    return;
   }
 
   const usuarioLogueado = JSON.parse(localStorage.getItem('usuario'));
   form.id_usuario = usuarioLogueado.idUsuario;
 
+  const formData = new FormData();
 
-
-  const formData = new FormData()
-
-  formData.append('ltg_acto', form.ltg_acto)
-  formData.append("ltg_Fecha_Acto", formatearFechaISO(form.ltg_Fecha_Acto))
-  formData.append('id_Tipo_Demanda', parseInt(form.id_Tipo_Demanda))
-  formData.append('ltg_Cedula_Demandante', form.ltg_Cedula_Demandante)
-  formData.append('ltg_Demandante', form.ltg_Demandante)
-  formData.append('ltg_Tipo_Demandante', form.ltg_Tipo_Demandante === 'Otros' ? form.otrosDemandante : form.ltg_Tipo_Demandante)
-  formData.append('ltg_Cedula_Representante', form.ltg_Cedula_Demandante)
+  formData.append('ltg_acto', form.ltg_acto);
+  formData.append("ltg_Fecha_Acto", formatearFechaISO(form.ltg_Fecha_Acto));
+  formData.append('id_Tipo_Demanda', parseInt(form.id_Tipo_Demanda));
+  formData.append('ltg_Cedula_Demandante', form.ltg_Cedula_Demandante);
+  formData.append('ltg_Demandante', form.ltg_Demandante);
+  formData.append('ltg_Tipo_Demandante',
+    form.ltg_Tipo_Demandante === 'Otros' ? form.otrosDemandante : form.ltg_Tipo_Demandante
+  );
+  formData.append('ltg_Cedula_Representante', form.ltg_Cedula_Representante);
   formData.append('NombreEvidencia',
     form.NombreEvidencia?.trim()
       ? form.NombreEvidencia
       : expedienteFile.value?.name?.split(".")[0] || "Evidencia"
-  )
-
+  );
   formData.append('comentario',
     form.comentario?.trim()
       ? form.comentario
       : "Archivo subido sin nombre."
-  )
-  formData.append('Tipo_audiencia', form.Tipo_audiencia)
-  formData.append('ltg_Nombre_Representante', form.ltg_Nombre_Representante)
-  formData.append("ltg_Fecha_Audiencia", formatearFechaISO(form.ltg_Fecha_Audiencia))
-  formData.append('ltg_Fecha_Actualizacion', formatearFechaISO(new Date()))
-  if (form.id_Tribunal !== null && form.id_Tribunal !== '') {
+  );
+  formData.append('Tipo_audiencia', form.Tipo_audiencia);
+  formData.append('ltg_Nombre_Representante', form.ltg_Nombre_Representante);
+  formData.append("ltg_Fecha_Audiencia", formatearFechaISO(form.ltg_Fecha_Audiencia));
+  formData.append('ltg_Fecha_Actualizacion', formatearFechaISO(new Date()));
+  if (form.id_Tribunal) {
     formData.append('id_Tribunal', parseInt(form.id_Tribunal));
   }
-  formData.append('ltg_Nacionalidad', form.ltg_Nacionalidad)
-  formData.append('ltg_Nacionalidad_Representante', form.ltg_Nacionalidad_Representante)
-  formData.append('id_Sentencia', parseInt(form.id_sentencia))
-  formData.append('id_usuario', parseInt(form.id_usuario))
-  formData.append('id_Estatus', 1)
-  formData.append('NombreCarpeta', form.ltg_acto)
+  formData.append('ltg_Nacionalidad', form.ltg_Nacionalidad);
+  formData.append('ltg_Nacionalidad_Representante', form.ltg_Nacionalidad_Representante);
+  formData.append('id_Sentencia', parseInt(form.id_sentencia));
+  formData.append('id_usuario', parseInt(form.id_usuario));
+  formData.append('id_Estatus', 1);
+  formData.append('NombreCarpeta', form.ltg_acto);
 
   if (expedienteFile.value) {
-    formData.append('Archivo', expedienteFile.value)
+    formData.append('Archivo', expedienteFile.value);
   }
 
   try {
-
     const notif = push.promise('Subiendo archivo...');
 
-    // Esperar 2 segundos aunque se suba rápido
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     const response = await fetch('/api/Litigio/Subir_Litigio_Con_Archivo', {
       method: 'POST',
       body: formData
-    })
+    });
 
-    const result = await response.json()
+    const result = await response.json();
 
     if (!response.ok) {
       console.error('Error del backend:', result);
@@ -373,24 +415,23 @@ const registrarLitigio = async () => {
         const usuario = JSON.parse(localStorage.getItem('usuario'));
         const perfil = parseInt(usuario?.perfil);
         const rutasPorPerfil = {
-          1: '/home',
-          2: '/supervisor/litigios',
+          1: '/Administrador/litigios',
+          2: '/Administrador/litigios',
           3: '/digitador/inicio',
           4: '/abogado/inicio'
         };
-        const ruta = rutasPorPerfil[perfil] || '/home';
+        const ruta = rutasPorPerfil[perfil] || '/Administrador/litigios';
         router.push(ruta);
       }, 1000);
-
     }
-
   } catch (error) {
-    console.error('Error inesperado al registrar el litigio:', error)
-    push.error('Error inesperado al registrar el litigio')
+    console.error('Error inesperado al registrar el litigio:', error);
+    push.error('Error inesperado al registrar el litigio');
   } finally {
-    enviando.value = false
+    enviando.value = false;
   }
-}
+};
+
 </script>
 
 <style scoped>
@@ -403,6 +444,23 @@ legend {
   font-size: calc(1.275rem + 0.3vw) !important;
   width: auto !important;
   color: #003870;
+}
+
+fieldset {
+  background-color: #f9f9f9;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border: 1px solid #ccc;
+}
+
+input:focus,
+textarea:focus,
+.p-inputtext:focus,
+.p-dropdown:focus {
+  border-color: #003870;
+  box-shadow: 0 0 0 2px rgba(0, 56, 112, 0.2);
+  outline: none;
 }
 
 .border-1 {
@@ -420,5 +478,33 @@ legend {
   background-color: #004a99;
   border-color: #002f66;
   color: white;
+}
+
+.p-button-sm {
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.p-button-sm:hover {
+  background-color: #004a99;
+  box-shadow: 0 2px 8px rgba(0, 56, 112, 0.3);
+}
+
+fieldset label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #003870;
+}
+
+.text-muted {
+  color: #6c757d;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 768px) {
+  .field {
+    margin-bottom: 1rem;
+  }
 }
 </style>

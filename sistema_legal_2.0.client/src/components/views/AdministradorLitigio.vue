@@ -61,7 +61,33 @@
         </template>
       </Column>
 
-      <Column header="Acciones" style="width: 140px">
+      <Column header="Acciones" style="width: 180px">
+        <template #body="{ data }">
+          <div class="btn-group">
+            <!-- Ver -->
+            <router-link :to="`/litigio/detalle/${data.id_Ltg}`" class="btn btn-sm"
+              style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;" title="Ver litigio">
+              <i class="pi pi-eye white-icon"></i>
+            </router-link>
+
+            <!-- Modificar -->
+            <button class="btn btn-sm" @click="modificarLitigio(data)"
+              style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;" title="Modificar litigio">
+              <i class="pi pi-pencil white-icon"></i>
+            </button>
+
+            <!-- Asignar -->
+            <button v-if="mostrarAsignar" class="btn btn-sm" @click="togglePopUp(data)"
+              style="background-color: #003870; border-color: #003870;" title="Asignar o cambiar abogado">
+              <i class="pi pi-user-edit white-icon"></i>
+            </button>
+          </div>
+        </template>
+      </Column>
+
+
+
+      <!-- <Column header="Acciones" style="width: 140px">
         <template #body="{ data }">
           <div class="btn-group">
             <router-link :to="`/litigio/detalle/${data.id_Ltg}`" class="btn btn-sm"
@@ -75,7 +101,7 @@
             </button>
           </div>
         </template>
-      </Column>
+      </Column> -->
 
       <teleport to="body">
         <transition name="fade">
@@ -94,7 +120,9 @@ import InputText from 'primevue/inputtext';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import api from '@/utilities/api.js';
+import { useRouter } from 'vue-router'
 import AsignarAbogado from '@/components/views/AsignarAbogado.vue';
+const router = useRouter()
 
 const data = ref([]);
 const filtroActivo = ref('sinAsignar');
@@ -131,6 +159,13 @@ function getStatusClass(status) {
     default: return '';
   }
 }
+
+
+function modificarLitigio(litigio) {
+  localStorage.setItem('litigioModificacion', JSON.stringify(litigio))
+  router.push('/modificarregistro')
+}
+
 
 function calculateRows() {
   const tableHeight = window.innerHeight - 300;

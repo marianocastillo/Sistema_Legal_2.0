@@ -132,8 +132,8 @@ export default {
           push.success(response.data.message)
           if (usuario.idPerfil == 4) {
             this.$router.push('/abogado/inicio')
-          }else if (usuario.idPerfil == 2) {
-            this.$router.push('supervisor/litigios')
+          }else if (usuario.idPerfil == 2 || usuario.idPerfil == 1 ) {
+            this.$router.push('Administrador/litigios')
           }  else {
             console.log(jwtDecode(token));
             this.$router.push('/home')
