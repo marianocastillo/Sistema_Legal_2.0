@@ -1,16 +1,17 @@
 <template>
-  <div class="card p-4 shadow-2">
+  <div class="card p-6 shadow-2">
     <div class="flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-      <h2 class="text-xl font-bold">Modificar Litigio</h2>
-      <router-link :to="rutaInicio" class="btn text-white px-3 py-2" style="background-color: #003870;">
-        <i class="fa-solid fa-home me-2"></i> Inicio
-      </router-link>
+      <h2 class="text-2xl font-semibold" style="color: #003870;">Modificar Litigio</h2>
+      <router-link :to="rutaInicio" class="btn btn-sm text-white d-flex align-items-center custom-home-btn">
+          <i class="pi pi-home me-2"></i>
+          Inicio
+        </router-link>
     </div>
 
     <form @submit.prevent="registrarLitigio">
       <div class="grid formgrid p-fluid">
 
-           <!-- INFORMACIÓN DEL LITIGIO -->
+        <!-- INFORMACIÓN DEL LITIGIO -->
         <fieldset class="col-12 border-1 border-round p-3 mb-3">
           <legend class="font-bold text-lg">Información del Litigio</legend>
           <div class="grid">
@@ -68,7 +69,7 @@
                 :maxlength="form.tiposDemandante === 'Empresa' ? 9 : 11" @input="handleCedulaInput"
                 :placeholder="form.tiposDemandante === 'Empresa' ? 'RNC de la empresa' : 'Cédula del demandante'" />
               <small v-if="cedulaInvalida" class="p-error">
-                {{ form.tiposDemandante === 'Empresa' ? 'Debe tener 9 dígitos numéricos (RNC).' : 'Debe tener 11 dígitos numéricos (cédula).' }}
+                {{ form.tiposDemandante === 'Empresa' ? 'Debe tener 9 dígitos numéricos (RNC).' : 'Debe tener 11 dígitos numéricos(cédula).' }}
               </small>
             </div>
 
@@ -231,7 +232,7 @@ onMounted(async () => {
     const rutasPorPerfil = {
       1: '/Administrador/litigios',
       2: '/Administrador/litigios',
-      3: '/digitador/inicio',
+      // 3: '/digitador/inicio',
       4: '/abogado/inicio'
     };
 
@@ -310,7 +311,7 @@ const registrarLitigio = async () => {
       const rutasPorPerfil = {
         1: '/Administrador/litigios',
         2: '/Administrador/litigios',
-        3: '/digitador/inicio',
+        // 3: '/digitador/inicio',
         4: '/abogado/inicio'
       };
 
@@ -341,6 +342,14 @@ legend {
   color: #003870;
 }
 
+fieldset {
+  background-color: #f9f9f9;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border: 1px solid #ccc;
+}
+
 .border-1 {
   border: 1px solid #ccc;
 }
@@ -355,4 +364,19 @@ legend {
   font-weight: 600;
   color: #003870;
 }
+
+.custom-home-btn {
+  font-size: 1rem;
+  background-color: #003870;
+  border-color: #003870;
+  color: white;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.custom-home-btn:hover {
+  background-color: #004a99;
+  border-color: #002f66;
+  color: white;
+}
+
 </style>

@@ -12,21 +12,13 @@
       </div>
     </div>
 
-    <DataTable
-      :value="data"
-      :paginator="true"
-      :rows="rows"
-      :filters="filters"
-      :globalFilterFields="[
-        'ltg_acto',
-        'ltg_Cedula_Demandante',
-        'ltg_Fecha_Acto',
-        'ltg_Demandante',
-        'estatus_Descripcion'
-      ]"
-      class="p-datatable-sm"
-      responsiveLayout="scroll"
-    >
+    <DataTable :value="data" :paginator="true" :rows="rows" :filters="filters" :globalFilterFields="[
+      'ltg_acto',
+      'ltg_Cedula_Demandante',
+      'ltg_Fecha_Acto',
+      'ltg_Demandante',
+      'estatus_Descripcion'
+    ]" class="p-datatable-sm" responsiveLayout="scroll">
       <Column field="ltg_acto" header="No.Acto" />
       <Column field="ltg_Fecha_Acto" header="Fecha acto">
         <template #body="{ data }">
@@ -53,28 +45,28 @@
           </div>
         </template>
       </Column>
-      <Column header="Acciones" style="width: 140px">
+      <Column header="Acciones" style="width: 180px">
         <template #body="{ data }">
           <div class="btn-group">
-            <router-link
-              :to="`/litigio/detalle/${data.id_Ltg}`"
-              class="btn btn-sm"
-              style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;"
-            >
+            <!-- Ver -->
+            <router-link :to="`/litigio/detalle/${data.id_Ltg}`" class="btn btn-sm"
+              style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;" title="Ver litigio">
               <i class="pi pi-eye white-icon"></i>
             </router-link>
+
+            <!-- Modificar -->
+            <button class="btn btn-sm" @click="modificarLitigio(data)"
+              style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;" title="Modificar litigio">
+              <i class="pi pi-pencil white-icon"></i>
+            </button>
           </div>
         </template>
       </Column>
 
       <teleport to="body">
         <transition name="fade">
-          <AsignarAbogado
-            v-if="popUp"
-            :id_Ltg="litigioActual.id_Ltg"
-            :ltg_acto="litigioActual.ltg_acto"
-            @close="togglePopUp"
-          />
+          <AsignarAbogado v-if="popUp" :id_Ltg="litigioActual.id_Ltg" :ltg_acto="litigioActual.ltg_acto"
+            @close="togglePopUp" />
         </transition>
       </teleport>
     </DataTable>
@@ -122,6 +114,23 @@ function calculateRows() {
   const estimatedRowHeight = 50;
   rows.value = Math.max(Math.floor(tableHeight / estimatedRowHeight) - 1, 1);
 }
+async function modificarLitigio(litigio) {
+  try {
+    const response = await api.get(`/api/Litigio/Litigio_detallado`);
+    const litigioCompleto = response.data.find(l => l.id_Ltg === litigio.id_Ltg);
+
+    if (!litigioCompleto) {
+      throw new Error('Litigio no encontrado en el listado completo');
+    }
+
+    localStorage.setItem('litigioModificacion', JSON.stringify(litigioCompleto));
+    router.push('/modificarregistro');
+  } catch (error) {
+    console.error('Error al obtener litigio completo:', error);
+  }
+}
+
+
 
 onMounted(async () => {
   calculateRows();
@@ -148,18 +157,22 @@ onUnmounted(() => {
 .white-icon {
   color: white !important;
 }
+
 .btn-group .btn {
   margin: 0 2px;
 }
+
 .search-container {
   max-width: 250px;
   width: 100%;
   position: relative;
 }
+
 .search-input-wrapper {
   position: relative;
   display: block;
 }
+
 .search-input {
   width: 100%;
   padding: 0.5rem 2.5rem 0.5rem 2rem;
@@ -169,11 +182,13 @@ onUnmounted(() => {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: border-color 0.3s, box-shadow 0.3s;
 }
+
 .search-input:focus {
   outline: none;
   border-color: #003870;
   box-shadow: 0 0 5px rgba(0, 56, 112, 0.3);
 }
+
 .search-icon {
   position: absolute;
   left: 10px;
@@ -183,6 +198,7 @@ onUnmounted(() => {
   pointer-events: none;
   font-size: 1rem;
 }
+
 .search-clear {
   position: absolute;
   right: 10px;
@@ -192,6 +208,7 @@ onUnmounted(() => {
   font-size: 1rem;
   cursor: pointer;
 }
+
 .tag {
   padding: 0.4rem 0.75rem;
   border-radius: 9999px;
@@ -202,21 +219,57 @@ onUnmounted(() => {
   min-width: 120px;
   text-transform: capitalize;
 }
-.status-recibido { background-color: #d0eaff; color: #004085; }
-.status-analisis { background-color: #b8ecff; color: #07506c; }
-.status-tribunal { background-color: #fff3cd; color: #856404; }
-.status-sentencia { background-color: #d4edda; color: #155724; }
-.status-casacion { background-color: #f8d7da; color: #721c24; }
-.status-cierre { background-color: #e2f0d9; color: #2e7d32; }
+
+.status-recibido {
+  background-color: #d0eaff;
+  color: #004085;
+}
+
+.status-analisis {
+  background-color: #b8ecff;
+  color: #07506c;
+}
+
+.status-tribunal {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-sentencia {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-casacion {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.status-cierre {
+  background-color: #e2f0d9;
+  color: #2e7d32;
+}
+
 ::v-deep(.p-datatable .p-datatable-tbody > tr:nth-child(even)) {
   background-color: #f9fafb;
 }
+
 ::v-deep(.p-datatable .p-datatable-tbody > tr > td),
 ::v-deep(.p-datatable .p-datatable-thead > tr > th) {
   border-right: 1px solid #ebebeb;
 }
+
 ::v-deep(.p-datatable .p-datatable-tbody > tr > td:last-child),
 ::v-deep(.p-datatable .p-datatable-thead > tr > th:last-child) {
   border-right: none;
+}
+
+.custom-header-center {
+  text-align: center;
+  font-weight: 600;
+  color: #2e3842;
+  font-size: 1rem;
+  display: block;
+  width: 100%;
 }
 </style>

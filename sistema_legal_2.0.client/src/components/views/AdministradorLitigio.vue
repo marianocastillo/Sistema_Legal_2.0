@@ -14,8 +14,12 @@
 
           <button class="btn-filtro" :class="{ active: filtroActivo === 'asignado' }" @click="mostrarAsignados">
             Asignados
+            <span class="badge" :class="{ 'badge-active': filtroActivo === 'asignado' }">
+              ({{ totalAsignados }})
+            </span>
           </button>
         </div>
+
 
         <div class="search-container">
           <span class="p-input-icon-left search-input-wrapper">
@@ -127,6 +131,7 @@ const router = useRouter()
 const data = ref([]);
 const filtroActivo = ref('sinAsignar');
 const totalSinAsignar = ref(0);
+const totalAsignados = ref(0);
 const todosLosLitigios = ref([]);
 
 const tituloLitigio = computed(() =>
@@ -189,13 +194,27 @@ function mostrarAsignados() {
     l => l.estatus_Descripcion?.toLowerCase().trim() !== 'recibido'
   );
   data.value = filtrados;
+  totalAsignados.value = filtrados.length; // NUEVO
 }
+
+function actualizarTotales() {
+  totalSinAsignar.value = todosLosLitigios.value.filter(
+    l => l.estatus_Descripcion?.toLowerCase().trim() === 'recibido'
+  ).length;
+
+  totalAsignados.value = todosLosLitigios.value.filter(
+    l => l.estatus_Descripcion?.toLowerCase().trim() !== 'recibido'
+  ).length;
+}
+
+
 
 function handleAsignacionExitosa() {
   // Recargar todos los litigios desde el backend
   api.get('/api/Litigio/Litigio_detallado')
     .then(response => {
       todosLosLitigios.value = response.data;
+      actualizarTotales();
       // Dependiendo del filtro actual, muestra la tabla correcta
       filtroActivo.value === 'sinAsignar' ? mostrarSinAsignar() : mostrarAsignados();
     })
@@ -213,11 +232,22 @@ onMounted(async () => {
     const response = await api.get('/api/Litigio/Litigio_detallado');
     todosLosLitigios.value = response.data;
 
-    // Carga por defecto: litigios sin asignar
+    // Calcular ambos totales al inicio
+    totalSinAsignar.value = todosLosLitigios.value.filter(
+      l => l.estatus_Descripcion?.toLowerCase().trim() === 'recibido'
+    ).length;
+
+    totalAsignados.value = todosLosLitigios.value.filter(
+      l => l.estatus_Descripcion?.toLowerCase().trim() !== 'recibido'
+    ).length;
+
+    // Mostrar por defecto los sin asignar
+    actualizarTotales();
     mostrarSinAsignar();
   } catch (error) {
     console.error('Error al cargar litigios:', error);
   }
+
 });
 
 onUnmounted(() => {

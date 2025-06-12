@@ -186,7 +186,7 @@ onMounted(() => {
     const rutasPorPerfil = {
       1: '/Administrador/litigios',
       2: '/Administrador/litigios',
-      3: '/digitador/inicio',
+      3: '/registrar',
       4: '/abogado/inicio'
     };
 
