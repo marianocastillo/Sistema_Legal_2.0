@@ -195,6 +195,19 @@
 
     </form>
   </div>
+
+  <Dialog v-model:visible="dialogVisible" modal class="dialog-exito-style" :closable="false" :draggable="false"
+    header="Registro exitoso">
+    <div class="d-flex align-items-start gap-3 p-3">
+      <i class="pi pi-check-circle text-success" style="font-size: 1.8rem; flex-shrink: 0;"></i>
+      <p class="m-0">El litigio fue registrado correctamente.</p>
+    </div>
+    <div class="text-end px-3 pb-3">
+      <Button label="Aceptar" class="p-button-sm" :style="{ backgroundColor: '#003870', color: '#fff', border: 'none' }"
+        @click="handleAceptarDialog" />
+    </div>
+  </Dialog>
+
 </template>
 
 <script setup>
@@ -206,9 +219,39 @@ import Calendar from 'primevue/calendar'
 import Dropdown from 'primevue/dropdown'
 import FileUpload from 'primevue/fileupload'
 import Button from 'primevue/button'
+import Dialog from 'primevue/dialog';
 
+const dialogVisible = ref(false);
 const router = useRouter()
 const hoy = ref(new Date()) // Esto representa la fecha de hoy
+
+const handleAceptarDialog = () => {
+  dialogVisible.value = false;
+  push.success('El litigio ha sido cargado de forma exitosa');
+
+  const usuario = JSON.parse(localStorage.getItem('usuario'));
+  const perfil = parseInt(usuario?.perfil);
+
+  const rutasPorPerfil = {
+    1: '/Administrador/litigios',
+    2: '/Administrador/litigios',
+    3: '/registrar',
+    4: '/abogado/inicio'
+  };
+
+  const ruta = rutasPorPerfil[perfil] || '/Administrador/litigios';
+
+  if (perfil === 3) {
+    // Si es digitador, limpiar el formulario
+    Object.keys(form).forEach(k => form[k] = '');
+    expedienteFile.value = null;
+  }
+
+  router.push(ruta);
+};
+
+
+
 
 const form = reactive({
   ltg_acto: '',
@@ -321,22 +364,20 @@ const formatearFechaISO = (fecha) => {
 }
 
 function validarFormulario() {
-  const errores = [];
+  if (!form.ltg_acto.trim()) return "El número de acto es obligatorio.";
+  if (!form.ltg_Fecha_Acto) return "La fecha del acto es obligatoria.";
+  if (!form.id_Tipo_Demanda) return "Seleccione un tipo de demanda.";
+  if (!form.ltg_Tipo_Demandante) return "Seleccione el tipo de demandante.";
+  if (form.ltg_Tipo_Demandante === "Otros" && !form.otrosDemandante.trim()) return "Debe especificar el tipo de demandante.";
+  if (!validarCedulaODocumento(form.ltg_Cedula_Demandante, form.ltg_Tipo_Demandante)) return "La cédula/RNC del demandante es inválida.";
+  if (!form.ltg_Demandante.trim()) return "El nombre del demandante es obligatorio.";
+  if (!/^\d{11}$/.test(form.ltg_Cedula_Representante)) return "La cédula del representante es inválida.";
+  if (!form.ltg_Nombre_Representante.trim()) return "El nombre del representante es obligatorio.";
+  if (!form.ltg_Fecha_Audiencia) return "La fecha de audiencia es obligatoria.";
+  if (!form.Tipo_audiencia) return "Seleccione el tipo de audiencia.";
+  if (!expedienteFile.value) return "Debe subir un archivo.";
 
-  if (!form.ltg_acto.trim()) errores.push("El número de acto es obligatorio.");
-  if (!form.ltg_Fecha_Acto) errores.push("La fecha del acto es obligatoria.");
-  if (!form.id_Tipo_Demanda) errores.push("Seleccione un tipo de demanda.");
-  if (!validarCedulaODocumento(form.ltg_Cedula_Demandante, form.ltg_Tipo_Demandante)) errores.push("La cédula/RNC del demandante es inválida.");
-  if (!form.ltg_Demandante.trim()) errores.push("El nombre del demandante es obligatorio.");
-  if (!form.ltg_Tipo_Demandante) errores.push("Seleccione el tipo de demandante.");
-  if (form.ltg_Tipo_Demandante === "Otros" && !form.otrosDemandante.trim()) errores.push("Debe especificar el tipo de demandante.");
-  if (!/^\d{11}$/.test(form.ltg_Cedula_Representante)) errores.push("La cédula del representante es inválida.");
-  if (!form.ltg_Nombre_Representante.trim()) errores.push("El nombre del representante es obligatorio.");
-  if (!form.ltg_Fecha_Audiencia) errores.push("La fecha de audiencia es obligatoria.");
-  if (!form.Tipo_audiencia) errores.push("Seleccione el tipo de audiencia."); // 👈 AQUI
-  if (!expedienteFile.value) errores.push("Debe subir un archivo.");
-
-  return errores;
+  return null; // todo válido
 }
 
 
@@ -344,13 +385,14 @@ const registrarLitigio = async () => {
   if (enviando.value) return;
   enviando.value = true;
 
-  const errores = validarFormulario();
+  const error = validarFormulario();
 
-  if (errores.length > 0) {
-    errores.forEach(msg => push.warning(msg));
-    enviando.value = false; // Muy importante para volver a habilitar el botón
+  if (error) {
+    push.warning(error);
+    enviando.value = false;
     return;
   }
+
 
   const usuarioLogueado = JSON.parse(localStorage.getItem('usuario'));
   form.id_usuario = usuarioLogueado.idUsuario;
@@ -397,7 +439,7 @@ const registrarLitigio = async () => {
   try {
     const notif = push.promise('Subiendo archivo...');
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 1000)); // opcional
 
     const response = await fetch('/api/Litigio/Subir_Litigio_Con_Archivo', {
       method: 'POST',
@@ -410,19 +452,9 @@ const registrarLitigio = async () => {
       console.error('Error del backend:', result);
       notif.reject(result.mensaje || 'Error al guardar el litigio');
     } else {
-      notif.resolve('El litigio ha sido cargado de forma exitosa');
-      setTimeout(() => {
-        const usuario = JSON.parse(localStorage.getItem('usuario'));
-        const perfil = parseInt(usuario?.perfil);
-        const rutasPorPerfil = {
-          1: '/Administrador/litigios',
-          2: '/Administrador/litigios',
-          3: '/digitador/inicio',
-          4: '/abogado/inicio'
-        };
-        const ruta = rutasPorPerfil[perfil] || '/Administrador/litigios';
-        router.push(ruta);
-      }, 1000);
+      // ✅ Mostrar el diálogo para todos los perfiles
+      notif.resolve('El archivo se subió correctamente');
+      dialogVisible.value = true;
     }
   } catch (error) {
     console.error('Error inesperado al registrar el litigio:', error);
@@ -430,6 +462,7 @@ const registrarLitigio = async () => {
   } finally {
     enviando.value = false;
   }
+
 };
 
 </script>

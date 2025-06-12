@@ -54,9 +54,9 @@ export default {
       loading: false,
       invalid: { userName: false, password: false },
       mockUsers: [
-        { userName: 'admin', password: '1234', nombreUsuario: 'Ana Sánchez', rol: 'Administrador' },
+        { userName: 'admin', password: '1234', nombreUsuario: 'Ana Sánchez', rol: 'Administrador', idPerfil : 1 },
         { userName: 'juan', password: 'abcd', nombreUsuario: 'Juan Pérez', rol: 'Abogado' },
-        { userName: 'carla', password: '5678', nombreUsuario: 'Carla Ruiz', rol: 'Cliente' }
+        { userName: 'carla', password: '5678', nombreUsuario: 'Carla Ruiz', rol: 'Administrador' }
       ]
     }
   },
@@ -68,7 +68,7 @@ export default {
   methods: {
     async LogIn() {
 
-      const useMockLogin = false;
+      const useMockLogin = true;
       this.loading = true
       this.invalid.userName = !this.credentials.userName
       this.invalid.password = !this.credentials.password
@@ -99,11 +99,11 @@ export default {
       if (user) {
         const token = 'mockToken'
         localStorage.setItem('token', token)
-        localStorage.setItem('usuario', JSON.stringify({ nombre: user.nombreUsuario, rol: user.rol }))
+        localStorage.setItem('usuario', JSON.stringify({ nombre: user.nombreUsuario, rol: user.rol, perfil: user.idPerfil }))
         localStorage.setItem('sessionExpireTime', new Date().getTime() + 30 * 60 * 1000)
         this.$store.commit('setUser', user)
         push.success(`Bienvenido ${user.nombreUsuario}`)
-        this.$router.push('/home')
+        this.$router.push('/Administrador/litigios')
       } else {
         push.warning('Usuario o contraseña incorrectos')
       }
@@ -136,7 +136,7 @@ export default {
             this.$router.push('Administrador/litigios')
           }  else {
             console.log(jwtDecode(token));
-            this.$router.push('/home')
+            this.$router.push('/registrar')
           }
         } else {
           push.warning(response.data.message)
