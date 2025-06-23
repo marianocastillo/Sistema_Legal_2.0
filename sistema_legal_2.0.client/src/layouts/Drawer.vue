@@ -1,6 +1,6 @@
 <template>
   <div class="layout">
-    <!-- Sidebar (oculto en pantallas pequeñas si isSidebarVisible es false) -->
+    <!-- Sidebar -->
     <aside class="sidebar" :class="{ hidden: !isSidebarVisible && isMobile }">
       <div class="sidebar-top">
         <div class="sidebar-header">
@@ -9,30 +9,34 @@
             <h4 class="sidebar-title">Sistema Sileg 2.0</h4>
           </div>
         </div>
-        <br>
+        <br />
         <nav class="sidebar-menu">
           <ul style="color: white;">
+            <!-- Inicio: Todos los roles -->
             <li>
-              <router-link to="/drawer/home" class="sidebar-link" exact-active-class="active">
+              <router-link :to="rutaInicio" class="sidebar-link" exact-active-class="active">
                 <i class="pi pi-home" />
                 <span>Inicio</span>
               </router-link>
             </li>
 
-            <li>
-              <router-link to="/drawer/registrar" class="sidebar-link" exact-active-class="active">
+            <!-- Registrar: Admin, Supervisor, Digitador -->
+            <li v-if="['Administrador', 'Supervisor', 'Digitador'].includes(usuario.rol)">
+              <router-link to="/registrar" class="sidebar-link" exact-active-class="active">
                 <i class="pi pi-file-edit" />
                 <span>Registrar</span>
               </router-link>
             </li>
 
-            <li>
-              <router-link to="/drawer/buscarlitigio" class="sidebar-link" exact-active-class="active">
+            <!-- Modificar: Admin, Supervisor, Abogado Litigante -->
+            <li v-if="['Administrador', 'Supervisor', 'Abogado Litigante'].includes(usuario.rol)">
+              <router-link to="/buscarlitigio" class="sidebar-link" exact-active-class="active">
                 <i class="pi pi-pencil" />
                 <span>Modificar</span>
               </router-link>
             </li>
 
+            <!-- Configuración: visible para todos -->
             <li ref="submenuRef">
               <div class="sidebar-link" @click="toggleSubmenu" style="cursor: pointer;">
                 <i class="pi pi-cog" />
@@ -41,20 +45,21 @@
               </div>
 
               <ul v-if="mostrarSubmenu" class="submenu">
-                <li>
-                  <router-link to="/drawer/listadodeusuario"> <Button label="Lista de Usuario" icon="pi pi-user"
-                      class="p-button-text p-button-sm w-full pl-4" /></router-link>
+                <!-- Solo Admin -->
+                <li v-if="usuario.rol === 'Administrador'">
+                  <router-link to="/listadodeusuario">
+                    <Button label="Lista de Usuario" icon="pi pi-user" class="p-button-text p-button-sm w-full pl-4" />
+                  </router-link>
                 </li>
-              </ul>
 
-              <ul v-if="mostrarSubmenu" class="submenu">
-                <li>
-                  <router-link to="/drawer/formulario"> <Button label="Añadir Usuario" icon="pi pi-user"
-                      class="p-button-text p-button-sm w-full pl-4" /></router-link>
+                <!-- Solo Admin -->
+                <li v-if="usuario.rol === 'Administrador'">
+                  <router-link to="/formulario">
+                    <Button label="Añadir Usuario" icon="pi pi-user" class="p-button-text p-button-sm w-full pl-4" />
+                  </router-link>
                 </li>
-              </ul>
 
-              <ul v-if="mostrarSubmenu" class="submenu">
+                <!-- Todos -->
                 <li>
                   <Button label="Cerrar sesión" icon="pi pi-sign-out" class="p-button-text p-button-sm w-full pl-4"
                     @click="cerrarSesion" />
@@ -62,6 +67,7 @@
               </ul>
             </li>
           </ul>
+
         </nav>
       </div>
 
@@ -70,9 +76,8 @@
       </footer>
     </aside>
 
-    <!-- Contenedor principal (Header + contenido dinámico) -->
+    <!-- Main Content -->
     <div class="main-wrapper">
-      <!-- Header -->
       <header class="navbar">
         <div class="menu-placeholder">
           <button class="menu-button" @click="toggleSidebar" aria-label="Abrir menú">
@@ -80,78 +85,123 @@
           </button>
         </div>
 
-        <div class="user-profile" v-if="usuario.nombre">
-          <div class="user-info">
-            <div class="user-name">{{ usuario.nombre }}</div>
-            <div class="user-role">{{ usuario.rol }}</div>
-          </div>
+        <!-- Bloque de usuario con dropdown -->
+        <div v-if="usuario.nombre" class="user-dropdown">
+          <button @click="toggleMenu" class="user-dropdown-btn">
+            <Avatar :label="getInitials(usuario.nombre)" shape="circle" class="user-avatar" />
+            <div class="user-info">
+              <div class="user-name">{{ usuario.nombre }}</div>
+              <div class="user-role">{{ usuario.rol }}</div>
+            </div>
+            <Menu ref="menu" :model="items" :popup="true" />
+          </button>
         </div>
       </header>
 
-      <!-- Contenido de la ruta -->
+
       <main class="main-content">
         <router-view />
       </main>
     </div>
-
-    <!-- Notificaciones -->
-    <Notivue v-slot="item">
-      <NotivueSwipe :item="item">
-        <Notifications :item="item" :theme="pastelTheme" />
-      </NotivueSwipe>
-    </Notivue>
   </div>
-
 </template>
 
+
 <script setup>
-import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { cerrarSesion } from '@/utilities/auth'
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { cerrarSesion } from '@/utilities/auth';
+import Button from 'primevue/button';
+import Menu from 'primevue/menu';
+import Avatar from 'primevue/avatar';
+import { push } from 'notivue';
 
-import Button from 'primevue/button'
-import { Notivue, Notifications, NotivueSwipe, pastelTheme } from 'notivue'
+const router = useRouter();
 
-const router = useRouter()
+const rutaInicio = ref('');
+const mostrarSubmenu = ref(false);
+const submenuRef = ref(null);
+const isSidebarVisible = ref(true);
+const menu = ref(); // Ref para el dropdown Menu
 
-const mostrarSubmenu = ref(false)
-const submenuRef = ref(null)
-const isSidebarVisible = ref(true)
-const usuario = ref({ nombre: '', rol: '' })
+const usuario = ref({ nombre: '', rol: '', perfil: null });
+const isMobile = computed(() => window.innerWidth <= 768);
 
-const isMobile = computed(() => window.innerWidth <= 768)
+// Dropdown items del usuario
+const items = computed(() => {
+  const opciones = []
+
+  if (usuario.value.rol === 'Administrador') {
+    opciones.push({
+      label: 'Manejo de usuarios',
+      icon: 'pi pi-user-edit',
+      command: () => {
+        router.push('/listadodeusuario')
+      }
+    })
+  }
+
+  // Cerrar sesión siempre disponible
+  opciones.push({
+    label: 'Cerrar sesión',
+    icon: 'pi pi-sign-out',
+    command: () => {
+      cerrarSesion()
+    }
+  })
+
+  return opciones
+})
+
 
 const toggleSubmenu = () => {
-  mostrarSubmenu.value = !mostrarSubmenu.value
-}
+  mostrarSubmenu.value = !mostrarSubmenu.value;
+};
 
 const toggleSidebar = () => {
-  isSidebarVisible.value = !isSidebarVisible.value
-}
+  isSidebarVisible.value = !isSidebarVisible.value;
+};
+
+const toggleMenu = (event) => {
+  menu.value.toggle(event);
+};
 
 const handleClickOutside = (e) => {
   if (submenuRef.value && !submenuRef.value.contains(e.target)) {
-    mostrarSubmenu.value = false
+    mostrarSubmenu.value = false;
   }
-}
+};
+
+const getInitials = (name) => {
+  if (!name) return '';
+  return name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
+};
 
 onMounted(() => {
-  const stored = localStorage.getItem('usuario')
+  const stored = localStorage.getItem('usuario');
   if (stored) {
-    usuario.value = JSON.parse(stored)
+    usuario.value = JSON.parse(stored);
+
+    const perfilId = parseInt(usuario.value.perfil);
+    const rutasPorPerfil = {
+      1: '/Administrador/litigios',
+      2: '/Administrador/litigios',
+      3: '/registrar',
+      4: '/abogado/inicio'
+    };
+
+    rutaInicio.value = rutasPorPerfil[perfilId] || '/Administrador/litigios';
+
   }
-  document.addEventListener('click', handleClickOutside)
-})
+
+  document.addEventListener('click', handleClickOutside);
+});
 
 onBeforeUnmount(() => {
-  document.removeEventListener('click', handleClickOutside)
-})
-
-// const cerrarSesion = () => {
-//   localStorage.removeItem('usuario')
-//   router.push('/login')
-// }
+  document.removeEventListener('click', handleClickOutside);
+});
 </script>
+
 
 <style scoped>
 *,
@@ -169,7 +219,6 @@ body {
   background-color: #f8f9fa;
   overflow: hidden;
 }
-
 
 .layout {
   display: flex;
@@ -194,9 +243,7 @@ body {
   padding: 1rem;
   box-shadow: 0 0 10px hwb(200 97% 2%);
   height: 100vh;
-  /* ✅ Esto lo hace ocupar toda la altura */
   position: fixed;
-  /* ✅ Lo fija a la izquierda */
   top: 0;
   left: 0;
 }
@@ -228,7 +275,6 @@ body {
 /* Main wrapper */
 .main-wrapper {
   margin-left: 250px;
-  /* ancho del sidebar */
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -236,19 +282,20 @@ body {
   overflow: hidden;
 }
 
+/* Navbar */
 .navbar {
   height: 64px;
   background-color: #fff;
   border-bottom: 1px solid #ddd;
   display: flex;
+  font-family: Arial, sans-serif;
   align-items: center;
   justify-content: space-between;
   padding: 0 1rem;
-  position: sticky; /* mejor que fixed en este caso */
+  position: sticky;
   top: 0;
   z-index: 10;
 }
-
 
 .menu-placeholder {
   display: flex;
@@ -286,33 +333,51 @@ body {
   padding-top: 1rem;
 }
 
-/* Usuario */
-.user-profile {
+/* Dropdown de Usuario  */
+.user-dropdown {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  margin-right: 1rem;
+}
+
+.user-dropdown-btn {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  background-color: rgb(255, 255, 255);
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+.user-avatar {
+  margin-right: 10px;
+  background-color: #003880 !important;
+  color: #ffffff !important;
 }
 
 .user-info {
   display: flex;
   flex-direction: column;
-  font-size: 0.75rem;
-  text-align: right;
+  line-height: 1.2;
+  text-align: left;
 }
 
 .user-name {
-  font-weight: bold;
+  font-weight: 600;
+  color: #003880;
 }
 
 .user-role {
-  color: #888;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
+  color: #6c757d;
 }
 
-/* Misceláneo */
+/* Misc */
 .logo {
-  width: 62px;
-  height: 62px;
+  width: 40px;
+  height: auto;
   object-fit: contain;
 }
 
@@ -326,31 +391,15 @@ body {
   transition: transform 0.2s ease;
 }
 
-
-
-
 .sidebar-brand {
   display: flex;
-  /* Usamos Flexbox para alinearlos en una fila */
   align-items: center;
-  /* Centra verticalmente el contenido */
   gap: 10px;
-  /* Espacio entre el texto y la imagen */
 }
 
 .sidebar-title {
   margin: 0;
   color: #fff;
-  /* Elimina el margen por defecto del h4 */
   font-size: 1.2rem;
-  /* Ajusta el tamaño del texto si es necesario */
-}
-
-.logo {
-  width: 40px;
-  /* Ajusta el tamaño de la imagen si es necesario */
-  height: auto;
-  object-fit: contain;
-  /* Asegura que la imagen mantenga su proporción */
 }
 </style>

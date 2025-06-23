@@ -1,7 +1,7 @@
 <template>
   <div class="card p-6 shadow-2">
     <div class="flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-      <h2 class="text-2xl font-semibold">Registros</h2>
+      <h2 class="text-2xl font-semibold">Litigios Asignados</h2>
 
       <div class="search-container">
         <span class="p-input-icon-left search-input-wrapper">
@@ -10,7 +10,6 @@
           <i v-if="filters.global.value" class="pi pi-times search-clear" @click="filters.global.value = ''" />
         </span>
       </div>
-
     </div>
 
     <DataTable :value="data" :paginator="true" :rows="rows" :filters="filters" :globalFilterFields="[
@@ -28,35 +27,37 @@
       </Column>
       <Column field="ltg_Cedula_Demandante" header="Cédula demandante" />
       <Column field="ltg_Demandante" header="Nombre demandante" />
-      <Column field="tipoDemanda_Nombre" header="Tipo de Demanda" />
+      <Column field="nombre_Tipo_Demanda" header="Tipo de Demanda" />
       <Column field="ltg_Fecha_Audiencia" header="Fecha audiencia">
         <template #body="{ data }">
           {{ data.ltg_Fecha_Audiencia?.split('T')[0] || 'Sin fecha' }}
         </template>
       </Column>
-      <Column field="estatus_Descripcion">
+      <Column field="ltg_description">
         <template #header>
           <div class="custom-header-center">Estatus</div>
         </template>
         <template #body="slotProps">
           <div class="text-center">
-            <span class="tag" :class="getStatusClass(slotProps.data.estatus_Descripcion)">
-              {{ slotProps.data.estatus_Descripcion }}
+            <span class="tag" :class="getStatusClass(slotProps.data.ltg_description)">
+              {{ slotProps.data.ltg_description }}
             </span>
           </div>
         </template>
       </Column>
-
-
-      <Column header="Acciones">
+      <Column header="Acciones" style="width: 180px">
         <template #body="{ data }">
-          <div class="btn-group flex gap-2 justify-center">
-            <router-link :to="`/litigio/detalle/${data.id_Ltg}`" class="action-btn" title="Ver Detalle">
-              <i class="pi pi-eye"></i>
+          <div class="btn-group">
+            <!-- Ver -->
+            <router-link :to="`/litigio/detalle/${data.id_Ltg}`" class="btn btn-sm"
+              style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;" title="Ver litigio">
+              <i class="pi pi-eye white-icon"></i>
             </router-link>
 
-            <button class="action-btn" @click="togglePopUp(data)" title="Asignar Abogado">
-              <i class="pi pi-user-edit"></i>
+            <!-- Modificar -->
+            <button class="btn btn-sm" @click="modificarLitigio(data)"
+              style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;" title="Modificar litigio">
+              <i class="pi pi-pencil white-icon"></i>
             </button>
           </div>
         </template>
@@ -74,8 +75,8 @@
 
 <script setup>
 import { FilterMatchMode } from '@primevue/core/api';
-import AsignarAbogado from '@/components/views/AsignarAbogado.vue'; // cambia la ruta si es necesario
-
+import AsignarAbogado from '@/components/views/AsignarAbogado.vue';
+import router from '@/router/router';
 import { ref, onMounted, onUnmounted } from 'vue';
 import api from '@/utilities/api.js';
 import DataTable from 'primevue/datatable';
@@ -83,27 +84,64 @@ import Column from 'primevue/column';
 import InputText from 'primevue/inputtext';
 
 const popUp = ref(false);
-const rows = ref(10); // valor inicial, será reemplazado en mounted
-
 const litigioActual = ref({});
+const data = ref([]);
+const filters = ref({
+  global: { value: null, matchMode: FilterMatchMode.CONTAINS }
+});
+const rows = ref(10); // Número de filas a mostrar
 
 function togglePopUp(litigio = null) {
   popUp.value = !popUp.value;
   litigioActual.value = litigio || {};
 }
 
-const data = ref([]);
-const filters = ref({
-  global: { value: null, matchMode: FilterMatchMode.CONTAINS }
-});
+function getStatusClass(status) {
+  switch (status) {
+    case 'Recibido': return 'status-recibido';
+    case 'Análisis': return 'status-analisis';
+    case 'En Tribunal': return 'status-tribunal';
+    case 'Sentencia':
+    case 'Sentencia Definitiva': return 'status-sentencia';
+    case 'Recurso de Casación': return 'status-casacion';
+    case 'Cierre del Caso': return 'status-cierre';
+    default: return '';
+  }
+}
+
+function calculateRows() {
+  const tableHeight = window.innerHeight - 300; // Ajusta según tu layout
+  const estimatedRowHeight = 50;
+  rows.value = Math.max(Math.floor(tableHeight / estimatedRowHeight) - 1, 1);
+}
+async function modificarLitigio(litigio) {
+  try {
+    const response = await api.get(`/api/Litigio/Litigio_detallado`);
+    const litigioCompleto = response.data.find(l => l.id_Ltg === litigio.id_Ltg);
+
+    if (!litigioCompleto) {
+      throw new Error('Litigio no encontrado en el listado completo');
+    }
+
+    localStorage.setItem('litigioModificacion', JSON.stringify(litigioCompleto));
+    router.push('/modificarregistro');
+  } catch (error) {
+    console.error('Error al obtener litigio completo:', error);
+  }
+}
+
+
 
 onMounted(async () => {
-  try {
-    const response = await api.get('/api/Litigio/Litigio_detallado');
-    data.value = response.data;
+  calculateRows();
+  window.addEventListener('resize', calculateRows);
 
-    calculateRows();
-    window.addEventListener('resize', calculateRows);
+  const idUsuario = localStorage.getItem('idUsuario');
+  if (!idUsuario) return router.push('/login');
+
+  try {
+    const response = await api.get(`/api/Litigio/Litigio_Asignaciones?idUsuario=${idUsuario}`);
+    data.value = response.data;
   } catch (error) {
     console.error('Error al cargar los litigios:', error);
   }
@@ -112,45 +150,10 @@ onMounted(async () => {
 onUnmounted(() => {
   window.removeEventListener('resize', calculateRows);
 });
-
-
-function calculateRows() {
-  const tableHeight = window.innerHeight - 300; // Ajusta según el layout
-  const estimatedRowHeight = 50;
-  rows.value = Math.max(Math.floor(tableHeight / estimatedRowHeight) - 1, 1); // Asegura mínimo 1 fila
-}
-
-
-
-// Función para determinar la severidad del estatus
-function getStatusClass(status) {
-  switch (status) {
-    case 'Recibido':
-      return 'status-recibido';
-    case 'Análisis':
-      return 'status-analisis';
-    case 'En Tribunal':
-      return 'status-tribunal';
-    case 'Sentencia':
-    case 'Sentencia Definitiva':
-      return 'status-sentencia';
-    case 'Recurso de Casación':
-      return 'status-casacion';
-    case 'Cierre del Caso':
-      return 'status-cierre';
-    default:
-      return '';
-  }
-}
-
 </script>
 
 
 <style scoped>
-/* ::v-deep(.p-datatable thead th:nth-child(7)) {
-  text-align: center !important;
-} */
-
 .white-icon {
   color: white !important;
 }
@@ -158,7 +161,6 @@ function getStatusClass(status) {
 .btn-group .btn {
   margin: 0 2px;
 }
-
 
 .search-container {
   max-width: 250px;
@@ -174,7 +176,6 @@ function getStatusClass(status) {
 .search-input {
   width: 100%;
   padding: 0.5rem 2.5rem 0.5rem 2rem;
-  /* top right bottom left */
   font-size: 14px;
   border: 1px solid #ccc;
   border-radius: 6px;
@@ -219,15 +220,14 @@ function getStatusClass(status) {
   text-transform: capitalize;
 }
 
-
 .status-recibido {
-  background-color: #c2e4fc;
-  color: #0d47a1;
+  background-color: #d0eaff;
+  color: #004085;
 }
 
 .status-analisis {
-  background-color: #9cdbff;
-  color: #276264;
+  background-color: #b8ecff;
+  color: #07506c;
 }
 
 .status-tribunal {
@@ -246,52 +246,13 @@ function getStatusClass(status) {
 }
 
 .status-cierre {
-  background-color: #c8e6c9;
+  background-color: #e2f0d9;
   color: #2e7d32;
 }
-
-
-.custom-header-center {
-  text-align: center !important;
-  font-weight: 600;
-  color: #2e3842;
-  font-size: 1rem;
-  display: block;
-  width: 100%;
-}
-
-::v-deep(.p-datatable thead th) {
-  background-color: #f4f6f8;
-  font-weight: 700;
-  color: #2e3842;
-  font-size: 1.02rem;
-  padding: 1rem 0.75rem;
-  border-bottom: 1.2px solid #e0e0e0;
-}
-
 
 ::v-deep(.p-datatable .p-datatable-tbody > tr:nth-child(even)) {
   background-color: #f9fafb;
 }
-
-.action-btn {
-  background-color: #003870;
-  color: white;
-  border: 1px solid transparent;
-  padding: 0.35rem 0.6rem;
-  font-size: 0.85rem;
-  border-radius: 6px;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-}
-.action-btn i {
-  font-size: 0.9rem;
-}
-
-.action-btn:hover {
-  background-color: #004a99;
-  border-color: #002c5c;
-}
-
 
 ::v-deep(.p-datatable .p-datatable-tbody > tr > td),
 ::v-deep(.p-datatable .p-datatable-thead > tr > th) {
@@ -303,4 +264,12 @@ function getStatusClass(status) {
   border-right: none;
 }
 
+.custom-header-center {
+  text-align: center;
+  font-weight: 600;
+  color: #2e3842;
+  font-size: 1rem;
+  display: block;
+  width: 100%;
+}
 </style>

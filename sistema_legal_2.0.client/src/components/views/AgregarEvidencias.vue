@@ -1,33 +1,28 @@
 <template>
-  <div class="pop-up" >
-    <div class="pop-up-inner" >
+  <div class="pop-up">
+    <div class="pop-up-inner">
       <span class="pop-up-close" @click="$emit('close')">&times;</span>
 
       <h2>Agregar evidencia y comentario</h2>
-
-      <!-- Usamos el componente FileUpload -->
-      <div class="file-container">
-        <FileUpload
-          name="Archivo"
-          customUpload
-          @select="handleExpedienteUpload"
-          mode="basic"
-          chooseLabel="Elegir archivo"
-          class="w-full md:w-20rem"
-        />
+      <br>
+      <div class=" ms-3 file-container">
+        <FileUpload name="Archivo" customUpload @select="handleExpedienteUpload" mode="basic"
+          chooseLabel="Elegir archivo" class="w-full md:w-19rem" style="background-color: #003870;" />
       </div>
 
-      <!-- Textarea para el comentario -->
       <div class="comment-container">
-        <textarea
-          v-model="Comentario"
-          placeholder="Descripción del documento"
-          rows="8"
-          cols="50"
-        ></textarea>
+        <textarea v-model="NombreEvidencia" placeholder="Nombre de la evidencia" rows="1" cols="1"></textarea>
+        <br>
+        <textarea v-model="Comentario" placeholder="Descripción del documento" rows="8" cols="50"></textarea>
       </div>
 
-      <Button class="p-button-sm p-button-text-dark" @click="guardar">Guardar</button>
+      <Notivue v-slot="item">
+        <Notifications :item="item" />
+      </Notivue>
+
+
+      <Button label= " Subir Archivo" class="block mx-auto" icon="pi pi-upload" :loading="uploading" @click="guardar" />
+
     </div>
   </div>
 </template>
@@ -35,14 +30,17 @@
 <script setup>
 import { ref } from 'vue';
 import FileUpload from 'primevue/fileupload';
-import axios from 'axios'; // Importamos axios
+import { push } from 'notivue'
+import axios from 'axios';
 
 
+const uploading = ref(false);
 const emit = defineEmits(['close', 'actualizar']);
 
 
 const archivo = ref(null);
 const Comentario = ref('');
+const NombreEvidencia = ref('');
 const IdUsuario = 1;
 const props = defineProps({
   id_Ltg: {
@@ -54,45 +52,65 @@ function handleExpedienteUpload(event) {
   archivo.value = event.files[0];  // Guardamos el archivo en la referencia
 }
 
+function getNombreSinExtension(nombre) {
+  return nombre.replace(/\.[^/.]+$/, '');
+}
+
 async function guardar() {
-  if (!archivo.value || !Comentario.value) {
-    alert('Por favor, complete todos los campos.');
+  if (!archivo.value) {
+    push.error('Debes seleccionar un archivo');
     return;
   }
 
-  // Creamos el objeto FormData para enviar el archivo y el comentario
+  const nombreAuto = NombreEvidencia.value?.trim() || getNombreSinExtension(archivo.value.name);
+  const comentarioAuto = Comentario.value?.trim() || 'Documento subido sin descripción.';
+
   const formData = new FormData();
   formData.append('Archivo', archivo.value);
-  formData.append('Comentario', Comentario.value);
+  formData.append('Comentario', comentarioAuto);
   formData.append('IdUsuario', IdUsuario);
-   formData.append('IdLitigio', props.id_Ltg); // <- ¡Ahora dinámico!
+  formData.append('Nombre', nombreAuto);
+  formData.append('IdLitigio', props.id_Ltg);
 
+  // Notificación tipo promesa
+  const notif = push.promise('Subiendo archivo...');
 
   try {
-  const response = await axios.post(`/api/Files/subir-evidencia-comentario`, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
 
-   alert('Evidencia guardada correctamente');
+    await new Promise(resolve => setTimeout(resolve, 500));
+    const response = await axios.post(`/api/Files/subir-evidencia-comentario`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
 
-    emit('actualizar'); // 🔄 Emitir para que el padre actualice la información
+    console.log('Archivo subido:', response.data);
+
+    emit('actualizar');
     emit('close');
-  console.log('Archivo subido:', response.data);
 
-} catch (error) {
-  console.error('Error al subir el archivo:', error.response ? error.response.data : error.message);
-  alert('Hubo un error al subir el archivo y el comentario.');
+    notif.resolve('Archivo subido correctamente');
+  } catch (error) {
+    console.error('Error al subir el archivo:', error.response?.data || error.message);
+    notif.reject('Error al subir el archivo');
+  }
 }
-}
+
+
 </script>
 
+
+
 <style scoped>
+.ms-custom {
+  margin-left: 4.3rem;
+  /* o lo que necesites */
+}
+
 .pop-up {
   width: 600px;
   height: 400px;
-  background-color: rgba(0,0,0,0.5); /* fondo semitransparente */
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -101,8 +119,8 @@ async function guardar() {
 .pop-up-content {
   background: white;
   padding: 20px;
-  width: 600px; /* <-- Este valor controla el ancho */
-  height: 400px; /* <-- Este valor controla la altura */
+  width: 600px;
+  height: 400px;
   border-radius: 8px;
 }
 
@@ -121,7 +139,7 @@ async function guardar() {
   padding: 30px;
   border-radius: 10px;
   width: 90%;
-  max-width: 500px;
+  max-width: 600px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   position: relative;
 }

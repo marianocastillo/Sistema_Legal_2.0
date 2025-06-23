@@ -15,7 +15,7 @@ export function cerrarSesion(mensaje = 'Sesión finalizada') {
   store.commit('setScreenLocked', false)
 
   // Notificación opcional
-  if (mensaje) push.info("sesion cerrada")
+  if (mensaje) push.success("Sesión cerrada con éxito")
 
   // Redirigir al login
   router.push({ name: 'Login' })

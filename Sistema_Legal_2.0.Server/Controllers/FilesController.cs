@@ -38,7 +38,6 @@ namespace Sistema_Legal_2._0.Server.Controllers
         }
 
 
-
         [HttpPost("SubirEvidencia")]
         [DisableRequestSizeLimit, RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueCountLimit = int.MaxValue)]
         public async Task<IActionResult> SubirEvidencia([FromForm] EvidenciasUploadModel evidencia)
@@ -107,6 +106,9 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
       
 
+
+
+
         [HttpGet("rutas/{id}")]
         public async Task<IActionResult> ObtenerRutasPorLitigio(int id)
         {
@@ -122,6 +124,12 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
             return Ok(rutas);
         }
+
+
+
+
+
+
 
         [HttpGet("rutaspor/{id}")]
         public async Task<IActionResult> GetRutaPorId(int id)
@@ -155,7 +163,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
             var contentType = GetContentType(rutaArchivoCompleta);  // Aquí se usa el método GetContentType
             var nombreArchivo = Path.GetFileName(rutaArchivoCompleta);
 
-            return File(memory, contentType, nombreArchivo);
+            return File(memory, contentType);
         }
 
         private string GetContentType(string path)
@@ -173,6 +181,10 @@ namespace Sistema_Legal_2._0.Server.Controllers
         }
 
 
+
+
+
+
         [HttpGet("comentarios-evidencias/{idLitigio}")]
         public async Task<IActionResult> ObtenerComentariosEvidenciasPorLitigio(int idLitigio)
         {
@@ -188,7 +200,6 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
             return Ok(resultado);
         }
-
 
         [HttpPost("subir-evidencia-comentario")]
         public async Task<IActionResult> SubirEvidenciaYComentario([FromForm] EvidenciaComentarioDTO modelo)
@@ -214,29 +225,31 @@ namespace Sistema_Legal_2._0.Server.Controllers
             var nombreOriginal = Path.GetFileNameWithoutExtension(archivo.FileName); // Ej: "Cedula"
             var extension = Path.GetExtension(archivo.FileName);                      // Ej: ".pdf"
 
-            var carpetaDestino = Path.Combine(basePath, numeroActo, nombreOriginal);
+            // ✅ Ruta completa estilo litigio: /ID/ltg_acto/CARPETA/archivo.ext
+            var carpetaDestino = Path.Combine(basePath, modelo.IdLitigio.ToString(), numeroActo, nombreOriginal);
 
             if (!Directory.Exists(carpetaDestino))
                 Directory.CreateDirectory(carpetaDestino);
 
-            var rutaArchivo = Path.Combine(carpetaDestino, archivo.FileName); // Ruta completa
+            var rutaArchivo = Path.Combine(carpetaDestino, archivo.FileName);
 
-            // Guardar el archivo físico
+            // Guardar físicamente
             using (var stream = new FileStream(rutaArchivo, FileMode.Create))
             {
                 await archivo.CopyToAsync(stream);
             }
 
-            // Ruta relativa para guardar en la DB
-            var rutaRelativa = Path.Combine(numeroActo, nombreOriginal, archivo.FileName);
+            // Ruta relativa para la DB
+            var rutaRelativa = Path.Combine(modelo.IdLitigio.ToString(), numeroActo, nombreOriginal, archivo.FileName);
 
-            // Insertar en la base de datos
+            // Insertar en DB
             using (var connection = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal")))
             {
                 var parametros = new DynamicParameters();
                 parametros.Add("@IdUsuario", modelo.IdUsuario);
                 parametros.Add("@IdLitigio", modelo.IdLitigio);
                 parametros.Add("@TextoComentario", modelo.Comentario);
+                parametros.Add("@Nombre", modelo.Nombre);
                 parametros.Add("@NombreArchivo", archivo.FileName);
                 parametros.Add("@RutaArchivo", rutaRelativa);
                 parametros.Add("@ComentarioId", dbType: DbType.Int32, direction: ParameterDirection.Output);

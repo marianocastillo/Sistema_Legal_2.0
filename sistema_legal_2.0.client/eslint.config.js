@@ -22,5 +22,14 @@ export default [
   },
 
   js.configs.recommended,
-  ...pluginVue.configs['flat/essential'],
-]
+  {
+    ...pluginVue.configs['flat/essential'],
+    rules: {
+      // 🚫 Desactiva nombre de componente multi-palabra
+      'vue/multi-word-component-names': 'off',
+
+      // 🚫 Desactiva advertencia por variables no usadas
+      'no-unused-vars': 'off',
+    },
+  },
+];

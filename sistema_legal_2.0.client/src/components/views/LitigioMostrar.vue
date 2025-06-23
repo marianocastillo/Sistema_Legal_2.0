@@ -1,9 +1,10 @@
 <template>
   <div class="card p-6 shadow-2">
     <div class="flex justify-content-between align-items-center mb-4">
-      <h2 class="text-2xl font-semibold">Detalle del Litigio</h2>
+      <h2 class="text-2xl font-semibold p-4">Detalle del Litigio</h2>
+      <Tag :value="litigio?.desc_Sentencia" :severity="getSentenciaSeverity(litigio?.desc_Sentencia)" />
 
-      <router-link to="/drawer/home" class="btn text-white ms-auto" style="background-color: #003870;">
+      <router-link :to="rutaInicio" class="btn text-white ms-auto" style="background-color: #003870;">
         <i class="fa-solid fa-home me-2"></i> Inicio
       </router-link>
 
@@ -16,125 +17,200 @@
 
     <div v-else>
       <!-- Encabezado del documento -->
-      <div class="document-header mb-5 p-4 border-round-lg" style="background: #f8f9fa;">
-        <div class="flex align-items-center justify-content-between">
-          <div>
-            <h3 class="text-xl m-0" style="color: #003870;">Expediente Judicial</h3>
-            <p class="text-sm text-600-dark m-0">No. Acto: <strong>{{ litigio?.ltg_acto || 'N/A' }}</strong></p>
-          </div>
-          <div class="text-right">
-            <p class="text-sm m-0">Fecha: {{ formatDate(litigio?.ltg_Fecha_Acto) }}</p>
-            <Tag :value="litigio?.estatus_Descripcion" :severity="getStatusSeverity(litigio?.estatus_Descripcion)"
-              class="mt-1" style="color: #003870;" />
-          </div>
-        </div>
-      </div>
-
-      <!-- Sección de información principal -->
-      <div class="grid mb-5">
-        <div class="col-12 md:col-6">
-          <div class="surface-50 p-3 border-round-lg border bg-white">
-            <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Demandante</h4>
-            <div class="grid ">
-              <div class="col-6 field ">
-                <label class="text-sm font-medium text-600-dark">Nombre</label>
-                <p class="m-0">{{ litigio?.ltg_Demandante || 'N/A' }}</p>
-              </div>
-              <div class="col-6 field">
-                <label class="text-sm font-medium text-600-dark">Cédula</label>
-                <p class="m-0">{{ litigio?.ltg_Cedula_Demandante || 'N/A' }}</p>
-              </div>
-              <div class="col-6 field">
-                <label class="text-sm font-medium text-600-dark">Tipo</label>
-                <p class="m-0">{{ litigio?.ltg_Tipo_Demandante || 'N/A' }}</p>
-              </div>
-              <div class="col-6 field">
-                <label class="text-sm font-medium text-600-dark">Nacionalidad</label>
-                <p class="m-0">{{ litigio?.ltg_Nacionalidad || 'N/A' }}</p>
-              </div>
+      <div class="document-header full-width mb-5">
+        <div class="info-table">
+          <div class="row align-items-end">
+            <div class="cell">
+              <h4 class="section-title">Expediente Judicial</h4>
+              <p><strong>No. Acto:</strong> {{ litigio?.ltg_acto || 'N/A' }}</p>
             </div>
-          </div>
-        </div>
-
-        <div class="col-12 md:col-6">
-          <div class="surface-50 p-3 border-round-lg border bg-white">
-            <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Representante</h4>
-            <div class="grid">
-              <div class="col-6 field">
-                <label class="text-sm font-medium text-600-dark">Nombre</label>
-                <p class="m-0">{{ litigio?.ltg_Nombre_Representante || 'N/A' }}</p>
-              </div>
-              <div class="col-6 field">
-                <label class="text-sm font-medium text-600-dark">Cédula</label>
-                <p class="m-0">{{ litigio?.ltg_Cedula_Representante || 'N/A' }}</p>
-              </div>
+            <div class="cell">
+              <h4 class="section-title">Tipo de demanda</h4>
+              <p>{{ litigio?.tipoDemanda_Nombre || 'N/A' }}</p>
+            </div>
+            <div class="cell text-right">
+              <label class="text-sm">Fecha</label>
+              <p>{{ formatDate(litigio?.ltg_Fecha_Acto) }}</p>
+              <Tag :value="litigio?.estatus_Descripcion" :severity="getStatusSeverity(litigio?.estatus_Descripcion)" />
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Detalles del proceso -->
-      <div class=" card surface-50 p-4 mb-5 border-round-lg border bg-white ">
-        <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Detalles del Proceso</h4>
-        <div class="grid">
-          <div class="col-12 md:col-4 field">
-            <label class="text-sm font-medium text-600-dark">Tipo de Demanda</label>
-            <p class="m-0">{{ litigio?.tipoDemanda_Nombre || 'N/A' }}</p>
-          </div>
-          <div class="col-12 md:col-4 field">
-            <label class="text-sm font-medium text-600-dark">Tribunal</label>
-            <p class="m-0">{{ litigio?.nombre_Tribunal || 'N/A' }}</p>
-          </div>
-          <div class="col-12 md:col-4 field">
-            <label class="text-sm font-medium text-600-dark">Digitador</label>
-            <p class="m-0">{{ litigio?.nombreUsuario || 'N/A' }}</p>
-          </div>
-          <div class="col-12 md:col-4 field">
-            <label class="text-sm font-medium text-600-dark">Fecha Audiencia</label>
-            <p class="m-0">{{ formatDate(litigio?.ltg_Fecha_Audiencia) || 'N/A' }}</p>
-          </div>
-          <div class="col-12 md:col-4 field">
-            <label class="text-sm font-medium text-600-dark">Fecha Actualización</label>
-            <p class="m-0">{{ formatDate(litigio?.ltg_Fecha_Actualizacion) || 'N/A' }}</p>
+
+      <div class="card surface-50 p-4 mb-5 border-round-lg border bg-white">
+        <h2 class="text-xl font-semibold mb-3" style="color: #003870;">Historial del Litigio</h2>
+        <div ref="scrollContainer" class="timeline-wrapper">
+          <div style="min-width: max-content;">
+            <Timeline :value="events" align="left" layout="horizontal" class="customized-timeline fade-timeline">
+              <template #marker="slotProps">
+                <div class="timeline-marker"
+                  :class="{ 'no-final-line': slotProps.index === events.length - 2 && !estaCerrado }" :style="{
+                    backgroundColor: slotProps.item.color,
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    display: 'grid',
+                    placeItems: 'center',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
+                  }">
+                  <i :class="slotProps.item.icon" style="color: white; font-size: 16px;"></i>
+                </div>
+              </template>
+
+              <template #content="slotProps">
+                <Card v-if="slotProps.item.content !== null" class="mt-2 p-card">
+                  <template #title>
+                    <span class="p-card-title">{{ slotProps.item.status }}</span>
+                  </template>
+                  <template #subtitle>
+                    <span class="p-card-subtitle detalle-usuario">
+                      {{ dayjs(slotProps.item.date).format('YYYY-MM-DD HH:mm:ss') }} -
+                      <i class="pi pi-user mr-1 icono-pequeno"></i>
+                      <span class="nombre-usuario">{{ slotProps.item.usuario }}</span>
+                    </span>
+                  </template>
+                  <template #content>
+                    <p class="p-card-content whitespace-pre-wrap">
+                      {{ slotProps.item.content }}
+                    </p>
+                  </template>
+                </Card>
+
+                <div v-else class="mt-4" style="height: 153px; width: 100%; visibility: hidden;"></div>
+              </template>
+            </Timeline>
           </div>
         </div>
       </div>
+
+      <!-- Sección combinada: Demandante y Representante -->
+      <div class="info-card-double grid mb-5">
+        <!-- Demandante -->
+        <div class="info-half">
+          <h4 class="section-title">Demandante</h4>
+          <div class="info-table">
+            <div class="row">
+              <div class="cell">
+                <label>Cédula</label>
+                <p>{{ litigio?.ltg_Cedula_Demandante || 'N/A' }}</p>
+              </div>
+              <div class="cell">
+                <label>Tipo</label>
+                <p>{{ litigio?.ltg_Tipo_Demandante || 'N/A' }}</p>
+              </div>
+            </div>
+            <div class="row">
+              <div class="cell">
+                <label>Nombre</label>
+                <p>{{ litigio?.ltg_Demandante || 'N/A' }}</p>
+              </div>
+              <div class="cell">
+                <label>Nacionalidad</label>
+                <p>{{ litigio?.ltg_Nacionalidad || 'N/A' }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Representante -->
+        <div class="info-half bordered-left">
+          <h4 class="section-title">Representante</h4>
+          <div class="info-table">
+            <div class="row">
+              <div class="cell">
+                <label>Nombre</label>
+                <p>{{ litigio?.ltg_Nombre_Representante || 'N/A' }}</p>
+              </div>
+              <div class="cell">
+                <label>Cédula</label>
+                <p>{{ litigio?.ltg_Cedula_Representante || 'N/A' }}</p>
+              </div>
+            </div>
+            <div class="row">
+              <div class="cell">
+                <label>Nacionalidad</label>
+                <p>{{ litigio?.ltg_Nacionalidad_Representante || 'N/A' }}</p>
+              </div>
+              <div class="cell">
+                <label>Fecha Audiencia</label>
+                <p>{{ formatDate(litigio?.ltg_Fecha_Audiencia) || 'N/A' }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detalles del tribunal -->
+      <div class="info-card-double grid mb-5">
+        <!-- Primera mitad -->
+        <div class="info-half">
+          <h4 class="section-title">Detalles del tribunal</h4>
+          <div class="info-table">
+            <div class="row">
+              <div class="cell">
+                <label>Tribunal</label>
+                <p>{{ litigio?.nombre_Tribunal || 'N/A' }}</p>
+              </div>
+              <div class="cell">
+                <label>Teléfono</label>
+                <p>{{ litigio?.tribunal_Telefono || 'N/A' }}</p>
+              </div>
+            </div>
+            <div class="row">
+              <div class="cell">
+                <label>Dirección</label>
+                <p>{{ litigio?.tribunal_Direccion || 'N/A' }}</p>
+              </div>
+              <div class="cell">
+                <label>Fecha Audiencia</label>
+                <p>{{ formatDate(litigio?.ltg_Fecha_Audiencia) || 'N/A' }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Segunda mitad (Descripción) -->
+        <div class="info-half bordered-left">
+          <h4 class="section-title">Descripción</h4>
+          <div class="info-table">
+            <div class="row">
+              <div class="cell" style="grid-column: 1 / -1;">
+                <p>{{ litigio?.tribunal_Descripcion || 'N/A' }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+
 
       <!-- Documentos y sentencia -->
       <div class="grid">
-        <!-- Título -->
-        <div class="col-12">
-          <h4 class="text-lg mb-3" style="color: #003870;">Historial de Evidencias</h4>
-        </div>
-
-        <!-- Tarjetas en columnas -->
-        <div v-for="item in evidenciasOrdenadas" :key="item.id_Evidencias" class="col-12 md:col-6">
-          <div class="card surface-50 p-4 mb-5 border-round-lg border bg-white" style="background: #f8f9fa;">
-            <div class="flex flex-column md:flex-row">
-
-              <!-- Comentario -->
-              <div class="md:col-8 mb-3 md:mb-0">
-                <p class="text-sm text-500 mt-1">Subido: {{ formatFecha(item.FechaSubida) }}</p>
-                <h5 class="text-md mb-1" style="color: #003870;">Comentario</h5>
+        <div v-for="item in evidenciasOrdenadas" :key="item.id_Evidencias" class="col-12">
+          <Accordion :activeIndex="null" multiple>
+            <AccordionTab :header="`${item.Nombre}`">
+              <p class="text-sm text-500">Subido: {{ formatFecha(item.FechaSubida) }}</p>
+              <div class="mb-2">
+                <strong>Comentario:</strong>
                 <p class="m-0">{{ item.comentario }}</p>
               </div>
-
-              <!-- Documento -->
-              <div class="md:col-4 text-right">
-                <br><br>
-                <h5 class="text-md mb-1" style="color: #003870;">Documento</h5>
-                <a :href="rutaBase + '/' + item.RutaArchivo" target="_blank"   class="text-blue-600 no-underline hover:underline"
-                  title="Abrir documento" >
+              <div>
+                <strong>Archivo:</strong>
+                <a :href="`https://localhost:7177/api/Files/rutaspor/${item.id_Ruta}`" target="_blank"
+                  class="text-blue-600 hover:underline ml-2">
                   <i :class="getFileIcon(item.NombreArchivo)" style="color: #ff0000;"></i>
                   {{ item.NombreArchivo }}
                 </a>
-
               </div>
-
-            </div>
-          </div>
+            </AccordionTab>
+          </Accordion>
         </div>
       </div>
+
+      <!-- Sentencia -->
       <div class="col-12 md:col-2 m-3">
         <div class="surface-50 p-4 border-round-lg border h-full bg-white">
           <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Sentencia</h4>
@@ -143,9 +219,9 @@
       </div>
 
       <!-- Pie de documento -->
-      <div class="flex justify-content-between mt-4 pt-3 border-top-1 surface-border ">
-        <Button label="Agregar Evidencia y Comentario" icon="pi pi-comment"  class="p-button-sm p-button-text-dark"
-          @click="togglePopUp(id)" />
+      <div class="flex justify-content-between mt-4 pt-3 border-top-1 surface-border">
+        <Button label="Agregar Evidencia y Comentario" icon="pi pi-comment" class="p-button-sm p-button-text-dark"
+          @click="togglePopUp(id)" style="background-color: #003870;" />
 
         <teleport to="body">
           <transition name="fade">
@@ -154,126 +230,170 @@
           </transition>
         </teleport>
         <small class="text-500-dark">Sistema Sileg 2.0 - {{ new Date().getFullYear() }}</small>
-
       </div>
     </div>
   </div>
 </template>
 
+
 <script setup>
-import { ref, onMounted } from 'vue'
-import api from '@/utilities/api.js'
+import Accordion from 'primevue/accordion';
+import AccordionTab from 'primevue/accordiontab';
+import Timeline from 'primevue/timeline';
+import { ref, onMounted, nextTick, computed } from 'vue';
+import api from '@/utilities/api.js';
 import AgregarEvidencias from '@/components/views/AgregarEvidencias.vue';
-import { computed } from 'vue';
+import dayjs from 'dayjs';
+
+const scrollContainer = ref(null);
 const popUp = ref(false);
 const litigioactual = ref(null);
+const litigio = ref(null);
+const loading = ref(true);
+const evidencias = ref([]);
+const events = ref([]);
 
+const props = defineProps({
+  id: {
+    type: [Number, String],
+    required: true,
+    validator: value => {
+      const valid = value !== null && value !== undefined && value !== '';
+      if (!valid) console.error('ID inválido recibido:', value);
+      return valid;
+    }
+  }
+});
 
-function getFileIcon(nombre) {
+const estaCerrado = computed(() => litigio.value?.ltg_estatus === 7);
+
+const togglePopUp = (id) => {
+  popUp.value = !popUp.value;
+  litigioactual.value = id;
+};
+
+const getFileIcon = (nombre) => {
   const ext = nombre.split('.').pop().toLowerCase();
   if (ext === 'pdf') return 'pi pi-file-pdf';
   if (['jpg', 'jpeg', 'png'].includes(ext)) return 'pi pi-image';
   if (['doc', 'docx'].includes(ext)) return 'pi pi-file-word';
   if (['xls', 'xlsx'].includes(ext)) return 'pi pi-file-excel';
   return 'pi pi-file';
-}
+};
 
-const evidenciasOrdenadas = computed(() => {
-  return [...evidencias.value].sort((a, b) => new Date(a.FechaSubida) - new Date(b.FechaSubida))
-});
-// Métodos
-function togglePopUp(id) {
-  popUp.value = !popUp.value;
-  litigioactual.value = id;
-  console.log('popup:', popUp.value);
-}
-
-
-const props = defineProps({
-  id: {
-    type: [Number, String],
-    required: true,
-    validator: (value) => {
-      const isValid = value !== null && value !== undefined && value !== ''
-      if (!isValid) {
-        console.error('ID inválido recibido:', value)
-      }
-      return isValid
-    }
-  }
-})
-
-const litigio = ref(null)
-const loading = ref(true)
-const evidencias = ref([]);
-const rutaBase = `C:/Users/mariancastillo/Desktop/SistemaLitigio`;
-
-// Función para abrir el documento en una nueva pestaña
-
-
-// Función para formatear fechas
 const formatDate = (dateString) => {
-  if (!dateString) return 'N/A'
+  if (!dateString) return 'N/A';
   return new Date(dateString).toLocaleDateString('es-ES', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
-}
+    year: 'numeric', month: 'long', day: 'numeric'
+  });
+};
 
-// Función para formatear la fecha de comentarios
-function formatFecha(fechaISO) {
+const formatFecha = (fechaISO) => {
   const fecha = new Date(fechaISO);
   return fecha.toLocaleDateString() + ' ' + fecha.toLocaleTimeString();
-}
-async function obtenerComentariosConEvidencias() {
-  try {
-    const response = await api.get(`/api/Files/comentarios-evidencias/${props.id}`);
-    evidencias.value = response.data || [];
-  } catch (error) {
-    console.error('Error al obtener evidencias unificadas:', error);
-  }
-}
+};
 
-// Cargar información cuando el componente se monta
-onMounted(async () => {
+const evidenciasOrdenadas = computed(() => {
+  return [...evidencias.value].sort((a, b) => new Date(a.FechaSubida) - new Date(b.FechaSubida));
+});
 
-  if (!props.id) {
-    console.error('ID no proporcionado o inválido:', props.id)
-    loading.value = false
-    return
-
-  }
-
-  try {
-    const response = await api.get(`/api/Litigio/detallados/${props.id}`)
-
-    if (!response.data) {
-      throw new Error('La respuesta no contiene datos')
-    }
-
-    litigio.value = response.data
-
-    // Obtener comentarios
-    obtenerComentariosConEvidencias();
-
-  } catch (error) {
-    console.error('Error al cargar litigio:', error)
-  } finally {
-    loading.value = false
-  }
-})
-
-// Obtener estilo según el estado
 const getStatusSeverity = (status) => {
-  const statusMap = {
+  const map = {
     'activo': 'success',
     'inactivo': 'warning',
     'cerrado': 'danger',
     'finalizado': 'info'
+  };
+  return map[status?.toLowerCase()] || null;
+};
+
+const getSentenciaSeverity = (sentencia) => {
+  const val = sentencia?.toLowerCase();
+  if (!val) return 'info';
+  if (val.includes('contra')) return 'danger';
+  if (val.includes('favor')) return 'warning';
+  return 'info';
+};
+
+const obtenerComentariosConEvidencias = async () => {
+  try {
+    const res = await api.get(`/api/Files/comentarios-evidencias/${props.id}`);
+    evidencias.value = res.data || [];
+  } catch (err) {
+    console.error('Error al obtener evidencias:', err);
   }
-  return statusMap[status?.toLowerCase()] || null
-}
+};
+
+const cargarLineaDeTiempo = async () => {
+  try {
+    const res = await api.get(`/api/Litigio/historial/${props.id}`);
+    events.value = res.data || [];
+
+    events.value.push({
+      status: '',
+      date: '',
+      icon: 'pi pi-check-circle',
+      color: '#4CAF50',
+      content: null,
+      usuario: ''
+    });
+  } catch (err) {
+    console.error('Error al cargar historial:', err);
+  }
+};
+
+const rutaInicio = ref('/Administrador/litigios');
+
+onMounted(async () => {
+  try {
+    // ✅ Lógica de ruta según perfil
+    const rawUser = localStorage.getItem('usuario');
+    const user = rawUser ? JSON.parse(rawUser) : null;
+
+    if (user) {
+      const perfil = parseInt(user.perfil);
+      const rutasPorPerfil = {
+        1: '/Administrador/litigios',
+        2: '/Administrador/litigios',
+        3: '/digitador/inicio',
+        4: '/abogado/inicio'
+      };
+
+      rutaInicio.value = rutasPorPerfil[perfil] || '/Administrador/litigios';
+    }
+
+    // ✅ Carga datos del litigio
+    const response = await api.get(`/api/Litigio/detallados/${props.id}`);
+    if (!response.data) throw new Error('La respuesta no contiene datos');
+    litigio.value = response.data;
+
+    await cargarLineaDeTiempo();              // Carga eventos
+    await obtenerComentariosConEvidencias();  // Carga evidencias
+    await nextTick();                         // Espera render del DOM
+
+    // ✅ Mueve scroll al final
+    setTimeout(() => {
+      if (scrollContainer.value) {
+        scrollContainer.value.scrollTo({
+          left: scrollContainer.value.scrollWidth,
+          behavior: 'auto'
+        });
+      }
+    }, 100);
+
+    // ✅ Muestra scroll después de animación
+    setTimeout(() => {
+      if (scrollContainer.value) {
+        scrollContainer.value.classList.add('scroll-visible');
+      }
+    }, 2600);
+
+  } catch (error) {
+    console.error('Error al cargar el litigio:', error);
+  } finally {
+    loading.value = false;
+  }
+});
 
 
 
@@ -281,58 +401,244 @@ const getStatusSeverity = (status) => {
 </script>
 
 
-
-
 <style scoped>
-.field {
-  margin-bottom: 1rem;
-}
-
-.document-header {
-  border-left: 4px solid #003870;
-}
-
-@media print {
-  .card {
-    box-shadow: none !important;
-    border: none !important;
-  }
-}
-
-.md\:col-4 {
-  padding-right: 1rem;
-  /* Espacio a la derecha de documentos */
-}
-
-.md\:col-8 {
-  padding-left: 1rem;
-  /* Espacio a la izquierda de comentarios */
-}
-
-.card {
+/* 🔹 Tarjetas principales */
+.card,
+.surface-50,
+.info-card-double {
   border-left: 4px solid #003870;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   background-color: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+  padding: 1.25rem;
 }
 
+/* 🔹 Divisiones visuales */
+.info-card-double {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  overflow: hidden;
+}
+
+.info-half {
+  padding: 1rem;
+}
+
+.bordered-left {
+  border-left: 1px solid #d1d5db;
+}
+
+/* 🔹 Títulos y etiquetas */
 .text-primary {
   color: #003870;
 }
 
-@media print {
-  .card {
-    box-shadow: none !important;
-    border: none !important;
+.section-title,
+h4,
+.card h4,
+.surface-50 h4 {
+  color: #003870 !important;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  border-left: 4px solid #003870;
+  padding-left: 0.75rem;
+  margin-top: 0;
+}
+
+label {
+  font-weight: 600;
+  color: #555;
+  font-size: 0.85rem;
+}
+
+.text-sm {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.mt-0 {
+  margin-top: 0;
+}
+
+.mb-3 {
+  margin-bottom: 1rem;
+}
+
+.m-0 {
+  margin: 0;
+}
+
+p {
+  margin: 0.2rem 0 1rem 0;
+}
+
+/* 🔹 Estructura tipo tabla para info */
+.info-table {
+  display: grid;
+  gap: 1rem;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.cell label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #444;
+}
+
+.cell p {
+  margin: 0;
+  color: #222;
+  font-size: 0.95rem;
+}
+
+/* 🔹 Usuario de eventos */
+.detalle-usuario {
+  font-size: 12px;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+}
+
+.icono-pequeno {
+  font-size: 0.75rem;
+  color: #003870;
+  margin-right: 4px;
+}
+
+.nombre-usuario {
+  font-weight: 600;
+  color: #003870;
+}
+
+/* 🔹 Timeline scroll animado */
+.timeline-wrapper {
+  overflow-x: hidden;
+  overflow-y: hidden;
+  white-space: nowrap;
+  width: 100%;
+  transition: opacity 0.5s ease-in-out;
+  scrollbar-width: none;
+}
+
+.timeline-wrapper.scroll-visible {
+  overflow-x: auto;
+  opacity: 1;
+  scrollbar-width: thin;
+}
+
+.timeline-wrapper.scroll-visible::-webkit-scrollbar {
+  height: 6px;
+}
+
+.timeline-wrapper.scroll-visible::-webkit-scrollbar-thumb {
+  background-color: #999;
+  border-radius: 3px;
+}
+
+.timeline-wrapper.scroll-visible::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.timeline-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+/* 🔹 Timeline animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
+.fade-timeline>>>.p-timeline-event {
+  opacity: 0;
+  transform: translateY(12px);
+  animation: fadeInUp 2s ease forwards;
+}
+
+.fade-timeline>>>.p-timeline-event:nth-child(1) {
+  animation-delay: 300ms;
+}
+
+.fade-timeline>>>.p-timeline-event:nth-child(2) {
+  animation-delay: 600ms;
+}
+
+.fade-timeline>>>.p-timeline-event:nth-child(3) {
+  animation-delay: 900ms;
+}
+
+.fade-timeline>>>.p-timeline-event:nth-child(4) {
+  animation-delay: 1200ms;
+}
+
+.fade-timeline>>>.p-timeline-event:nth-child(5) {
+  animation-delay: 1500ms;
+}
+
+.fade-timeline>>>.p-timeline-event:nth-child(6) {
+  animation-delay: 1800ms;
+}
+
+/* 🔹 Línea conectora del Timeline */
+.p-timeline-event-separator::before {
+  background-color: #003870 !important;
+}
+
+:deep(.p-timeline-event-connector) {
+  background-color: #3F6DAA;
+}
+
+:deep(.no-final-line + .p-timeline-event-connector) {
+  background-color: #cccccc !important;
+  opacity: 0.5;
+}
+
+/* 🔹 Estilo mejorado para tarjetas del historial */
+.p-card {
+  padding: 1rem !important;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.p-card-title {
+  font-size: 1.2rem !important;
+  font-weight: 600;
+  color: #003870;
+  margin-bottom: 0.5rem;
+}
+
+.p-card-subtitle {
+  font-size: 0.875rem !important;
+  color: #555;
+  margin-bottom: 0.75rem;
+}
+
+.p-card-content p {
+  font-size: 0.95rem !important;
+  color: #222;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* 🔹 Popup */
 .pop-up {
-position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.5); /* fondo semitransparente */
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -341,8 +647,39 @@ position: fixed;
 .pop-up-content {
   background: white;
   padding: 20px;
-  width: 600px; /* <-- Este valor controla el ancho */
-  height: 400px; /* <-- Este valor controla la altura */
+  width: 600px;
+  height: 400px;
   border-radius: 8px;
+}
+
+/* 🔹 Print */
+@media print {
+  .card {
+    box-shadow: none !important;
+    border: none !important;
+  }
+}
+
+.text-right {
+  text-align: right;
+}
+
+.align-items-end {
+  align-items: end;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.document-header {
+  width: 100%;
+  padding: 1.25rem;
+  border-radius: 6px;
+  border-left: 4px solid #003870;
+  border: 1px solid #e0e0e0;
+  background-color: #f8f9fa;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
 }
 </style>

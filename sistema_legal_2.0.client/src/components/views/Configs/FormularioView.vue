@@ -161,7 +161,7 @@ export default {
       const usuarioLogueado = JSON.parse(localStorage.getItem('usuario'))
       this.usuario.IdSupervisor = usuarioLogueado?.idUsuario || 0
 
-      
+
       const response = await api[this.FormMode == this.FormModes.Editar ? 'put' : 'post']('/api/Usuarios', this.usuario);
 
       if (response.data.success) {
@@ -176,7 +176,7 @@ export default {
           activo: false,
           IdSupervisor: usuarioLogueado?.idUsuario || 0
         };
-        this.$router.push('/drawer/listadodeusuario');
+        this.$router.push('/listadodeusuario');
       }
       else {
         if (response.data.errors) this.errors = response.data.errors;

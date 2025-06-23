@@ -14,51 +14,31 @@
         <p>Inicie sesión para continuar</p>
 
         <form @submit.prevent="LogIn" class="form-wrapper">
-          <InputText
-            v-model="credentials.userName"
-            :class="{ 'input-error': invalid.userName }"
-            placeholder="Usuario"
-            class="custom-input"
-          />
+          <InputText v-model="credentials.userName" :class="{ 'input-error': invalid.userName }" placeholder="Usuario"
+            class="custom-input" />
 
           <div class="password-wrapper">
-            <Password
-              v-model="credentials.password"
-              :feedback="false"
-              toggleMask
-              placeholder="Contraseña"
-              class="custom-input"
-              :class="{ 'input-error': invalid.password }"
-            />
+            <Password v-model="credentials.password" :feedback="false" toggleMask placeholder="Contraseña"
+              autocomplete="current-password" class="custom-input" :class="{ 'input-error': invalid.password }" />
           </div>
 
-          <PrimeButton
-            :label="loading ? 'Cargando...' : 'Iniciar sesión'"
-            icon="pi pi-sign-in"
-            class="login-btn"
-            :disabled="loading"
-            :loading="loading"
-            type="submit"
-          />
+          <PrimeButton :label="loading ? 'Cargando...' : 'Iniciar sesión'" icon="pi pi-sign-in" class="login-btn"
+            :disabled="loading" :loading="loading" type="submit" />
         </form>
       </div>
     </div>
   </div>
 
-  <Notivue v-slot="item">
-    <NotivueSwipe :item="item">
-      <Notifications :item="item" />
-    </NotivueSwipe>
-  </Notivue>
 </template>
 
 <script>
 import { push } from 'notivue'
 import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
+
+import { jwtDecode } from 'jwt-decode';
 import PrimeButton from 'primevue/button'
 import api from '@/utilities/api.js'
-import { Notivue, Notifications, NotivueSwipe } from 'notivue'
 
 
 export default {
@@ -67,9 +47,6 @@ export default {
     InputText,
     Password,
     PrimeButton,
-    Notivue,
-    Notifications,
-    NotivueSwipe
   },
   data() {
     return {
@@ -77,9 +54,9 @@ export default {
       loading: false,
       invalid: { userName: false, password: false },
       mockUsers: [
-        { userName: 'admin', password: '1234', nombreUsuario: 'Ana Sánchez', rol: 'Administrador' },
+        { userName: 'admin', password: '1234', nombreUsuario: 'Ana Sánchez', rol: 'Administrador', idPerfil : 1 },
         { userName: 'juan', password: 'abcd', nombreUsuario: 'Juan Pérez', rol: 'Abogado' },
-        { userName: 'carla', password: '5678', nombreUsuario: 'Carla Ruiz', rol: 'Cliente' }
+        { userName: 'carla', password: '5678', nombreUsuario: 'Carla Ruiz', rol: 'Administrador' }
       ]
     }
   },
@@ -91,12 +68,12 @@ export default {
   methods: {
     async LogIn() {
 
-      const useMockLogin = false;
+      const useMockLogin = true;
       this.loading = true
       this.invalid.userName = !this.credentials.userName
       this.invalid.password = !this.credentials.password
 
-      console.log('VITE_USE_MOCK:', import.meta.env.VITE_USE_MOCK)
+      // console.log('VITE_USE_MOCK:', import.meta.env.VITE_USE_MOCK)
 
       if (this.invalid.userName || this.invalid.password) {
         push.warning('Por favor, rellene todos los campos')
@@ -122,48 +99,75 @@ export default {
       if (user) {
         const token = 'mockToken'
         localStorage.setItem('token', token)
-        localStorage.setItem('usuario', JSON.stringify({ nombre: user.nombreUsuario, rol: user.rol}))
+        localStorage.setItem('usuario', JSON.stringify({ nombre: user.nombreUsuario, rol: user.rol, perfil: user.idPerfil }))
         localStorage.setItem('sessionExpireTime', new Date().getTime() + 30 * 60 * 1000)
         this.$store.commit('setUser', user)
         push.success(`Bienvenido ${user.nombreUsuario}`)
-        this.$router.push('/drawer/home')
+        this.$router.push('/Administrador/litigios')
       } else {
         push.warning('Usuario o contraseña incorrectos')
       }
     },
 
     async handleRealLogin() {
-    try {
-       const response = await api.post('https://localhost:7177/api/Auth', this.credentials)
-    if (response.data.success) {
-      const token = response.data.token
-      const { usuario } = response.data.data
+      try {
+        const response = await api.post('https://localhost:7177/api/Auth', this.credentials)
+        if (response.data.success) {
+          const token = response.data.token
+          const { usuario } = response.data.data
 
-      localStorage.setItem('token', token)
-      localStorage.setItem('user', usuario.nombreUsuario)
-      localStorage.setItem('sessionExpireTime', new Date().getTime() + 30 * 60 * 1000)
-      localStorage.setItem('usuario', JSON.stringify({
-        idUsuario: usuario.idUsuario,
-        nombre: usuario.nombreUsuario,
-        rol: usuario.nombrePerfil || 'Usuario'
-      }))
+          localStorage.setItem('token', token)
+          localStorage.setItem('user', usuario.nombreUsuario)
+          localStorage.setItem('idUsuario', usuario.idUsuario)
+          localStorage.setItem('idPerfil', usuario.idPerfil)
+          localStorage.setItem('sessionExpireTime', new Date().getTime() + 30 * 60 * 1000)
+          localStorage.setItem('usuario', JSON.stringify({
+            idUsuario: usuario.idUsuario,
+            nombre: usuario.nombreUsuario,
+            rol: nombrePerfil(usuario.idPerfil),
+            perfil: usuario.idPerfil
+          }))
 
-      this.$store.commit('setUser', usuario)
-      push.success(response.data.message)
-      this.$router.push('/drawer/home')
-
-      // setTimeout(() => window.location.reload(), 500)
-    } else {
-      push.warning(response.data.message)
-    }
-  } catch (error) {
-    console.error('Error en login:', error)
-    push.warning('Hubo un error al intentar iniciar sesión. Intenta nuevamente.')
-  }
+          this.$store.commit('setUser', usuario)
+          push.success(response.data.message)
+          if (usuario.idPerfil == 4) {
+            this.$router.push('/abogado/inicio')
+          }else if (usuario.idPerfil == 2 || usuario.idPerfil == 1 ) {
+            this.$router.push('Administrador/litigios')
+          }  else {
+            console.log(jwtDecode(token));
+            this.$router.push('/registrar')
+          }
+        } else {
+          push.warning(response.data.message)
+        }
+      } catch (error) {
+        console.error('Error en login:', error)
+        push.warning('Hubo un error al intentar iniciar sesión. Intenta nuevamente.')
+      }
     }
 
   }
 }
+
+
+
+const nombrePerfil = (idPerfil) => {
+  switch (idPerfil) {
+    case 1:
+      return 'Administrador';
+    case 2:
+      return 'Supervisor';
+    case 3:
+      return 'Digitador';
+    case 4:
+      return 'Abogado Litigante';
+    default:
+      return 'Perfil desconocido';
+  }
+};
+
+
 </script>
 
 <style scoped>
@@ -293,7 +297,8 @@ export default {
 }
 
 :deep(.p-password-toggle-mask-icon) {
-  top: 35% !important; /* Centrado visual */
+  top: 35% !important;
+  /* Centrado visual */
   width: 20px !important;
   height: 18px !important;
 }
@@ -375,6 +380,7 @@ export default {
     opacity: 0;
     transform: translateY(40px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);

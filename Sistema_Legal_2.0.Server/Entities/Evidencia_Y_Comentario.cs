@@ -6,6 +6,8 @@
         public string Comentario { get; set; }
         public int IdUsuario { get; set; }
         public int IdLitigio { get; set; }
+
+        public String Nombre { get; set; }
     }
 
 }

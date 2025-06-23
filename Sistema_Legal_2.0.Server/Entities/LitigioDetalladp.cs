@@ -12,6 +12,7 @@
 
         public string? ltg_Cedula_Demandante { get; set; }
         public string? ltg_Nacionalidad { get; set; }
+        public string? ltg_Nacionalidad_Representante { get; set; }
         public string? ltg_Demandante { get; set; }
         public string? ltg_Tipo_Demandante { get; set; }
 
@@ -19,7 +20,6 @@
         public string? ltg_Nombre_Representante { get; set; }
 
         public DateTime? ltg_Fecha_Audiencia { get; set; }
-        public DateTime? ltg_Fecha_Actualizacion { get; set; }
 
         public int? Id_Tribunal { get; set; }
         public string? Nombre_Tribunal { get; set; }
