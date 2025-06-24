@@ -1,7 +1,7 @@
 <template>
   <div class="card p-6 shadow-2">
     <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
-      <h2 class="text-2xl font-semibold">{{ tituloLitigio }}</h2>
+      <h2 class="text-2xl font-bold">{{ tituloLitigio }}</h2>
 
       <div class="flex items-center gap-2 filtro-busqueda-bar">
         <div class="btn-filtro-group">
@@ -39,7 +39,7 @@
       'estatus_Descripcion'
     ]" class="p-datatable-sm" responsiveLayout="scroll">
       <Column field="ltg_acto" header="No.Acto" />
-      <Column field="ltg_Fecha_Acto" header="Fecha acto">
+      <Column field="ltg_Fecha_Acto" header="Fecha acto" style="min-width: 110px;">
         <template #body="{ data }">
           {{ data.ltg_Fecha_Acto?.split('T')[0] || '' }}
         </template>
@@ -47,7 +47,7 @@
       <Column field="ltg_Cedula_Demandante" header="Cédula demandante" />
       <Column field="ltg_Demandante" header="Nombre demandante" />
       <Column field="tipoDemanda_Nombre" header="Tipo de Demanda" />
-      <Column field="ltg_Fecha_Audiencia" header="Fecha audiencia">
+      <Column field="ltg_Fecha_Audiencia" header="Fecha audiencia" style="min-width: 110px;">
         <template #body="{ data }">
           {{ data.ltg_Fecha_Audiencia?.split('T')[0] || 'Sin fecha' }}
         </template>
@@ -65,7 +65,7 @@
         </template>
       </Column>
 
-      <Column header="Acciones" >
+      <Column header="Acciones">
         <template #body="{ data }">
           <div class="btn-group">
             <!-- Ver -->
@@ -304,7 +304,7 @@ onUnmounted(() => {
 }
 
 .btn-filtro.active {
-  background-color: #72889e;
+  background-color: #003870;
   color: white;
   border-color: #72889e;
 }
@@ -421,6 +421,7 @@ onUnmounted(() => {
 ::v-deep(.p-datatable .p-datatable-thead > tr > th) {
   background-color: rgb(241, 242, 250)
 }
+
 ::v-deep(.p-datatable .p-datatable-tbody > tr > td:last-child),
 ::v-deep(.p-datatable .p-datatable-thead > tr > th:last-child) {
   border-right: none;
