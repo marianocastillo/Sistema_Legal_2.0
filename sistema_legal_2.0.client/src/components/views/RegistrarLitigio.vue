@@ -1,6 +1,7 @@
 <template>
   <div class="card p-4 shadow-2">
     <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+      <h1>  </h1>
       <!-- Título -->
       <h2 class="h4 fw-bold mb-2 mb-md-0">Registro de Litigio</h2>
 
@@ -180,7 +181,7 @@
 
               <label for="archivo" class="block mt-4 mb-2 font-medium text-sm">Archivo</label>
               <FileUpload id="archivo" name="Archivo" customUpload @select="handleExpedienteUpload" mode="basic"
-                chooseLabel="Elegir archivo" class="w-full md:w-20rem" style="background-color: #003870;" />
+                chooseLabel="Elegir archivo" class="w-full md:w-9rem text-sm"  />
             </div>
 
             <!-- Comentario -->
@@ -476,7 +477,7 @@ legend {
   padding: 0 5px !important;
   margin-bottom: 0.5rem !important;
   line-height: inherit !important;
-  font-size: calc(1.275rem + 0.3vw) !important;
+  font-size: calc(0.9rem + 0.3vw) !important;
   width: auto !important;
   color: #003870;
 }
@@ -510,18 +511,30 @@ textarea:focus,
 }
 
 .custom-home-btn:hover {
-  background-color: #004a99;
-  border-color: #002f66;
+  background-color: #c00606;
+  border-color: #c00606;;
   color: white;
+
+  font-weight: 600;
+  transition: background-color 0.2s;
 }
 
 .p-button-sm {
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+::v-deep(.p-button:hover) {
+  background-color: #c00606 !important;
+  border-color: #c00606 !important;
+  font-size: 0.89rem !important;
+  transition: background-color 0.2s;
+}
+
 .p-button-sm:hover {
-  background-color: #004a99;
+  background-color: #c00606 !important;
+  border-color: #c00606 !important;
   box-shadow: 0 2px 8px rgba(0, 56, 112, 0.3);
+  transition: background-color 0.2s;
 }
 
 fieldset label {
