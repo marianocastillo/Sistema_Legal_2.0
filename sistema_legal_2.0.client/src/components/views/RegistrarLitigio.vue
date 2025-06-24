@@ -87,14 +87,14 @@
           <div class="grid">
 
             <!-- Tipo de Demandante -->
-            <div class="field col-12 md:col-3">
+            <div class="field col-12 md:col-2">
               <label for="tipoDemandante" class="block mb-2 font-medium text-sm">Tipo de Demandante *</label>
               <Dropdown id="tipoDemandante" v-model="form.ltg_Tipo_Demandante" :options="tiposDemandante"
                 optionLabel="label" optionValue="value" class="w-full" placeholder="Seleccione una opción" />
             </div>
 
             <!-- Otro tipo de demandante -->
-            <div class="field col-12 md:col-4" v-if="form.ltg_Tipo_Demandante === 'Otros'">
+            <div class="field col-12 md:col-3" v-if="form.ltg_Tipo_Demandante === 'Otros'">
               <label for="otrosDemandante" class="block mb-2 font-medium text-sm">Especifique tipo de Demandante
                 *</label>
               <InputText id="otrosDemandante" v-model="form.otrosDemandante" class="w-full"
@@ -102,9 +102,9 @@
             </div>
 
             <!-- Cédula o RNC -->
-            <div class="field col-12 md:col-2">
+            <div class="field col-12 md:col-3">
               <label for="cedulaDemandante" class="block mb-2 font-medium text-sm">
-                {{ form.ltg_Tipo_Demandante === 'Empresa' ? 'RNC de la Empresa *' : 'Cédula del Demandante *' }}
+                {{ form.ltg_Tipo_Demandante === 'Empresa' ? 'RNC de la Empresa *' : 'Cédula del Demandante*' }}
               </label>
               <InputText id="cedulaDemandante" v-model="form.ltg_Cedula_Demandante"
                 :maxlength="form.ltg_Tipo_Demandante === 'Empresa' ? 9 : 11"
@@ -116,8 +116,10 @@
 
 
             <!-- Nombre del Demandante -->
-            <div class="field col-12 md:col-4">
-              <label for="nombreDemandante" class="block mb-2 font-medium text-sm">Nombre del Demandante *</label>
+            <div class="field col-12 md:col-3">
+              <label for="nombreDemandante" class="block mb-2 font-medium text-sm">
+                {{ form.ltg_Tipo_Demandante === 'Empresa' ? 'Nombre de la empresa *' : 'Nombre del Demandante *' }}
+              </label>
               <InputText id="nombreDemandante" v-model="form.ltg_Demandante" class="w-full"
                 :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'Nombre de la empresa' : 'Nombre completo'" />
             </div>
@@ -141,7 +143,7 @@
           <div class="grid">
 
             <div class="field col-12 md:col-2">
-              <label for="cedulaRepresentante" class="block mb-2 font-medium text-sm">Cédula del Representante *</label>
+              <label for="cedulaRepresentante" class="block mb-2 font-medium text-sm">Cédula *</label>
               <InputText id="cedulaRepresentante" v-model="form.ltg_Cedula_Representante" @blur="() => buscarPersonaPorDocumento(
                 form.ltg_Cedula_Representante,
                 'ltg_Nombre_Representante',
@@ -149,7 +151,7 @@
               )" class="w-full" placeholder="Ej: 00112345678" />
             </div>
 
-            <div class="field col-12 md:col-5">
+            <div class="field col-12 md:col-4">
               <label for="nombreRepresentante" class="block mb-2 font-medium text-sm">Nombre del Representante *</label>
               <InputText id="nombreRepresentante" v-model="form.ltg_Nombre_Representante" class="w-full"
                 placeholder="Nombre completo" />
