@@ -11,7 +11,7 @@
         </div>
         <br />
         <nav class="sidebar-menu">
-          <ul style="color: white;">
+          <ul class="contenedor-menu">
             <!-- Inicio: Todos los roles -->
             <li>
               <router-link :to="rutaInicio" class="sidebar-link" exact-active-class="active">
@@ -48,20 +48,20 @@
                 <!-- Solo Admin -->
                 <li v-if="usuario.rol === 'Administrador'">
                   <router-link to="/listadodeusuario">
-                    <Button label="Lista de Usuario" icon="pi pi-user" class="p-button-text p-button-sm w-full pl-4" />
+                    <Button label="Lista de Usuario" icon="pi pi-user" class="p-button-text p-button-sm w-full" />
                   </router-link>
                 </li>
 
                 <!-- Solo Admin -->
                 <li v-if="usuario.rol === 'Administrador'">
                   <router-link to="/formulario">
-                    <Button label="Añadir Usuario" icon="pi pi-user" class="p-button-text p-button-sm w-full pl-4" />
+                    <Button label="Añadir Usuario" icon="pi pi-user" class="p-button-text p-button-sm w-full" />
                   </router-link>
                 </li>
 
                 <!-- Todos -->
                 <li>
-                  <Button label="Cerrar sesión" icon="pi pi-sign-out" class="p-button-text p-button-sm w-full pl-4"
+                  <Button label="Cerrar sesión" icon="pi pi-sign-out" class="p-button-text p-button-sm w-full"
                     @click="cerrarSesion" />
                 </li>
               </ul>
@@ -250,7 +250,16 @@ body {
 
 .sidebar.hidden {
   display: none;
+
 }
+
+.contenedor-menu{
+  list-style: none;
+  padding-left: 0;
+  margin-left: 0;
+  margin-left: 0.4rem;
+}
+
 
 .sidebar-link {
   display: flex;
@@ -381,9 +390,13 @@ body {
   object-fit: contain;
 }
 
-.submenu {
-  padding-left: 1.5rem;
-  margin-top: 0.3rem;
+.submenu{
+  list-style: none;
+}
+
+.submenu .p-button  {
+  justify-content: left !important;
+
 }
 
 .rotate-180 {
@@ -402,4 +415,6 @@ body {
   color: #fff;
   font-size: 1.2rem;
 }
+
+
 </style>
