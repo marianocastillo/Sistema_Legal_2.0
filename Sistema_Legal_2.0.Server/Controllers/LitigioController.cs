@@ -153,7 +153,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
             }
 
             // Construcción de ruta: /id_litigio/ltg_acto/nombreArchivoSinExtension/archivo.pdf
-            string rutaBase = @"C:\Users\mariancastillo\Desktop\SistemaLitigio";
+            string rutaBase = @"C:\Users\ronvargas\Desktop\SistemaLitigio";
             string rutaFinal = Path.Combine(rutaBase, idLitigio.ToString(), datos.ltg_acto, nombreCarpeta);
 
             Directory.CreateDirectory(rutaFinal);

@@ -65,7 +65,7 @@
         </template>
       </Column>
 
-      <Column header="Acciones" style="width: 180px">
+      <Column header="Acciones" >
         <template #body="{ data }">
           <div class="btn-group">
             <!-- Ver -->
@@ -418,6 +418,9 @@ onUnmounted(() => {
   border-right: 1px solid #ebebeb;
 }
 
+::v-deep(.p-datatable .p-datatable-thead > tr > th) {
+  background-color: rgb(241, 242, 250)
+}
 ::v-deep(.p-datatable .p-datatable-tbody > tr > td:last-child),
 ::v-deep(.p-datatable .p-datatable-thead > tr > th:last-child) {
   border-right: none;
@@ -434,6 +437,7 @@ onUnmounted(() => {
   color: #e6f3ff;
   font-weight: bold;
 }
+
 
 
 

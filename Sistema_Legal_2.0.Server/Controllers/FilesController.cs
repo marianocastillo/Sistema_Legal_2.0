@@ -68,7 +68,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 }
             }
 
-            string rutaBase = @"C:\Users\mariancastillo\Desktop\SistemaLitigio";
+            string rutaBase = @"C:\Users\ronvargas\Desktop\SistemaLitigio";
             string rutaLitigio = Path.Combine(rutaBase, nombreCarpetaLitigio);
             string rutaEvidencia = Path.Combine(rutaLitigio, "Evidencias");
 
