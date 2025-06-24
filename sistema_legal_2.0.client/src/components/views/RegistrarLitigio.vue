@@ -375,8 +375,8 @@ function validarFormulario() {
   if (!form.ltg_Demandante.trim()) return "El nombre del demandante es obligatorio.";
   if (!/^\d{11}$/.test(form.ltg_Cedula_Representante)) return "La cédula del representante es inválida.";
   if (!form.ltg_Nombre_Representante.trim()) return "El nombre del representante es obligatorio.";
-  if (!form.ltg_Fecha_Audiencia) return "La fecha de audiencia es obligatoria.";
-  if (!form.Tipo_audiencia) return "Seleccione el tipo de audiencia.";
+  // if (!form.ltg_Fecha_Audiencia) return "La fecha de audiencia es obligatoria.";
+  // if (!form.Tipo_audiencia) return "Seleccione el tipo de audiencia.";
   if (!expedienteFile.value) return "Debe subir un archivo.";
 
   return null; // todo válido
