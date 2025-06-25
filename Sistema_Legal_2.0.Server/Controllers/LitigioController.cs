@@ -90,138 +90,94 @@ namespace Sistema_Legal_2._0.Server.Controllers
         [DisableRequestSizeLimit, RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueCountLimit = int.MaxValue)]
         public async Task<IActionResult> SubirLitigioConArchivo([FromForm] LitigioConArchivo datos)
         {
-
             int idLitigio = 0;
             int idAudiencia = 0;
+            string rutaRelativa = "";
+
             try
             {
-                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(datos)); Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(datos));
+                if (datos.Archivo == null || datos.Archivo.Length == 0)
+                    return BadRequest("No se recibió ningún archivo.");
 
-            if (datos.Archivo == null || datos.Archivo.Length == 0)
-                return BadRequest("No se recibió ningún archivo.");
+                string nombreArchivo = Path.GetFileName(datos.Archivo.FileName);
+                string nombreCarpeta = Path.GetFileNameWithoutExtension(nombreArchivo);
 
-            string nombreArchivo = Path.GetFileName(datos.Archivo.FileName);
-            string nombreCarpeta = Path.GetFileNameWithoutExtension(nombreArchivo); // Carpeta con el nombre del archivo
-
-            string rutaRelativa = "";
-            
-
-
-            using (SqlConnection connection = new SqlConnection(_cadenaSQL))
-            {
-                await connection.OpenAsync();
-
-                using (SqlCommand command = new SqlCommand("sp_CrearLitigio", connection))
+                using (SqlConnection connection = new SqlConnection(_cadenaSQL))
                 {
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@ltg_acto", datos.ltg_acto);
-                    command.Parameters.AddWithValue("@ltg_Fecha_Acto", datos.ltg_Fecha_Acto);
-                    command.Parameters.AddWithValue("@id_Tipo_Demanda", datos.id_Tipo_Demanda);
-                    command.Parameters.AddWithValue("@ltg_Cedula_Demandante", datos.ltg_Cedula_Demandante);
-                    command.Parameters.AddWithValue("@ltg_Nacionalidad", datos.ltg_Nacionalidad);
-                    command.Parameters.AddWithValue("@ltg_Nacionalidad_Representante", datos.ltg_Nacionalidad_Representante);
-                    command.Parameters.AddWithValue("@ltg_Demandante", datos.ltg_Demandante);
-                    command.Parameters.AddWithValue("@ltg_Tipo_Demandante", datos.ltg_Tipo_Demandante);
-                    command.Parameters.AddWithValue("@ltg_Cedula_Representante", (object?)datos.ltg_Cedula_Representante ?? DBNull.Value);
-                    command.Parameters.AddWithValue("@ltg_Nombre_Representante", (object?)datos.ltg_Nombre_Representante ?? DBNull.Value);
-                    command.Parameters.AddWithValue("@id_Sentencia", (object?)datos.id_Sentencia ?? DBNull.Value);
-                    command.Parameters.AddWithValue("@id_usuario", datos.id_usuario);
-                    command.Parameters.AddWithValue("@id_Estatus", datos.id_Estatus);
-                    command.Parameters.AddWithValue("@Tipo_audiencia", (object?)datos.Tipo_audiencia ?? DBNull.Value);
+                    await connection.OpenAsync();
 
-                        try
+                    using (SqlCommand command = new SqlCommand("sp_CrearLitigioCompleto", connection))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+
+                        // Parámetros del litigio
+                        command.Parameters.AddWithValue("@ltg_acto", datos.ltg_acto);
+                        command.Parameters.AddWithValue("@ltg_Fecha_Acto", datos.ltg_Fecha_Acto);
+                        command.Parameters.AddWithValue("@ltg_Cedula_Demandante", datos.ltg_Cedula_Demandante);
+                        command.Parameters.AddWithValue("@ltg_Nombre_Demandante", datos.ltg_Nombre_Demandante);
+                        command.Parameters.AddWithValue("@ltg_Tipo_Demandante", datos.ltg_Tipo_Demandante);
+                        command.Parameters.AddWithValue("@ltg_Nacionalidad", datos.ltg_Nacionalidad);
+                        command.Parameters.AddWithValue("@ltg_Cedula_Representante", (object?)datos.ltg_Cedula_Representante ?? DBNull.Value);
+                        command.Parameters.AddWithValue("@ltg_Nombre_Representante", (object?)datos.ltg_Nombre_Representante ?? DBNull.Value);
+                        command.Parameters.AddWithValue("@ltg_Nacionalidad_Representante", datos.ltg_Nacionalidad_Representante);
+                        command.Parameters.AddWithValue("@id_Tipo_Demanda", datos.id_Tipo_Demanda);
+                        command.Parameters.AddWithValue("@id_Sentencia", (object?)datos.id_Sentencia ?? DBNull.Value);
+                        command.Parameters.AddWithValue("@id_usuario", datos.id_usuario);
+                        command.Parameters.AddWithValue("@id_Estatus", datos.id_Estatus);
+
+                        // Parámetros de evidencia
+                        string fechaArchivo = datos.Fecha.ToString("yyyy-MM-ddTHH:mm:ss");
+                        command.Parameters.AddWithValue("@Nombre_Evidencia", string.IsNullOrWhiteSpace(datos.NombreEvidencia) ? Path.GetFileNameWithoutExtension(nombreArchivo) : datos.NombreEvidencia);
+                        command.Parameters.AddWithValue("@Ruta_Archivo", $"Downloads\\{nombreArchivo}");
+                        command.Parameters.AddWithValue("@Nombre_Archivo", nombreArchivo);
+                        command.Parameters.AddWithValue("@Comentario_Evidencia", string.IsNullOrWhiteSpace(datos.comentario) ? "Archivo subido sin nombre." : datos.comentario);
+
+                        // Parámetros adicionales
+                        command.Parameters.AddWithValue("@Fecha", datos.Fecha);
+                        command.Parameters.AddWithValue("@Id_tribunal", datos.Id_tribunal);
+                        command.Parameters.AddWithValue("@Numero", datos.Numero);
+                        command.Parameters.AddWithValue("@Tipo", datos.Tipo_audiencia);
+
+                        // Ejecutar
+                        using (var reader = await command.ExecuteReaderAsync())
                         {
-                            using (var reader = await command.ExecuteReaderAsync())
+                            if (await reader.ReadAsync())
                             {
-                                if (await reader.ReadAsync())
-                                {
-                                    idLitigio = reader.GetInt32(reader.GetOrdinal("id_litigio"));
-                                   
-                                }
+                                idLitigio = reader.GetInt32(reader.GetOrdinal("id_litigio"));
+                                idAudiencia = reader.GetInt32(reader.GetOrdinal("id_audiencia"));
                             }
-
                         }
-                        catch (Exception ex)
-                    {
-                        Console.WriteLine("Error ejecutando sp_CrearLitigio:", ex.Message);
-                        return StatusCode(500, new { mensaje = "Error al crear el litigio", detalle = ex.Message });
                     }
-                   
                 }
-            }
 
-            // Construcción de ruta: /id_litigio/ltg_acto/nombreArchivoSinExtension/archivo.pdf
-            string rutaBase = @"C:\Users\ronvargas\Desktop\SistemaLitigio";
-            string rutaFinal = Path.Combine(rutaBase, idLitigio.ToString(), datos.ltg_acto, nombreCarpeta);
+                // Guardar archivo en ruta local
+                string rutaBase = @"C:\Users\Flafontaine\Desktop\SistemaLitigio";
+                string rutaFinal = Path.Combine(rutaBase, idLitigio.ToString(), datos.ltg_acto, nombreCarpeta);
+                Directory.CreateDirectory(rutaFinal);
 
-            Directory.CreateDirectory(rutaFinal);
-
-            string rutaArchivoCompleta = Path.Combine(rutaFinal, nombreArchivo);
-            using (var stream = new FileStream(rutaArchivoCompleta, FileMode.Create))
-            {
-                await datos.Archivo.CopyToAsync(stream);
-            }
-
-            rutaRelativa = Path.Combine(idLitigio.ToString(), datos.ltg_acto, nombreCarpeta, nombreArchivo);
-
-            if (string.IsNullOrWhiteSpace(datos.NombreEvidencia))
-                datos.NombreEvidencia = Path.GetFileNameWithoutExtension(nombreArchivo);
-
-            if (string.IsNullOrWhiteSpace(datos.comentario))
-                datos.comentario = "Archivo subido sin nombre.";
-
-                using (SqlConnection conn = new SqlConnection(_cadenaSQL))
+                string rutaArchivoCompleta = Path.Combine(rutaFinal, nombreArchivo);
+                using (var stream = new FileStream(rutaArchivoCompleta, FileMode.Create))
                 {
-                    await conn.OpenAsync();
-
-                    int idEvidencia;
-                    int idComentario;
-
-                    using (SqlCommand sp = new SqlCommand("sp_InsertarComentarioYArchivo", conn))
-                    {
-                        sp.CommandType = CommandType.StoredProcedure;
-
-                        sp.Parameters.AddWithValue("@IdUsuario", datos.id_usuario);
-                        sp.Parameters.AddWithValue("@IdLitigio", idLitigio);
-                        sp.Parameters.AddWithValue("@TextoComentario", datos.comentario);
-                        sp.Parameters.AddWithValue("@NombreArchivo", nombreArchivo);
-                        sp.Parameters.AddWithValue("@RutaArchivo", rutaRelativa);
-                        sp.Parameters.AddWithValue("@Nombre", datos.NombreEvidencia);
-
-                        SqlParameter outputComentario = new SqlParameter("@ComentarioId", SqlDbType.Int)
-                        {
-                            Direction = ParameterDirection.Output
-                        };
-                        SqlParameter outputEvidencia = new SqlParameter("@EvidenciaId", SqlDbType.Int)
-                        {
-                            Direction = ParameterDirection.Output
-                        };
-
-                        sp.Parameters.Add(outputComentario);
-                        sp.Parameters.Add(outputEvidencia);
-
-                        await sp.ExecuteNonQueryAsync();
-
-                        idComentario = Convert.ToInt32(outputComentario.Value);
-                        idEvidencia = Convert.ToInt32(outputEvidencia.Value);
-
-                        Console.WriteLine($"ComentarioId: {idComentario}, EvidenciaId: {idEvidencia}");
-                    }
+                    await datos.Archivo.CopyToAsync(stream);
                 }
+
+                rutaRelativa = Path.Combine(idLitigio.ToString(), datos.ltg_acto, nombreCarpeta, nombreArchivo);
 
                 return Ok(new
-            {
-                mensaje = "Litigio y archivo subidos correctamente.",
-                id_litigio = idLitigio,
-                rutaRelativa
-            });
-                }
-                catch (Exception ex)
+                {
+                    mensaje = "Litigio, audiencia y archivo creados correctamente.",
+                    id_litigio = idLitigio,
+                    id_audiencia = idAudiencia,
+                    rutaRelativa
+                });
+            }
+            catch (Exception ex)
             {
                 Console.WriteLine("ERROR GENERAL:", ex.ToString());
                 return StatusCode(500, new { mensaje = "Error interno del servidor", detalle = ex.Message });
             }
         }
+
 
 
         [HttpGet("BuscarDocumento/{documento}")]
@@ -361,94 +317,6 @@ namespace Sistema_Legal_2._0.Server.Controllers
         }
 
 
-
-        [HttpGet("comentarios/{id}")]
-        public async Task<IActionResult> ObtenerComentariosPorLitigio(int id)
-        {
-            var parametros = new DynamicParameters();
-            parametros.Add("@IdLitigio", id);
-
-            using var connection = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal"));
-            var comentarios = await connection.QueryAsync<ComentariosLitigio>(
-                "sp_ObtenerComentariosPorID",
-                parametros,
-                commandType: CommandType.StoredProcedure
-            );
-
-            return Ok(comentarios);
-        }
-
-
-
-        [HttpGet("datos-litigio")]
-        public async Task<IActionResult> ObtenerDatosLitigio()
-        {
-            var datos = new DatosLitigioDto
-            {
-                Tribunales = new List<TribunalDto>(),
-                TiposDemanda = new List<TipoDemandaDto>(),
-                EstatusLitigios = new List<EstatusLitigioDto>()
-            };
-
-            using (var connection = _db_silegContext.Database.GetDbConnection())
-            {
-                await connection.OpenAsync();
-
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = "sp_ObtenerDatosLitigio";
-                    command.CommandType = CommandType.StoredProcedure;
-
-                    using (var reader = await command.ExecuteReaderAsync())
-                    {
-                        // Leer tribunales
-                        while (await reader.ReadAsync())
-                        {
-                            datos.Tribunales.Add(new TribunalDto
-                            {
-                                Id_Tribunal = reader.GetInt32(0),
-                                Nombre_Tribunal = reader.GetString(1),
-                                Descripcion = reader.GetString(2),
-                                Telefono = reader.GetString(3),
-                                Latitud = reader.IsDBNull(4) ? null : reader.GetDecimal(4),
-                                Longitud = reader.IsDBNull(5) ? null : reader.GetDecimal(5),
-                                IdEstatus = reader.GetInt32(6),
-                                Direccion = reader.GetString(7)
-                            });
-                        }
-
-                        // Siguiente resultset
-                        await reader.NextResultAsync();
-
-                        // Leer tipos de demanda
-                        while (await reader.ReadAsync())
-                        {
-                            datos.TiposDemanda.Add(new TipoDemandaDto
-                            {
-                                id_demanda = reader.GetInt32(0),
-                                Nombre = reader.GetString(1),
-                                id_Estatus = reader.GetInt32(2)
-                            });
-                        }
-
-                        // Siguiente resultset
-                        await reader.NextResultAsync();
-
-                        // Leer estatus de litigios
-                        while (await reader.ReadAsync())
-                        {
-                            datos.EstatusLitigios.Add(new EstatusLitigioDto
-                            {
-                                ltg_estatus = reader.GetInt32(0),
-                                ltg_description = reader.GetString(1)
-                            });
-                        }
-                    }
-                }
-            }
-
-            return Ok(datos);
-        }
         [HttpGet("Buscar")]
         public async Task<IActionResult> BuscarPorCedulaOActo(string valor)
         {

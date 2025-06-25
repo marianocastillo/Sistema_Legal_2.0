@@ -2,7 +2,6 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sistema_Legal_2._0.Server.Entities;
 
@@ -14,46 +13,39 @@ public partial class Litigios
 
     public DateTime ltg_Fecha_Acto { get; set; }
 
-    public int id_Tipo_Demanda { get; set; }
-
     public string ltg_Cedula_Demandante { get; set; }
 
-    public string ltg_Nacionalidad { get; set; }
-
-    public string ltg_Demandante { get; set; }
+    public string ltg_Nombre_Demandante { get; set; }
 
     public string ltg_Tipo_Demandante { get; set; }
+
+    public string ltg_Nacionalidad { get; set; }
 
     public string ltg_Cedula_Representante { get; set; }
 
     public string ltg_Nombre_Representante { get; set; }
 
-    public DateTime? ltg_Fecha_Audiencia { get; set; }
+    public string ltg_Nacionalidad_Representante { get; set; }
 
-    public int? id_Tribunal { get; set; }
+    public int id_Tipo_Demanda { get; set; }
 
-    public int? id_Sentencia { get; set; }
+    public int id_Sentencia { get; set; }
 
     public int id_usuario { get; set; }
 
     public int id_Estatus { get; set; }
 
-    [NotMapped]
-    public IFormFile Archivo { get; set; }
+    public virtual ICollection<Audiencias> Audiencias { get; set; } = new List<Audiencias>();
 
-    public string NombreCarpeta { get; set; }
+    public virtual ICollection<Historico_Litigio> Historico_Litigio { get; set; } = new List<Historico_Litigio>();
+
     public virtual Estatus_Litigios id_EstatusNavigation { get; set; }
 
     public virtual Tipo_Sentencia id_SentenciaNavigation { get; set; }
 
     public virtual Tipo_Demanda id_Tipo_DemandaNavigation { get; set; }
 
-    public virtual Tribunales id_TribunalNavigation { get; set; }
-
-    public virtual ICollection<Ruta_archivos> Rutas { get; set; }
-
     public virtual Usuarios id_usuarioNavigation { get; set; }
-    public int id_ruta { get; set; }
 
-    public Ruta_archivos Ruta_archivos { get; set; }
+    public virtual ICollection<Usuarios> idUsuario { get; set; } = new List<Usuarios>();
 }

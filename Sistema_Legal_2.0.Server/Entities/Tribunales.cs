@@ -23,5 +23,5 @@ public partial class Tribunales
 
     public string Direccion { get; set; }
 
-    public virtual ICollection<Litigios> Litigios { get; set; } = new List<Litigios>();
+    public virtual ICollection<Audiencias> Audiencias { get; set; } = new List<Audiencias>();
 }

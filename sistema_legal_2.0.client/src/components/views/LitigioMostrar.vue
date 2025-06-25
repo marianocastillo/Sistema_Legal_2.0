@@ -194,11 +194,11 @@
           <p><strong>Comentario:</strong> {{ ev.textoComentario }}</p>
           <p><strong>Fecha:</strong> {{ formatDate(ev.fechaComentario) }}</p>
           <p><strong>Archivo:</strong>
-            <a :href="`https://localhost:7177/api/Files/rutaspor/${encodeURIComponent(ev.rutaArchivo)}`"
-               target="_blank" class="text-blue-600 hover:underline">
-              <i :class="getFileIcon(ev.nombreArchivo)" style="margin-right: 5px;"></i>
-              {{ ev.nombreArchivo }}
-            </a>
+            <a :href="`https://localhost:7177/api/Files/rutaspor/${item.rutaArchivo}`" target="_blank"
+                  class="text-blue-600 hover:underline ml-2">
+                  <i :class="getFileIcon(item.NombreArchivo)" style="color: #ff0000;"></i>
+                  {{ item.NombreArchivo }}
+                </a>
           </p>
         </div>
       </div>

@@ -15,7 +15,23 @@
    "T4TemplatePath": null,
    "Tables": [
       {
+         "Name": "[dbo].[Asignaciones_Litigios]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Audiencias]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[Estatus_Litigios]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Evidencias]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Historico_Litigio]",
          "ObjectType": 0
       },
       {
@@ -39,15 +55,7 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[PerfilesVista]",
-         "ObjectType": 0
-      },
-      {
          "Name": "[dbo].[perfilesVistas]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[Ruta_archivos]",
          "ObjectType": 0
       },
       {

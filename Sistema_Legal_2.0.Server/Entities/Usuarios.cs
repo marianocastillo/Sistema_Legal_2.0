@@ -13,7 +13,7 @@ public partial class Usuarios
 
     public string apellidos { get; set; }
 
-    public DateTime? fechaCreacion { get; set; }
+    public DateTime fechaCreacion { get; set; }
 
     public int idPerfil { get; set; }
 
@@ -21,11 +21,11 @@ public partial class Usuarios
 
     public string nombreUsuario { get; set; }
 
-
     public int? idSupervisor { get; set; }
 
     public virtual ICollection<Litigios> Litigios { get; set; } = new List<Litigios>();
 
     public virtual Perfiles idPerfilNavigation { get; set; }
 
+    public virtual ICollection<Litigios> id_Ltg { get; set; } = new List<Litigios>();
 }

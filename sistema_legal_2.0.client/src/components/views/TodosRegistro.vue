@@ -31,9 +31,10 @@
       <Column field="tipoDemanda_Nombre" header="Tipo de Demanda" />
       <Column field="ltg_Fecha_Audiencia" header="Fecha audiencia">
         <template #body="{ data }">
-          {{ data.ltg_Fecha_Audiencia?.split('T')[0] || 'Sin fecha' }}
+          {{ new Date(data.ltg_Fecha_Audiencia).toLocaleString('es-ES', { hour12: false }) }}
         </template>
       </Column>
+
       <Column field="estatus_Descripcion">
         <template #header>
           <div class="custom-header-center">Estatus</div>
@@ -112,6 +113,7 @@ onMounted(async () => {
 onUnmounted(() => {
   window.removeEventListener('resize', calculateRows);
 });
+
 
 
 function calculateRows() {
@@ -283,6 +285,7 @@ function getStatusClass(status) {
   border-radius: 6px;
   transition: background-color 0.2s ease, border-color 0.2s ease;
 }
+
 .action-btn i {
   font-size: 0.9rem;
 }
@@ -302,5 +305,4 @@ function getStatusClass(status) {
 ::v-deep(.p-datatable .p-datatable-thead > tr > th:last-child) {
   border-right: none;
 }
-
 </style>
