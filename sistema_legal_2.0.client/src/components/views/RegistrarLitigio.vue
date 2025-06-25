@@ -65,7 +65,7 @@
             </div>
             <div class="field col-12 md:col-2">
               <label for="fechaAudiencia" class="block mb-2 font-medium text-sm">Hora Audiencia *</label>
-              <Calendar v-model="horaSeleccionada" showIcon timeOnly hourFormat="12" />
+              <Calendar v-model="horaSeleccionada" showIcon timeOnly hourFormat="12" placeholder="Ej: 8:00am" />
             </div>
 
             <!-- Tribunal -->
@@ -112,21 +112,21 @@
                 {{ form.ltg_Tipo_Demandante === 'Empresa' ? 'RNC de la Empresa *' : 'Cédula del Demandante*' }}
               </label>
               <InputText id="cedulaDemandante" v-model="form.ltg_Cedula_Demandante"
-                :maxlength="form.ltg_Tipo_Demandante === 'Empresa' ? 9 : 11"
-                @input="form.ltg_Cedula_Demandante = form.ltg_Cedula_Demandante.replace(/\D/g, '')"
+                :maxlength="form.ltg_Tipo_Demandante === 'Empresa' ? 9 : 11" inputmode="numeric" pattern="[0-9]*"
+                @keydown="soloNumeros"
                 @blur="() => buscarPersonaPorDocumento(form.ltg_Cedula_Demandante, 'ltg_Demandante', 'ltg_Nacionalidad')"
                 class="w-full"
-                :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'Ej: 123456789' : 'Ej: 00112345678'" />
+                :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'Ej: 123456789' : 'Ej: 00112345678'"
+                :disabled="!cedulaHabilitado" />
             </div>
-
-
             <!-- Nombre del Demandante -->
             <div class="field col-12 md:col-3">
               <label for="nombreDemandante" class="block mb-2 font-medium text-sm">
                 {{ form.ltg_Tipo_Demandante === 'Empresa' ? 'Nombre de la empresa *' : 'Nombre del Demandante *' }}
               </label>
               <InputText id="nombreDemandante" v-model="form.ltg_Demandante" class="w-full"
-                :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'Nombre de la empresa' : 'Nombre completo'" />
+                :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'Nombre de la empresa' : 'Nombre completo'"
+                :disabled="!nombreHabilitado" />
             </div>
 
             <!-- Nacionalidad o país -->
@@ -135,7 +135,7 @@
                 {{ form.ltg_Tipo_Demandante === 'Empresa' ? 'País de Constitución *' : 'Nacionalidad *' }}
               </label>
               <InputText id="nacionalidadDemandante" v-model="form.ltg_Nacionalidad" class="w-full"
-                placeholder="Ej: Dominicana" />
+                placeholder="Ej: Dominicana" :disabled="!nacionalidadHabilitado" />
             </div>
 
           </div>
@@ -149,7 +149,7 @@
 
             <div class="field col-12 md:col-2">
               <label for="cedulaRepresentante" class="block mb-2 font-medium text-sm">Cédula *</label>
-              <InputText id="cedulaRepresentante" v-model="form.ltg_Cedula_Representante" @blur="() => buscarPersonaPorDocumento(
+              <InputText id="cedulaRepresentante" :maxlength="11" v-model="form.ltg_Cedula_Representante" @keydown="soloNumeros" @blur="() => buscarPersonaPorDocumento(
                 form.ltg_Cedula_Representante,
                 'ltg_Nombre_Representante',
                 'ltg_Nacionalidad_Representante'
@@ -159,20 +159,20 @@
             <div class="field col-12 md:col-4">
               <label for="nombreRepresentante" class="block mb-2 font-medium text-sm">Nombre del Representante *</label>
               <InputText id="nombreRepresentante" v-model="form.ltg_Nombre_Representante" class="w-full"
-                placeholder="Nombre completo" />
+                placeholder="Nombre completo" :disabled="!nombreRepresentante" />
             </div>
 
             <div class="field col-12 md:col-5">
               <label for="nacionalidadRepresentante" class="block mb-2 font-medium text-sm">Nacionalidad del
                 Representante *</label>
               <InputText id="nacionalidadRepresentante" v-model="form.ltg_Nacionalidad_Representante" class="w-full"
-                placeholder="Ej: Dominicana" />
+                placeholder="Ej: Dominicana"  :disabled="!nacionalidadRepresentante" />
             </div>
 
           </div>
         </fieldset>
 
-
+        <!-- DATOS DOCUMENTACION -->
         <fieldset class="col-12 border-1 border-round p-3 mb-3">
           <legend class="font-bold text-lg">Documentación</legend>
           <div class="grid">
@@ -203,6 +203,7 @@
     </form>
   </div>
 
+         <!--Pantalla Litigio Registrado -->
   <Dialog v-model:visible="dialogVisible" modal class="dialog-exito-style" :closable="false" :draggable="false"
     header="Registro exitoso">
     <div class="d-flex align-items-start gap-3 p-3">
@@ -218,7 +219,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { push } from 'notivue'
 import InputText from 'primevue/inputtext'
@@ -231,6 +232,38 @@ import Dialog from 'primevue/dialog';
 const dialogVisible = ref(false);
 const router = useRouter()
 const hoy = ref(new Date()) // Esto representa la fecha de hoy
+const formRef = ref(null);
+const tiposDemanda = ref([])
+const estatusLitigios = ref([])
+const tribunales = ref([])
+const expedienteFile = ref(null)
+const enviando = ref(false)
+const rutaInicio = ref('/Administrador/litigios');
+const cedulaHabilitado = ref(false)
+const nombreHabilitado = ref(false)
+const nacionalidadHabilitado = ref(false)
+
+const form = reactive({
+  ltg_acto: '',
+  ltg_Fecha_Acto: '',
+  id_Tipo_Demanda: null,
+  ltg_Cedula_Demandante: '',
+  ltg_Demandante: '',
+  ltg_Tipo_Demandante: '',
+  otrosDemandante: '',
+  ltg_Nacionalidad: '',
+  ltg_Cedula_Representante: '',
+  ltg_Nombre_Representante: '',
+  ltg_Nacionalidad_Representante: '',
+  ltg_Fecha_Audiencia: '',
+  id_Tribunal: '',
+  Tipo_audiencia: '',
+  comentario: '',
+  NombreEvidencia: '',
+  id_sentencia: 3,
+  id_Estatus: 1,
+  id_usuario: null
+});
 
 const handleAceptarDialog = () => {
   dialogVisible.value = false;
@@ -257,43 +290,40 @@ const handleAceptarDialog = () => {
   router.push(ruta);
 };
 
+function soloNumeros(event) {
+  const tecla = event.key;
+  // Permite solo números y teclas útiles (borrar, tab, flechas, etc.)
+  if (!/^\d$/.test(tecla) &&
+    tecla !== 'Backspace' &&
+    tecla !== 'Tab' &&
+    tecla !== 'ArrowLeft' &&
+    tecla !== 'ArrowRight' &&
+    tecla !== 'Delete') {
+    event.preventDefault();
+  }
+}
+
+watch(() => form.ltg_Tipo_Demandante, (nuevoValor) => {
+  if (nuevoValor) {
+    cedulaHabilitado.value = true
+    nombreHabilitado.value = false
+    nacionalidadHabilitado.value = false
+
+    // Limpia campos si se cambia el tipo
+    form.ltg_Cedula_Demandante = ''
+    form.ltg_Demandante = ''
+    form.ltg_Nacionalidad = ''
+  } else {
+    cedulaHabilitado.value = false
+  }
+})
 
 
-
-const form = reactive({
-  ltg_acto: '',
-  ltg_Fecha_Acto: '',
-  id_Tipo_Demanda: null,
-  ltg_Cedula_Demandante: '',
-  ltg_Demandante: '',
-  ltg_Tipo_Demandante: '',
-  otrosDemandante: '',
-  ltg_Nacionalidad: '',
-  ltg_Cedula_Representante: '',
-  ltg_Nombre_Representante: '',
-  ltg_Nacionalidad_Representante: '',
-  ltg_Fecha_Audiencia: '',
-  id_Tribunal: '',
-  Tipo_audiencia: '',
-  comentario: '',
-  NombreEvidencia: '',
-  id_sentencia: 3,
-  id_Estatus: 1,
-  id_usuario: null
-});
 
 function validarCedulaODocumento(doc, tipo) {
   if (!doc) return false;
   return tipo === 'Empresa' ? /^\d{9}$/.test(doc) : /^\d{11}$/.test(doc);
 }
-
-
-const formRef = ref(null);
-const tiposDemanda = ref([])
-const estatusLitigios = ref([])
-const tribunales = ref([])
-const expedienteFile = ref(null)
-
 
 const tiposDemandante = [
   { label: 'Empleado', value: 'Empleado' },
@@ -324,7 +354,13 @@ const cargarDatosDropdowns = async () => {
 }
 
 const buscarPersonaPorDocumento = async (documento, campoNombre, campoNacionalidad) => {
-  if (!documento || documento.trim().length < 9) return
+  if (!documento || documento.trim().length < 9) {
+    form[campoNombre] = ''
+    form[campoNacionalidad] = ''
+    nombreHabilitado.value = false
+    nacionalidadHabilitado.value = false
+    return
+  }
 
   try {
     const res = await fetch(`/api/Litigio/BuscarDocumento/${documento.trim()}`)
@@ -332,36 +368,21 @@ const buscarPersonaPorDocumento = async (documento, campoNombre, campoNacionalid
 
     form[campoNombre] = data.nombre
     form[campoNacionalidad] = data.nacionalidad
+
+    // Habilitar los campos si se recibió información válida
+    // nombreHabilitado.value = true
+    // nacionalidadHabilitado.value = true
   } catch (error) {
     console.warn(`No se encontró el documento ${documento}`, error)
+
     form[campoNombre] = ''
     form[campoNacionalidad] = ''
+
+    // Deshabilitar los campos si falló la búsqueda
+    nombreHabilitado.value = false
+    nacionalidadHabilitado.value = false
   }
 }
-const enviando = ref(false)
-
-
-
-const rutaInicio = ref('/Administrador/litigios');
-
-onMounted(() => {
-  cargarDatosDropdowns();
-
-  const rawUser = localStorage.getItem('usuario');
-  const user = rawUser ? JSON.parse(rawUser) : null;
-
-  if (user) {
-    const perfil = parseInt(user.perfil);
-    const rutasPorPerfil = {
-      1: '/Administrador/litigios',
-      2: '/Administrador/litigios',
-      3: '/digitador/inicio',
-      4: '/abogado/inicio'
-    };
-
-    rutaInicio.value = rutasPorPerfil[perfil] || '/Administrador/litigios';
-  }
-});
 
 
 const formatearFechaISO = (fecha) => {
@@ -386,7 +407,6 @@ function validarFormulario() {
 
   return null; // todo válido
 }
-
 
 const registrarLitigio = async () => {
   if (enviando.value) return;
@@ -518,9 +538,8 @@ textarea:focus,
   background-color: #c00606;
   border-color: #c00606;
   ;
-  color: white;
-
-  font-weight: 600;
+  box-shadow: 0 6px 16px rgba(121, 1, 51, 0.3) !important;
+  transform: translateY(-1px);
   transition: background-color 0.2s;
 }
 
@@ -531,14 +550,16 @@ textarea:focus,
 ::v-deep(.p-button:hover) {
   background-color: #c00606 !important;
   border-color: #c00606 !important;
-  font-size: 0.89rem !important;
+  box-shadow: 0 6px 16px rgba(121, 1, 51, 0.3) !important;
+  transform: translateY(-1px);
   transition: background-color 0.2s;
 }
 
 .p-button-sm:hover {
   background-color: #c00606 !important;
   border-color: #c00606 !important;
-  box-shadow: 0 2px 8px rgba(0, 56, 112, 0.3);
+  box-shadow: 0 6px 16px rgba(121, 1, 51, 0.3) !important;
+  transform: translateY(-1px);
   transition: background-color 0.2s;
 }
 
@@ -553,6 +574,10 @@ fieldset label {
 .text-muted {
   color: #6c757d;
   font-size: 0.8rem;
+}
+
+::v-deep(.p-button-icon-only) {
+  width: 0.8rem !important;
 }
 
 @media (max-width: 768px) {

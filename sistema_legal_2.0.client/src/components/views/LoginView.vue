@@ -11,7 +11,7 @@
       <!-- Login -->
       <div class="login-section">
         <h2>Sistema Sileg 2.0</h2>
-        <p>Inicie sesión para continuar</p>
+        <p>Inicio de sesion</p>
 
         <form @submit.prevent="LogIn" class="form-wrapper">
           <InputText v-model="credentials.userName" :class="{ 'input-error': invalid.userName }" placeholder="Usuario"
