@@ -1,7 +1,7 @@
 <template>
   <div class="card p-4 shadow-2">
     <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
-      <h1>  </h1>
+      <h1> </h1>
       <!-- Título -->
       <h2 class="h4 fw-bold mb-2 mb-md-0">Registro de Litigio</h2>
 
@@ -58,10 +58,14 @@
           <div class="grid">
 
             <!-- Fecha de Audiencia -->
-            <div class="field col-12 md:col-4">
+            <div class="field col-12 md:col-3">
               <label for="fechaAudiencia" class="block mb-2 font-medium text-sm">Fecha de Audiencia *</label>
               <Calendar id="fechaAudiencia" v-model="form.ltg_Fecha_Audiencia" dateFormat="yy-mm-dd" showIcon
                 :minDate="hoy" class="w-full" placeholder="Seleccione una fecha" />
+            </div>
+            <div class="field col-12 md:col-2">
+              <label for="fechaAudiencia" class="block mb-2 font-medium text-sm">Hora Audiencia *</label>
+              <Calendar v-model="horaSeleccionada" showIcon timeOnly hourFormat="12" />
             </div>
 
             <!-- Tribunal -->
@@ -72,7 +76,7 @@
             </div>
 
             <!-- Tipo de Audiencia -->
-            <div class="field col-12 md:col-4">
+            <div class="field col-12 md:col-3">
               <label for="tipoAudiencia" class="block mb-2 font-medium text-sm">Tipo de Audiencia *</label>
               <Dropdown id="tipoAudiencia" v-model="form.Tipo_audiencia" :options="tiposAudiencia" optionLabel="label"
                 optionValue="value" class="w-full" placeholder="Seleccione un tipo" />
@@ -181,7 +185,7 @@
 
               <label for="archivo" class="block mt-4 mb-2 font-medium text-sm">Archivo</label>
               <FileUpload id="archivo" name="Archivo" customUpload @select="handleExpedienteUpload" mode="basic"
-                chooseLabel="Elegir archivo" class="w-full md:w-9rem text-sm"  />
+                chooseLabel="Elegir archivo" class="w-full md:w-9rem text-sm" />
             </div>
 
             <!-- Comentario -->
@@ -512,7 +516,8 @@ textarea:focus,
 
 .custom-home-btn:hover {
   background-color: #c00606;
-  border-color: #c00606;;
+  border-color: #c00606;
+  ;
   color: white;
 
   font-weight: 600;
