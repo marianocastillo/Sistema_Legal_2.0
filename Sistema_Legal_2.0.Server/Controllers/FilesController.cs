@@ -15,6 +15,7 @@ using MimeMapping;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.CodeAnalysis;
+using System.Linq;
 
 namespace Sistema_Legal_2._0.Server.Controllers
 {
@@ -248,12 +249,14 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 var parametros = new DynamicParameters();
                 parametros.Add("@IdUsuario", modelo.IdUsuario);
                 parametros.Add("@IdLitigio", modelo.IdLitigio);
+                parametros.Add("@IdAudiencia", modelo.IdAudiencia);
                 parametros.Add("@TextoComentario", modelo.Comentario);
                 parametros.Add("@Nombre", modelo.Nombre);
                 parametros.Add("@NombreArchivo", archivo.FileName);
                 parametros.Add("@RutaArchivo", rutaRelativa);
                 parametros.Add("@ComentarioId", dbType: DbType.Int32, direction: ParameterDirection.Output);
                 parametros.Add("@EvidenciaId", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
 
                 await connection.ExecuteAsync("sp_InsertarComentarioYArchivo", parametros, commandType: CommandType.StoredProcedure);
 
@@ -265,7 +268,46 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 });
             }
         }
+        [HttpGet("audiencias-por-litigio/{idLitigio}")]
+        public async Task<IActionResult> ObtenerAudienciasConEvidenciasYComentarios(int idLitigio)
+        {
+            var sql = "sp_ObtenerAudienciasConEvidencias";
 
+            using var connection = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal"));
+
+            var lookup = new Dictionary<int, AudienciaDTO>();
+
+            var result = await connection.QueryAsync<AudienciaDTO, Tribunales, EvidenciaComentarioDetalleDTO, AudienciaDTO>(
+                sql,
+                (audiencia, tribunal, evidenciaComentario) =>
+                {
+                    if (audiencia == null || audiencia.Id_audiencia == 0)
+                        return null;
+
+                    if (!lookup.TryGetValue(audiencia.Id_audiencia, out var audienciaDTO))
+                    {
+                        audienciaDTO = audiencia;
+                        audienciaDTO.Tribunal = tribunal;
+                        audienciaDTO.EvidenciasYComentarios = new List<EvidenciaComentarioDetalleDTO>();
+                        lookup[audienciaDTO.Id_audiencia] = audienciaDTO;
+                    }
+
+                    if (evidenciaComentario != null && !string.IsNullOrEmpty(evidenciaComentario.RutaArchivo))
+                    {
+                        audienciaDTO.EvidenciasYComentarios.Add(evidenciaComentario);
+                    }
+
+                    return audienciaDTO;
+                },
+                param: new { IdLitigio = idLitigio },
+                commandType: CommandType.StoredProcedure,
+                splitOn: "Id_Tribunal,ComentarioId"
+            );
+            return Ok(lookup.Values
+    .Where(a => a != null && a.Id_audiencia != 0)
+    .ToList());
+            
+        }
 
 
 

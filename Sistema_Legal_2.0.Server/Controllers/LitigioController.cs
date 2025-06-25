@@ -124,8 +124,6 @@ namespace Sistema_Legal_2._0.Server.Controllers
                     command.Parameters.AddWithValue("@ltg_Tipo_Demandante", datos.ltg_Tipo_Demandante);
                     command.Parameters.AddWithValue("@ltg_Cedula_Representante", (object?)datos.ltg_Cedula_Representante ?? DBNull.Value);
                     command.Parameters.AddWithValue("@ltg_Nombre_Representante", (object?)datos.ltg_Nombre_Representante ?? DBNull.Value);
-                    command.Parameters.AddWithValue("@ltg_Fecha_Audiencia", (object?)datos.ltg_Fecha_Audiencia ?? DBNull.Value);
-                    command.Parameters.AddWithValue("@id_Tribunal", (object?)datos.id_Tribunal ?? DBNull.Value);
                     command.Parameters.AddWithValue("@id_Sentencia", (object?)datos.id_Sentencia ?? DBNull.Value);
                     command.Parameters.AddWithValue("@id_usuario", datos.id_usuario);
                     command.Parameters.AddWithValue("@id_Estatus", datos.id_Estatus);
@@ -138,7 +136,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                                 if (await reader.ReadAsync())
                                 {
                                     idLitigio = reader.GetInt32(reader.GetOrdinal("id_litigio"));
-                                    idAudiencia = reader.GetInt32(reader.GetOrdinal("id_audiencia"));
+                                   
                                 }
                             }
 
@@ -182,8 +180,6 @@ namespace Sistema_Legal_2._0.Server.Controllers
                     using (SqlCommand sp = new SqlCommand("sp_InsertarComentarioYArchivo", conn))
                     {
                         sp.CommandType = CommandType.StoredProcedure;
-                        sp.Parameters.AddWithValue("@IdAudiencia", idAudiencia);
-
 
                         sp.Parameters.AddWithValue("@IdUsuario", datos.id_usuario);
                         sp.Parameters.AddWithValue("@IdLitigio", idLitigio);

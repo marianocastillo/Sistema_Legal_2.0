@@ -183,7 +183,29 @@
         </div>
       </div>
 
-
+<!-- Audiencias con evidencias y comentarios -->
+<div class="mt-6">
+  <h2 class="text-xl font-semibold mb-3" style="color: #003870;">Audiencias y Evidencias</h2>
+  <Accordion :activeIndex="null" multiple>
+    <AccordionTab v-for="(audiencia, index) in audiencias" :key="index"
+                  :header="`${audiencia.numeroAudiencia} - ${formatDate(audiencia.fechaAudiencia)} (${audiencia.tipoAudiencia})`">
+      <div v-if="audiencia.evidenciasYComentarios?.length">
+        <div v-for="(ev, i) in audiencia.evidenciasYComentarios" :key="i" class="mb-4 border-bottom pb-3">
+          <p><strong>Comentario:</strong> {{ ev.textoComentario }}</p>
+          <p><strong>Fecha:</strong> {{ formatDate(ev.fechaComentario) }}</p>
+          <p><strong>Archivo:</strong>
+            <a :href="`https://localhost:7177/api/Files/rutaspor/${encodeURIComponent(ev.rutaArchivo)}`"
+               target="_blank" class="text-blue-600 hover:underline">
+              <i :class="getFileIcon(ev.nombreArchivo)" style="margin-right: 5px;"></i>
+              {{ ev.nombreArchivo }}
+            </a>
+          </p>
+        </div>
+      </div>
+      <div v-else class="text-gray-500">No hay evidencias ni comentarios para esta audiencia.</div>
+    </AccordionTab>
+  </Accordion>
+</div>
 
 
 
@@ -245,6 +267,7 @@ import api from '@/utilities/api.js';
 import AgregarEvidencias from '@/components/views/AgregarEvidencias.vue';
 import dayjs from 'dayjs';
 
+const audiencias = ref([]);
 const scrollContainer = ref(null);
 const popUp = ref(false);
 const litigioactual = ref(null);
@@ -264,6 +287,15 @@ const props = defineProps({
     }
   }
 });
+
+const obtenerAudiencias = async () => {
+  try {
+    const res = await api.get(`/api/Files/audiencias-por-litigio/${props.id}`);
+    audiencias.value = res.data || [];
+  } catch (err) {
+    console.error('Error al obtener audiencias:', err);
+  }
+};
 
 const estaCerrado = computed(() => litigio.value?.ltg_estatus === 7);
 
@@ -366,7 +398,7 @@ onMounted(async () => {
     const response = await api.get(`/api/Litigio/detallados/${props.id}`);
     if (!response.data) throw new Error('La respuesta no contiene datos');
     litigio.value = response.data;
-
+    await obtenerAudiencias();
     await cargarLineaDeTiempo();              // Carga eventos
     await obtenerComentariosConEvidencias();  // Carga evidencias
     await nextTick();                         // Espera render del DOM
