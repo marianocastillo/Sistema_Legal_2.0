@@ -418,6 +418,7 @@ onUnmounted(() => {
   border-right: 1px solid #ebebeb;
 }
 
+
 ::v-deep(.p-datatable .p-datatable-thead > tr > th) {
   background-color: rgb(241, 242, 250)
 }
@@ -425,6 +426,7 @@ onUnmounted(() => {
 ::v-deep(.p-datatable .p-datatable-tbody > tr > td:last-child),
 ::v-deep(.p-datatable .p-datatable-thead > tr > th:last-child) {
   border-right: none;
+
 }
 
 .badge {
@@ -439,10 +441,18 @@ onUnmounted(() => {
   font-weight: bold;
 }
 
-
-
-
 /* === Responsivo === */
+@media (min-width: 769px) and (max-width: 1400px){
+  ::v-deep(.p-datatable .p-datatable-thead > tr > th) {
+    font-size: 0.95rem;
+  }
+
+  ::v-deep(.p-datatable .p-datatable-tbody > tr > td) {
+    font-size: 0.85rem;
+    color: #374151;
+  }
+}
+
 @media (max-width: 768px) {
   .filtro-busqueda-bar {
     flex-direction: column;

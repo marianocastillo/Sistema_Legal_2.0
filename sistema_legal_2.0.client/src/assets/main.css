@@ -19,7 +19,7 @@
 }
 
 .p-dropdown-items .p-dropdown-item.p-highlight {
-  background-color: #e0ecff !important; 
+  background-color: #e0ecff !important;
   color: #003870 !important;
 }
 
@@ -64,3 +64,10 @@
 .p-select-label{
   width: 320px !important;
 }
+
+.p-button-icon-only{
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+}
+
+

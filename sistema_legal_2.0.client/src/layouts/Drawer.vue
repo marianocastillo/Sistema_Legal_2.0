@@ -408,6 +408,7 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
+  border-bottom: 1px solid #9c9c9c;
 }
 
 .sidebar-title {
