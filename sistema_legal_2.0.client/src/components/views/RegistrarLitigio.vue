@@ -125,7 +125,7 @@
                 {{ form.ltg_Tipo_Demandante === 'Empresa' ? 'Nombre de la empresa *' : 'Nombre del Demandante *' }}
               </label>
               <InputText id="nombreDemandante" v-model="form.ltg_Demandante" class="w-full"
-                :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'Nombre de la empresa' : 'Nombre completo'" />
+                :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'Nombre de la empresa' : 'Nombre completo'" :disabled="!nombreDemandante" />
             </div>
 
             <!-- Nacionalidad o país -->
@@ -317,27 +317,6 @@ watch(() => form.ltg_Tipo_Demandante, (nuevoValor) => {
   }
 })
 
-const form = reactive({
-  ltg_acto: '',
-  ltg_Fecha_Acto: '',
-  id_Tipo_Demanda: null,
-  ltg_Cedula_Demandante: '',
-  ltg_Demandante: '',
-  ltg_Tipo_Demandante: '',
-  otrosDemandante: '',
-  ltg_Nacionalidad: '',
-  ltg_Cedula_Representante: '',
-  ltg_Nombre_Representante: '',
-  ltg_Nacionalidad_Representante: '',
-  ltg_Fecha_Audiencia: '',
-  id_Tribunal: '',
-  Tipo_audiencia: '',
-  comentario: '',
-  NombreEvidencia: '',
-  id_sentencia: 3,
-  id_Estatus: 1,
-  id_usuario: null
-});
 
 function validarCedulaODocumento(doc, tipo) {
   if (!doc) return false;

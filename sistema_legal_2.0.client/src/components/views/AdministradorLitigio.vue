@@ -35,7 +35,7 @@
       'ltg_acto',
       'ltg_Cedula_Demandante',
       'ltg_Fecha_Acto',
-      'ltg_Demandante',
+      'ltg_Nombre_Demandante',
       'estatus_Descripcion'
     ]" class="p-datatable-sm" responsiveLayout="scroll">
       <Column field="ltg_acto" header="No.Acto" />
@@ -45,11 +45,11 @@
         </template>
       </Column>
       <Column field="ltg_Cedula_Demandante" header="Cédula demandante" />
-      <Column field="ltg_Demandante" header="Nombre demandante" />
+      <Column field="ltg_Nombre_Demandante" header="Nombre demandante" />
       <Column field="tipoDemanda_Nombre" header="Tipo de Demanda" />
-      <Column field="ltg_Fecha_Audiencia" header="Fecha audiencia" style="min-width: 110px;">
+     <Column field="ltg_Fecha_Audiencia" header="Fecha audiencia">
         <template #body="{ data }">
-          {{ data.ltg_Fecha_Audiencia?.split('T')[0] || 'Sin fecha' }}
+          {{ new Date(data.ltg_Fecha_Audiencia).toLocaleString('es-ES', { hour12: false }) }}
         </template>
       </Column>
       <Column field="estatus_Descripcion">
@@ -418,7 +418,6 @@ onUnmounted(() => {
   border-right: 1px solid #ebebeb;
 }
 
-
 ::v-deep(.p-datatable .p-datatable-thead > tr > th) {
   background-color: rgb(241, 242, 250)
 }
@@ -426,7 +425,6 @@ onUnmounted(() => {
 ::v-deep(.p-datatable .p-datatable-tbody > tr > td:last-child),
 ::v-deep(.p-datatable .p-datatable-thead > tr > th:last-child) {
   border-right: none;
-
 }
 
 .badge {
@@ -441,18 +439,10 @@ onUnmounted(() => {
   font-weight: bold;
 }
 
+
+
+
 /* === Responsivo === */
-@media (min-width: 769px) and (max-width: 1400px){
-  ::v-deep(.p-datatable .p-datatable-thead > tr > th) {
-    font-size: 0.95rem;
-  }
-
-  ::v-deep(.p-datatable .p-datatable-tbody > tr > td) {
-    font-size: 0.85rem;
-    color: #374151;
-  }
-}
-
 @media (max-width: 768px) {
   .filtro-busqueda-bar {
     flex-direction: column;
