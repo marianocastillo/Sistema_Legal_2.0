@@ -114,7 +114,7 @@
               <InputText id="cedulaDemandante" v-model="form.ltg_Cedula_Demandante"
                 :maxlength="form.ltg_Tipo_Demandante === 'Empresa' ? 9 : 11"
                 @input="form.ltg_Cedula_Demandante = form.ltg_Cedula_Demandante.replace(/\D/g, '')"
-                @blur="() => buscarPersonaPorDocumento(form.ltg_Cedula_Demandante, 'ltg_Demandante', 'ltg_Nacionalidad')"
+                @blur="() => buscarPersonaPorDocumento(form.ltg_Cedula_Demandante, 'ltg_Nombre_Demandante', 'ltg_Nacionalidad')"
                 class="w-full"
                 :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'Ej: 123456789' : 'Ej: 00112345678'"
                 :disabled="!cedulaHabilitado" />
@@ -124,7 +124,7 @@
               <label for="nombreDemandante" class="block mb-2 font-medium text-sm">
                 {{ form.ltg_Tipo_Demandante === 'Empresa' ? 'Nombre de la empresa *' : 'Nombre del Demandante *' }}
               </label>
-              <InputText id="nombreDemandante" v-model="form.ltg_Demandante" class="w-full"
+              <InputText id="nombreDemandante" v-model="form.ltg_Nombre_Demandante" class="w-full"
                 :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'Nombre de la empresa' : 'Nombre completo'" :disabled="!nombreDemandante" />
             </div>
 
@@ -158,14 +158,14 @@
             <div class="field col-12 md:col-4">
               <label for="nombreRepresentante" class="block mb-2 font-medium text-sm">Nombre del Representante *</label>
               <InputText id="nombreRepresentante" v-model="form.ltg_Nombre_Representante" class="w-full"
-                placeholder="Nombre completo" :disabled="!nombreRepresentante" />
+                placeholder="Nombre completo" :disabled="!nombreHabilitado" />
             </div>
 
             <div class="field col-12 md:col-5">
               <label for="nacionalidadRepresentante" class="block mb-2 font-medium text-sm">Nacionalidad del
                 Representante *</label>
               <InputText id="nacionalidadRepresentante" v-model="form.ltg_Nacionalidad_Representante" class="w-full"
-                placeholder="Ej: Dominicana"  :disabled="!nacionalidadRepresentante" />
+                placeholder="Ej: Dominicana"  :disabled="!nacionalidadHabilitado" />
             </div>
 
           </div>
@@ -241,13 +241,26 @@ const rutaInicio = ref('/Administrador/litigios');
 const cedulaHabilitado = ref(false)
 const nombreHabilitado = ref(false)
 const nacionalidadHabilitado = ref(false)
+const horaSeleccionada = ref(null)
+const NombreEvidencia = ref(null)
+
+
+onMounted(async () => {
+  try {
+    await cargarDatosDropdowns();
+  } catch (error) {
+    console.error('Error en onMounted al cargar datos de dropdowns:', error);
+    push.error('No se pudo cargar la información necesaria. Verifique su conexión.');
+  }
+});
+
 
 const form = reactive({
   ltg_acto: '',
   ltg_Fecha_Acto: '',
   id_Tipo_Demanda: null,
   ltg_Cedula_Demandante: '',
-  ltg_Demandante: '',
+  ltg_Nombre_Demandante: '',
   ltg_Tipo_Demandante: '',
   otrosDemandante: '',
   ltg_Nacionalidad: '',
@@ -263,6 +276,7 @@ const form = reactive({
   id_Estatus: 1,
   id_usuario: null
 });
+
 
 const handleAceptarDialog = () => {
   dialogVisible.value = false;
@@ -310,12 +324,13 @@ watch(() => form.ltg_Tipo_Demandante, (nuevoValor) => {
 
     // Limpia campos si se cambia el tipo
     form.ltg_Cedula_Demandante = ''
-    form.ltg_Demandante = ''
+    form.ltg_Nombre_Demandante = ''
     form.ltg_Nacionalidad = ''
   } else {
     cedulaHabilitado.value = false
   }
 })
+
 
 
 function validarCedulaODocumento(doc, tipo) {
@@ -388,23 +403,50 @@ const formatearFechaISO = (fecha) => {
   const d = new Date(fecha)
   return d.toISOString().split('T')[0]
 }
-
 function validarFormulario() {
-  if (!form.ltg_acto.trim()) return "El número de acto es obligatorio.";
+  if (!form.ltg_acto?.trim()) return "El número de acto es obligatorio.";
   if (!form.ltg_Fecha_Acto) return "La fecha del acto es obligatoria.";
   if (!form.id_Tipo_Demanda) return "Seleccione un tipo de demanda.";
   if (!form.ltg_Tipo_Demandante) return "Seleccione el tipo de demandante.";
-  if (form.ltg_Tipo_Demandante === "Otros" && !form.otrosDemandante.trim()) return "Debe especificar el tipo de demandante.";
-  if (!validarCedulaODocumento(form.ltg_Cedula_Demandante, form.ltg_Tipo_Demandante)) return "La cédula/RNC del demandante es inválida.";
-  if (!form.ltg_Nombre_Demandante.trim()) return "El nombre del demandante es obligatorio.";
-  if (!/^\d{11}$/.test(form.ltg_Cedula_Representante)) return "La cédula del representante es inválida.";
-  if (!form.ltg_Nombre_Representante.trim()) return "El nombre del representante es obligatorio.";
-  // if (!form.ltg_Fecha_Audiencia) return "La fecha de audiencia es obligatoria.";
-  // if (!form.Tipo_audiencia) return "Seleccione el tipo de audiencia.";
+
+  if (form.ltg_Tipo_Demandante === "Otros" && !form.otrosDemandante?.trim()) {
+    return "Debe especificar el tipo de demandante.";
+  }
+
+  if (!validarCedulaODocumento(form.ltg_Cedula_Demandante, form.ltg_Tipo_Demandante)) {
+    return "La cédula/RNC del demandante es inválida.";
+  }
+
+  if (!form.ltg_Nombre_Demandante?.trim()) {
+    return "El nombre del demandante es obligatorio.";
+  }
+
+  if (!/^\d{11}$/.test(form.ltg_Cedula_Representante)) {
+    return "La cédula del representante es inválida.";
+  }
+
+  if (!form.ltg_Nombre_Representante?.trim()) {
+    return "El nombre del representante es obligatorio.";
+  }
+
   if (!expedienteFile.value) return "Debe subir un archivo.";
 
   return null; // todo válido
 }
+
+const combinarFechaYHora = (fecha, hora) => {
+  if (!(fecha instanceof Date) || isNaN(fecha.getTime())) return null;
+  if (!(hora instanceof Date) || isNaN(hora.getTime())) return null;
+
+  const fechaObj = new Date(fecha);
+  fechaObj.setHours(hora.getHours());
+  fechaObj.setMinutes(hora.getMinutes());
+  fechaObj.setSeconds(0);
+  fechaObj.setMilliseconds(0);
+
+  return fechaObj;
+};
+
 
 const registrarLitigio = async () => {
   if (enviando.value) return;
@@ -419,56 +461,77 @@ const registrarLitigio = async () => {
   }
 
 
+
   const usuarioLogueado = JSON.parse(localStorage.getItem('usuario'));
   form.id_usuario = usuarioLogueado.idUsuario;
 
  const formData = new FormData();
 
+
+
 formData.append('ltg_acto', form.ltg_acto);
 formData.append('ltg_Fecha_Acto', formatearFechaISO(form.ltg_Fecha_Acto));
-formData.append('id_Tipo_Demanda', parseInt(form.id_Tipo_Demanda));
 formData.append('ltg_Cedula_Demandante', form.ltg_Cedula_Demandante);
 formData.append('ltg_Nombre_Demandante', form.ltg_Nombre_Demandante);
-formData.append('ltg_Tipo_Demandante',
-  form.ltg_Tipo_Demandante === 'Otros' ? form.otrosDemandante : form.ltg_Tipo_Demandante
-);
+formData.append('ltg_Tipo_Demandante', form.ltg_Tipo_Demandante);
 formData.append('ltg_Nacionalidad', form.ltg_Nacionalidad);
-formData.append('ltg_Cedula_Representante', form.ltg_Cedula_Representante || '');
-formData.append('ltg_Nombre_Representante', form.ltg_Nombre_Representante || '');
+formData.append('ltg_Cedula_Representante', form.ltg_Cedula_Representante);
+formData.append('ltg_Nombre_Representante', form.ltg_Nombre_Representante);
 formData.append('ltg_Nacionalidad_Representante', form.ltg_Nacionalidad_Representante);
+formData.append('id_Tipo_Demanda', parseInt(form.id_Tipo_Demanda));
 formData.append('id_Sentencia', parseInt(form.id_sentencia));
 formData.append('id_usuario', parseInt(form.id_usuario));
 formData.append('id_Estatus', 1);
-
-// AUDIENCIA
-formData.append('Fecha', formatearFechaISO(form.ltg_Fecha_Audiencia)); // <- debe coincidir con @Fecha del SP
-formData.append('Tipo', form.Tipo_audiencia || 'Documentos del acto');
-formData.append('Numero', form.Numero || '1'); // puedes usar '1' por defecto si no hay campo
-formData.append('Id_tribunal', parseInt(form.id_Tribunal));
-
-// EVIDENCIA
-formData.append('Nombre_Evidencia',
-  form.NombreEvidencia?.trim()
-    ? form.NombreEvidencia
-    : expedienteFile.value?.name?.split('.')[0] || 'Evidencia'
-);
-formData.append('Comentario_Evidencia',
-  form.comentario?.trim()
-    ? form.comentario
-    : 'Archivo subido sin nombre.'
-);
+formData.append('Tipo_audiencia', form.Tipo_audiencia || 'Documentos del acto');
+formData.append('NombreEvidencia', form.NombreEvidencia || 'Evidencia');
+formData.append('comentario', form.comentario || 'Sin comentario');
 formData.append('Nombre_Archivo', expedienteFile.value?.name || '');
-formData.append('Fecha', new Date().toISOString()); // <- fecha de evidencia
+formData.append('Ruta_Archivo', expedienteFile.value?.name || ''); // si tu backend lo genera, puedes omitirlo
 
-// ARCHIVO
-if (expedienteFile.value) {
-  formData.append('Archivo', expedienteFile.value);
+const fechaCompletaAudiencia = combinarFechaYHora(form.ltg_Fecha_Audiencia, horaSeleccionada.value);
+
+// Validar primero
+if (!(fechaCompletaAudiencia instanceof Date) || isNaN(fechaCompletaAudiencia.getTime())) {
+  push.warning("Debe seleccionar una hora válida para la audiencia.");
+  enviando.value = false;
+  return;
 }
 
+// Solo después de validar, usarla
+formData.append('Fecha', fechaCompletaAudiencia.toISOString());
+formData.append('Id_tribunal', parseInt(form.id_Tribunal));
+formData.append('Tipo', form.Tipo_audiencia);
+formData.append('Numero', form.Numero || '1');
+
+formData.append('Archivo', expedienteFile.value); // obligatorio si usas archivos
+
+
+console.log(' Enviando FormData:');
+for (let [key, value] of formData.entries()) {
+  console.log(`${key}:`, value);
+}
+
+// Opcional: construir texto para mostrar en alert en caso de error
+let contenidoForm = '';
+for (let [key, value] of formData.entries()) {
+  contenidoForm += `${key}: ${value instanceof File ? value.name : value}\n`;
+}
+
+
+
   try {
+
+    for (let [key, value] of formData.entries()) {
+  console.log(`${key}:`, value);
+}
+
+
+
     const notif = push.promise('Subiendo archivo...');
 
     await new Promise(resolve => setTimeout(resolve, 1000)); // opcional
+
+
 
     const response = await fetch('/api/Litigio/Subir_Litigio_Con_Archivo', {
       method: 'POST',
