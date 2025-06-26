@@ -153,7 +153,7 @@ const litigioActual = ref({});
 const mostrarAsignar = ref(true);
 
 const tituloLitigio = computed(() => {
-  if (filtroActivo.value === 'sinAsignar') return 'Litigios Sin asignar';
+  if (filtroActivo.value === 'sinAsignar') return 'Litigios Sin Asignar';
   if (filtroActivo.value === 'Finalizados') return 'Litigios Finalizados';
   return 'Litigios Asignados';
 });
@@ -217,6 +217,11 @@ function mostrarFinalizados() {
   const filtrados = todosLosLitigios.value.filter(
     l => l.estatus_Descripcion?.toLowerCase().trim() === 'cierre del caso'
   );
+
+   const xd = todosLosLitigios.value.filter(
+    l => console.log(l.estatus_Descripcion?.toLowerCase().trim())
+  );
+
   data.value = filtrados;
   totalFinalizados.value = filtrados.length; // NUEVO
 }
@@ -265,23 +270,16 @@ onMounted(async () => {
     const response = await api.get('/api/Litigio/Litigio_detallado');
     todosLosLitigios.value = response.data;
 
-    // Calcular ambos totales al inicio
-    totalSinAsignar.value = todosLosLitigios.value.filter(
-      l => l.estatus_Descripcion?.toLowerCase().trim() === 'recibido'
-    ).length;
-
-    totalAsignados.value = todosLosLitigios.value.filter(
-      l => l.estatus_Descripcion?.toLowerCase().trim() !== 'recibido'
-    ).length;
-
-    // Mostrar por defecto los sin asignar
+    // Calcula todos los totales correctamente
     actualizarTotales();
-    mostrarSinAsignar();
+
+    // Muestra los litigios sin asignar por defecto
+    mostrarFinalizados();
   } catch (error) {
     console.error('Error al cargar litigios:', error);
   }
-
 });
+
 
 onUnmounted(() => {
   window.removeEventListener('resize', calculateRows);
@@ -465,6 +463,10 @@ onUnmounted(() => {
   font-size: 0.75rem;
   margin-bottom: 12px;
   transition: all 0.2s ease;
+}
+
+.btn-filtro:hover .badge{
+  color:#e6f3ff ;
 }
 
 .badge-active {
