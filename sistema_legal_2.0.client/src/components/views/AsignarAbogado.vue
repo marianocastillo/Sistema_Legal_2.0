@@ -211,7 +211,7 @@ function construirPayloadDesdeLitigio(litigio) {
     id_Tipo_Demanda: litigio.id_Tipo_Demanda ?? litigio.tipoDemanda_Id ?? null,
     ltg_Cedula_Demandante: litigio.ltg_Cedula_Demandante || '',
     ltg_Nacionalidad: litigio.ltg_Nacionalidad || null,
-    ltg_Demandante: litigio.ltg_Demandante || '',
+    ltg_Nombre_Demandante: litigio.ltg_Nombre_Demandante || '',
     ltg_Tipo_Demandante: tipo === 'Otros' ? (litigio.otrosDemandante || 'Otros') : tipo,
     ltg_Cedula_Representante: litigio.ltg_Cedula_Representante || '',
     ltg_Nombre_Representante: litigio.ltg_Nombre_Representante || '',
