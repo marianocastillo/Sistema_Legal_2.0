@@ -337,7 +337,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                             {
                                 id_demanda = reader.GetInt32(0),
                                 Nombre = reader.GetString(1),
-                                id_Estatus = reader.GetInt32(2)
+                           
                             });
                         }
 

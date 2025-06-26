@@ -16,7 +16,6 @@
     {
         public int id_demanda { get; set; }
         public string Nombre { get; set; }
-        public int id_Estatus { get; set; }
     }
 
     public class EstatusLitigioDto

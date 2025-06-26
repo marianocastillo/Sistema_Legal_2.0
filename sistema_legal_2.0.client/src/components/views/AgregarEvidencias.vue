@@ -108,12 +108,13 @@ async function guardar() {
 }
 
 .pop-up {
-  width: 600px;
-  height: 400px;
+  position: fixed;
+  inset: 0;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 9999; /* Opcional para asegurarte de que esté al frente */
 }
 
 .pop-up-content {
