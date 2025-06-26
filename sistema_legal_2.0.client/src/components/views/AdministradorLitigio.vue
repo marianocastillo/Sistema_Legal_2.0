@@ -1,5 +1,7 @@
 <template>
   <div class="card p-6 shadow-2">
+
+    <!-- Contenido de los botones -->
     <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
       <h2 class="text-2xl font-bold">{{ tituloLitigio }}</h2>
 
@@ -18,6 +20,13 @@
               ({{ totalAsignados }})
             </span>
           </button>
+
+          <button class="btn-filtro" :class="{ active: filtroActivo === 'Finalizados' }" @click="mostrarFinalizados">
+            Finalizados
+            <span class="badge" :class="{ 'badge-active': filtroActivo === 'Finalizados' }">
+              ({{ totalFinalizados }})
+            </span>
+          </button>
         </div>
 
 
@@ -31,6 +40,7 @@
       </div>
     </div>
 
+
     <DataTable :value="data" :paginator="true" :rows="rows" :filters="filters" :globalFilterFields="[
       'ltg_acto',
       'ltg_Cedula_Demandante',
@@ -38,16 +48,16 @@
       'ltg_Nombre_Demandante',
       'estatus_Descripcion'
     ]" class="p-datatable-sm" responsiveLayout="scroll">
-      <Column field="ltg_acto" header="No.Acto" />
+      <Column field="ltg_acto" header="N⁰ Acto" style="min-width: 75px;" />
       <Column field="ltg_Fecha_Acto" header="Fecha acto" style="min-width: 110px;">
         <template #body="{ data }">
           {{ data.ltg_Fecha_Acto?.split('T')[0] || '' }}
         </template>
       </Column>
-      <Column field="ltg_Cedula_Demandante" header="Cédula demandante" />
+      <Column field="ltg_Cedula_Demandante" header="N⁰ Documento" style="min-width: 125px;" />
       <Column field="ltg_Nombre_Demandante" header="Nombre demandante" />
       <Column field="tipoDemanda_Nombre" header="Tipo de Demanda" />
-     <Column field="ltg_Fecha_Audiencia" header="Fecha audiencia">
+      <Column field="ltg_Fecha_Audiencia" header="Fecha audiencia">
         <template #body="{ data }">
           {{ new Date(data.ltg_Fecha_Audiencia).toLocaleString('es-ES', { hour12: false }) }}
         </template>
@@ -75,16 +85,18 @@
             </router-link>
 
             <!-- Modificar -->
-            <button class="btn btn-sm" @click="modificarLitigio(data)"
+            <button v-if="filtroActivo !== 'Finalizados'" class="btn btn-sm" @click="modificarLitigio(data)"
               style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;" title="Modificar litigio">
               <i class="pi pi-pencil white-icon"></i>
             </button>
 
             <!-- Asignar -->
-            <button v-if="mostrarAsignar" class="btn btn-sm" @click="togglePopUp(data)"
-              style="background-color: #003870; border-color: #003870;" title="Asignar o cambiar abogado">
+            <button v-if="mostrarAsignar && filtroActivo !== 'Finalizados'" class="btn btn-sm"
+              @click="togglePopUp(data)" style="background-color: #003870; border-color: #003870;"
+              title="Asignar o cambiar abogado">
               <i class="pi pi-user-edit white-icon"></i>
             </button>
+
           </div>
         </template>
       </Column>
@@ -126,31 +138,35 @@ import Column from 'primevue/column';
 import api from '@/utilities/api.js';
 import { useRouter } from 'vue-router'
 import AsignarAbogado from '@/components/views/AsignarAbogado.vue';
-const router = useRouter()
 
+// Variables de estado para la gestión de litigios
+const router = useRouter()
 const data = ref([]);
 const filtroActivo = ref('sinAsignar');
 const totalSinAsignar = ref(0);
 const totalAsignados = ref(0);
+const totalFinalizados = ref(0);
 const todosLosLitigios = ref([]);
-
-const tituloLitigio = computed(() =>
-  filtroActivo.value === 'sinAsignar' ? 'Litigios Sin asignar' : 'Litigios Asignados'
-);
-const filters = ref({
-  global: { value: null, matchMode: FilterMatchMode.CONTAINS }
-});
-
 const rows = ref(10);
 const popUp = ref(false);
 const litigioActual = ref({});
 const mostrarAsignar = ref(true);
 
+const tituloLitigio = computed(() => {
+  if (filtroActivo.value === 'sinAsignar') return 'Litigios Sin asignar';
+  if (filtroActivo.value === 'Finalizados') return 'Litigios Finalizados';
+  return 'Litigios Asignados';
+});
+const filters = ref({
+  global: { value: null, matchMode: FilterMatchMode.CONTAINS }
+});
+
+
+// Funciones de estado para la gestión de litigios
 function togglePopUp(litigio = null) {
   popUp.value = !popUp.value;
   litigioActual.value = litigio || {};
 }
-
 
 function getStatusClass(status) {
   switch (status) {
@@ -165,12 +181,10 @@ function getStatusClass(status) {
   }
 }
 
-
 function modificarLitigio(litigio) {
   localStorage.setItem('litigioModificacion', JSON.stringify(litigio))
   router.push('/modificarregistro')
 }
-
 
 function calculateRows() {
   const tableHeight = window.innerHeight - 300;
@@ -191,10 +205,20 @@ function mostrarSinAsignar() {
 function mostrarAsignados() {
   filtroActivo.value = 'asignado';
   const filtrados = todosLosLitigios.value.filter(
-    l => l.estatus_Descripcion?.toLowerCase().trim() !== 'recibido'
+    l => l.estatus_Descripcion?.toLowerCase().trim() !== 'recibido' &&
+      l.estatus_Descripcion?.toLowerCase().trim() !== 'cierre del caso'
   );
   data.value = filtrados;
   totalAsignados.value = filtrados.length; // NUEVO
+}
+
+function mostrarFinalizados() {
+  filtroActivo.value = 'Finalizados';
+  const filtrados = todosLosLitigios.value.filter(
+    l => l.estatus_Descripcion?.toLowerCase().trim() === 'Cierre del caso'
+  );
+  data.value = filtrados;
+  totalFinalizados.value = filtrados.length; // NUEVO
 }
 
 function actualizarTotales() {
@@ -203,11 +227,14 @@ function actualizarTotales() {
   ).length;
 
   totalAsignados.value = todosLosLitigios.value.filter(
-    l => l.estatus_Descripcion?.toLowerCase().trim() !== 'recibido'
+    l => l.estatus_Descripcion?.toLowerCase().trim() !== 'recibido' &&
+      l.estatus_Descripcion?.toLowerCase().trim() !== 'cierre del caso'
+  ).length;
+
+  totalFinalizados.value = todosLosLitigios.value.filter(
+    l => l.estatus_Descripcion?.toLowerCase().trim() === 'Cierre del caso'
   ).length;
 }
-
-
 
 function handleAsignacionExitosa() {
   // Recargar todos los litigios desde el backend
@@ -216,13 +243,19 @@ function handleAsignacionExitosa() {
       todosLosLitigios.value = response.data;
       actualizarTotales();
       // Dependiendo del filtro actual, muestra la tabla correcta
-      filtroActivo.value === 'sinAsignar' ? mostrarSinAsignar() : mostrarAsignados();
+      if (filtroActivo.value === 'sinAsignar') {
+        mostrarSinAsignar();
+      } else if (filtroActivo.value === 'Finalizados') {
+        mostrarFinalizados();
+      } else {
+        mostrarAsignados();
+      }
+
     })
     .catch(error => {
       console.error("Error al actualizar tabla:", error);
     });
 }
-
 
 onMounted(async () => {
   calculateRows();
