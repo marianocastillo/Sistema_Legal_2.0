@@ -232,6 +232,76 @@ namespace Sistema_Legal_2._0.Server.Controllers
         }
 
 
+        [HttpGet("datos-litigio")]
+        public async Task<IActionResult> ObtenerDatosLitigio()
+        {
+            var datos = new DatosLitigioDto
+            {
+                Tribunales = new List<TribunalDto>(),
+                TiposDemanda = new List<TipoDemandaDto>(),
+                EstatusLitigios = new List<EstatusLitigioDto>()
+            };
+
+            using (var connection = _db_silegContext.Database.GetDbConnection())
+            {
+                await connection.OpenAsync();
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "sp_ObtenerDatosLitigio";
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        // Leer tribunales
+                        while (await reader.ReadAsync())
+                        {
+                            datos.Tribunales.Add(new TribunalDto
+                            {
+                                Id_Tribunal = reader.GetInt32(0),
+                                Nombre_Tribunal = reader.GetString(1),
+                                Descripcion = reader.GetString(2),
+                                Telefono = reader.GetString(3),
+                                Latitud = reader.IsDBNull(4) ? null : reader.GetDecimal(4),
+                                Longitud = reader.IsDBNull(5) ? null : reader.GetDecimal(5),
+                                IdEstatus = reader.GetInt32(6),
+                                Direccion = reader.GetString(7)
+                            });
+                        }
+
+                        // Siguiente resultset
+                        await reader.NextResultAsync();
+
+                        // Leer tipos de demanda
+                        while (await reader.ReadAsync())
+                        {
+                            datos.TiposDemanda.Add(new TipoDemandaDto
+                            {
+                                id_demanda = reader.GetInt32(0),
+                                Nombre = reader.GetString(1),
+                                id_Estatus = reader.GetInt32(2)
+                            });
+                        }
+
+                        // Siguiente resultset
+                        await reader.NextResultAsync();
+
+                        // Leer estatus de litigios
+                        while (await reader.ReadAsync())
+                        {
+                            datos.EstatusLitigios.Add(new EstatusLitigioDto
+                            {
+                                ltg_estatus = reader.GetInt32(0),
+                                ltg_description = reader.GetString(1)
+                            });
+                        }
+                    }
+                }
+            }
+
+            return Ok(datos);
+        }
+
         [HttpGet("Litigio_detallado")]
         public async Task<ActionResult<IEnumerable<LitigioDetallado>>> ObtenerLitigiosDetallados()
         {
