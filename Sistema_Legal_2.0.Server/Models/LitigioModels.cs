@@ -27,7 +27,7 @@ namespace Sistema_Legal_2._0.Server.Models
     public DateTime? ltg_Fecha_Audiencia { get; set; }
     public int? Id_tribunal { get; set; }
     public string Tipo_audiencia { get; set; }
-    public string Numero { get; set; }
+
 
         // Evidencia
     public string NombreEvidencia { get; set; }

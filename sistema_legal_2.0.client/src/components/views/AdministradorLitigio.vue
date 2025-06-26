@@ -215,7 +215,7 @@ function mostrarAsignados() {
 function mostrarFinalizados() {
   filtroActivo.value = 'Finalizados';
   const filtrados = todosLosLitigios.value.filter(
-    l => l.estatus_Descripcion?.toLowerCase().trim() === 'Cierre del caso'
+    l => l.estatus_Descripcion?.toLowerCase().trim() === 'cierre del caso'
   );
   data.value = filtrados;
   totalFinalizados.value = filtrados.length; // NUEVO
@@ -232,7 +232,7 @@ function actualizarTotales() {
   ).length;
 
   totalFinalizados.value = todosLosLitigios.value.filter(
-    l => l.estatus_Descripcion?.toLowerCase().trim() === 'Cierre del caso'
+    l => l.estatus_Descripcion?.toLowerCase().trim() === 'cierre del caso'
   ).length;
 }
 

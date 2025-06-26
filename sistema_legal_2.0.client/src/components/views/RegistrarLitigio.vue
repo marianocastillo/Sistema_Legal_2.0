@@ -501,7 +501,7 @@ if (!(fechaCompletaAudiencia instanceof Date) || isNaN(fechaCompletaAudiencia.ge
 formData.append('Fecha', fechaCompletaAudiencia.toISOString());
 formData.append('Id_tribunal', parseInt(form.id_Tribunal));
 formData.append('Tipo', form.Tipo_audiencia);
-formData.append('Numero', form.Numero || '1');
+
 
 formData.append('Archivo', expedienteFile.value); // obligatorio si usas archivos
 

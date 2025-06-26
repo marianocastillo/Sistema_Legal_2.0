@@ -44,23 +44,6 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
 
 
-
-        [HttpGet("comentarios-evidencias/{idLitigio}")]
-        public async Task<IActionResult> ObtenerComentariosEvidenciasPorLitigio(int idLitigio)
-        {
-            using var connection = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal"));
-            var parametros = new DynamicParameters();
-            parametros.Add("@IdLitigio", idLitigio);
-
-            var resultado = await connection.QueryAsync<dynamic>(
-                "sp_OComentariosEvidenciasID",
-                parametros,
-                commandType: CommandType.StoredProcedure
-            );
-
-            return Ok(resultado);
-        }
-
       
 
 

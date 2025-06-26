@@ -211,16 +211,14 @@ function construirPayloadDesdeLitigio(litigio) {
     id_Tipo_Demanda: litigio.id_Tipo_Demanda ?? litigio.tipoDemanda_Id ?? null,
     ltg_Cedula_Demandante: litigio.ltg_Cedula_Demandante || '',
     ltg_Nacionalidad: litigio.ltg_Nacionalidad || null,
-    ltg_Demandante: litigio.ltg_Demandante || '',
+    ltg_Nombre_Demandante: litigio.ltg_Nombre_Demandante || '',
     ltg_Tipo_Demandante: tipo === 'Otros' ? (litigio.otrosDemandante || 'Otros') : tipo,
     ltg_Cedula_Representante: litigio.ltg_Cedula_Representante || '',
     ltg_Nombre_Representante: litigio.ltg_Nombre_Representante || '',
-    ltg_Fecha_Audiencia: litigio.ltg_Fecha_Audiencia?.split('T')[0] || null,
     ltg_Nacionalidad_Representante: litigio.ltg_Nacionalidad_Representante || null,
-    id_Tribunal: litigio.id_Tribunal,
     id_Sentencia: litigio.id_Sentencia,
     id_usuario: litigio.id_usuario || JSON.parse(localStorage.getItem('usuario'))?.idUsuario || 1,
-    id_Estatus: 2 // Análisis
+    id_Estatus: 2
   }
 }
 

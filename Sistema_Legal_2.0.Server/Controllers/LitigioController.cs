@@ -15,6 +15,7 @@ using MimeMapping;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.CodeAnalysis;
+using Newtonsoft.Json;
 
 namespace Sistema_Legal_2._0.Server.Controllers
 {
@@ -48,7 +49,6 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 litigio.ltg_acto = string.IsNullOrWhiteSpace(litigio.ltg_acto) ? null : litigio.ltg_acto;
                 litigio.ltg_Cedula_Demandante = string.IsNullOrWhiteSpace(litigio.ltg_Cedula_Demandante) ? null : litigio.ltg_Cedula_Demandante;
                 litigio.ltg_Nacionalidad = string.IsNullOrWhiteSpace(litigio.ltg_Nacionalidad) ? null : litigio.ltg_Nacionalidad;
-                litigio.ltg_Demandante = string.IsNullOrWhiteSpace(litigio.ltg_Demandante) ? null : litigio.ltg_Demandante;
                 litigio.ltg_Tipo_Demandante = string.IsNullOrWhiteSpace(litigio.ltg_Tipo_Demandante) ? null : litigio.ltg_Tipo_Demandante;
                 litigio.ltg_Cedula_Representante = string.IsNullOrWhiteSpace(litigio.ltg_Cedula_Representante) ? null : litigio.ltg_Cedula_Representante;
                 litigio.ltg_Nombre_Representante = string.IsNullOrWhiteSpace(litigio.ltg_Nombre_Representante) ? null : litigio.ltg_Nombre_Representante;
@@ -61,18 +61,15 @@ namespace Sistema_Legal_2._0.Server.Controllers
                     cmd.Parameters.AddWithValue("@id_Ltg", litigio.id_Ltg);
                     cmd.Parameters.AddWithValue("@ltg_acto", (object?)litigio.ltg_acto ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@ltg_Fecha_Acto", litigio.ltg_Fecha_Acto);
+                    cmd.Parameters.AddWithValue("@ltg_Nombre_Demandante", (object?)litigio.ltg_Nombre_Demandante ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@id_Tipo_Demanda", litigio.id_Tipo_Demanda);
                     cmd.Parameters.AddWithValue("@ltg_Cedula_Demandante", (object?)litigio.ltg_Cedula_Demandante?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@ltg_Nacionalidad", (object?)litigio.ltg_Nacionalidad ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@ltg_Nacionalidad_Representante", (object?)litigio.ltg_Nacionalidad_Representante ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("@ltg_Demandante", (object?)litigio.ltg_Demandante ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@ltg_Tipo_Demandante", litigio.ltg_Tipo_Demandante);
                     cmd.Parameters.AddWithValue("@ltg_Cedula_Representante", (object?)litigio.ltg_Cedula_Representante ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@ltg_Nombre_Representante", (object?)litigio.ltg_Nombre_Representante ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("@ltg_Fecha_Audiencia", (object?)litigio.ltg_Fecha_Audiencia ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("@id_Tribunal", litigio.id_Tribunal);
                     cmd.Parameters.AddWithValue("@id_Sentencia", litigio.id_Sentencia);
-                    cmd.Parameters.AddWithValue("@id_usuario", litigio.id_usuario);
                     cmd.Parameters.AddWithValue("@id_Estatus", litigio.id_Estatus);
 
                     int rowsAffected = await cmd.ExecuteNonQueryAsync();
@@ -135,7 +132,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                         // Parámetros adicionales
                         command.Parameters.AddWithValue("@Fecha", datos.Fecha);
                         command.Parameters.AddWithValue("@Id_tribunal", datos.Id_tribunal);
-                        command.Parameters.AddWithValue("@Numero", datos.Numero);
+                    
                         command.Parameters.AddWithValue("@Tipo", datos.Tipo_audiencia);
 
                         // Ejecutar
@@ -178,6 +175,67 @@ namespace Sistema_Legal_2._0.Server.Controllers
             }
         }
 
+        [HttpGet("audiencias-con-evidencias-y-tribunal/{id_litigio}")]
+        public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
+        {
+            var result = new LitigioDetalleDto();
+
+            try
+            {
+                using var connection = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal"));
+                await connection.OpenAsync();
+
+                using var command = new SqlCommand("sp_ObtenerAudienciasConEvidenciasYTribunalFinal", connection)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                command.Parameters.AddWithValue("@id_litigio", id_litigio);
+
+                using var reader = await command.ExecuteReaderAsync();
+
+                // 1. Audiencias con evidencias
+                while (await reader.ReadAsync())
+                {
+                    var audiencia = new AudienciaDto
+                    {
+                        Id_audiencia = reader.GetInt32(0),
+                        numeroAudiencia = reader.GetString(1),
+                        tipoAudiencia = reader.GetString(2),
+                        fechaAudiencia = reader.GetDateTime(3),
+                        Id_tribunal = reader.GetInt32(4),
+                        evidenciasYComentarios = JsonConvert.DeserializeObject<List<EvidenciaDto>>(reader.GetString(5))
+                    };
+
+                    result.Audiencias.Add(audiencia);
+                }
+
+                // 2. Tribunal final
+                if (await reader.NextResultAsync() && await reader.ReadAsync())
+                {
+                    result.TribunalFinal = new TribunalDt
+                    {
+                        id_Tribunal = reader.GetInt32(0),
+                        nombre_Tribunal = reader.GetString(1),
+                        tribunal_Direccion = reader.GetString(2),
+                        tribunal_Telefono = reader.GetString(3),
+                        tribunal_Descripcion = reader.GetString(4),
+                        ltg_Fecha_Audiencia = reader.GetDateTime(5)
+                    };
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Error al obtener los datos",
+                    error = ex.Message
+                });
+            }
+        }
 
 
         [HttpGet("BuscarDocumento/{documento}")]
