@@ -96,18 +96,20 @@
                 <p>{{ litigio?.ltg_Cedula_Demandante || 'N/A' }}</p>
               </div>
               <div class="cell">
-                <label>Tipo</label>
-                <p>{{ litigio?.ltg_Tipo_Demandante || 'N/A' }}</p>
+                <label>Nombre</label>
+                <p>{{ litigio?.ltg_Nombre_Demandante || 'N/A' }}</p>
               </div>
+
             </div>
             <div class="row">
-              <div class="cell">
-                <label>Nombre</label>
-                <p>{{ litigio?.ltg_Demandante || 'N/A' }}</p>
-              </div>
+
               <div class="cell">
                 <label>Nacionalidad</label>
                 <p>{{ litigio?.ltg_Nacionalidad || 'N/A' }}</p>
+              </div>
+              <div class="cell">
+                <label>Tipo</label>
+                <p>{{ litigio?.ltg_Tipo_Demandante || 'N/A' }}</p>
               </div>
             </div>
           </div>
@@ -119,23 +121,21 @@
           <div class="info-table">
             <div class="row">
               <div class="cell">
-                <label>Nombre</label>
-                <p>{{ litigio?.ltg_Nombre_Representante || 'N/A' }}</p>
-              </div>
-              <div class="cell">
                 <label>Cédula</label>
                 <p>{{ litigio?.ltg_Cedula_Representante || 'N/A' }}</p>
               </div>
+              <div class="cell">
+                <label>Nombre</label>
+                <p>{{ litigio?.ltg_Nombre_Representante || 'N/A' }}</p>
+              </div>
+
             </div>
             <div class="row">
               <div class="cell">
                 <label>Nacionalidad</label>
                 <p>{{ litigio?.ltg_Nacionalidad_Representante || 'N/A' }}</p>
               </div>
-              <div class="cell">
-                <label>Fecha Audiencia</label>
-                <p>{{ formatDate(litigio?.ltg_Fecha_Audiencia) || 'N/A' }}</p>
-              </div>
+
             </div>
           </div>
         </div>
@@ -183,54 +183,33 @@
         </div>
       </div>
 
-<!-- Audiencias con evidencias y comentarios -->
-<div class="mt-6">
-  <h2 class="text-xl font-semibold mb-3" style="color: #003870;">Audiencias y Evidencias</h2>
-  <Accordion :activeIndex="null" multiple>
-    <AccordionTab v-for="(audiencia, index) in audiencias" :key="index"
-                  :header="`${audiencia.numeroAudiencia} - ${formatDate(audiencia.fechaAudiencia)} (${audiencia.tipoAudiencia})`">
-      <div v-if="audiencia.evidenciasYComentarios?.length">
-        <div v-for="(ev, i) in audiencia.evidenciasYComentarios" :key="i" class="mb-4 border-bottom pb-3">
-          <p><strong>Comentario:</strong> {{ ev.textoComentario }}</p>
-          <p><strong>Fecha:</strong> {{ formatDate(ev.fechaComentario) }}</p>
-          <p><strong>Archivo:</strong>
-            <a :href="`https://localhost:7177/api/Files/rutaspor/${item.rutaArchivo}`" target="_blank"
-                  class="text-blue-600 hover:underline ml-2">
-                  <i :class="getFileIcon(item.NombreArchivo)" style="color: #ff0000;"></i>
-                  {{ item.NombreArchivo }}
-                </a>
-          </p>
-        </div>
-      </div>
-      <div v-else class="text-gray-500">No hay evidencias ni comentarios para esta audiencia.</div>
-    </AccordionTab>
-  </Accordion>
-</div>
-
-
-
-      <!-- Documentos y sentencia -->
-      <div class="grid">
-        <div v-for="item in evidenciasOrdenadas" :key="item.id_Evidencias" class="col-12">
-          <Accordion :activeIndex="null" multiple>
-            <AccordionTab :header="`${item.Nombre}`">
-              <p class="text-sm text-500">Subido: {{ formatFecha(item.FechaSubida) }}</p>
-              <div class="mb-2">
-                <strong>Comentario:</strong>
-                <p class="m-0">{{ item.comentario }}</p>
+      <!-- Audiencias con evidencias y comentarios -->
+      <div class="mt-6">
+        <h2 class="text-xl font-semibold mb-3" style="color: #003870;">Audiencias y Evidencias</h2>
+        <Accordion :activeIndex="null" multiple>
+          <AccordionTab v-for="(audiencia, index) in audiencias" :key="index"
+            :header="`${audiencia.numeroAudiencia} - ${formatDate(audiencia.fechaAudiencia)} (${audiencia.tipoAudiencia})`">
+            <div v-if="audiencia.evidenciasYComentarios?.length">
+              <div v-for="(ev, i) in audiencia.evidenciasYComentarios" :key="i" class="mb-4 border-bottom pb-3">
+                <p><strong>Comentario:</strong> {{ ev.textoComentario }}</p>
+                <p><strong>Fecha:</strong> {{ formatDate(ev.fechaComentario) }}</p>
+                <p><strong>Archivo:</strong>
+                  <a :href="`/api/Files/rutaspor/${ev.rutaArchivo}`" target="_blank">
+                    <i :class="getFileIcon(ev.nombreArchivo)" style="color: #ff0000;"></i>
+                    {{ ev.nombreArchivo }}
+                  </a>
+                </p>
               </div>
-              <div>
-                <strong>Archivo:</strong>
-                <a :href="`https://localhost:7177/api/Files/rutaspor/${item.id_Ruta}`" target="_blank"
-                  class="text-blue-600 hover:underline ml-2">
-                  <i :class="getFileIcon(item.NombreArchivo)" style="color: #ff0000;"></i>
-                  {{ item.NombreArchivo }}
-                </a>
-              </div>
-            </AccordionTab>
-          </Accordion>
-        </div>
+            </div>
+            <div v-else class="text-gray-500">
+              No hay evidencias ni comentarios para esta audiencia.
+            </div>
+          </AccordionTab>
+        </Accordion>
+
       </div>
+
+
 
       <!-- Sentencia -->
       <div class="col-12 md:col-2 m-3">
@@ -287,15 +266,24 @@ const props = defineProps({
     }
   }
 });
-
 const obtenerAudiencias = async () => {
   try {
-    const res = await api.get(`/api/Files/audiencias-por-litigio/${props.id}`);
-    audiencias.value = res.data || [];
+    const res = await api.get(`/api/Litigio/audiencias-con-evidencias-y-tribunal/${props.id}`);
+    audiencias.value = res.data.audiencias || [];
+
+    // ✅ Mezclar los datos del tribunal dentro del objeto litigio ya existente
+    if (res.data.tribunalFinal) {
+      litigio.value = {
+        ...litigio.value,
+        ...res.data.tribunalFinal
+      };
+    }
+
   } catch (err) {
     console.error('Error al obtener audiencias:', err);
   }
 };
+
 
 const estaCerrado = computed(() => litigio.value?.ltg_estatus === 7);
 
@@ -347,14 +335,6 @@ const getSentenciaSeverity = (sentencia) => {
   return 'info';
 };
 
-const obtenerComentariosConEvidencias = async () => {
-  try {
-    const res = await api.get(`/api/Files/comentarios-evidencias/${props.id}`);
-    evidencias.value = res.data || [];
-  } catch (err) {
-    console.error('Error al obtener evidencias:', err);
-  }
-};
 
 const cargarLineaDeTiempo = async () => {
   try {
@@ -400,7 +380,6 @@ onMounted(async () => {
     litigio.value = response.data;
     await obtenerAudiencias();
     await cargarLineaDeTiempo();              // Carga eventos
-    await obtenerComentariosConEvidencias();  // Carga evidencias
     await nextTick();                         // Espera render del DOM
 
     // ✅ Mueve scroll al final
