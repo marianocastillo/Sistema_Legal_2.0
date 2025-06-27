@@ -204,9 +204,10 @@ namespace Sistema_Legal_2._0.Server.Controllers
                         tipoAudiencia = reader.GetString(2),
                         fechaAudiencia = reader.GetDateTime(3),
                         Id_tribunal = reader.GetInt32(4),
-                        evidenciasYComentarios = JsonConvert.DeserializeObject<List<EvidenciaDto>>(reader.GetString(5))
+                        evidenciasYComentarios = reader.IsDBNull(5)
+         ? new List<EvidenciaDto>()
+         : JsonConvert.DeserializeObject<List<EvidenciaDto>>(reader.GetString(5))
                     };
-
                     result.Audiencias.Add(audiencia);
                 }
 

@@ -40,3 +40,10 @@ const handleLoginSuccess = () => {
   router.push('/home')
 }
 </script>
+
+<style>
+/* Este CSS debe estar fuera de cualquier scoped */
+::v-deep(.p-datepicker) {
+  z-index: 99999 !important;
+}
+</style>

@@ -1,0 +1,25 @@
+﻿using Microsoft.Identity.Client;
+
+namespace Sistema_Legal_2._0.Server.Entities
+{
+    public class EvidenciaUploadModel
+    {
+        public int IdLitigio { get; set; }
+        public int IdUsuario { get; set; }
+        public string Comentario { get; set; }
+        public string NombreEvidencia { get; set; } 
+        public IFormFile Archivo { get; set; }
+    }
+
+    public class AudienciaUpdateDto
+    {
+
+        public int IdLitigio { get; set; }
+        public string Numero { get; set; }
+        public string Tipo { get; set; }
+        public DateTime Fecha { get; set; }
+    }
+
+
+
+}

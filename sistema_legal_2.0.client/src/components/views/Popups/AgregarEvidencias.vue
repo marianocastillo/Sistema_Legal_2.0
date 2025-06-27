@@ -69,7 +69,7 @@ async function guardar() {
   formData.append('Archivo', archivo.value);
   formData.append('Comentario', comentarioAuto);
   formData.append('IdUsuario', IdUsuario);
-  formData.append('Nombre', nombreAuto);
+  formData.append('NombreEvidencia', nombreAuto);
   formData.append('IdLitigio', props.id_Ltg);
 
   // Notificación tipo promesa
@@ -78,7 +78,7 @@ async function guardar() {
   try {
 
     await new Promise(resolve => setTimeout(resolve, 500));
-    const response = await axios.post(`/api/Files/subir-evidencia-comentario`, formData, {
+const response = await axios.post(`/api/Files/subir-evidencia`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

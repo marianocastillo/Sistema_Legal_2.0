@@ -38,18 +38,134 @@ namespace Sistema_Legal_2._0.Server.Controllers
             _configuration = config;
         }
 
+        [HttpPost("subir-evidencia")]
+        public async Task<IActionResult> SubirEvidencia([FromForm] EvidenciaUploadModel model)
+        {
+            try
+            {
+                using var conn = new SqlConnection(_cadenaSQL);
+                var resultado = await conn.QueryFirstAsync<dynamic>(
+                       "InsertarEvidenciaEnUltimaAudiencia",
+                       new
+                       {
+                           IdLitigio = model.IdLitigio,                         
+                           IdUsuario = model.IdUsuario,
+                           NombreEvidencia = model.NombreEvidencia,
+                           NombreArchivo = model.Archivo.FileName,
+                           Comentario = model.Comentario
+
+                       },
+       commandType: CommandType.StoredProcedure
+   );
+                string rutaBase = @"C:\Users\Flafontaine\Desktop\SistemaLitigio";
+                string carpetaDestino = Path.Combine(
+     rutaBase,
+     resultado.IdLitigio.ToString(),
+     resultado.Acto.ToString(),
+     resultado.NumeroAudiencia.ToString(),
+     model.NombreEvidencia
+ );
 
 
+                if (!Directory.Exists(carpetaDestino))
+                    Directory.CreateDirectory(carpetaDestino);
+
+                string rutaCompleta = Path.Combine(carpetaDestino, resultado.NombreArchivo);
+
+                using (var stream = new FileStream(rutaCompleta, FileMode.Create))
+                {
+                    await model.Archivo.CopyToAsync(stream);
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    ruta = Path.Combine(
+                        resultado.IdLitigio.ToString(),
+                        resultado.NumeroAudiencia.ToString(),
+                        model.NombreEvidencia,
+                        resultado.NombreArchivo
+                    )
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, error = ex.Message });
+            }
+        }
 
 
+        [HttpPost("crearAudiencias")]
+        public async Task<IActionResult> CrearAudiencia([FromBody] CrearAudienciaDto dto)
+        {
+            try
+            {
+                using var conn = new SqlConnection(_cadenaSQL);
 
+                var result = await conn.QueryFirstAsync<int>(
+                    "InsertarAudiencia",
+                    new
+                    {
+                        IdLitigio = dto.IdLitigio,
+                        IdTribunal = dto.IdTribunal,
+                        Numero = dto.Numero,
+                        Tipo = dto.Tipo,
+                        Fecha = dto.Fecha
+                    },
+                    commandType: CommandType.StoredProcedure
+                );
 
-      
+                return Ok(new
+                {
+                    success = true,
+                    message = "Audiencia creada correctamente",
+                    idAudiencia = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    error = ex.Message
+                });
+            }
+        }
 
+        [HttpPut("actualizarAudiencias")]
+        public async Task<IActionResult> EditarUltimaAudiencia([FromBody] AudienciaUpdateDto dto)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_cadenaSQL);
+                var parametros = new
+                {
+                    IdLitigio = dto.IdLitigio,
+                    Numero = dto.Numero,
+                    Tipo = dto.Tipo,
+                    Fecha = dto.Fecha
+                };
 
+                await connection.ExecuteAsync("ActualizarAudiencia", parametros, commandType: CommandType.StoredProcedure);
+
+                return Ok(new { success = true, message = "Última audiencia actualizada correctamente" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Error al actualizar la última audiencia",
+                    error = ex.Message
+                });
+            }
+        }
     }
-
 }
+
+
+
+
 
 
 
