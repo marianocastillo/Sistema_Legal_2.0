@@ -185,8 +185,6 @@
 
       <!-- Audiencias con evidencias y comentarios -->
       <div class="mt-6">
-
-        <h2 class="text-xl font-semibold mb-3" style="color: #003870;">Audiencias y Evidencias  <Button label="Editar Audiencias" icon="pi pi-pencil"
         <h2 class="text-xl font-semibold mb-3" style="color: #003870;">Audiencias y Evidencias  <Button label="Editar Audiencias" icon="pi pi-pencil"
     class="p-button-sm p-button-text-info"
     @click="togglePopUpTribunal(id)"

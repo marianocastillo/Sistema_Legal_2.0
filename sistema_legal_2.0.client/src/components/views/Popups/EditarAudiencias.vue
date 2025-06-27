@@ -1,45 +1,81 @@
 <template>
-  <div class="pop-up">
-    <div class="pop-up-inner">
-      <span class="pop-up-close" @click="$emit('close')">&times;</span>
-
-      <h2>Agregar Nueva Audiencia</h2>
-      <br>
-
-      <div class="comment-container">
-        <textarea v-model="numero" placeholder="Nombre de la Nueva Audiencia" rows="1" cols="1"></textarea>
-        <br>
-        <textarea v-model="tipo" placeholder="Tipo de audiencia" rows="1" cols="1"></textarea>
-        <label for="fechaAudiencia" class="block mb-2 font-medium text-sm">Fecha de Audiencia *</label>
-        <Calendar v-model="Fecha" dateFormat="yy-mm-dd" showIcon :minDate="hoy" class="w-full"
-          placeholder="Seleccione una fecha" :panelStyle="{ zIndex: 99999 }" />
-
-        <label for="fechaAudiencia" class="block mb-2 font-medium text-sm">Hora Audiencia *</label>
-        <Calendar v-model="horaSeleccionada" showIcon timeOnly hourFormat="12" placeholder="Ej: 8:00am"
-          :panelStyle="{ zIndex: 99999 }" />
-
-        <div class="field col-12 md:col-4">
-          <label for="tribunal" class="block mb-2 font-medium text-sm">Tribunal *</label>
-          <Dropdown id="tribunal" v-model="id_Tribunal" :options="tribunales" optionLabel="nombre_Tribunal"
-            optionValue="id_Tribunal" placeholder="Seleccione un tribunal" class="w-full" filter />
-        </div>
-
-      </div>
-
-      <Notivue v-slot="item">
-        <Notifications :item="item" />
-      </Notivue>
-
-
-      <Button label=" Subir Archivo" class="block mx-auto" icon="pi pi-calendar-plus" :loading="uploading" @click="guardar" />
-
+<Dialog
+  v-model:visible="visible"
+  modal
+  class="dialog-agregar-audiencia"
+  header="Editar Audiencia"
+  :closable="true"
+  :draggable="false"
+  :style="{ width: '500px' }"
+>
+  <div class="form-content">
+    <div class="field">
+      <InputText v-model="numero" class="w-full" placeholder="Nombre de la Nueva Audiencia" />
     </div>
+
+    <div class="field">
+      <InputText v-model="tipo" class="w-full" placeholder="Tipo de audiencia" />
+    </div>
+
+    <div class="field">
+      <label class="block mb-2 font-medium text-sm">Fecha de Audiencia *</label>
+      <Calendar
+        v-model="Fecha"
+        dateFormat="yy-mm-dd"
+        showIcon
+        :minDate="hoy"
+        class="w-full"
+        placeholder="Seleccione una fecha"
+      />
+    </div>
+
+    <div class="field">
+      <label class="block mb-2 font-medium text-sm">Hora Audiencia *</label>
+      <Calendar
+        v-model="horaSeleccionada"
+        showIcon
+        timeOnly
+        hourFormat="12"
+        placeholder="Ej: 8:00am"
+        class="w-full"
+      />
+    </div>
+
+    <div class="field">
+      <label class="block mb-2 font-medium text-sm">Tribunal *</label>
+      <Dropdown
+        v-model="id_Tribunal"
+        :options="tribunales"
+        optionLabel="nombre_Tribunal"
+        optionValue="id_Tribunal"
+        placeholder="Seleccione un tribunal"
+        class="w-full"
+        filter
+      />
+    </div>
+
+    <div class="mt-4 text-center">
+      <Button
+        label=" Subir Archivo"
+        icon="pi pi-calendar-plus"
+        class="p-button"
+        :loading="uploading"
+        @click="guardar"
+      />
+    </div>
+
+    <Notivue v-slot="item">
+      <Notifications :item="item" />
+    </Notivue>
   </div>
+</Dialog>
+
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import Dialog from 'primevue/dialog';
 import { push } from 'notivue';
 
 const emit = defineEmits(['close', 'actualizar']);
@@ -56,6 +92,7 @@ const tipo = ref('');
 const Fecha = ref(null);
 const horaSeleccionada = ref(null);
 const id_Tribunal = ref(null);
+const visible = ref(true);
 const tribunales = ref([]);
 
 const hoy = new Date(); // Para el minDate
@@ -88,7 +125,7 @@ const cargarUltimaAudiencia = async () => {
     const response = await axios.get(`/api/Files/ultima-Audiencia/${props.id_Ltg}`);
     const datos = response.data.data;
 
-    console.log('🟢 Datos de la última audiencia:', datos);
+    console.log('Datos de la última audiencia:', datos);
 
     numero.value = datos.NumeroAudiencia;
     tipo.value = datos.TipoAudiencia;
@@ -167,84 +204,12 @@ onMounted(async () => {
 
 
 <style scoped>
-.ms-custom {
-  margin-left: 4.3rem;
-  /* o lo que necesites */
+.dialog-agregar-audiencia {
+  width: 500px;
+  max-width: 90vw;
+}
+.field {
+  margin-bottom: 1rem;
 }
 
-.pop-up {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  /* Opcional para asegurarte de que esté al frente */
-}
-
-.pop-up-content {
-  background: white;
-  padding: 20px;
-  width: 600px;
-  height: 400px;
-  border-radius: 8px;
-}
-
-.pop-up-close {
-  position: absolute;
-  top: 8px;
-  right: 12px;
-  font-size: 3rem;
-  color: #333;
-  cursor: pointer;
-}
-
-.pop-up-inner {
-  background: white;
-  color: black;
-  padding: 30px;
-  border-radius: 10px;
-  width: 90%;
-  max-width: 600px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  position: relative;
-}
-
-.file-container,
-.comment-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-textarea {
-  width: 100%;
-  max-width: 400px;
-  padding: 10px;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  resize: none;
-  box-sizing: border-box;
-}
-
-textarea::placeholder {
-  color: #888;
-}
-
-::v-deep(.p-datepicker) {
-  z-index: 99999 !important;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.25s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
 </style>
