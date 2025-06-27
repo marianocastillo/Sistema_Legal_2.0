@@ -420,7 +420,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                                     ltg_Fecha_Acto = reader["ltg_Fecha_Acto"] as DateTime?,
                                     ltg_Fecha_Audiencia = reader["ltg_Fecha_Audiencia"] as DateTime?,
                                     Nombre_Tipo_Demanda = reader["Nombre_Tipo_Demanda"]?.ToString(),
-                                    ltg_Demandante = reader["ltg_Demandante"]?.ToString(),
+                                    ltg_Nombre_Demandante = reader["ltg_Nombre_Demandante"]?.ToString(),
                                     ltg_Cedula_Demandante = reader["ltg_Cedula_Demandante"]?.ToString(),
                                     desc_Sentencia = reader["desc_Sentencia"]?.ToString(),
                                     idUsuario = idUsuario,

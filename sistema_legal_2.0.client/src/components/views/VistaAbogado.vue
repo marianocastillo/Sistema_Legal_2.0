@@ -16,7 +16,7 @@
       'ltg_acto',
       'ltg_Cedula_Demandante',
       'ltg_Fecha_Acto',
-      'ltg_Demandante',
+      'ltg_Nombre_Demandante',
       'estatus_Descripcion'
     ]" class="p-datatable-sm" responsiveLayout="scroll">
       <Column field="ltg_acto" header="No.Acto" />
@@ -26,7 +26,7 @@
         </template>
       </Column>
       <Column field="ltg_Cedula_Demandante" header="Cédula demandante" />
-      <Column field="ltg_Demandante" header="Nombre demandante" />
+      <Column field="ltg_Nombre_Demandante" header="Nombre demandante" />
       <Column field="nombre_Tipo_Demanda" header="Tipo de Demanda" />
       <Column field="ltg_Fecha_Audiencia" header="Fecha audiencia">
         <template #body="{ data }">

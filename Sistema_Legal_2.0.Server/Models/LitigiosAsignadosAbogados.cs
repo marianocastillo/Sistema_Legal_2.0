@@ -7,7 +7,7 @@
         public DateTime? ltg_Fecha_Acto { get; set; }
         public DateTime? ltg_Fecha_Audiencia { get; set; }
         public string? Nombre_Tipo_Demanda { get; set; }
-        public string? ltg_Demandante { get; set; }
+        public string? ltg_Nombre_Demandante { get; set; }
         public string? ltg_Cedula_Demandante { get; set; }
         public string? desc_Sentencia { get; set; }
         public int? idUsuario { get; set; }
