@@ -23,7 +23,7 @@
 
     <div class="field">
       <label class="block mb-2 text-sm font-medium">Tribunal *</label>
-      <Dropdown v-model="id_Tribunal" :options="tribunales" optionLabel="nombre_Tribunal" optionValue="id_Tribunal" class="w-full" placeholder="Seleccione un tribunal" filter />
+      <Dropdown v-model="form.id_Tribunal" :options="tribunales" optionLabel="nombre_Tribunal" optionValue="id_Tribunal" class="w-full" placeholder="Seleccione un tribunal" filter />
     </div>
 
     <div class="mt-4 text-end">
@@ -62,7 +62,7 @@ const tiposAudiencia = [
 ]
 
 const form = ref({
-  id_Tribunal: 2
+  id_Tribunal: ''
 });
 
 const cargarDatosDropdowns = async () => {
