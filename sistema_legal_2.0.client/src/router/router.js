@@ -12,6 +12,7 @@ import FormularioView from '../components/views/Configs/FormularioView.vue';
 import BuscarLitigio from '@/components/views/BuscarLitigio.vue';
 import AdministradorLitigio from '@/components/views/AdministradorLitigio.vue';
 import VistaAbogado from '@/components/views/VistaAbogado.vue';
+import BandejaRegistrados from '@/components/views/BandejaRegistrados.vue';
 
 const routes = [
   {
@@ -43,6 +44,12 @@ const routes = [
       meta: { requiresAuth: true, roles: [1, 2, 3] }
     },
     {
+      path: 'LitigiosRegistrados',
+      name: 'BandejaRegistrados',
+      component: BandejaRegistrados,
+      meta: { requiresAuth: true, roles: [1, 2, 3] }
+    },
+    {
       path: 'buscarlitigio',
       name: 'BuscarLitigio',
       component: BuscarLitigio,
@@ -58,7 +65,7 @@ const routes = [
       path: 'modificarregistro',
       name: 'ModificarRegistro',
       component: ModificarRegistro,
-      meta: { requiresAuth: true, roles: [1, 2, 4] }
+      meta: { requiresAuth: true, roles: [1, 2, 3, 4] }
     },
     {
       path: 'listadodeusuario',
@@ -83,7 +90,7 @@ const routes = [
       name: 'LitigioDetalle',
       component: () => import('../components/views/LitigioMostrar.vue'),
       props: true,
-      meta: { requiresAuth: true, roles: [1, 2, 4] }
+      meta: { requiresAuth: true, roles: [1, 2, 3, 4] }
     }
   ]
 },

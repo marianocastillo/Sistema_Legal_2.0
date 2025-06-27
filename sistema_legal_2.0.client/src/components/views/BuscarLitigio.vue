@@ -34,7 +34,7 @@
         <h3 class="text-lg font-semibold mb-2">Resultado encontrado:</h3>
         <p><strong>No. Acto:</strong> {{ resultado.ltg_acto }}</p>
         <p><strong>Cédula Demandante:</strong> {{ resultado.ltg_Cedula_Demandante }}</p>
-        <p><strong>Demandante:</strong> {{ resultado.ltg_Demandante }}</p>
+        <p><strong>Demandante:</strong> {{ resultado.ltg_Nombre_Demandante }}</p>
 
         <Button
           label="Modificar"
