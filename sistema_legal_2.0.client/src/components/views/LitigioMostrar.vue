@@ -256,7 +256,7 @@
         </teleport>
 
         <!-- Popup 3 -->
-        <teleport to="body">
+       <teleport to="body">
           <transition name="fade">
             <EditarAudiencias v-if="popUpTribunal" :id_Ltg="litigioactual" @close="togglePopUpTribunal"
               @actualizar="obtenerTribunal" />
@@ -308,7 +308,7 @@ const obtenerAudiencias = async () => {
     const res = await api.get(`/api/Litigio/audiencias-con-evidencias-y-tribunal/${props.id}`);
     audiencias.value = res.data.audiencias || [];
 
-    // ✅ Mezclar los datos del tribunal dentro del objeto litigio ya existente
+    //Mezclar los datos del tribunal dentro del objeto litigio ya existente
     if (res.data.tribunalFinal) {
       litigio.value = {
         ...litigio.value,
@@ -404,7 +404,7 @@ const rutaInicio = ref('/Administrador/litigios');
 
 onMounted(async () => {
   try {
-    // ✅ Lógica de ruta según perfil
+    //Lógica de ruta según perfil
     const rawUser = localStorage.getItem('usuario');
     const user = rawUser ? JSON.parse(rawUser) : null;
 
@@ -420,7 +420,7 @@ onMounted(async () => {
       rutaInicio.value = rutasPorPerfil[perfil] || '/Administrador/litigios';
     }
 
-    // ✅ Carga datos del litigio
+    //Carga datos del litigio
     const response = await api.get(`/api/Litigio/detallados/${props.id}`);
     if (!response.data) throw new Error('La respuesta no contiene datos');
     litigio.value = response.data;
@@ -428,7 +428,7 @@ onMounted(async () => {
     await cargarLineaDeTiempo();              // Carga eventos
     await nextTick();                         // Espera render del DOM
 
-    // ✅ Mueve scroll al final
+    //Mueve scroll al final
     setTimeout(() => {
       if (scrollContainer.value) {
         scrollContainer.value.scrollTo({
@@ -438,7 +438,7 @@ onMounted(async () => {
       }
     }, 100);
 
-    // ✅ Muestra scroll después de animación
+    //Muestra scroll después de animación
     setTimeout(() => {
       if (scrollContainer.value) {
         scrollContainer.value.classList.add('scroll-visible');
@@ -458,7 +458,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* 🧭 POPUP GENERAL */
+/* POPUP GENERAL */
 .pop-up {
   position: fixed;
   inset: 0;
@@ -489,12 +489,12 @@ onMounted(async () => {
   cursor: pointer;
 }
 
-/* 🎯 CALENDARIO DE PRIMEVUE */
+/*CALENDARIO DE PRIMEVUE */
 ::v-deep(.p-datepicker) {
   z-index: 100000 !important;
 }
 
-/* 📁 CONTENEDORES DEL POPUP */
+/*CONTENEDORES DEL POPUP */
 .file-container,
 .comment-container {
   display: flex;
@@ -503,7 +503,7 @@ onMounted(async () => {
   margin-bottom: 15px;
 }
 
-/* ✍️ TEXTAREAS */
+/*TEXTAREAS */
 textarea {
   width: 100%;
   max-width: 400px;
@@ -519,7 +519,7 @@ textarea::placeholder {
   color: #888;
 }
 
-/* 🔁 TRANSICIONES */
+/*TRANSICIONES */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.25s ease;
@@ -530,7 +530,7 @@ textarea::placeholder {
   opacity: 0;
 }
 
-/* 📘 TARJETAS */
+/*TARJETAS */
 .card,
 .surface-50,
 .info-card-double {
@@ -542,7 +542,7 @@ textarea::placeholder {
   padding: 1.25rem;
 }
 
-/* 🎛️ TABLA DE INFO */
+/*TABLA DE INFO */
 .info-card-double {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -557,7 +557,7 @@ textarea::placeholder {
   border-left: 1px solid #d1d5db;
 }
 
-/* 🏷️ ETIQUETAS */
+/*ETIQUETAS */
 .section-title,
 h4,
 .card h4,
@@ -674,7 +674,7 @@ p {
   display: none;
 }
 
-/* 🎞️ ANIMACIÓN */
+/* ANIMACIÓN */
 @keyframes fadeInUp {
   from {
     opacity: 0;
