@@ -137,13 +137,17 @@ namespace Sistema_Legal_2._0.Server.Controllers
         {
             try
             {
+
+                var fechaLocal = dto.Fecha.ToLocalTime();
+
                 using var connection = new SqlConnection(_cadenaSQL);
                 var parametros = new
                 {
                     IdLitigio = dto.IdLitigio,
                     Numero = dto.Numero,
+                    id_tribunal = dto.id_tribunal,
                     Tipo = dto.Tipo,
-                    Fecha = dto.Fecha
+                    Fecha = fechaLocal
                 };
 
                 await connection.ExecuteAsync("ActualizarAudiencia", parametros, commandType: CommandType.StoredProcedure);
@@ -160,6 +164,45 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 });
             }
         }
+
+        [HttpGet("ultima-audiencia/{idLitigio}")]
+        public async Task<IActionResult> ObtenerUltimaAudiencia(int idLitigio)
+        {
+            try
+            {
+                using var conn = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal"));
+                var resultado = await conn.QueryFirstOrDefaultAsync(new CommandDefinition(
+                    "sp_ObtenerUltimaAudiencia",
+                    new { IdLitigio = idLitigio },
+                    commandType: CommandType.StoredProcedure
+                ));
+
+                if (resultado == null)
+                {
+                    return NotFound(new
+                    {
+                        success = false,
+                        message = "No se encontró ninguna audiencia para este litigio."
+                    });
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    data = resultado
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Error al obtener la última audiencia.",
+                    error = ex.Message
+                });
+            }
+        }
+
     }
 }
 

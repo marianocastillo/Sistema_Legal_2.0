@@ -15,6 +15,8 @@ namespace Sistema_Legal_2._0.Server.Entities
     {
 
         public int IdLitigio { get; set; }
+        public int id_tribunal { get; set; }
+
         public string Numero { get; set; }
         public string Tipo { get; set; }
         public DateTime Fecha { get; set; }

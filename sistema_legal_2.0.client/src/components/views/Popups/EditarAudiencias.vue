@@ -3,17 +3,27 @@
     <div class="pop-up-inner">
       <span class="pop-up-close" @click="$emit('close')">&times;</span>
 
-      <h2>Agregar evidencia y comentario</h2>
+      <h2>Agregar Nueva Audiencia</h2>
       <br>
-      <div class=" ms-3 file-container">
-        <FileUpload name="Archivo" customUpload @select="handleExpedienteUpload" mode="basic"
-          chooseLabel="Elegir archivo" class="w-full md:w-19rem" style="background-color: #003870;" />
-      </div>
 
       <div class="comment-container">
-        <textarea v-model="NombreEvidencia" placeholder="Nombre de la evidencia" rows="1" cols="1"></textarea>
+        <textarea v-model="numero" placeholder="Nombre de la Nueva Audiencia" rows="1" cols="1"></textarea>
         <br>
-        <textarea v-model="Comentario" placeholder="Descripción del documento" rows="8" cols="50"></textarea>
+        <textarea v-model="tipo" placeholder="Tipo de audiencia" rows="1" cols="1"></textarea>
+        <label for="fechaAudiencia" class="block mb-2 font-medium text-sm">Fecha de Audiencia *</label>
+        <Calendar v-model="Fecha" dateFormat="yy-mm-dd" showIcon :minDate="hoy" class="w-full"
+          placeholder="Seleccione una fecha" :panelStyle="{ zIndex: 99999 }" />
+
+        <label for="fechaAudiencia" class="block mb-2 font-medium text-sm">Hora Audiencia *</label>
+        <Calendar v-model="horaSeleccionada" showIcon timeOnly hourFormat="12" placeholder="Ej: 8:00am"
+          :panelStyle="{ zIndex: 99999 }" />
+
+        <div class="field col-12 md:col-4">
+          <label for="tribunal" class="block mb-2 font-medium text-sm">Tribunal *</label>
+          <Dropdown id="tribunal" v-model="id_Tribunal" :options="tribunales" optionLabel="nombre_Tribunal"
+            optionValue="id_Tribunal" placeholder="Seleccione un tribunal" class="w-full" filter />
+        </div>
+
       </div>
 
       <Notivue v-slot="item">
@@ -21,82 +31,137 @@
       </Notivue>
 
 
-      <Button label= " Subir Archivo" class="block mx-auto" icon="pi pi-upload" :loading="uploading" @click="guardar" />
+      <Button label=" Subir Archivo" class="block mx-auto" icon="pi pi-calendar-plus" :loading="uploading" @click="guardar" />
 
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import FileUpload from 'primevue/fileupload';
-import { push } from 'notivue'
+import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import { push } from 'notivue';
 
-
-const uploading = ref(false);
 const emit = defineEmits(['close', 'actualizar']);
 
-
-const archivo = ref(null);
-const Comentario = ref('');
-const NombreEvidencia = ref('');
-const IdUsuario = 1;
 const props = defineProps({
   id_Ltg: {
     type: Number,
     required: true
   }
 });
-function handleExpedienteUpload(event) {
-  archivo.value = event.files[0];  // Guardamos el archivo en la referencia
+
+const numero = ref('');
+const tipo = ref('');
+const Fecha = ref(null);
+const horaSeleccionada = ref(null);
+const id_Tribunal = ref(null);
+const tribunales = ref([]);
+
+const hoy = new Date(); // Para el minDate
+
+// 🔹 Cargar dropdown de tribunales
+const cargarDatosDropdowns = async () => {
+  try {
+    const response = await fetch('/api/Litigio/datos-litigio');
+    const data = await response.json();
+    tribunales.value = data.tribunales;
+  } catch (error) {
+    console.error('Error al cargar los datos de los dropdowns:', error);
+    push.error('No se pudieron cargar los tribunales.');
+  }
+};
+
+// 🔹 Dividir fecha completa en fecha + hora
+function separarFechaYHora(fechaCompletaStr) {
+  const fecha = new Date(fechaCompletaStr);
+  if (isNaN(fecha)) return { fecha: null, hora: null };
+  return {
+    fecha,
+    hora: new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate(), fecha.getHours(), fecha.getMinutes())
+  };
 }
 
-function getNombreSinExtension(nombre) {
-  return nombre.replace(/\.[^/.]+$/, '');
+// 🔹 Cargar última audiencia
+const cargarUltimaAudiencia = async () => {
+  try {
+    const response = await axios.get(`/api/Files/ultima-Audiencia/${props.id_Ltg}`);
+    const datos = response.data.data;
+
+    console.log('🟢 Datos de la última audiencia:', datos);
+
+    numero.value = datos.NumeroAudiencia;
+    tipo.value = datos.TipoAudiencia;
+
+    const { fecha, hora } = separarFechaYHora(datos.FechaAudiencia);
+    Fecha.value = fecha;
+    horaSeleccionada.value = hora;
+
+    id_Tribunal.value = datos.Id_Tribunal;
+  } catch (error) {
+    console.error('Error al cargar última audiencia:', error);
+    push.error('No se pudo cargar la última audiencia.');
+  }
+};
+function combinarFechaYHora(fecha, hora) {
+  if (!fecha || !hora) return null;
+
+  const fechaObj = new Date(fecha);
+  const horaObj = new Date(hora);
+
+  // Combina la fecha y la hora
+  fechaObj.setHours(horaObj.getHours());
+  fechaObj.setMinutes(horaObj.getMinutes());
+  fechaObj.setSeconds(0);
+  fechaObj.setMilliseconds(0);
+
+  return fechaObj;
 }
 
 async function guardar() {
-  if (!archivo.value) {
-    push.error('Debes seleccionar un archivo');
+  const fechaCompletaAudiencia = combinarFechaYHora(Fecha.value, horaSeleccionada.value);
+
+  if (!(fechaCompletaAudiencia instanceof Date) || isNaN(fechaCompletaAudiencia.getTime())) {
+    push.warning("Debe seleccionar una hora válida para la audiencia.");
     return;
   }
 
-  const nombreAuto = NombreEvidencia.value?.trim() || getNombreSinExtension(archivo.value.name);
-  const comentarioAuto = Comentario.value?.trim() || 'Documento subido sin descripción.';
+  if (!id_Tribunal.value) {
+    push.warning("Debe seleccionar un tribunal.");
+    return;
+  }
 
-  const formData = new FormData();
-  formData.append('Archivo', archivo.value);
-  formData.append('Comentario', comentarioAuto);
-  formData.append('IdUsuario', IdUsuario);
-  formData.append('NombreEvidencia', nombreAuto);
-  formData.append('IdLitigio', props.id_Ltg);
+  const body = {
+    IdLitigio: props.id_Ltg,
+    Numero: numero.value?.trim(),
+    Tipo: tipo.value?.trim(),
+    id_tribunal: id_Tribunal.value,
+    fecha: fechaCompletaAudiencia
 
-  // Notificación tipo promesa
-  const notif = push.promise('Subiendo archivo...');
+  };
+
+  const notif = push.promise('Actualizando audiencia...');
 
   try {
-
-    await new Promise(resolve => setTimeout(resolve, 500));
-const response = await axios.post(`/api/Files/subir-evidencia`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-
-    console.log('Archivo subido:', response.data);
+    await new Promise(resolve => setTimeout(resolve, 300)); // simula carga opcional
+    await axios.put('/api/Files/actualizarAudiencias', body);
 
     emit('actualizar');
     emit('close');
-
-    notif.resolve('Archivo subido correctamente');
+    notif.resolve('Audiencia actualizada correctamente');
   } catch (error) {
-    console.error('Error al subir el archivo:', error.response?.data || error.message);
-    notif.reject('Error al subir el archivo');
+    console.error('Error al actualizar audiencia:', error.response?.data || error.message);
+    notif.reject('Error al actualizar la audiencia');
   }
 }
 
 
+onMounted(async () => {
+  await Promise.all([
+    cargarDatosDropdowns(),
+    cargarUltimaAudiencia()
+  ]);
+});
 </script>
 
 
@@ -114,7 +179,8 @@ const response = await axios.post(`/api/Files/subir-evidencia`, formData, {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999; /* Opcional para asegurarte de que esté al frente */
+  z-index: 9999;
+  /* Opcional para asegurarte de que esté al frente */
 }
 
 .pop-up-content {
@@ -166,6 +232,10 @@ textarea {
 
 textarea::placeholder {
   color: #888;
+}
+
+::v-deep(.p-datepicker) {
+  z-index: 99999 !important;
 }
 
 .fade-enter-active,
