@@ -42,8 +42,13 @@ namespace Sistema_Legal_2._0.Server.Controllers
         [HttpPut("EditarLitigio")]
         public async Task<IActionResult> EditarLitigio([FromBody] LitigioEditarDto litigio)
         {
-            using (SqlConnection connection = new SqlConnection(_cadenaSQL))
+
+            try
             {
+                using (SqlConnection connection = new SqlConnection(_cadenaSQL))
+            {
+
+
                 await connection.OpenAsync();
 
                 litigio.ltg_acto = string.IsNullOrWhiteSpace(litigio.ltg_acto) ? null : litigio.ltg_acto;
@@ -79,8 +84,21 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
                     return Ok(new { mensaje = "Litigio actualizado correctamente." });
                 }
+                }
             }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Error al actualizar el litigio",
+                    error = ex.Message 
+                });
+            }
+
+
         }
+        
 
 
         [HttpPost("Subir_Litigio_Con_Archivo")]
@@ -148,7 +166,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 }
 
                 // Guardar archivo en ruta local
-                string rutaBase = @"C:\Users\Flafontaine\Desktop\SistemaLitigio";
+                string rutaBase = @"\\192.168.3.95\FileSharing\Archivos_Sileg";
                 string rutaFinal = Path.Combine(rutaBase, idLitigio.ToString(), datos.ltg_acto, nombreCarpeta);
                 Directory.CreateDirectory(rutaFinal);
 

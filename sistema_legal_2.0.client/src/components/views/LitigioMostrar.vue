@@ -186,39 +186,46 @@
       <!-- Audiencias con evidencias y comentarios -->
       <div class="mt-6">
 
-        <h2 class="text-xl font-semibold mb-3" style="color: #003870;">Audiencias y Evidencias <Button
-            label="Editar Tribunal" icon="pi pi-pencil" class="p-button-sm p-button-text-info"
-            @click="togglePopUpTribunal(id)" style="background-color: #5a7cb3;" /></h2>
-        <Accordion :activeIndex="null" multiple>
-          <AccordionTab v-for="(audiencia, index) in audiencias" :key="index"
-            :header="`-${audiencia.numeroAudiencia} - (${audiencia.tipoAudiencia}) - ${formatDate(audiencia.fechaAudiencia)}-`">
-            <div v-if="audiencia.evidenciasYComentarios?.length">
-              <Accordion :activeIndex="null" multiple>
-                <AccordionTab v-for="(ev, i) in audiencia.evidenciasYComentarios" :key="i" :header="ev.nombreEvidencia">
-                  <p><strong>Comentario:</strong> {{ ev.textoComentario }}</p>
-                  <p><strong>Fecha:</strong> {{ formatDate(ev.fechaComentario) }}</p>
-                  <p><strong>Archivo:</strong>
-                    <a :href="`/api/Files/rutaspor/${ev.rutaArchivo}`" target="_blank"
-                      class="text-blue-600 hover:underline">
-                      <i :class="getFileIcon(ev.nombreArchivo)" style="color: #ff0000;"></i>
-                      {{ ev.nombreArchivo }}
-                    </a>
-                  </p>
-                </AccordionTab>
-              </Accordion>
-            </div>
-            <div v-else class="text-gray-500">
-              No hay evidencias ni comentarios para esta audiencia.
-            </div>
-          </AccordionTab>
-        </Accordion>
+        <h2 class="text-xl font-semibold mb-3" style="color: #003870;">Audiencias y Evidencias  <Button label="Editar Audiencias" icon="pi pi-pencil"
+    class="p-button-sm p-button-text-info"
+    @click="togglePopUpTribunal(id)"
+    style="background-color: #5a7cb3;" /></h2>
+ <Accordion :activeIndex="null" multiple>
+  <AccordionTab
+    v-for="(audiencia, index) in audiencias"
+    :key="index"
+    :header="`-${audiencia.numeroAudiencia} - (${audiencia.tipoAudiencia}) - ${formatDate(audiencia.fechaAudiencia)}-`"
+  >
+    <div v-if="audiencia.evidenciasYComentarios?.length">
+      <Accordion :activeIndex="null" multiple>
+        <AccordionTab
+          v-for="(ev, i) in audiencia.evidenciasYComentarios"
+          :key="i"
+          :header="ev.nombreEvidencia"
+        >
+          <p><strong>Comentario:</strong> {{ ev.textoComentario }}</p>
+          <p><strong>Fecha:</strong> {{ formatDate(ev.fechaComentario) }}</p>
+          <p><strong>Archivo:</strong>
+            <a :href="`/api/Files/rutaspor/${ev.rutaArchivo}`" target="_blank" class="text-blue-600 hover:underline">
+              <i :class="getFileIcon(ev.nombreArchivo)" style="color: #ff0000;"></i>
+              {{ ev.nombreArchivo }}
+            </a>
+          </p>
+        </AccordionTab>
+      </Accordion>
+    </div>
+    <div v-else class="text-gray-500">
+      No hay evidencias ni comentarios para esta audiencia.
+    </div>
+  </AccordionTab>
+</Accordion>
 
 
       </div>
 
 
 
-      <!-- Sentencia
+     <!-- Sentencia
       <div class="col-12 md:col-2 m-3">
         <div class="surface-50 p-4 border-round-lg border h-full bg-white">
           <h4 class="mt-0 mb-3 text-lg" style="color: #003870;">Sentencia</h4>
@@ -230,31 +237,36 @@
       <div class="flex justify-content-between mt-4 pt-3 border-top-1 surface-border">
         <Button label="Agregar Evidencia y Comentario" icon="pi pi-comment" class="p-button-sm p-button-text-dark"
           @click="togglePopUpEvidencia(id)" style="background-color: #003870;" />
-        <Button label="Agregar Audiencia" icon="pi pi-calendar-plus" class="p-button-sm p-button-text-secondary"
-          @click="togglePopUpAudiencia(id)" style="background-color: #37517e;" />
+          <Button label="Agregar Audiencia" icon="pi pi-calendar-plus"
+    class="p-button-sm p-button-text-secondary"
+    @click="togglePopUpAudiencia(id)"
+    style="background-color: #37517e;" />
         <teleport to="body">
           <transition name="fade">
             <AgregarEvidencias v-if="popUpEvidencia" :id_Ltg="litigioactual" @close="togglePopUpEvidencia"
               @actualizar="obtenerComentariosConEvidencias" />
           </transition>
         </teleport>
+         <teleport to="body">
+    <transition name="fade">
+      <AgregarAudiencias
+        v-if="popUpAudiencia"
+        :id_Ltg="litigioactual"
+        @close="togglePopUpAudiencia"
+        @actualizar="obtenerAudiencias" />
+    </transition>
+  </teleport>
 
-
-
-        <teleport to="body">
-          <transition name="fade">
-            <AgregarAudiencias v-if="popUpAudiencia" :id_Ltg="litigioactual" @close="togglePopUpAudiencia"
-              @actualizar="obtenerAudiencias" />
-          </transition>
-        </teleport>
-
-        <!-- Popup 3 -->
-        <teleport to="body">
-          <transition name="fade">
-            <EditarAudiencias v-if="popUpTribunal" :id_Ltg="litigioactual" @close="togglePopUpTribunal"
-              @actualizar="obtenerTribunal" />
-          </transition>
-        </teleport>
+  <!-- Popup 3 -->
+  <teleport to="body">
+    <transition name="fade">
+      <EditarAudiencias
+        v-if="popUpTribunal"
+        :id_Ltg="litigioactual"
+        @close="togglePopUpTribunal"
+        @actualizar="obtenerTribunal" />
+    </transition>
+  </teleport>
         <small class="text-500-dark">Sistema Sileg 2.0 - {{ new Date().getFullYear() }}</small>
       </div>
     </div>
@@ -507,7 +519,6 @@ textarea {
   resize: none;
   box-sizing: border-box;
 }
-
 textarea::placeholder {
   color: #888;
 }
@@ -517,7 +528,6 @@ textarea::placeholder {
 .fade-leave-active {
   transition: opacity 0.25s ease;
 }
-
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
@@ -578,15 +588,12 @@ label {
 .mt-0 {
   margin-top: 0;
 }
-
 .mb-3 {
   margin-bottom: 1rem;
 }
-
 .m-0 {
   margin: 0;
 }
-
 p {
   margin: 0.2rem 0 1rem 0;
 }
@@ -608,7 +615,6 @@ p {
   font-size: 0.85rem;
   color: #444;
 }
-
 .cell p {
   margin: 0;
   color: #222;
@@ -622,13 +628,11 @@ p {
   display: flex;
   align-items: center;
 }
-
 .icono-pequeno {
   font-size: 0.75rem;
   color: #003870;
   margin-right: 4px;
 }
-
 .nombre-usuario {
   font-weight: 600;
   color: #003870;
@@ -643,26 +647,21 @@ p {
   transition: opacity 0.5s ease-in-out;
   scrollbar-width: none;
 }
-
 .timeline-wrapper.scroll-visible {
   overflow-x: auto;
   opacity: 1;
   scrollbar-width: thin;
 }
-
 .timeline-wrapper.scroll-visible::-webkit-scrollbar {
   height: 6px;
 }
-
 .timeline-wrapper.scroll-visible::-webkit-scrollbar-thumb {
   background-color: #999;
   border-radius: 3px;
 }
-
 .timeline-wrapper.scroll-visible::-webkit-scrollbar-track {
   background: transparent;
 }
-
 .timeline-wrapper::-webkit-scrollbar {
   display: none;
 }
@@ -673,51 +672,40 @@ p {
     opacity: 0;
     transform: translateY(12px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
-
-.fade-timeline>>>.p-timeline-event {
+.fade-timeline >>> .p-timeline-event {
   opacity: 0;
   transform: translateY(12px);
   animation: fadeInUp 2s ease forwards;
 }
-
-.fade-timeline>>>.p-timeline-event:nth-child(1) {
+.fade-timeline >>> .p-timeline-event:nth-child(1) {
   animation-delay: 300ms;
 }
-
-.fade-timeline>>>.p-timeline-event:nth-child(2) {
+.fade-timeline >>> .p-timeline-event:nth-child(2) {
   animation-delay: 600ms;
 }
-
-.fade-timeline>>>.p-timeline-event:nth-child(3) {
+.fade-timeline >>> .p-timeline-event:nth-child(3) {
   animation-delay: 900ms;
 }
-
-.fade-timeline>>>.p-timeline-event:nth-child(4) {
+.fade-timeline >>> .p-timeline-event:nth-child(4) {
   animation-delay: 1200ms;
 }
-
-.fade-timeline>>>.p-timeline-event:nth-child(5) {
+.fade-timeline >>> .p-timeline-event:nth-child(5) {
   animation-delay: 1500ms;
 }
-
-.fade-timeline>>>.p-timeline-event:nth-child(6) {
+.fade-timeline >>> .p-timeline-event:nth-child(6) {
   animation-delay: 1800ms;
 }
-
 .p-timeline-event-separator::before {
   background-color: #003870 !important;
 }
-
 :deep(.p-timeline-event-connector) {
   background-color: #3F6DAA;
 }
-
 :deep(.no-final-line + .p-timeline-event-connector) {
   background-color: #cccccc !important;
   opacity: 0.5;
@@ -729,20 +717,17 @@ p {
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
-
 .p-card-title {
   font-size: 1.2rem !important;
   font-weight: 600;
   color: #003870;
   margin-bottom: 0.5rem;
 }
-
 .p-card-subtitle {
   font-size: 0.875rem !important;
   color: #555;
   margin-bottom: 0.75rem;
 }
-
 .p-card-content p {
   font-size: 0.95rem !important;
   color: #222;
@@ -762,15 +747,12 @@ p {
 .text-right {
   text-align: right;
 }
-
 .align-items-end {
   align-items: end;
 }
-
 .full-width {
   width: 100%;
 }
-
 .document-header {
   width: 100%;
   padding: 1.25rem;
