@@ -634,7 +634,6 @@ textarea:focus,
 .custom-home-btn:hover {
   background-color: #c00606;
   border-color: #c00606;
-  ;
   box-shadow: 0 6px 16px rgba(121, 1, 51, 0.3) !important;
   transform: translateY(-1px);
   transition: background-color 0.2s;

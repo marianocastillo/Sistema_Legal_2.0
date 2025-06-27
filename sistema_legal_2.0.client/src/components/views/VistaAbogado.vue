@@ -45,7 +45,7 @@
           </div>
         </template>
       </Column>
-      <Column header="Acciones" style="width: 180px">
+      <Column header="Acciones" >
         <template #body="{ data }">
           <div class="btn-group">
             <!-- Ver -->
@@ -114,21 +114,41 @@ function calculateRows() {
   const estimatedRowHeight = 50;
   rows.value = Math.max(Math.floor(tableHeight / estimatedRowHeight) - 1, 1);
 }
+
+
+
 async function modificarLitigio(litigio) {
   try {
-    const response = await api.get(`/api/Litigio/Litigio_detallado`);
-    const litigioCompleto = response.data.find(l => l.id_Ltg === litigio.id_Ltg);
+    const response = await api.get(`/api/Litigio/detallados/${litigio.id_Ltg}`);
+    const litigioCompleto = response.data;
 
     if (!litigioCompleto) {
-      throw new Error('Litigio no encontrado en el listado completo');
+      throw new Error('No se encontró información del litigio.');
     }
 
     localStorage.setItem('litigioModificacion', JSON.stringify(litigioCompleto));
     router.push('/modificarregistro');
   } catch (error) {
-    console.error('Error al obtener litigio completo:', error);
+    console.error('Error al cargar litigio desde el backend:', error);
+    push.error('No se pudo cargar la información del litigio.');
   }
 }
+
+// async function modificarLitigio(litigio) {
+//   try {
+//     const response = await api.get(`/api/Litigio/Litigio_detallado`);
+//     const litigioCompleto = response.data.find(l => l.id_Ltg === litigio.id_Ltg);
+
+//     if (!litigioCompleto) {
+//       throw new Error('Litigio no encontrado en el listado completo');
+//     }
+
+//     localStorage.setItem('litigioModificacion', JSON.stringify(litigioCompleto));
+//     router.push('/modificarregistro');
+//   } catch (error) {
+//     console.error('Error al obtener litigio completo:', error);
+//   }
+// }
 
 
 
@@ -252,6 +272,10 @@ onUnmounted(() => {
 
 ::v-deep(.p-datatable .p-datatable-tbody > tr:nth-child(even)) {
   background-color: #f9fafb;
+}
+
+::v-deep(.p-datatable .p-datatable-thead > tr > th) {
+  background-color: rgb(241, 242, 250)
 }
 
 ::v-deep(.p-datatable .p-datatable-tbody > tr > td),
