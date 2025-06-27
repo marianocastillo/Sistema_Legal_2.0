@@ -1,53 +1,53 @@
 <template>
-  <div class="pop-up">
-    <div class="pop-up-inner">
-      <span class="pop-up-close" @click="$emit('close')">&times;</span>
+ <Dialog v-model:visible="visible" modal header="Agregar Nueva Audiencia" class="dialog-agregar-audiencia" :closable="true" :draggable="false">
+  <div class="form-content">
+    <div class="field">
+      <InputText v-model="numero" class="w-full" placeholder="Nombre de la Nueva Audiencia" />
+    </div>
 
-      <h2>Agregar Nueva Audiencia</h2>
-      <br>
+    <div class="field">
+      <label for="tipoAudiencia" class="block mb-2 font-medium text-sm">Tipo de Audiencia *</label>
+       <Dropdown id="tipoAudiencia" v-model="tipo" :options="tiposAudiencia" optionLabel="label"
+                optionValue="value" class="w-full" placeholder="Seleccione un tipo" />
+    </div>
 
-      <div class="comment-container">
-        <textarea v-model="numero" placeholder="Nombre de la Nueva Audiencia" rows="1" cols="1"></textarea>
-        <br>
-        <textarea v-model="tipo" placeholder="Tipo de audiencia" rows="1" cols="1"></textarea>
-        <label for="fechaAudiencia" class="block mb-2 font-medium text-sm">Fecha de Audiencia *</label>
-        <Calendar v-model="Fecha" dateFormat="yy-mm-dd" showIcon :minDate="hoy" class="w-full"
-          placeholder="Seleccione una fecha" :panelStyle="{ zIndex: 99999 }" />
+    <div class="field">
+      <label class="block mb-2 text-sm font-medium">Fecha de Audiencia *</label>
+      <Calendar v-model="Fecha" dateFormat="yy-mm-dd" showIcon placeholder="Seleccione una fecha" :minDate="hoy" class="w-full" />
+    </div>
 
-        <label for="fechaAudiencia" class="block mb-2 font-medium text-sm">Hora Audiencia *</label>
-        <Calendar v-model="horaSeleccionada" showIcon timeOnly hourFormat="12" placeholder="Ej: 8:00am"
-          :panelStyle="{ zIndex: 99999 }" />
+    <div class="field">
+      <label class="block mb-2 text-sm font-medium">Hora Audiencia *</label>
+      <Calendar v-model="horaSeleccionada" showIcon timeOnly hourFormat="12" placeholder="Ej: 8:00am" class="w-full" />
+    </div>
 
-        <div class="field col-12 md:col-4">
-          <label for="tribunal" class="block mb-2 font-medium text-sm">Tribunal *</label>
-          <Dropdown id="tribunal" v-model="id_Tribunal" :options="tribunales" optionLabel="nombre_Tribunal"
-            optionValue="id_Tribunal" placeholder="Seleccione un tribunal" class="w-full" filter />
-        </div>
+    <div class="field">
+      <label class="block mb-2 text-sm font-medium">Tribunal *</label>
+      <Dropdown v-model="id_Tribunal" :options="tribunales" optionLabel="nombre_Tribunal" optionValue="id_Tribunal" class="w-full" placeholder="Seleccione un tribunal" filter />
+    </div>
 
-      </div>
-
-      <Notivue v-slot="item">
-        <Notifications :item="item" />
-      </Notivue>
-
-
-      <Button label=" Subir Archivo" class="block mx-auto" icon="pi pi-calendar-plus" :loading="uploading" @click="guardar" />
-
+    <div class="mt-4 text-end">
+      <Button label="Guardar" icon="pi pi-check" class="p-button-sm" @click="guardar" />
     </div>
   </div>
+</Dialog>
+
 </template>
 
 <script setup>
 import { push } from 'notivue'
 import axios from 'axios';
 import { ref, onMounted } from 'vue'
+import Dialog from 'primevue/dialog'
 
 const emit = defineEmits(['close', 'actualizar']);
 const Fecha = ref('');
-const horaSeleccionada = ref(null); // ✅ Esta es la que faltaba
+const visible = ref(true)
+const horaSeleccionada = ref(null);
 const tribunales = ref([]);
 const numero = ref('');
 const tipo = ref('');
+
 const props = defineProps({
   id_Ltg: {
     type: Number,
@@ -55,16 +55,21 @@ const props = defineProps({
   }
 });
 
+const tiposAudiencia = [
+  { label: 'Audiencia previa', value: 'Audiencia previa' },
+  { label: 'Preliminar', value: 'Preliminar' },
+  { label: 'Juicio', value: 'Juicio' },
+]
+
 const form = ref({
   id_Tribunal: 2
 });
-
-
 
 const cargarDatosDropdowns = async () => {
   try {
     const response = await fetch('/api/Litigio/datos-litigio')
     const data = await response.json()
+    console.log(data);
     tribunales.value = data.tribunales
   } catch (error) {
     console.error('Error al cargar los datos de los dropdowns:', error)
@@ -85,6 +90,7 @@ function combinarFechaYHora(fecha, hora) {
 
   return fechaObj;
 }
+
 async function guardar() {
   const fechaCompletaAudiencia = combinarFechaYHora(Fecha.value, horaSeleccionada.value);
 
@@ -107,24 +113,23 @@ async function guardar() {
   };
 
 
-const notif = push.promise('Agregando Audiencia...');
+  const notif = push.promise('Agregando Audiencia...');
 
-try {
-  await new Promise(resolve => setTimeout(resolve, 300));
+  try {
+    await new Promise(resolve => setTimeout(resolve, 300));
 
-  const response = await axios.post('/api/Files/crearAudiencias', body);
+    const response = await axios.post('/api/Files/crearAudiencias', body);
 
-  console.log('Audiencia creada:', response.data);
+    console.log('Audiencia creada:', response.data);
 
-  emit('actualizar');
-  emit('close');
-  notif.resolve('Audiencia creada correctamente');
-} catch (error) {
-  console.error('Error al crear audiencia:', error.response?.data || error.message);
-  notif.reject('Error al crear la audiencia');
+    emit('actualizar');
+    emit('close');
+    notif.resolve('Audiencia creada correctamente');
+  } catch (error) {
+    console.error('Error al crear audiencia:', error.response?.data || error.message);
+    notif.reject('Error al crear la audiencia');
+  }
 }
-}
-
 
 onMounted(async () => {
   try {
@@ -135,90 +140,19 @@ onMounted(async () => {
   }
 });
 
-
 </script>
 
 
 
 <style scoped>
-.ms-custom {
-  margin-left: 4.3rem;
-  /* o lo que necesites */
+
+.dialog-agregar-audiencia {
+  width: 500px;
+  max-width: 90vw;
+}
+.field {
+  margin-bottom: 1rem;
 }
 
-.pop-up {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  /* Opcional para asegurarte de que esté al frente */
-}
 
-.pop-up-content {
-  background: white;
-  padding: 20px;
-  width: 600px;
-  height: 400px;
-  border-radius: 8px;
-}
-
-.pop-up-close {
-  position: absolute;
-  top: 8px;
-  right: 12px;
-  font-size: 3rem;
-  color: #333;
-  cursor: pointer;
-}
-
-.pop-up-inner {
-  background: white;
-  color: black;
-  padding: 30px;
-  border-radius: 10px;
-  width: 90%;
-  max-width: 600px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  position: relative;
-}
-
-.file-container,
-.comment-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-textarea {
-  width: 100%;
-  max-width: 400px;
-  padding: 10px;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  resize: none;
-  box-sizing: border-box;
-}
-
-textarea::placeholder {
-  color: #888;
-}
-
-::v-deep(.p-datepicker) {
-  z-index: 99999 !important;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.25s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
 </style>

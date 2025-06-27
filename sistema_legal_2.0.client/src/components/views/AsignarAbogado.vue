@@ -31,6 +31,8 @@
       <Button label="Cerrar" icon="pi pi-times" class="p-button-sm btn-aceptar" @click="emit('close')" />
     </div>
   </Dialog>
+
+
   <Dialog v-model:visible="mostrarDialogoExito" modal class="dialog-exito-style" :closable="false" :draggable="false"
     header="Asignación exitosa">
     <div class="d-flex align-items-start gap-3 p-3">
@@ -146,13 +148,13 @@ async function asignarAbogado() {
   }
 
   try {
-    // 🟡 1. Asignar abogado
+    // 1. Asignar abogado
     await axios.post('/api/Usuarios/Asignar-Litigio', {
       idUsuario: usuarioSeleccionado.value,
       idLtg: props.id_Ltg
     });
 
-    // 🟢 2. Si es el primer abogado, cambiar estatus a "Análisis"
+    // 2. Si es el primer abogado, cambiar estatus a "Análisis"
     if (abogadosAsignados.value.length === 0) {
       const { data: litigio } = await axios.get(`/api/Litigio/detallados/${props.id_Ltg}`);
 
