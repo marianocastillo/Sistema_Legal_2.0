@@ -186,32 +186,39 @@
       <!-- Audiencias con evidencias y comentarios -->
       <div class="mt-6">
 
-        <h2 class="text-xl font-semibold mb-3" style="color: #003870;">Audiencias y Evidencias <Button
-            label="Editar Tribunal" icon="pi pi-pencil" class="p-button-sm p-button-text-info"
-            @click="togglePopUpTribunal(id)" style="background-color: #5a7cb3;" /></h2>
-        <Accordion :activeIndex="null" multiple>
-          <AccordionTab v-for="(audiencia, index) in audiencias" :key="index"
-            :header="`-${audiencia.numeroAudiencia} - (${audiencia.tipoAudiencia}) - ${formatDate(audiencia.fechaAudiencia)}-`">
-            <div v-if="audiencia.evidenciasYComentarios?.length">
-              <Accordion :activeIndex="null" multiple>
-                <AccordionTab v-for="(ev, i) in audiencia.evidenciasYComentarios" :key="i" :header="ev.nombreEvidencia">
-                  <p><strong>Comentario:</strong> {{ ev.textoComentario }}</p>
-                  <p><strong>Fecha:</strong> {{ formatDate(ev.fechaComentario) }}</p>
-                  <p><strong>Archivo:</strong>
-                    <a :href="`/api/Files/rutaspor/${ev.rutaArchivo}`" target="_blank"
-                      class="text-blue-600 hover:underline">
-                      <i :class="getFileIcon(ev.nombreArchivo)" style="color: #ff0000;"></i>
-                      {{ ev.nombreArchivo }}
-                    </a>
-                  </p>
-                </AccordionTab>
-              </Accordion>
-            </div>
-            <div v-else class="text-gray-500">
-              No hay evidencias ni comentarios para esta audiencia.
-            </div>
-          </AccordionTab>
-        </Accordion>
+        <h2 class="text-xl font-semibold mb-3" style="color: #003870;">Audiencias y Evidencias  <Button label="Editar Tribunal" icon="pi pi-pencil"
+    class="p-button-sm p-button-text-info"
+    @click="togglePopUpTribunal(id)"
+    style="background-color: #5a7cb3;" /></h2>
+ <Accordion :activeIndex="null" multiple>
+  <AccordionTab
+    v-for="(audiencia, index) in audiencias"
+    :key="index"
+    :header="`-${audiencia.numeroAudiencia} - (${audiencia.tipoAudiencia}) - ${formatDate(audiencia.fechaAudiencia)}-`"
+  >
+    <div v-if="audiencia.evidenciasYComentarios?.length">
+      <Accordion :activeIndex="null" multiple>
+        <AccordionTab
+          v-for="(ev, i) in audiencia.evidenciasYComentarios"
+          :key="i"
+          :header="ev.nombreEvidencia"
+        >
+          <p><strong>Comentario:</strong> {{ ev.textoComentario }}</p>
+          <p><strong>Fecha:</strong> {{ formatDate(ev.fechaComentario) }}</p>
+          <p><strong>Archivo:</strong>
+            <a :href="`/api/Files/rutaspor/${ev.rutaArchivo}`" target="_blank" class="text-blue-600 hover:underline">
+              <i :class="getFileIcon(ev.nombreArchivo)" style="color: #ff0000;"></i>
+              {{ ev.nombreArchivo }}
+            </a>
+          </p>
+        </AccordionTab>
+      </Accordion>
+    </div>
+    <div v-else class="text-gray-500">
+      No hay evidencias ni comentarios para esta audiencia.
+    </div>
+  </AccordionTab>
+</Accordion>
 
 
       </div>
