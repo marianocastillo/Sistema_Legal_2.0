@@ -282,7 +282,7 @@ const registrarLitigio = async () => {
     id_Tipo_Demanda: form.value.tipoDemanda,
     ltg_Cedula_Demandante: form.value.cedulaDemandante,
     ltg_Nacionalidad: form.value.Nacionalidad,
-    ltg_Nombre_Demandante: form.value.demandante,
+    ltg_Nombre_Demandante: form.value.ltg_Nombre_Demandante,
     ltg_Tipo_Demandante: tipo === 'Otros' ? form.value.otrosDemandante : tipo,
     ltg_Cedula_Representante: form.value.cedulaRepresentante,
     ltg_Nombre_Representante: form.value.nombreRepresentante,
@@ -298,43 +298,48 @@ const registrarLitigio = async () => {
   }
 
   try {
-    const response = await fetch('/api/Litigio/EditarLitigio', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    })
+  const response = await fetch('/api/Litigio/EditarLitigio', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
 
-    console.log("👉 Datos que devuelve el backend:", response.data);
-    // eslint-disable-next-line no-unused-vars
-    const data = await response.json()
-
-    if (response.ok) {
-      push.success('Litigio actualizado exitosamente.')
-      localStorage.removeItem('litigioModificacion')
-
-      const usuarioActual = JSON.parse(localStorage.getItem('usuario'))
-      const perfil = usuarioActual?.perfil
-
-      const rutasPorPerfil = {
-        1: '/Administrador/litigios',
-        2: '/Administrador/litigios',
-        // 3: '/digitador/inicio',
-        4: '/abogado/inicio'
-      };
-
-      const ruta = rutasPorPerfil[perfil] || '/Administrador/litigios';
-      router.push(ruta);
-    }
-    else {
-      push.error('Error al actualizar el litigio.')
-    }
-  } catch (err) {
-    console.error('Error al actualizar:', err)
-    push.error('Error de red o campos incompletos.')
+  let data;
+  try {
+    data = await response.clone().json();
+  } catch (jsonErr) {
+    const text = await response.text();
+    console.error("❌ Respuesta no es JSON:", text);
+    data = { error: text };
   }
-}
+
+  console.log("👉 Datos que devuelve el backend:", data);
+
+  if (response.ok) {
+    push.success('Litigio actualizado exitosamente.');
+    localStorage.removeItem('litigioModificacion');
+
+    const usuarioActual = JSON.parse(localStorage.getItem('usuario'));
+    const perfil = usuarioActual?.perfil;
+
+    const rutasPorPerfil = {
+      1: '/Administrador/litigios',
+      2: '/Administrador/litigios',
+      4: '/abogado/inicio'
+    };
+
+    const ruta = rutasPorPerfil[perfil] || '/Administrador/litigios';
+    router.push(ruta);
+  } else {
+    push.error(data?.message || 'Error al actualizar el litigio.');
+  }
+} catch (err) {
+  console.error('Error al actualizar:', err);
+  push.error('Error de red o campos incompletos.');
+}}
+
 </script>
 
 

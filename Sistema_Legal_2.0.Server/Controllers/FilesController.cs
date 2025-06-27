@@ -57,7 +57,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                        },
        commandType: CommandType.StoredProcedure
    );
-                string rutaBase = @"C:\Users\Flafontaine\Desktop\SistemaLitigio";
+                string rutaBase = @"\\192.168.3.95\FileSharing\Archivos_Sileg";
                 string carpetaDestino = Path.Combine(
      rutaBase,
      resultado.IdLitigio.ToString(),
