@@ -136,7 +136,7 @@ export default {
             this.$router.push('Administrador/litigios')
           }  else {
             console.log(jwtDecode(token));
-            this.$router.push('/registrar')
+            this.$router.push('/LitigiosRegistrados')
           }
         } else {
           push.warning(response.data.message)

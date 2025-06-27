@@ -3,23 +3,13 @@
 
     <!-- Contenido de los botones -->
     <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
-      <h2 class="text-2xl font-bold">{{ tituloLitigio }}</h2>
+      <h2 class="text-2xl font-bold">Litigios Registrados{{ tituloLitigio }}</h2>
 
       <div class="flex items-center gap-2 filtro-busqueda-bar">
-        <div class="btn-filtro-group">
-          <button class="btn-filtro" :class="{ active: filtroActivo === 'sinAsignar' }" @click="mostrarSinAsignar">
-            Sin asignar
-            <span class="badge" :class="{ 'badge-active': filtroActivo === 'sinAsignar' }">
-              ({{ totalSinAsignar }})
-            </span>
-          </button>
-
-          <button class="btn-filtro" :class="{ active: filtroActivo === 'asignado' }" @click="mostrarAsignados">
-            Asignados
-            <span class="badge" :class="{ 'badge-active': filtroActivo === 'asignado' }">
-              ({{ totalAsignados }})
-            </span>
-          </button>
+        <div>
+          <router-link :to="registrar" class="btn btn-sm text-white d-flex align-items-center custom-home-btn">
+            <i class="fas fa-plus me-2"></i> Nuevo
+          </router-link>
         </div>
 
 
@@ -117,19 +107,11 @@ import AsignarAbogado from '@/components/views/AsignarAbogado.vue';
 // Variables de estado para la gestión de litigios
 const router = useRouter()
 const data = ref([]);
-const filtroActivo = ref('Asignados');
-const totalSinAsignar = ref(0);
-const totalAsignados = ref(0);
 const todosLosLitigios = ref([]);
+const registrar = ref('/registrar');
 const rows = ref(10);
 const popUp = ref(false);
 const litigioActual = ref({});
-const mostrarAsignar = ref(true);
-
-const tituloLitigio = computed(() => {
-  if (filtroActivo.value === 'sinAsignar') return 'Litigios Sin Asignar';
-  return 'Litigios Asignados';
-});
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS }
@@ -178,50 +160,13 @@ function calculateRows() {
   rows.value = Math.max(Math.floor(tableHeight / estimatedRowHeight) - 1, 1);
 }
 
-// Botones de filtro
-function mostrarSinAsignar() {
-  filtroActivo.value = 'sinAsignar';
-  const filtrados = todosLosLitigios.value.filter(
-    l => l.estatus_Descripcion?.toLowerCase().trim() === 'recibido'
-  );
-  data.value = filtrados;
-  totalSinAsignar.value = filtrados.length;
-}
 
-function mostrarAsignados() {
-  filtroActivo.value = 'asignado';
-  const filtrados = todosLosLitigios.value.filter(
-    l => l.estatus_Descripcion?.toLowerCase().trim() !== 'recibido' &&
-      l.estatus_Descripcion?.toLowerCase().trim() !== 'cierre del caso'
-  );
-  data.value = filtrados;
-  totalAsignados.value = filtrados.length; // NUEVO
-}
-
-
-function actualizarTotales() {
-  totalSinAsignar.value = todosLosLitigios.value.filter(
-    l => l.estatus_Descripcion?.toLowerCase().trim() === 'recibido'
-  ).length;
-
-  totalAsignados.value = todosLosLitigios.value.filter(
-    l => l.estatus_Descripcion?.toLowerCase().trim() !== 'recibido' &&
-      l.estatus_Descripcion?.toLowerCase().trim() !== 'cierre del caso'
-  ).length;
-}
 
 function handleAsignacionExitosa() {
   // Recargar todos los litigios desde el backend
   api.get('/api/Litigio/Litigio_detallado')
     .then(response => {
       todosLosLitigios.value = response.data;
-      actualizarTotales();
-      // Dependiendo del filtro actual, muestra la tabla correcta
-      if (filtroActivo.value === 'sinAsignar') {
-        mostrarSinAsignar();
-      } else {
-        mostrarAsignados();
-      }
 
     })
     .catch(error => {
@@ -237,9 +182,11 @@ onMounted(async () => {
     const response = await api.get('/api/Litigio/Litigio_detallado');
     todosLosLitigios.value = response.data;
 
-    // Calcula todos los totales correctamente
-    actualizarTotales();
-    mostrarAsignados();
+    // ✅ Filtrar litigios con estatus "Recibido"
+    data.value = todosLosLitigios.value.filter(
+      l => l.estatus_Descripcion?.toLowerCase().trim() === 'recibido'
+    );
+
   } catch (error) {
     console.error('Error al cargar litigios:', error);
   }
@@ -267,42 +214,6 @@ onUnmounted(() => {
   gap: 1rem;
   flex-wrap: nowrap;
   margin-left: auto;
-}
-
-/* === Botones de filtro === */
-.btn-filtro-group {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.btn-filtro {
-  padding: 0.35rem 1.2rem;
-  height: 38px;
-  border-radius: 6px;
-  font-size: 0.88rem;
-  font-weight: 500;
-  background-color: #e6ecf3;
-  border: 1px solid #ccc;
-  color: #003870;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.btn-filtro:hover {
-  background-color: #72889e;
-  color: white;
-  border-color: #72889e;
-}
-
-.btn-filtro.active {
-  background-color: #003870;
-  color: white;
-  border-color: #72889e;
 }
 
 /* === Input de búsqueda === */
@@ -405,6 +316,23 @@ onUnmounted(() => {
   width: 100%;
 }
 
+.custom-home-btn {
+  background-color: #003870;
+  border-color: #003870;
+  height: 2.2rem !important;
+  color: white;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.custom-home-btn:hover {
+  background-color: #c00606;
+  border-color: #c00606;
+  ;
+  box-shadow: 0 6px 16px rgba(121, 1, 51, 0.3) !important;
+  transform: translateY(-1px);
+  transition: background-color 0.2s;
+}
+
 ::v-deep(.p-datatable .p-datatable-tbody > tr:nth-child(even)) {
   background-color: #f9fafb;
 }
@@ -423,36 +351,12 @@ onUnmounted(() => {
   border-right: none;
 }
 
-.badge {
-  color: #003870;
-  font-size: 0.75rem;
-  margin-bottom: 12px;
-  transition: all 0.2s ease;
-}
-
-.btn-filtro:hover .badge {
-  color: #e6f3ff;
-}
-
-.badge-active {
-  color: #e6f3ff;
-  font-weight: bold;
-}
-
 
 
 
 /* === Responsivo === */
 @media (max-width: 768px) {
-  .filtro-busqueda-bar {
-    flex-direction: column;
-    align-items: flex-end;
-    width: 100%;
-    margin-left: 0;
-    gap: 0.5rem;
-  }
 
-  .btn-filtro-group,
   .search-container {
     width: 100%;
     justify-content: flex-end;
