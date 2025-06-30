@@ -109,12 +109,11 @@
             <!-- Cédula o RNC -->
             <div class="field col-12 md:col-3">
               <label for="cedulaDemandante" class="block mb-2 font-medium text-sm">
-                {{ form.ltg_Tipo_Demandante === 'Empresa' ? 'RNC *' : 'Cédula *' }}
+                {{ form.ltg_Tipo_Demandante === 'Empresa' ? 'RNC de la Empresa *' : 'Cédula del Demandante*' }}
               </label>
               <InputText id="cedulaDemandante" v-model="form.ltg_Cedula_Demandante"
                 :maxlength="form.ltg_Tipo_Demandante === 'Empresa' ? 9 : 11"
                 @input="form.ltg_Cedula_Demandante = form.ltg_Cedula_Demandante.replace(/\D/g, '')"
-                @keydown="soloNumeros" @paste="validarPegado"
                 @blur="() => buscarPersonaPorDocumento(form.ltg_Cedula_Demandante, 'ltg_Nombre_Demandante', 'ltg_Nacionalidad')"
                 class="w-full"
                 :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'Ej: 123456789' : 'Ej: 00112345678'"
@@ -123,11 +122,10 @@
             <!-- Nombre del Demandante -->
             <div class="field col-12 md:col-3">
               <label for="nombreDemandante" class="block mb-2 font-medium text-sm">
-                {{ form.ltg_Tipo_Demandante === 'Empresa' ? 'Nombre *' : 'Nombre *' }}
+                {{ form.ltg_Tipo_Demandante === 'Empresa' ? 'Nombre de la empresa *' : 'Nombre del Demandante *' }}
               </label>
               <InputText id="nombreDemandante" v-model="form.ltg_Nombre_Demandante" class="w-full"
-                :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'Nombre de la empresa' : 'Nombre completo'"
-                :disabled="!nombreDemandante" />
+                :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'Nombre de la empresa' : 'Nombre completo'" :disabled="!nombreDemandante" />
             </div>
 
             <!-- Nacionalidad o país -->
@@ -150,24 +148,24 @@
 
             <div class="field col-12 md:col-2">
               <label for="cedulaRepresentante" class="block mb-2 font-medium text-sm">Cédula *</label>
-              <InputText id="cedulaRepresentante" :maxlength="11" v-model="form.ltg_Cedula_Representante"
-                @keydown="soloNumeros" @paste="validarPegado" @blur="() => buscarPersonaPorDocumento(
-                  form.ltg_Cedula_Representante,
-                  'ltg_Nombre_Representante',
-                  'ltg_Nacionalidad_Representante'
-                )" class="w-full" placeholder="Ej: 00112345678" />
+              <InputText id="cedulaRepresentante" :maxlength="11" v-model="form.ltg_Cedula_Representante" @keydown="soloNumeros" @blur="() => buscarPersonaPorDocumento(
+                form.ltg_Cedula_Representante,
+                'ltg_Nombre_Representante',
+                'ltg_Nacionalidad_Representante'
+              )" class="w-full" placeholder="Ej: 00112345678" />
             </div>
 
             <div class="field col-12 md:col-4">
-              <label for="nombreRepresentante" class="block mb-2 font-medium text-sm">Nombre *</label>
+              <label for="nombreRepresentante" class="block mb-2 font-medium text-sm">Nombre del Representante *</label>
               <InputText id="nombreRepresentante" v-model="form.ltg_Nombre_Representante" class="w-full"
                 placeholder="Nombre completo" :disabled="!nombreHabilitado" />
             </div>
 
             <div class="field col-12 md:col-5">
-              <label for="nacionalidadRepresentante" class="block mb-2 font-medium text-sm">Nacionalidad *</label>
+              <label for="nacionalidadRepresentante" class="block mb-2 font-medium text-sm">Nacionalidad del
+                Representante *</label>
               <InputText id="nacionalidadRepresentante" v-model="form.ltg_Nacionalidad_Representante" class="w-full"
-                placeholder="Ej: Dominicana" :disabled="!nacionalidadHabilitado" />
+                placeholder="Ej: Dominicana"  :disabled="!nacionalidadHabilitado" />
             </div>
 
           </div>
@@ -204,7 +202,7 @@
     </form>
   </div>
 
-  <!--Pantalla Litigio Registrado -->
+         <!--Pantalla Litigio Registrado -->
   <Dialog v-model:visible="dialogVisible" modal class="dialog-exito-style" :closable="false" :draggable="false"
     header="Registro exitoso">
     <div class="d-flex align-items-start gap-3 p-3">
@@ -239,8 +237,7 @@ const estatusLitigios = ref([])
 const tribunales = ref([])
 const expedienteFile = ref(null)
 const enviando = ref(false)
-const rutaInicio = ref('');
-const usuario = ref({});
+const rutaInicio = ref('/Administrador/litigios');
 const cedulaHabilitado = ref(false)
 const nombreHabilitado = ref(false)
 const nacionalidadHabilitado = ref(false)
@@ -249,24 +246,6 @@ const NombreEvidencia = ref(null)
 
 
 onMounted(async () => {
-  const stored = localStorage.getItem('usuario');
-  if (stored) {
-    usuario.value = JSON.parse(stored);
-
-    const perfilId = parseInt(usuario.value.perfil);
-    const rutasPorPerfil = {
-      1: '/Administrador/litigios',
-      2: '/Administrador/litigios',
-      3: '/LitigiosRegistrados',
-      4: '/abogado/inicio'
-    };
-
-    rutaInicio.value = rutasPorPerfil[perfilId] || '/Administrador/litigios';
-
-  }
-
-  document.addEventListener('click', handleClickOutside);
-
   try {
     await cargarDatosDropdowns();
   } catch (error) {
@@ -309,7 +288,7 @@ const handleAceptarDialog = () => {
   const rutasPorPerfil = {
     1: '/Administrador/litigios',
     2: '/Administrador/litigios',
-    3: '/LitigiosRegistrados',
+    3: '/registrar',
     4: '/abogado/inicio'
   };
 
@@ -326,27 +305,16 @@ const handleAceptarDialog = () => {
 
 function soloNumeros(event) {
   const tecla = event.key;
-
-  // Permitir combinaciones Ctrl/Cmd útiles (Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+A)
-  if (event.ctrlKey || event.metaKey) return;
-
-  // Permitir solo números y teclas especiales
-  const teclasPermitidas = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete'];
-
-  if (!/^\d$/.test(tecla) && !teclasPermitidas.includes(tecla)) {
+  // Permite solo números y teclas útiles (borrar, tab, flechas, etc.)
+  if (!/^\d$/.test(tecla) &&
+    tecla !== 'Backspace' &&
+    tecla !== 'Tab' &&
+    tecla !== 'ArrowLeft' &&
+    tecla !== 'ArrowRight' &&
+    tecla !== 'Delete') {
     event.preventDefault();
   }
 }
-
-//Bloquea el pegado si contiene algo que no sean dígitos
-function validarPegado(event) {
-  const textoPegado = event.clipboardData.getData('text');
-  if (!/^\d+$/.test(textoPegado)) {
-    event.preventDefault();
-  }
-}
-
-
 
 watch(() => form.ltg_Tipo_Demandante, (nuevoValor) => {
   if (nuevoValor) {
@@ -497,65 +465,65 @@ const registrarLitigio = async () => {
   const usuarioLogueado = JSON.parse(localStorage.getItem('usuario'));
   form.id_usuario = usuarioLogueado.idUsuario;
 
-  const formData = new FormData();
+ const formData = new FormData();
 
 
 
-  formData.append('ltg_acto', form.ltg_acto);
-  formData.append('ltg_Fecha_Acto', formatearFechaISO(form.ltg_Fecha_Acto));
-  formData.append('ltg_Cedula_Demandante', form.ltg_Cedula_Demandante);
-  formData.append('ltg_Nombre_Demandante', form.ltg_Nombre_Demandante);
-  formData.append('ltg_Tipo_Demandante', form.ltg_Tipo_Demandante);
-  formData.append('ltg_Nacionalidad', form.ltg_Nacionalidad);
-  formData.append('ltg_Cedula_Representante', form.ltg_Cedula_Representante);
-  formData.append('ltg_Nombre_Representante', form.ltg_Nombre_Representante);
-  formData.append('ltg_Nacionalidad_Representante', form.ltg_Nacionalidad_Representante);
-  formData.append('id_Tipo_Demanda', parseInt(form.id_Tipo_Demanda));
-  formData.append('id_Sentencia', parseInt(form.id_sentencia));
-  formData.append('id_usuario', parseInt(form.id_usuario));
-  formData.append('id_Estatus', 1);
-  formData.append('Tipo_audiencia', form.Tipo_audiencia || 'Documentos del acto');
-  formData.append('NombreEvidencia', form.NombreEvidencia || 'Evidencia');
-  formData.append('comentario', form.comentario || 'Sin comentario');
-  formData.append('Nombre_Archivo', expedienteFile.value?.name || '');
-  formData.append('Ruta_Archivo', expedienteFile.value?.name || ''); // si tu backend lo genera, puedes omitirlo
+formData.append('ltg_acto', form.ltg_acto);
+formData.append('ltg_Fecha_Acto', formatearFechaISO(form.ltg_Fecha_Acto));
+formData.append('ltg_Cedula_Demandante', form.ltg_Cedula_Demandante);
+formData.append('ltg_Nombre_Demandante', form.ltg_Nombre_Demandante);
+formData.append('ltg_Tipo_Demandante', form.ltg_Tipo_Demandante);
+formData.append('ltg_Nacionalidad', form.ltg_Nacionalidad);
+formData.append('ltg_Cedula_Representante', form.ltg_Cedula_Representante);
+formData.append('ltg_Nombre_Representante', form.ltg_Nombre_Representante);
+formData.append('ltg_Nacionalidad_Representante', form.ltg_Nacionalidad_Representante);
+formData.append('id_Tipo_Demanda', parseInt(form.id_Tipo_Demanda));
+formData.append('id_Sentencia', parseInt(form.id_sentencia));
+formData.append('id_usuario', parseInt(form.id_usuario));
+formData.append('id_Estatus', 1);
+formData.append('Tipo_audiencia', form.Tipo_audiencia || 'Documentos del acto');
+formData.append('NombreEvidencia', form.NombreEvidencia || 'Evidencia');
+formData.append('comentario', form.comentario || 'Sin comentario');
+formData.append('Nombre_Archivo', expedienteFile.value?.name || '');
+formData.append('Ruta_Archivo', expedienteFile.value?.name || ''); // si tu backend lo genera, puedes omitirlo
 
-  const fechaCompletaAudiencia = combinarFechaYHora(form.ltg_Fecha_Audiencia, horaSeleccionada.value);
+const fechaCompletaAudiencia = combinarFechaYHora(form.ltg_Fecha_Audiencia, horaSeleccionada.value);
 
-  // Validar primero
-  if (!(fechaCompletaAudiencia instanceof Date) || isNaN(fechaCompletaAudiencia.getTime())) {
-    push.warning("Debe seleccionar una hora válida para la audiencia.");
-    enviando.value = false;
-    return;
-  }
+// Validar primero
+if (!(fechaCompletaAudiencia instanceof Date) || isNaN(fechaCompletaAudiencia.getTime())) {
+  push.warning("Debe seleccionar una hora válida para la audiencia.");
+  enviando.value = false;
+  return;
+}
 
-  // Solo después de validar, usarla
-  formData.append('Fecha', fechaCompletaAudiencia.toISOString());
-  formData.append('Id_tribunal', parseInt(form.id_Tribunal));
-  formData.append('Tipo', form.Tipo_audiencia);
-
-
-  formData.append('Archivo', expedienteFile.value); // obligatorio si usas archivos
+// Solo después de validar, usarla
+formData.append('Fecha', fechaCompletaAudiencia.toISOString());
+formData.append('Id_tribunal', parseInt(form.id_Tribunal));
+formData.append('Tipo', form.Tipo_audiencia);
 
 
-  console.log(' Enviando FormData:');
-  for (let [key, value] of formData.entries()) {
-    console.log(`${key}:`, value);
-  }
+formData.append('Archivo', expedienteFile.value); // obligatorio si usas archivos
 
-  // Opcional: construir texto para mostrar en alert en caso de error
-  let contenidoForm = '';
-  for (let [key, value] of formData.entries()) {
-    contenidoForm += `${key}: ${value instanceof File ? value.name : value}\n`;
-  }
+
+console.log(' Enviando FormData:');
+for (let [key, value] of formData.entries()) {
+  console.log(`${key}:`, value);
+}
+
+// Opcional: construir texto para mostrar en alert en caso de error
+let contenidoForm = '';
+for (let [key, value] of formData.entries()) {
+  contenidoForm += `${key}: ${value instanceof File ? value.name : value}\n`;
+}
 
 
 
   try {
 
     for (let [key, value] of formData.entries()) {
-      console.log(`${key}:`, value);
-    }
+  console.log(`${key}:`, value);
+}
 
 
 
