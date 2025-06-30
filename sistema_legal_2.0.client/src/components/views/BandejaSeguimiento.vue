@@ -183,8 +183,8 @@ onMounted(async () => {
   color: #721c24;
 }
 .status-cierre {
-  background-color: #5b9636;
-  color: #ffffff;
+  background-color: #d5f1c4;
+  color: #47ac6d;
 }
 
 .filtro-busqueda-bar {

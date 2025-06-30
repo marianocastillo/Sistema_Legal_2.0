@@ -29,7 +29,7 @@ rutaInicio<template>
             </li>
 
             <!-- Modificar: Supervisor, Abogado Litigante -->
-            <li v-if="['Supervisor', 'Abogado Litigante'].includes(usuario.rol)">
+            <li v-if="['Supervisor'].includes(usuario.rol)">
               <router-link to="/buscarlitigio" class="sidebar-link" exact-active-class="active">
                 <i class="pi pi-pencil" />
                 <span>Modificar</span>
