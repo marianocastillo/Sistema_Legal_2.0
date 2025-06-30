@@ -391,7 +391,7 @@ onUnmounted(() => {
 }
 
 .status-cierre {
-  background-color: #e2f0d9;
+  background-color: #87dd52;
   color: #2e7d32;
 }
 

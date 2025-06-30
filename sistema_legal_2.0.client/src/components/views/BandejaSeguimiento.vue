@@ -51,11 +51,16 @@
           {{ new Date(data.ltg_Fecha_Audiencia).toLocaleString('es-ES', { hour12: false }) }}
         </template>
       </Column>
-      <Column field="estatus_Descripcion" header="Estatus">
-        <template #body="{ data }">
-          <span class="tag" :class="getStatusClass(data.estatus_Descripcion)">
-            {{ data.estatus_Descripcion }}
-          </span>
+      <Column field="estatus_Descripcion">
+        <template #header>
+          <div class="custom-header-center">Estatus</div>
+        </template>
+        <template #body="slotProps">
+          <div class="text-center">
+            <span class="tag" :class="getStatusClass(slotProps.data.estatus_Descripcion)">
+              {{ slotProps.data.estatus_Descripcion }}
+            </span>
+          </div>
         </template>
       </Column>
 
@@ -149,6 +154,14 @@ onMounted(async () => {
   text-transform: capitalize;
 }
 
+.custom-header-center {
+  text-align: center;
+  font-weight: 600;
+  color: #2e3842;
+  font-size: 1rem;
+  display: block;
+  width: 100%;
+}
 .status-recibido {
   background-color: #d0eaff;
   color: #004085;
@@ -170,8 +183,8 @@ onMounted(async () => {
   color: #721c24;
 }
 .status-cierre {
-  background-color: #e2f0d9;
-  color: #2e7d32;
+  background-color: #5b9636;
+  color: #ffffff;
 }
 
 .filtro-busqueda-bar {
