@@ -312,6 +312,17 @@ const obtenerAudiencias = async () => {
 };
 
 
+const abrirArchivo = async (rutaRelativa) => {
+  try {
+    const url = `/api/Files/DescargarArchivo?rutaRelativa=${encodeURIComponent(rutaRelativa)}`
+    window.open(url, '_blank')
+  } catch (error) {
+    console.error('Error al abrir el archivo:', error)
+    push.error('No se pudo abrir el archivo.')
+  }
+}
+
+
 const estaCerrado = computed(() => litigio.value?.ltg_estatus === 7);
 
 const togglePopUpEvidencia = (id) => {
