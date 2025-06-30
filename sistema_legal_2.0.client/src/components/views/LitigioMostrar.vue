@@ -390,7 +390,7 @@ const cargarLineaDeTiempo = async () => {
   }
 };
 
-const rutaInicio = ref('/Administrador/litigios');
+const rutaInicio = ref('/Seguimiento');
 
 onMounted(async () => {
   try {
@@ -401,13 +401,13 @@ onMounted(async () => {
     if (user) {
       const perfil = parseInt(user.perfil);
       const rutasPorPerfil = {
-        1: '/Administrador/litigios',
-        2: '/Administrador/litigios',
+        1: '/Seguimiento',
+        2: '/GestionLitigios',
         3: '/LitigiosRegistrados',
         4: '/abogado/inicio'
       };
 
-      rutaInicio.value = rutasPorPerfil[perfil] || '/Administrador/litigios';
+      rutaInicio.value = rutasPorPerfil[perfil] || '/Seguimiento';
     }
 
     //Carga datos del litigio

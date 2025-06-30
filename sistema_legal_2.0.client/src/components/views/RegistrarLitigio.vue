@@ -237,7 +237,7 @@ const estatusLitigios = ref([])
 const tribunales = ref([])
 const expedienteFile = ref(null)
 const enviando = ref(false)
-const rutaInicio = ref('/Administrador/litigios');
+const rutaInicio = ref('');
 const cedulaHabilitado = ref(false)
 const nombreHabilitado = ref(false)
 const nacionalidadHabilitado = ref(false)
@@ -247,6 +247,21 @@ const NombreEvidencia = ref(null)
 
 onMounted(async () => {
   try {
+     //Lógica de ruta según perfil
+    const rawUser = localStorage.getItem('usuario');
+    const user = rawUser ? JSON.parse(rawUser) : null;
+
+    if (user) {
+      const perfil = parseInt(user.perfil);
+      const rutasPorPerfil = {
+        1: '/Seguimiento',
+        2: '/GestionLitigios',
+        3: '/LitigiosRegistrados',
+        4: '/abogado/inicio'
+      };
+
+      rutaInicio.value = rutasPorPerfil[perfil] || '/Seguimiento';
+    }
     await cargarDatosDropdowns();
   } catch (error) {
     console.error('Error en onMounted al cargar datos de dropdowns:', error);
@@ -286,13 +301,13 @@ const handleAceptarDialog = () => {
   const perfil = parseInt(usuario?.perfil);
 
   const rutasPorPerfil = {
-    1: '/Administrador/litigios',
-    2: '/Administrador/litigios',
-    3: '/registrar',
+    1: '/Seguimiento',
+    2: '/GestionLitigios',
+    3: '/LitigiosRegistrados',
     4: '/abogado/inicio'
   };
 
-  const ruta = rutasPorPerfil[perfil] || '/Administrador/litigios';
+  const ruta = rutasPorPerfil[perfil] || '/Seguimiento';
 
   if (perfil === 3) {
     // Si es digitador, limpiar el formulario

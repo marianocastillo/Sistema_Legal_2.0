@@ -1,4 +1,4 @@
-<template>
+rutaInicio<template>
   <div class="layout">
     <!-- Sidebar -->
     <aside class="sidebar" :class="{ hidden: !isSidebarVisible && isMobile }">
@@ -20,16 +20,16 @@
               </router-link>
             </li>
 
-            <!-- Registrar: Admin, Supervisor, Digitador -->
-            <li v-if="['Administrador', 'Supervisor', 'Digitador'].includes(usuario.rol)">
+            <!-- Registrar: Supervisor, Digitador -->
+            <li v-if="['Supervisor', 'Digitador'].includes(usuario.rol)">
               <router-link to="/registrar" class="sidebar-link" exact-active-class="active">
                 <i class="pi pi-file-edit" />
                 <span>Registrar</span>
               </router-link>
             </li>
 
-            <!-- Modificar: Admin, Supervisor, Abogado Litigante -->
-            <li v-if="['Administrador', 'Supervisor', 'Abogado Litigante'].includes(usuario.rol)">
+            <!-- Modificar: Supervisor, Abogado Litigante -->
+            <li v-if="['Supervisor', 'Abogado Litigante'].includes(usuario.rol)">
               <router-link to="/buscarlitigio" class="sidebar-link" exact-active-class="active">
                 <i class="pi pi-pencil" />
                 <span>Modificar</span>
@@ -184,13 +184,13 @@ onMounted(() => {
 
     const perfilId = parseInt(usuario.value.perfil);
     const rutasPorPerfil = {
-      1: '/Administrador/litigios',
-      2: '/Administrador/litigios',
+      1: '/Seguimiento',
+      2: '/GestionLitigios',
       3: '/LitigiosRegistrados',
       4: '/abogado/inicio'
     };
 
-    rutaInicio.value = rutasPorPerfil[perfilId] || '/Administrador/litigios';
+    rutaInicio.value = rutasPorPerfil[perfilId] || '/Seguimiento';
 
   }
 

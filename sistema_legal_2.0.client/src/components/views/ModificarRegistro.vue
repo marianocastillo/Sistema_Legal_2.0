@@ -138,7 +138,7 @@ import Button from 'primevue/button'
 
 const router = useRouter()
 const hoy = ref(new Date())
-const rutaInicio = ref('/Administrador/litigios');
+const rutaInicio = ref('');
 
 const form = ref({
   id_Ltg: null,
@@ -237,8 +237,8 @@ onMounted(async () => {
   if (user) {
     const perfil = parseInt(user.perfil);
     const rutasPorPerfil = {
-      1: '/Administrador/litigios',
-      2: '/Administrador/litigios',
+      1: '/Seguimiento',
+      2: '/GestionLitigios',
       3: '/LitigiosRegistrados',
       4: '/abogado/inicio'
     };
@@ -325,12 +325,13 @@ const registrarLitigio = async () => {
     const perfil = usuarioActual?.perfil;
 
     const rutasPorPerfil = {
-      1: '/Administrador/litigios',
-      2: '/Administrador/litigios',
+      1: '/Seguimiento',
+      2: '/GestionLitigios',
+      3: '/LitigiosRegistrados',
       4: '/abogado/inicio'
     };
 
-    const ruta = rutasPorPerfil[perfil] || '/Administrador/litigios';
+    const ruta = rutasPorPerfil[perfil] || '/Seguimiento';
     router.push(ruta);
   } else {
     push.error(data?.message || 'Error al actualizar el litigio.');

@@ -103,7 +103,7 @@ export default {
         localStorage.setItem('sessionExpireTime', new Date().getTime() + 30 * 60 * 1000)
         this.$store.commit('setUser', user)
         push.success(`Bienvenido ${user.nombreUsuario}`)
-        this.$router.push('/Administrador/litigios')
+        this.$router.push('/GestionLitigios')
       } else {
         push.warning('Usuario o contraseña incorrectos')
       }
@@ -132,8 +132,10 @@ export default {
           push.success(response.data.message)
           if (usuario.idPerfil == 4) {
             this.$router.push('/abogado/inicio')
-          }else if (usuario.idPerfil == 2 || usuario.idPerfil == 1 ) {
-            this.$router.push('Administrador/litigios')
+          }else if (usuario.idPerfil == 2  ) {
+            this.$router.push('GestionLitigios')
+          } else if (usuario.idPerfil == 1 ) {
+            this.$router.push('Seguimiento')
           }  else {
             console.log(jwtDecode(token));
             this.$router.push('/LitigiosRegistrados')

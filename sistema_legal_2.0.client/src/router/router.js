@@ -13,87 +13,94 @@ import BuscarLitigio from '@/components/views/BuscarLitigio.vue';
 import AdministradorLitigio from '@/components/views/AdministradorLitigio.vue';
 import VistaAbogado from '@/components/views/VistaAbogado.vue';
 import BandejaRegistrados from '@/components/views/BandejaRegistrados.vue';
+import BandejaSeguimiento from '@/components/views/BandejaSeguimiento.vue';
 
 const routes = [
   {
-     path: '/',
-     name: 'Login',
-      component: LoginView
-    },
-{
-  path: '/',
-  component: Drawer,
-  children: [
-    { path: '', redirect: '/Administrador/litigios' },
-   {
-      path: 'Administrador/litigios',
-      name: 'AdministradorLitigio',
-      component: AdministradorLitigio,
-      meta: { requiresAuth: true, roles: [1, 2] }
-    },
-    {
-      path: 'abogado/inicio',
-      name: 'VistaAbogado',
-      component: VistaAbogado,
-      meta: { requiresAuth: true, roles: [4] }
-    },
-    {
-      path: 'registrar',
-      name: 'RegistroLitigio',
-      component: RegistroLitigio,
-      meta: { requiresAuth: true, roles: [1, 2, 3] }
-    },
-    {
-      path: 'LitigiosRegistrados',
-      name: 'BandejaRegistrados',
-      component: BandejaRegistrados,
-      meta: { requiresAuth: true, roles: [1, 2, 3] }
-    },
-    {
-      path: 'buscarlitigio',
-      name: 'BuscarLitigio',
-      component: BuscarLitigio,
-      meta: { requiresAuth: true, roles: [1, 2, 4] }
-    },
-    {
-      path: 'edit',
-      name: 'TableView',
-      component: TableView,
-      meta: { requiresAuth: true, roles: [1] }
-    },
-    {
-      path: 'modificarregistro',
-      name: 'ModificarRegistro',
-      component: ModificarRegistro,
-      meta: { requiresAuth: true, roles: [1, 2, 3, 4] }
-    },
-    {
-      path: 'listadodeusuario',
-      name: 'ListadoUsuariosVie',
-      component: ListadoUsuariosView,
-      meta: { requiresAuth: true, roles: [1] }
-    },
-    {
-      path: 'formulario',
-      name: 'nuevoUsuario',
-      component: FormularioView,
-      meta: { requiresAuth: true, roles: [1] }
-    },
-    {
-      path: 'formulario/:idUsuario',
-      name: 'formulario',
-      component: FormularioView,
-      meta: { requiresAuth: true, roles: [1] }
-    },
-    {
-      path: 'litigio/detalle/:id',
-      name: 'LitigioDetalle',
-      component: () => import('../components/views/LitigioMostrar.vue'),
-      props: true,
-      meta: { requiresAuth: true, roles: [1, 2, 3, 4] }
-    }
-  ]
-},
+    path: '/',
+    name: 'Login',
+    component: LoginView
+  },
+  {
+    path: '/',
+    component: Drawer,
+    children: [
+      { path: '', redirect: '/GestionLitigios' },
+      {
+        path: 'GestionLitigios',
+        name: 'GestionLitigios',
+        component: AdministradorLitigio,
+        meta: { requiresAuth: true, roles: [1, 2] }
+      },
+      {
+        path: 'abogado/inicio',
+        name: 'VistaAbogado',
+        component: VistaAbogado,
+        meta: { requiresAuth: true, roles: [4] }
+      },
+      {
+        path: 'registrar',
+        name: 'RegistroLitigio',
+        component: RegistroLitigio,
+        meta: { requiresAuth: true, roles: [1, 2, 3] }
+      },
+      {
+        path: '/Seguimiento',
+        name: 'BandejaSeguimiento',
+        component: BandejaSeguimiento,
+        meta: { requiresAuth: true, roles: [1] }
+      },
+      {
+        path: 'LitigiosRegistrados',
+        name: 'BandejaRegistrados',
+        component: BandejaRegistrados,
+        meta: { requiresAuth: true, roles: [1, 2, 3] }
+      },
+      {
+        path: 'buscarlitigio',
+        name: 'BuscarLitigio',
+        component: BuscarLitigio,
+        meta: { requiresAuth: true, roles: [1, 2, 4] }
+      },
+      {
+        path: 'edit',
+        name: 'TableView',
+        component: TableView,
+        meta: { requiresAuth: true, roles: [1] }
+      },
+      {
+        path: 'modificarregistro',
+        name: 'ModificarRegistro',
+        component: ModificarRegistro,
+        meta: { requiresAuth: true, roles: [1, 2, 3, 4] }
+      },
+      {
+        path: 'listadodeusuario',
+        name: 'ListadoUsuariosVie',
+        component: ListadoUsuariosView,
+        meta: { requiresAuth: true, roles: [1] }
+      },
+      {
+        path: 'formulario',
+        name: 'nuevoUsuario',
+        component: FormularioView,
+        meta: { requiresAuth: true, roles: [1] }
+      },
+      {
+        path: 'formulario/:idUsuario',
+        name: 'formulario',
+        component: FormularioView,
+        meta: { requiresAuth: true, roles: [1] }
+      },
+      {
+        path: 'litigio/detalle/:id',
+        name: 'LitigioDetalle',
+        component: () => import('../components/views/LitigioMostrar.vue'),
+        props: true,
+        meta: { requiresAuth: true, roles: [1, 2, 3, 4] }
+      }
+    ]
+  },
   {
     path: '/unauthorized',
     name: 'Unauthorized',
