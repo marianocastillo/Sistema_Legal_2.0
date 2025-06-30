@@ -125,6 +125,7 @@ async function guardar() {
     emit('actualizar');
     emit('close');
     notif.resolve('Audiencia creada correctamente');
+      window.location.reload();
   } catch (error) {
     console.error('Error al crear audiencia:', error.response?.data || error.message);
     notif.reject('Error al crear la audiencia');

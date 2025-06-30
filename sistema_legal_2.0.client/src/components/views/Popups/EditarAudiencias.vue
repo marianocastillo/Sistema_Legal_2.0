@@ -56,7 +56,7 @@
 
     <div class="mt-4 text-center">
       <Button
-        label=" Subir Archivo"
+        label="Actualizar"
         icon="pi pi-calendar-plus"
         class="p-button"
         :loading="uploading"
@@ -186,6 +186,8 @@ async function guardar() {
     emit('actualizar');
     emit('close');
     notif.resolve('Audiencia actualizada correctamente');
+      window.location.reload();
+
   } catch (error) {
     console.error('Error al actualizar audiencia:', error.response?.data || error.message);
     notif.reject('Error al actualizar la audiencia');

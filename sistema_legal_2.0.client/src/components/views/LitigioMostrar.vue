@@ -188,12 +188,12 @@
         <h2 class="text-xl font-semibold mb-3" style="color: #003870;">Audiencias y Evidencias <Button
             label="Editar Audiencias" icon="pi pi-pencil" class="custom-home-btn"
             @click="togglePopUpTribunal(id)" style="background-color: #5a7cb3;" /></h2>
-        <Accordion :activeIndex="null" multiple>
+        <Accordion :activeIndex="null" multiple >
           <AccordionTab v-for="(audiencia, index) in audiencias" :key="index"
-            :header="`-${audiencia.numeroAudiencia} - (${audiencia.tipoAudiencia}) - ${formatDate(audiencia.fechaAudiencia)}-`">
+            :header="`-${audiencia.numeroAudiencia} - (${audiencia.tipoAudiencia}) - ${formatDate(audiencia.fechaAudiencia)}-`" >
             <div v-if="audiencia.evidenciasYComentarios?.length">
-              <Accordion :activeIndex="null" multiple>
-                <AccordionTab v-for="(ev, i) in audiencia.evidenciasYComentarios" :key="i" :header="ev.nombreEvidencia">
+              <Accordion :activeIndex="null" multiple >
+                <AccordionTab v-for="(ev, i) in audiencia.evidenciasYComentarios" :key="i" :header="ev.nombreEvidencia" >
                   <p><strong>Comentario:</strong> {{ ev.textoComentario }}</p>
                   <p><strong>Fecha:</strong> {{ formatDate(ev.fechaComentario) }}</p>
                   <p><strong>Archivo:</strong>
@@ -206,7 +206,7 @@
                 </AccordionTab>
               </Accordion>
             </div>
-            <div v-else class="text-gray-500">
+            <div v-else class="text-gray-500" >
               No hay evidencias ni comentarios para esta audiencia.
             </div>
           </AccordionTab>

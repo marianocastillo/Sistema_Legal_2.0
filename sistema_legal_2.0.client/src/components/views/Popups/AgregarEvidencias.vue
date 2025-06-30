@@ -90,6 +90,7 @@ const response = await axios.post(`/api/Files/subir-evidencia`, formData, {
     emit('close');
 
     notif.resolve('Archivo subido correctamente');
+  window.location.reload();
   } catch (error) {
     console.error('Error al subir el archivo:', error.response?.data || error.message);
     notif.reject('Error al subir el archivo');
