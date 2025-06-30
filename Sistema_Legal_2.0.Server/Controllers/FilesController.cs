@@ -203,8 +203,50 @@ namespace Sistema_Legal_2._0.Server.Controllers
             }
         }
 
+        private string GetContentType(string path)
+        {
+            var ext = Path.GetExtension(path).ToLowerInvariant();
+            return ext switch
+            {
+                ".pdf" => "application/pdf",
+                ".jpg" => "image/jpeg",
+                ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".doc" => "application/msword",
+                ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                ".xls" => "application/vnd.ms-excel",
+                ".xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                ".txt" => "text/plain",
+                _ => "application/octet-stream"
+            };
+        }
+
+
+        [HttpGet("rutaspor/{*ruta}")]
+        public IActionResult ObtenerArchivoPorRuta(string ruta)
+        {
+            try
+            {
+                string rutaBase = @"\\192.168.3.95\FileSharing\Archivos_Sileg";
+                string rutaCompleta = Path.Combine(rutaBase, ruta);
+
+                if (!System.IO.File.Exists(rutaCompleta))
+                {
+                    return NotFound(new { mensaje = "El archivo no existe." });
+                }
+
+                var contentType = GetContentType(rutaCompleta);
+                var fileStream = new FileStream(rutaCompleta, FileMode.Open, FileAccess.Read);
+                return File(fileStream, contentType); // 👈 No fuerza descarga
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { mensaje = "Error al acceder al archivo", error = ex.Message });
+            }
+        }
     }
 }
+
 
 
 

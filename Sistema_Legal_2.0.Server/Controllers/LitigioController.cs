@@ -98,11 +98,9 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
 
         }
-        
 
 
         [HttpPost("Subir_Litigio_Con_Archivo")]
-        [DisableRequestSizeLimit, RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueCountLimit = int.MaxValue)]
         public async Task<IActionResult> SubirLitigioConArchivo([FromForm] LitigioConArchivo datos)
         {
             int idLitigio = 0;
@@ -117,15 +115,16 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 string nombreArchivo = Path.GetFileName(datos.Archivo.FileName);
                 string nombreCarpeta = Path.GetFileNameWithoutExtension(nombreArchivo);
 
-                using (SqlConnection connection = new SqlConnection(_cadenaSQL))
+                // 1. Crear litigio y obtener ID
+                using (var connection = new SqlConnection(_cadenaSQL))
                 {
                     await connection.OpenAsync();
 
-                    using (SqlCommand command = new SqlCommand("sp_CrearLitigioCompleto", connection))
+                    using (var command = new SqlCommand("sp_CrearLitigioCompleto", connection))
                     {
                         command.CommandType = CommandType.StoredProcedure;
 
-                        // Parámetros del litigio
+                        // ... parámetros del litigio ...
                         command.Parameters.AddWithValue("@ltg_acto", datos.ltg_acto);
                         command.Parameters.AddWithValue("@ltg_Fecha_Acto", datos.ltg_Fecha_Acto);
                         command.Parameters.AddWithValue("@ltg_Cedula_Demandante", datos.ltg_Cedula_Demandante);
@@ -140,32 +139,27 @@ namespace Sistema_Legal_2._0.Server.Controllers
                         command.Parameters.AddWithValue("@id_usuario", datos.id_usuario);
                         command.Parameters.AddWithValue("@id_Estatus", datos.id_Estatus);
 
-                        // Parámetros de evidencia
-                        string fechaArchivo = datos.Fecha.ToString("yyyy-MM-ddTHH:mm:ss");
-                        command.Parameters.AddWithValue("@Nombre_Evidencia", string.IsNullOrWhiteSpace(datos.NombreEvidencia) ? Path.GetFileNameWithoutExtension(nombreArchivo) : datos.NombreEvidencia);
-                        command.Parameters.AddWithValue("@Ruta_Archivo", $"Downloads\\{nombreArchivo}");
-                        command.Parameters.AddWithValue("@Nombre_Archivo", nombreArchivo);
+                        command.Parameters.AddWithValue("@Nombre_Evidencia", string.IsNullOrWhiteSpace(datos.NombreEvidencia) ? nombreCarpeta : datos.NombreEvidencia);
                         command.Parameters.AddWithValue("@Comentario_Evidencia", string.IsNullOrWhiteSpace(datos.comentario) ? "Archivo subido sin nombre." : datos.comentario);
 
-                        // Parámetros adicionales
                         command.Parameters.AddWithValue("@Fecha", datos.Fecha);
                         command.Parameters.AddWithValue("@Id_tribunal", datos.Id_tribunal);
-                    
                         command.Parameters.AddWithValue("@Tipo", datos.Tipo_audiencia);
 
-                        // Ejecutar
-                        using (var reader = await command.ExecuteReaderAsync())
+                        // Ruta temporal (puedes enviar algo por ahora)
+                        command.Parameters.AddWithValue("@Ruta_Archivo", "TEMP");
+                        command.Parameters.AddWithValue("@Nombre_Archivo", nombreArchivo);
+
+                        using var reader = await command.ExecuteReaderAsync();
+                        if (await reader.ReadAsync())
                         {
-                            if (await reader.ReadAsync())
-                            {
-                                idLitigio = reader.GetInt32(reader.GetOrdinal("id_litigio"));
-                                idAudiencia = reader.GetInt32(reader.GetOrdinal("id_audiencia"));
-                            }
+                            idLitigio = reader.GetInt32(reader.GetOrdinal("id_litigio"));
+                            idAudiencia = reader.GetInt32(reader.GetOrdinal("id_audiencia"));
                         }
                     }
                 }
 
-                // Guardar archivo en ruta local
+                // 2. Guardar archivo usando el idLitigio correcto
                 string rutaBase = @"\\192.168.3.95\FileSharing\Archivos_Sileg";
                 string rutaFinal = Path.Combine(rutaBase, idLitigio.ToString(), datos.ltg_acto, nombreCarpeta);
                 Directory.CreateDirectory(rutaFinal);
@@ -176,7 +170,20 @@ namespace Sistema_Legal_2._0.Server.Controllers
                     await datos.Archivo.CopyToAsync(stream);
                 }
 
+                // 3. Actualizar ruta en base de datos si lo necesitas
                 rutaRelativa = Path.Combine(idLitigio.ToString(), datos.ltg_acto, nombreCarpeta, nombreArchivo);
+
+                // Luego de copiar el archivo
+                using (var conn = new SqlConnection(_cadenaSQL))
+                {
+                    await conn.OpenAsync();
+
+                    var updateCmd = new SqlCommand("UPDATE Evidencias SET Ruta_Archivo = @Ruta WHERE Id_Audiencia = @IdAudiencia", conn);
+                    updateCmd.Parameters.AddWithValue("@Ruta", rutaRelativa);
+                    updateCmd.Parameters.AddWithValue("@IdAudiencia", idAudiencia);
+                    await updateCmd.ExecuteNonQueryAsync();
+                }
+
 
                 return Ok(new
                 {
@@ -188,10 +195,10 @@ namespace Sistema_Legal_2._0.Server.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine("ERROR GENERAL:", ex.ToString());
                 return StatusCode(500, new { mensaje = "Error interno del servidor", detalle = ex.Message });
             }
         }
+
 
         [HttpGet("audiencias-con-evidencias-y-tribunal/{id_litigio}")]
         public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
