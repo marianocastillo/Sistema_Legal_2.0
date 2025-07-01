@@ -184,7 +184,7 @@ onMounted(async () => {
 }
 .status-cierre {
   background-color: #d5f1c4;
-  color: #47ac6d;
+  color:  #47ac6d;
 }
 
 .filtro-busqueda-bar {

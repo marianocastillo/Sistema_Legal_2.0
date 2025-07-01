@@ -143,8 +143,9 @@ namespace Sistema_Legal_2._0.Server.Controllers
                         command.Parameters.AddWithValue("@Comentario_Evidencia", string.IsNullOrWhiteSpace(datos.comentario) ? "Archivo subido sin nombre." : datos.comentario);
 
                         command.Parameters.AddWithValue("@Fecha", datos.Fecha);
-                        command.Parameters.AddWithValue("@Id_tribunal", datos.Id_tribunal);
-                        command.Parameters.AddWithValue("@Tipo", datos.Tipo_audiencia);
+                        command.Parameters.AddWithValue("@Id_tribunal", datos.Id_tribunal);                   
+                        command.Parameters.AddWithValue("@Tipo", (object?)datos.Tipo_audiencia ?? DBNull.Value);
+
 
                         // Ruta temporal (puedes enviar algo por ahora)
                         command.Parameters.AddWithValue("@Ruta_Archivo", "TEMP");
@@ -199,7 +200,6 @@ namespace Sistema_Legal_2._0.Server.Controllers
             }
         }
 
-
         [HttpGet("audiencias-con-evidencias-y-tribunal/{id_litigio}")]
         public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
         {
@@ -224,14 +224,14 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 {
                     var audiencia = new AudienciaDto
                     {
-                        Id_audiencia = reader.GetInt32(0),
-                        numeroAudiencia = reader.GetString(1),
-                        tipoAudiencia = reader.GetString(2),
-                        fechaAudiencia = reader.GetDateTime(3),
-                        Id_tribunal = reader.GetInt32(4),
+                        Id_audiencia = reader.IsDBNull(0) ? (int?)null : reader.GetInt32(0),
+                        numeroAudiencia = reader.IsDBNull(1) ? null : reader.GetString(1),
+                        tipoAudiencia = reader.IsDBNull(2) ? null : reader.GetString(2),
+                        fechaAudiencia = reader.IsDBNull(3) ? (DateTime?)null : reader.GetDateTime(3),
+                        Id_tribunal = reader.IsDBNull(4) ? (int?)null : reader.GetInt32(4),
                         evidenciasYComentarios = reader.IsDBNull(5)
-         ? new List<EvidenciaDto>()
-         : JsonConvert.DeserializeObject<List<EvidenciaDto>>(reader.GetString(5))
+                            ? new List<EvidenciaDto>()
+                            : JsonConvert.DeserializeObject<List<EvidenciaDto>>(reader.GetString(5))
                     };
                     result.Audiencias.Add(audiencia);
                 }
@@ -241,12 +241,12 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 {
                     result.TribunalFinal = new TribunalDt
                     {
-                        id_Tribunal = reader.GetInt32(0),
-                        nombre_Tribunal = reader.GetString(1),
-                        tribunal_Direccion = reader.GetString(2),
-                        tribunal_Telefono = reader.GetString(3),
-                        tribunal_Descripcion = reader.GetString(4),
-                        ltg_Fecha_Audiencia = reader.GetDateTime(5)
+                        id_Tribunal = reader.IsDBNull(0) ? (int?)null : reader.GetInt32(0),
+                        nombre_Tribunal = reader.IsDBNull(1) ? null : reader.GetString(1),
+                        tribunal_Direccion = reader.IsDBNull(2) ? null : reader.GetString(2),
+                        tribunal_Telefono = reader.IsDBNull(3) ? null : reader.GetString(3),
+                        tribunal_Descripcion = reader.IsDBNull(4) ? null : reader.GetString(4),
+                        ltg_Fecha_Audiencia = reader.IsDBNull(5) ? (DateTime?)null : reader.GetDateTime(5)
                     };
                 }
 
@@ -262,6 +262,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 });
             }
         }
+
 
 
         [HttpGet("BuscarDocumento/{documento}")]
