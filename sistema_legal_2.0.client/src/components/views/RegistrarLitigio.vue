@@ -371,7 +371,10 @@ function validarCedulaODocumento(doc, tipo) {
 
 const tiposDemandante = [
   { label: 'Empleado', value: 'Empleado' },
+  { label: 'Ex Empleado', value: 'Ex Empleado' },
   { label: 'Empresa', value: 'Empresa' },
+
+
 ]
 
 const tiposAudiencia = [
