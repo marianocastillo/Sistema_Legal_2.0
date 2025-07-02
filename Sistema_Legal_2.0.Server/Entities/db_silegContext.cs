@@ -49,10 +49,15 @@ public partial class db_silegContext : DbContext
         {
             entity.HasKey(e => e.Id_audiencia);
 
+            entity.ToTable(tb => tb.HasTrigger("trg_Audiencias_Historico"));
+
             entity.Property(e => e.Fecha).HasColumnType("datetime");
             entity.Property(e => e.Numero)
                 .IsRequired()
-                .HasMaxLength(20)
+                .HasMaxLength(30)
+                .IsUnicode(false);
+            entity.Property(e => e.Sala)
+                .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.Tipo)
                 .HasMaxLength(50)
@@ -84,8 +89,7 @@ public partial class db_silegContext : DbContext
 
             entity.Property(e => e.Comentario_Evidencia)
                 .IsRequired()
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasColumnType("text");
             entity.Property(e => e.Fecha).HasColumnType("datetime");
             entity.Property(e => e.Nombre_Archivo)
                 .IsRequired()
@@ -97,7 +101,13 @@ public partial class db_silegContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.Ruta_Archivo)
                 .IsRequired()
-                .HasMaxLength(50);
+                .HasMaxLength(200)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Id_audienciaNavigation).WithMany(p => p.Evidencias)
+                .HasForeignKey(d => d.Id_audiencia)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Evidencias_Audiencias");
         });
 
         modelBuilder.Entity<Historico_Litigio>(entity =>
@@ -274,8 +284,10 @@ public partial class db_silegContext : DbContext
                 .HasMaxLength(250)
                 .IsUnicode(false);
             entity.Property(e => e.Direccion).HasMaxLength(200);
-            entity.Property(e => e.Latitud).HasColumnType("decimal(10, 8)");
-            entity.Property(e => e.Longitud).HasColumnType("decimal(10, 8)");
+            entity.Property(e => e.Distrito)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.MapsUrl).HasColumnType("text");
             entity.Property(e => e.Nombre_Tribunal)
                 .HasMaxLength(200)
                 .IsUnicode(false);

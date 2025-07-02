@@ -19,6 +19,10 @@ public partial class Audiencias
 
     public DateTime? Fecha { get; set; }
 
+    public string Sala { get; set; }
+
+    public virtual ICollection<Evidencias> Evidencias { get; set; } = new List<Evidencias>();
+
     public virtual Litigios Id_litigioNavigation { get; set; }
 
     public virtual Tribunales Id_tribunalNavigation { get; set; }

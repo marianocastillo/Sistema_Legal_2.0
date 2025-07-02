@@ -15,13 +15,13 @@ public partial class Tribunales
 
     public string Telefono { get; set; }
 
-    public decimal? Latitud { get; set; }
-
-    public decimal? Longitud { get; set; }
-
-    public int IdEstatus { get; set; }
+    public bool Estatus { get; set; }
 
     public string Direccion { get; set; }
+
+    public string Distrito { get; set; }
+
+    public string MapsUrl { get; set; }
 
     public virtual ICollection<Audiencias> Audiencias { get; set; } = new List<Audiencias>();
 }

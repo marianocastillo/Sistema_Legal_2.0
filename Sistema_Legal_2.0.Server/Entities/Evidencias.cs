@@ -22,4 +22,6 @@ public partial class Evidencias
     public string Comentario_Evidencia { get; set; }
 
     public DateTime Fecha { get; set; }
+
+    public virtual Audiencias Id_audienciaNavigation { get; set; }
 }

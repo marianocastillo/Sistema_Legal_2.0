@@ -11,7 +11,5 @@ public partial class Tipo_Demanda
 
     public string Nombre { get; set; }
 
-    public int id_Estatus { get; set; }
-
     public virtual ICollection<Litigios> Litigios { get; set; } = new List<Litigios>();
 }

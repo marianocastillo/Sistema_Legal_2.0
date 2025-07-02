@@ -347,10 +347,10 @@ namespace Sistema_Legal_2._0.Server.Controllers
                                 Nombre_Tribunal = reader.GetString(1),
                                 Descripcion = reader.GetString(2),
                                 Telefono = reader.GetString(3),
-                                Latitud = reader.IsDBNull(4) ? null : reader.GetDecimal(4),
-                                Longitud = reader.IsDBNull(5) ? null : reader.GetDecimal(5),
-                                IdEstatus = reader.GetInt32(6),
-                                Direccion = reader.GetString(7)
+                                Estatus = reader.GetBoolean(4),                         
+                                Direccion = reader.GetString(5),
+                                Distrito = reader.GetString(6),
+                                MapsUrl = reader.GetString(7)
                             });
                         }
 

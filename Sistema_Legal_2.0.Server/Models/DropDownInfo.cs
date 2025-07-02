@@ -3,13 +3,20 @@
     public class TribunalDto
     {
         public int Id_Tribunal { get; set; }
+
         public string Nombre_Tribunal { get; set; }
+
         public string Descripcion { get; set; }
+
         public string Telefono { get; set; }
-        public decimal? Latitud { get; set; }
-        public decimal? Longitud { get; set; }
-        public int IdEstatus { get; set; }
-        public string Direccion { get; set; }
+
+        public bool Estatus { get; set; }
+
+        public string? Direccion { get; set; }
+
+        public string? Distrito { get; set; }
+
+        public string? MapsUrl { get; set; }
     }
 
     public class TipoDemandaDto
