@@ -147,8 +147,8 @@ const tiposDemanda = [
   { label: 'Penal', value: 'penal' },
   { label: 'Laboral', value: 'laboral' },
 ]
-const tiposDemandante = [
 
+const tiposDemandante = [
 { label: 'Empleado', value: 'Empleado' },
   { label: 'Empresa', value: 'Empresa' },
   { label: 'Otros', value: 'Otros' },

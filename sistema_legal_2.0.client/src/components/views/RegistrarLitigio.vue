@@ -125,7 +125,8 @@
                 {{ form.ltg_Tipo_Demandante === 'Empresa' ? 'Nombre de la empresa *' : 'Nombre del Demandante *' }}
               </label>
               <InputText id="nombreDemandante" v-model="form.ltg_Nombre_Demandante" class="w-full"
-                :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'Nombre de la empresa' : 'Nombre completo'" :disabled="!nombreDemandante" />
+                :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'Nombre de la empresa' : 'Nombre completo'"
+                :disabled="!nombreDemandante" />
             </div>
 
             <!-- Nacionalidad o país -->
@@ -148,11 +149,12 @@
 
             <div class="field col-12 md:col-2">
               <label for="cedulaRepresentante" class="block mb-2 font-medium text-sm">Cédula *</label>
-              <InputText id="cedulaRepresentante" :maxlength="11" v-model="form.ltg_Cedula_Representante" @keydown="soloNumeros" @blur="() => buscarPersonaPorDocumento(
-                form.ltg_Cedula_Representante,
-                'ltg_Nombre_Representante',
-                'ltg_Nacionalidad_Representante'
-              )" class="w-full" placeholder="Ej: 00112345678" />
+              <InputText id="cedulaRepresentante" :maxlength="11" v-model="form.ltg_Cedula_Representante"
+                @keydown="soloNumeros" @blur="() => buscarPersonaPorDocumento(
+                  form.ltg_Cedula_Representante,
+                  'ltg_Nombre_Representante',
+                  'ltg_Nacionalidad_Representante'
+                )" class="w-full" placeholder="Ej: 00112345678" />
             </div>
 
             <div class="field col-12 md:col-4">
@@ -165,7 +167,7 @@
               <label for="nacionalidadRepresentante" class="block mb-2 font-medium text-sm">Nacionalidad del
                 Representante *</label>
               <InputText id="nacionalidadRepresentante" v-model="form.ltg_Nacionalidad_Representante" class="w-full"
-                placeholder="Ej: Dominicana"  :disabled="!nacionalidadHabilitado" />
+                placeholder="Ej: Dominicana" :disabled="!nacionalidadHabilitado" />
             </div>
 
           </div>
@@ -202,7 +204,7 @@
     </form>
   </div>
 
-         <!--Pantalla Litigio Registrado -->
+  <!--Pantalla Litigio Registrado -->
   <Dialog v-model:visible="dialogVisible" modal class="dialog-exito-style" :closable="false" :draggable="false"
     header="Registro exitoso">
     <div class="d-flex align-items-start gap-3 p-3">
@@ -247,7 +249,7 @@ const NombreEvidencia = ref(null)
 
 onMounted(async () => {
   try {
-     //Lógica de ruta según perfil
+    //Lógica de ruta según perfil
     const rawUser = localStorage.getItem('usuario');
     const user = rawUser ? JSON.parse(rawUser) : null;
 
@@ -359,9 +361,8 @@ const tiposDemandante = [
 ]
 
 const tiposAudiencia = [
-  { label: 'Audiencia previa', value: 'Audiencia previa' },
-  { label: 'Preliminar', value: 'Preliminar' },
-  { label: 'Juicio', value: 'Juicio' },
+  { label: 'Presencial', value: 'Presencial' },
+  { label: 'Virtual', value: 'Virtual' },
 ]
 
 const handleExpedienteUpload = (event) => {
@@ -418,6 +419,7 @@ const formatearFechaISO = (fecha) => {
   const d = new Date(fecha)
   return d.toISOString().split('T')[0]
 }
+
 function validarFormulario() {
   if (!form.ltg_acto?.trim()) return "El número de acto es obligatorio.";
   if (!form.ltg_Fecha_Acto) return "La fecha del acto es obligatoria.";
@@ -480,73 +482,65 @@ const registrarLitigio = async () => {
   const usuarioLogueado = JSON.parse(localStorage.getItem('usuario'));
   form.id_usuario = usuarioLogueado.idUsuario;
 
- const formData = new FormData();
+  const formData = new FormData();
 
 
 
-formData.append('ltg_acto', form.ltg_acto);
-formData.append('ltg_Fecha_Acto', formatearFechaISO(form.ltg_Fecha_Acto));
-formData.append('ltg_Cedula_Demandante', form.ltg_Cedula_Demandante);
-formData.append('ltg_Nombre_Demandante', form.ltg_Nombre_Demandante);
-formData.append('ltg_Tipo_Demandante', form.ltg_Tipo_Demandante);
-formData.append('ltg_Nacionalidad', form.ltg_Nacionalidad);
-formData.append('ltg_Cedula_Representante', form.ltg_Cedula_Representante);
-formData.append('ltg_Nombre_Representante', form.ltg_Nombre_Representante);
-formData.append('ltg_Nacionalidad_Representante', form.ltg_Nacionalidad_Representante);
-formData.append('id_Tipo_Demanda', parseInt(form.id_Tipo_Demanda));
-formData.append('id_Sentencia', parseInt(form.id_sentencia));
-formData.append('id_usuario', parseInt(form.id_usuario));
-formData.append('id_Estatus', 1);
-formData.append('Tipo_audiencia', form.Tipo_audiencia || 'Documentos del acto');
-formData.append('NombreEvidencia', form.NombreEvidencia || 'Evidencia');
-formData.append('comentario', form.comentario || 'Sin comentario');
-formData.append('Nombre_Archivo', expedienteFile.value?.name || '');
-formData.append('Ruta_Archivo', expedienteFile.value?.name || ''); // si tu backend lo genera, puedes omitirlo
+  formData.append('ltg_acto', form.ltg_acto);
+  formData.append('ltg_Fecha_Acto', formatearFechaISO(form.ltg_Fecha_Acto));
+  formData.append('ltg_Cedula_Demandante', form.ltg_Cedula_Demandante);
+  formData.append('ltg_Nombre_Demandante', form.ltg_Nombre_Demandante);
+  formData.append('ltg_Tipo_Demandante', form.ltg_Tipo_Demandante);
+  formData.append('ltg_Nacionalidad', form.ltg_Nacionalidad);
+  formData.append('ltg_Cedula_Representante', form.ltg_Cedula_Representante);
+  formData.append('ltg_Nombre_Representante', form.ltg_Nombre_Representante);
+  formData.append('ltg_Nacionalidad_Representante', form.ltg_Nacionalidad_Representante);
+  formData.append('id_Tipo_Demanda', parseInt(form.id_Tipo_Demanda));
+  formData.append('id_Sentencia', parseInt(form.id_sentencia));
+  formData.append('id_usuario', parseInt(form.id_usuario));
+  formData.append('id_Estatus', 1);
+  formData.append('Tipo_audiencia', form.Tipo_audiencia || 'Documentos del acto');
+  formData.append('NombreEvidencia', form.NombreEvidencia || 'Evidencia');
+  formData.append('comentario', form.comentario || 'Sin comentario');
+  formData.append('Nombre_Archivo', expedienteFile.value?.name || '');
+  formData.append('Ruta_Archivo', expedienteFile.value?.name || ''); // si tu backend lo genera, puedes omitirlo
 
-const fechaCompletaAudiencia = combinarFechaYHora(form.ltg_Fecha_Audiencia, horaSeleccionada.value);
+  const fechaCompletaAudiencia = combinarFechaYHora(form.ltg_Fecha_Audiencia, horaSeleccionada.value);
 
-// Validar primero
-if (!(fechaCompletaAudiencia instanceof Date) || isNaN(fechaCompletaAudiencia.getTime())) {
-  push.warning("Debe seleccionar una hora válida para la audiencia.");
-  enviando.value = false;
-  return;
-}
+  // Aqui estamos validando la fecha y la hora
+  if (!(fechaCompletaAudiencia instanceof Date) || isNaN(fechaCompletaAudiencia.getTime())) {
+    push.warning("Debe seleccionar una hora válida para la audiencia.");
+    enviando.value = false;
+    return;
+  }
 
-// Solo después de validar, usarla
-formData.append('Fecha', fechaCompletaAudiencia.toISOString());
-formData.append('Id_tribunal', parseInt(form.id_Tribunal));
-formData.append('Tipo', form.Tipo_audiencia);
-
-
-formData.append('Archivo', expedienteFile.value); // obligatorio si usas archivos
+  // Solo después de validar, usarla
+  formData.append('Fecha', fechaCompletaAudiencia.toISOString());
+  formData.append('Id_tribunal', parseInt(form.id_Tribunal));
+  formData.append('Tipo', form.Tipo_audiencia);
 
 
-console.log(' Enviando FormData:');
-for (let [key, value] of formData.entries()) {
-  console.log(`${key}:`, value);
-}
-
-// Opcional: construir texto para mostrar en alert en caso de error
-let contenidoForm = '';
-for (let [key, value] of formData.entries()) {
-  contenidoForm += `${key}: ${value instanceof File ? value.name : value}\n`;
-}
+  formData.append('Archivo', expedienteFile.value); // obligatorio si usas archivos
 
 
+  console.log(' Enviando FormData:');
+  for (let [key, value] of formData.entries()) {
+    console.log(`${key}:`, value);
+  }
 
+  // Opcional: construir texto para mostrar en alert en caso de error
+  let contenidoForm = '';
+  for (let [key, value] of formData.entries()) {
+    contenidoForm += `${key}: ${value instanceof File ? value.name : value}\n`;
+  }
   try {
 
     for (let [key, value] of formData.entries()) {
-  console.log(`${key}:`, value);
-}
-
-
-
+      console.log(`${key}:`, value);
+    }
     const notif = push.promise('Subiendo archivo...');
 
     await new Promise(resolve => setTimeout(resolve, 1000)); // opcional
-
-
 
     const response = await fetch('/api/Litigio/Subir_Litigio_Con_Archivo', {
       method: 'POST',

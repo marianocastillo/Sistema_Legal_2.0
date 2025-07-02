@@ -125,7 +125,7 @@ const cargarUltimaAudiencia = async () => {
     const response = await axios.get(`/api/Files/ultima-Audiencia/${props.id_Ltg}`);
     const datos = response.data.data;
 
-    console.log('Datos de la última audiencia:', datos);
+    // console.log('Datos de la última audiencia:', datos);
 
     numero.value = datos.NumeroAudiencia;
     tipo.value = datos.TipoAudiencia;

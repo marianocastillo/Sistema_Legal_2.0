@@ -56,9 +56,8 @@ const props = defineProps({
 });
 
 const tiposAudiencia = [
-  { label: 'Audiencia previa', value: 'Audiencia previa' },
-  { label: 'Preliminar', value: 'Preliminar' },
-  { label: 'Juicio', value: 'Juicio' },
+  { label: 'Presencial ', value: 'Presencial' },
+  { label: 'Virtual', value: 'Virtual' },
 ]
 
 const form = ref({
@@ -69,7 +68,7 @@ const cargarDatosDropdowns = async () => {
   try {
     const response = await fetch('/api/Litigio/datos-litigio')
     const data = await response.json()
-    console.log(data);
+    // console.log(data);
     tribunales.value = data.tribunales
   } catch (error) {
     console.error('Error al cargar los datos de los dropdowns:', error)
@@ -120,7 +119,7 @@ async function guardar() {
 
     const response = await axios.post('/api/Files/crearAudiencias', body);
 
-    console.log('Audiencia creada:', response.data);
+    // console.log('Audiencia creada:', response.data);
 
     emit('actualizar');
     emit('close');

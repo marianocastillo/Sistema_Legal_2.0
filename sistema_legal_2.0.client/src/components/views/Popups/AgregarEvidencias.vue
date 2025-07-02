@@ -84,7 +84,7 @@ const response = await axios.post(`/api/Files/subir-evidencia`, formData, {
       },
     });
 
-    console.log('Archivo subido:', response.data);
+    // console.log('Archivo subido:', response.data);
 
     emit('actualizar');
     emit('close');

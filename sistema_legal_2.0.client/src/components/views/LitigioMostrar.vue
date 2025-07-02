@@ -185,15 +185,16 @@
 
       <!-- Audiencias con evidencias y comentarios -->
       <div class="mt-6">
-        <h2 class="text-xl font-semibold mb-3" style="color: #003870;">Audiencias y Evidencias <Button
-            label="Editar Audiencias" icon="pi pi-pencil" class="custom-home-btn"
-            @click="togglePopUpTribunal(id)" style="background-color: #5a7cb3;" /></h2>
-        <Accordion :activeIndex="null" multiple >
+        <h2 class="text-xl font-semibold mb-3" style="color: #003870;">Audiencias y Evidencias
+          <Button label="Editar Audiencias" icon="pi pi-pencil" class="custom-home-btn" @click="togglePopUpTribunal(id)"
+            style="background-color: #5a7cb3;" />
+        </h2>
+        <Accordion :activeIndex="null" multiple>
           <AccordionTab v-for="(audiencia, index) in audiencias" :key="index"
-            :header="`-${audiencia.numeroAudiencia} - (${audiencia.tipoAudiencia}) - ${formatDate(audiencia.fechaAudiencia)}-`" >
+            :header="`-${audiencia.numeroAudiencia} - (${audiencia.tipoAudiencia}) - ${formatDate(audiencia.fechaAudiencia)}-`">
             <div v-if="audiencia.evidenciasYComentarios?.length">
-              <Accordion :activeIndex="null" multiple >
-                <AccordionTab v-for="(ev, i) in audiencia.evidenciasYComentarios" :key="i" :header="ev.nombreEvidencia" >
+              <Accordion :activeIndex="null" multiple>
+                <AccordionTab v-for="(ev, i) in audiencia.evidenciasYComentarios" :key="i" :header="ev.nombreEvidencia">
                   <p><strong>Comentario:</strong> {{ ev.textoComentario }}</p>
                   <p><strong>Fecha:</strong> {{ formatDate(ev.fechaComentario) }}</p>
                   <p><strong>Archivo:</strong>
@@ -206,7 +207,7 @@
                 </AccordionTab>
               </Accordion>
             </div>
-            <div v-else class="text-gray-500" >
+            <div v-else class="text-gray-500">
               No hay evidencias ni comentarios para esta audiencia.
             </div>
           </AccordionTab>
@@ -228,9 +229,9 @@
       <!-- Pie de documento -->
       <div class="flex justify-content-between mt-4 pt-3 border-top-1 surface-border">
         <Button label="Agregar Evidencia y Comentario" icon="pi pi-comment" class="custom-home-btn "
-          @click="togglePopUpEvidencia(id)" style="background-color: #003870;" />
+          @click="togglePopUpEvidencia(id)"/>
         <Button label="Agregar Audiencia" icon="pi pi-calendar-plus" class="custom-home-btn "
-          @click="togglePopUpAudiencia(id)" style="background-color: #37517e;" />
+          @click="togglePopUpAudiencia(id)"/>
         <teleport to="body">
           <transition name="fade">
             <AgregarEvidencias v-if="popUpEvidencia" :id_Ltg="litigioactual" @close="togglePopUpEvidencia"
@@ -293,6 +294,7 @@ const props = defineProps({
     }
   }
 });
+
 const obtenerAudiencias = async () => {
   try {
     const res = await api.get(`/api/Litigio/audiencias-con-evidencias-y-tribunal/${props.id}`);
@@ -310,7 +312,6 @@ const obtenerAudiencias = async () => {
     console.error('Error al obtener audiencias:', err);
   }
 };
-
 
 const abrirArchivo = async (rutaRelativa) => {
   try {
@@ -331,8 +332,11 @@ const togglePopUpEvidencia = (id) => {
 };
 
 const togglePopUpAudiencia = (id) => {
+
+  // console.log(popUpAudiencia.value);
   popUpAudiencia.value = !popUpAudiencia.value;
   litigioactual.value = id;
+  // console.log(popUpAudiencia.value);
 };
 
 const togglePopUpTribunal = (id) => {
@@ -498,7 +502,7 @@ onMounted(async () => {
 
 .custom-home-btn:hover {
   background-color: #c00606 !important;
-  border-color: #c00606  !important;
+  border-color: #c00606 !important;
   box-shadow: 0 6px 16px rgba(121, 1, 51, 0.3) !important;
   transform: translateY(-1px) !important;
   transition: background-color 0.2s !important;

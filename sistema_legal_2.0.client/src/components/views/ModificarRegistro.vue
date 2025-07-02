@@ -8,6 +8,7 @@
         </router-link>
     </div>
 
+    <!-- Formulario de registro  -->
     <form @submit.prevent="registrarLitigio">
       <div class="grid formgrid p-fluid">
 
@@ -139,6 +140,10 @@ import Button from 'primevue/button'
 const router = useRouter()
 const hoy = ref(new Date())
 const rutaInicio = ref('');
+const cedulaInvalida = ref(false)
+const tiposDemanda = ref([])
+const tribunales = ref([])
+const estatusList = ref([])
 
 const form = ref({
   id_Ltg: null,
@@ -160,17 +165,14 @@ const form = ref({
   id_Sentencia: null
 })
 
-// ✅ Estado visual de error para cédula o RNC
-const cedulaInvalida = ref(false)
+//Estado visual de error para cédula o RNC
 
-const tiposDemanda = ref([])
+
 const tiposDemandante = [
   { label: 'Empleado', value: 'Empleado' },
   { label: 'Empresa', value: 'Empresa' },
   { label: 'Otros', value: 'Otros' }
 ]
-const tribunales = ref([])
-const estatusList = ref([])
 
 const cargarDatosDropdowns = async () => {
   try {
@@ -248,14 +250,14 @@ onMounted(async () => {
 });
 
 
-// ✅ Validación dinámica para cédula o RNC según el tipo
+//Validación dinámica para cédula o RNC según el tipo
 const validarIdentificacion = (valor, tipo) => {
   if (!valor) return false
   const regex = tipo === 'Empresa' ? /^\d{9}$/ : /^\d{11}$/
   return regex.test(valor)
 }
 
-// ✅ Manejo de input: solo números y longitud según tipo
+//Manejo de input: solo números y longitud según tipo
 const handleCedulaInput = (event) => {
   const soloNumeros = event.target.value.replace(/\D/g, '')
   const tipo = form.value.tiposDemandante
