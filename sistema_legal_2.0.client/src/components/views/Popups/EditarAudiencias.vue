@@ -186,7 +186,6 @@ async function guardar() {
     emit('actualizar');
     emit('close');
     notif.resolve('Audiencia actualizada correctamente');
-      window.location.reload();
 
   } catch (error) {
     console.error('Error al actualizar audiencia:', error.response?.data || error.message);

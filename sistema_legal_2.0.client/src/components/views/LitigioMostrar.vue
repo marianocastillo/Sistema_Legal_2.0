@@ -195,7 +195,14 @@
             <div v-if="audiencia.evidenciasYComentarios?.length">
               <Accordion :activeIndex="null" multiple>
                 <AccordionTab v-for="(ev, i) in audiencia.evidenciasYComentarios" :key="i" :header="ev.nombreEvidencia">
-                  <p><strong>Comentario:</strong> {{ ev.textoComentario }}</p>
+                  <p>
+                    <strong>Comentario:</strong>
+                    {{ ev.textoComentario.length > 250 ? ev.textoComentario.slice(0, 250) + '...' : ev.textoComentario
+                    }}
+                    <span v-if="ev.textoComentario.length > 250">
+                      <a href="#" role="button" tabindex="0" @click.prevent="mostrarDialogo(ev.textoComentario)">Ver más</a>
+                    </span>
+                  </p>
                   <p><strong>Fecha:</strong> {{ formatDate(ev.fechaComentario) }}</p>
                   <p><strong>Archivo:</strong>
                     <a :href="`/api/Files/rutaspor/${ev.rutaArchivo}`" target="_blank"
@@ -229,9 +236,9 @@
       <!-- Pie de documento -->
       <div class="flex justify-content-between mt-4 pt-3 border-top-1 surface-border">
         <Button label="Agregar Evidencia y Comentario" icon="pi pi-comment" class="custom-home-btn "
-          @click="togglePopUpEvidencia(id)"/>
+          @click="togglePopUpEvidencia(id)" />
         <Button label="Agregar Audiencia" icon="pi pi-calendar-plus" class="custom-home-btn "
-          @click="togglePopUpAudiencia(id)"/>
+          @click="togglePopUpAudiencia(id)" />
         <teleport to="body">
           <transition name="fade">
             <AgregarEvidencias v-if="popUpEvidencia" :id_Ltg="litigioactual" @close="togglePopUpEvidencia"
@@ -253,6 +260,11 @@
           </transition>
         </teleport>
 
+        <!-- dialogo para ver comentario completo -->
+        <Dialog v-model:visible="dialogoVisible" modal header="Comentario completo" class="w-6">
+          <p style="white-space: pre-wrap;">{{ comentarioCompleto }}</p>
+        </Dialog>
+
         <!-- <small class="text-500-dark">Sistema Sileg 2.0 - {{ new Date().getFullYear() }}</small> -->
       </div>
     </div>
@@ -273,6 +285,8 @@ import AgregarAudiencias from '@/components/views/Popups/AgregarAudiencias.vue';
 import dayjs from 'dayjs';
 
 const audiencias = ref([]);
+const dialogoVisible = ref(false)
+const comentarioCompleto = ref('')
 const scrollContainer = ref(null);
 const popUpEvidencia = ref(false);
 const popUpAudiencia = ref(false);
@@ -324,6 +338,46 @@ const abrirArchivo = async (rutaRelativa) => {
 }
 
 
+const obtenerComentariosConEvidencias = async () => {
+  console.log('🔄 Refrescando audiencias y evidencias...');
+  try {
+    // Limpiar audiencias para forzar reactividad
+    audiencias.value = [];
+    await nextTick();
+
+    // Esperar unos ms para que el backend actualice
+    await new Promise(resolve => setTimeout(resolve, 400));
+
+    await obtenerAudiencias(); // esta función ya llama a tu API
+  } catch (error) {
+    console.error('❌ Error al actualizar evidencias:', error);
+  }
+};
+
+const obtenerTribunal = async () => {
+  try {
+    const res = await api.get(`/api/Litigio/audiencias-con-evidencias-y-tribunal/${props.id}`);
+
+    // Actualiza solo la parte del tribunal dentro del litigio
+    if (res.data.tribunalFinal) {
+      litigio.value = {
+        ...litigio.value,
+        ...res.data.tribunalFinal
+      };
+    }
+
+    // Si también quieres actualizar audiencias:
+    if (res.data.audiencias) {
+      audiencias.value = res.data.audiencias;
+    }
+
+    console.log('✅ Tribunal actualizado');
+  } catch (error) {
+    console.error('❌ Error al actualizar tribunal:', error);
+  }
+};
+
+
 const estaCerrado = computed(() => litigio.value?.ltg_estatus === 7);
 
 const togglePopUpEvidencia = (id) => {
@@ -344,6 +398,10 @@ const togglePopUpTribunal = (id) => {
   litigioactual.value = id;
 };
 
+function mostrarDialogo(texto) {
+  comentarioCompleto.value = texto
+  dialogoVisible.value = true
+}
 
 const getFileIcon = (nombre) => {
   const ext = nombre.split('.').pop().toLowerCase();

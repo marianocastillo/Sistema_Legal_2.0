@@ -528,7 +528,7 @@ const registrarLitigio = async () => {
 
 
   // Solo después de validar, usarla
-  formData.append('Fecha', fechaCompletaAudiencia.toISOString());
+  // formData.append('Fecha', fechaCompletaAudiencia.toISOString());
   if (form.id_Tribunal) {
     formData.append('Id_tribunal', parseInt(form.id_Tribunal));
   }
