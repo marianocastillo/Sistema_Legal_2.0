@@ -29,21 +29,24 @@
 
             <!-- Número de Acto -->
             <div class="field col-12 md:col-4">
-              <label for="acto" class="block mb-2 font-medium text-sm">No. Acto Alguacil *</label>
+              <label for="acto" class="block mb-2 font-medium text-sm">No. Acto Alguacil <span
+                  class="text-red-500">*</span></label>
               <InputText id="acto" v-model="form.ltg_acto" class="w-full" placeholder="Ingrese el número de acto"
                 maxlength="10" />
             </div>
 
             <!-- Fecha del Acto -->
             <div class="field col-12 md:col-4">
-              <label for="fechaActo" class="block mb-2 font-medium text-sm">Fecha del Acto *</label>
+              <label for="fechaActo" class="block mb-2 font-medium text-sm">Fecha del Acto <span
+                  class="text-red-500">*</span></label>
               <Calendar id="fechaActo" v-model="form.ltg_Fecha_Acto" dateFormat="yy-mm-dd" showIcon class="w-full"
                 placeholder="Seleccione la fecha" />
             </div>
 
             <!-- Tipo de Demanda -->
             <div class="field col-12 md:col-4">
-              <label for="tipoDemanda" class="block mb-2 font-medium text-sm">Tipo de Demanda *</label>
+              <label for="tipoDemanda" class="block mb-2 font-medium text-sm">Tipo de Demanda <span
+                  class="text-red-500">*</span></label>
               <Dropdown id="tipoDemanda" v-model="form.id_Tipo_Demanda" :options="tiposDemanda" optionLabel="nombre"
                 optionValue="id_demanda" placeholder="Seleccione una opción" class="w-full" filter />
             </div>
@@ -59,25 +62,29 @@
 
             <!-- Fecha de Audiencia -->
             <div class="field col-12 md:col-3">
-              <label for="fechaAudiencia" class="block mb-2 font-medium text-sm">Fecha de Audiencia *</label>
+              <label for="fechaAudiencia" class="block mb-2 font-medium text-sm">Fecha de Audiencia <span
+                  class="text-muted">(opcional)</span></label>
               <Calendar id="fechaAudiencia" v-model="form.ltg_Fecha_Audiencia" dateFormat="yy-mm-dd" showIcon
                 :minDate="hoy" class="w-full" placeholder="Seleccione una fecha" />
             </div>
-            <div class="field col-12 md:col-2">
-              <label for="fechaAudiencia" class="block mb-2 font-medium text-sm">Hora Audiencia *</label>
+            <div class="field col-12 md:col-3">
+              <label for="fechaAudiencia" class="block mb-2 font-medium text-sm">Hora Audiencia <span
+                  class="text-muted">(opcional)</span></label>
               <Calendar v-model="horaSeleccionada" showIcon timeOnly hourFormat="12" placeholder="Ej: 8:00am" />
             </div>
 
             <!-- Tribunal -->
-            <div class="field col-12 md:col-4">
-              <label for="tribunal" class="block mb-2 font-medium text-sm">Tribunal *</label>
+            <div class="field col-12 md:col-3">
+              <label for="tribunal" class="block mb-2 font-medium text-sm">Tribunal <span
+                  class="text-muted">(opcional)</span></label>
               <Dropdown id="tribunal" v-model="form.id_Tribunal" :options="tribunales" optionLabel="nombre_Tribunal"
                 optionValue="id_Tribunal" placeholder="Seleccione un tribunal" class="w-full" filter />
             </div>
 
             <!-- Tipo de Audiencia -->
             <div class="field col-12 md:col-3">
-              <label for="tipoAudiencia" class="block mb-2 font-medium text-sm">Tipo de Audiencia *</label>
+              <label for="tipoAudiencia" class="block mb-2 font-medium text-sm">Tipo de Audiencia <span
+                  class="text-muted">(opcional)</span></label>
               <Dropdown id="tipoAudiencia" v-model="form.Tipo_audiencia" :options="tiposAudiencia" optionLabel="label"
                 optionValue="value" class="w-full" placeholder="Seleccione un tipo" />
             </div>
@@ -93,7 +100,8 @@
 
             <!-- Tipo de Demandante -->
             <div class="field col-12 md:col-2">
-              <label for="tipoDemandante" class="block mb-2 font-medium text-sm">Tipo de Demandante *</label>
+              <label for="tipoDemandante" class="block mb-2 font-medium text-sm">Tipo de Demandante <span
+                  class="text-red-500">*</span></label>
               <Dropdown id="tipoDemandante" v-model="form.ltg_Tipo_Demandante" :options="tiposDemandante"
                 optionLabel="label" optionValue="value" class="w-full" placeholder="Seleccione una opción" />
             </div>
@@ -101,15 +109,15 @@
             <!-- Otro tipo de demandante -->
             <div class="field col-12 md:col-3" v-if="form.ltg_Tipo_Demandante === 'Otros'">
               <label for="otrosDemandante" class="block mb-2 font-medium text-sm">Especifique tipo de Demandante
-                *</label>
+                <span class="text-red-500">*</span></label>
               <InputText id="otrosDemandante" v-model="form.otrosDemandante" class="w-full"
                 placeholder="Otro tipo de demandante" />
             </div>
 
             <!-- Cédula o RNC -->
             <div class="field col-12 md:col-3">
-              <label for="cedulaDemandante" class="block mb-2 font-medium text-sm">
-                {{ form.ltg_Tipo_Demandante === 'Empresa' ? 'RNC de la Empresa *' : 'Cédula del Demandante*' }}
+              <label for="cedulaDemandante" class="block mb-2 font-medium text-sm" v-html="form.ltg_Tipo_Demandante === 'Empresa' ? 'RNC de la Empresa <span class=\'text-red-500\'>*</span>'
+                : 'Cédula del Demandante <span class=\'text-red-500\'>*</span>'">
               </label>
               <InputText id="cedulaDemandante" v-model="form.ltg_Cedula_Demandante"
                 :maxlength="form.ltg_Tipo_Demandante === 'Empresa' ? 9 : 11"
@@ -121,8 +129,8 @@
             </div>
             <!-- Nombre del Demandante -->
             <div class="field col-12 md:col-3">
-              <label for="nombreDemandante" class="block mb-2 font-medium text-sm">
-                {{ form.ltg_Tipo_Demandante === 'Empresa' ? 'Nombre de la empresa *' : 'Nombre del Demandante *' }}
+              <label for="nombreDemandante" class="block mb-2 font-medium text-sm" v-html="form.ltg_Tipo_Demandante === 'Empresa' ? 'Nombre de la empresa <span class=\'text-red-500\'>*</span>'
+                : 'Nombre del Demandante <span class=\'text-red-500\'>*</span>'">
               </label>
               <InputText id="nombreDemandante" v-model="form.ltg_Nombre_Demandante" class="w-full"
                 :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'Nombre de la empresa' : 'Nombre completo'"
@@ -131,8 +139,9 @@
 
             <!-- Nacionalidad o país -->
             <div class="field col-12 md:col-3">
-              <label for="nacionalidadDemandante" class="block mb-2 font-medium text-sm">
-                {{ form.ltg_Tipo_Demandante === 'Empresa' ? 'País de Constitución *' : 'Nacionalidad *' }}
+              <label for="nacionalidadDemandante" class="block mb-2 font-medium text-sm" v-html="form.ltg_Tipo_Demandante === 'Empresa'
+                ? 'País de Constitución <span class=\'text-red-500\'>*</span>'
+                : 'Nacionalidad <span class=\'text-red-500\'>*</span>'">
               </label>
               <InputText id="nacionalidadDemandante" v-model="form.ltg_Nacionalidad" class="w-full"
                 placeholder="Ej: Dominicana" :disabled="!nacionalidadHabilitado" />
@@ -148,7 +157,8 @@
           <div class="grid">
 
             <div class="field col-12 md:col-2">
-              <label for="cedulaRepresentante" class="block mb-2 font-medium text-sm">Cédula *</label>
+              <label for="cedulaRepresentante" class="block mb-2 font-medium text-sm">Cédula <span
+                  class="text-red-500">*</span></label>
               <InputText id="cedulaRepresentante" :maxlength="11" v-model="form.ltg_Cedula_Representante"
                 @keydown="soloNumeros" @blur="() => buscarPersonaPorDocumento(
                   form.ltg_Cedula_Representante,
@@ -158,14 +168,15 @@
             </div>
 
             <div class="field col-12 md:col-4">
-              <label for="nombreRepresentante" class="block mb-2 font-medium text-sm">Nombre del Representante *</label>
+              <label for="nombreRepresentante" class="block mb-2 font-medium text-sm">Nombre del Representante <span
+                  class="text-red-500">*</span></label>
               <InputText id="nombreRepresentante" v-model="form.ltg_Nombre_Representante" class="w-full"
                 placeholder="Nombre completo" :disabled="!nombreHabilitado" />
             </div>
 
             <div class="field col-12 md:col-5">
               <label for="nacionalidadRepresentante" class="block mb-2 font-medium text-sm">Nacionalidad del
-                Representante *</label>
+                Representante <span class="text-red-500">*</span></label>
               <InputText id="nacionalidadRepresentante" v-model="form.ltg_Nacionalidad_Representante" class="w-full"
                 placeholder="Ej: Dominicana" :disabled="!nacionalidadHabilitado" />
             </div>
@@ -180,18 +191,21 @@
 
             <!-- Nombre de la Evidencia y Carga de Archivo -->
             <div class="field col-12 md:col-4">
-              <label for="nombreEvidencia" class="block mb-2 font-medium text-sm">Nombre de la Evidencia</label>
+              <label for="nombreEvidencia" class="block mb-2 font-medium text-sm">Nombre de la Evidencia <span
+                  class="text-red-500">*</span></label>
               <InputText id="nombreEvidencia" v-model="form.NombreEvidencia" placeholder="Ej: Acta de audiencia"
                 class="w-full" />
 
-              <label for="archivo" class="block mt-4 mb-2 font-medium text-sm">Archivo</label>
+              <label for="archivo" class="block mt-4 mb-2 font-medium text-sm">Archivo <span
+                  class="text-red-500">*</span></label>
               <FileUpload id="archivo" name="Archivo" customUpload @select="handleExpedienteUpload" mode="basic"
                 chooseLabel="Elegir archivo" class="w-full md:w-9rem text-sm" />
             </div>
 
             <!-- Comentario -->
             <div class="field col-12 md:col-8">
-              <label for="comentario" class="block mb-2 font-medium text-sm">Comentario</label>
+              <label for="comentario" class="block mb-2 font-medium text-sm">Comentario <span
+                  class="text-red-500">*</span> </label>
               <Textarea id="comentario" v-model="form.comentario"
                 placeholder="Añadir comentario relacionado con el documento" class="w-full" rows="5" autoResize />
             </div>
@@ -507,18 +521,20 @@ const registrarLitigio = async () => {
 
   const fechaCompletaAudiencia = combinarFechaYHora(form.ltg_Fecha_Audiencia, horaSeleccionada.value);
 
-  // Aqui estamos validando la fecha y la hora
-  if (!(fechaCompletaAudiencia instanceof Date) || isNaN(fechaCompletaAudiencia.getTime())) {
-    push.warning("Debe seleccionar una hora válida para la audiencia.");
-    enviando.value = false;
-    return;
+  // Solo agregar la fecha si es válida
+  if (fechaCompletaAudiencia instanceof Date && !isNaN(fechaCompletaAudiencia.getTime())) {
+    formData.append('Fecha', fechaCompletaAudiencia.toISOString());
   }
+
 
   // Solo después de validar, usarla
   formData.append('Fecha', fechaCompletaAudiencia.toISOString());
-  formData.append('Id_tribunal', parseInt(form.id_Tribunal));
-  formData.append('Tipo', form.Tipo_audiencia);
-
+  if (form.id_Tribunal) {
+    formData.append('Id_tribunal', parseInt(form.id_Tribunal));
+  }
+  if (form.Tipo_audiencia) {
+    formData.append('Tipo', form.Tipo_audiencia);
+  }
 
   formData.append('Archivo', expedienteFile.value); // obligatorio si usas archivos
 
