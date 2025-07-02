@@ -1,74 +1,43 @@
 <template>
-<Dialog
-  v-model:visible="visible"
-  modal
-  class="dialog-agregar-audiencia"
-  header="Editar Audiencia"
-  :closable="true"
-  :draggable="false"
-  :style="{ width: '500px' }"
->
-  <div class="form-content">
-    <div class="field">
-      <InputText v-model="numero" class="w-full" placeholder="Nombre de la Nueva Audiencia" />
-    </div>
+  <Dialog v-model:visible="visible" modal class="dialog-agregar-audiencia" header="Editar Audiencia" :closable="true"
+    :draggable="false" :style="{ width: '500px' }">
+    <div class="form-content">
+      <div class="field">
+        <InputText v-model="numero" class="w-full" placeholder="Nombre de la Nueva Audiencia" />
+      </div>
 
-    <div class="field">
-      <InputText v-model="tipo" class="w-full" placeholder="Tipo de audiencia" />
-    </div>
+      <div class="field">
+        <InputText v-model="tipo" class="w-full" placeholder="Tipo de audiencia" />
+      </div>
 
-    <div class="field">
-      <label class="block mb-2 font-medium text-sm">Fecha de Audiencia *</label>
-      <Calendar
-        v-model="Fecha"
-        dateFormat="yy-mm-dd"
-        showIcon
-        :minDate="hoy"
-        class="w-full"
-        placeholder="Seleccione una fecha"
-      />
-    </div>
+      <div class="field">
+        <label class="block mb-2 font-medium text-sm">Fecha de Audiencia *</label>
+        <Calendar v-model="Fecha" dateFormat="yy-mm-dd" showIcon :minDate="hoy" class="w-full"
+          :placeholder="placeholderFecha" />
+      </div>
 
-    <div class="field">
-      <label class="block mb-2 font-medium text-sm">Hora Audiencia *</label>
-      <Calendar
-        v-model="horaSeleccionada"
-        showIcon
-        timeOnly
-        hourFormat="12"
-        placeholder="Ej: 8:00am"
-        class="w-full"
-      />
-    </div>
+      <div class="field">
+        <label class="block mb-2 font-medium text-sm">Hora Audiencia *</label>
+        <Calendar v-model="horaSeleccionada" showIcon timeOnly hourFormat="12" :placeholder="'09:00am'"
+          class="w-full" />
+      </div>
 
-    <div class="field">
-      <label class="block mb-2 font-medium text-sm">Tribunal *</label>
-      <Dropdown
-        v-model="id_Tribunal"
-        :options="tribunales"
-        optionLabel="nombre_Tribunal"
-        optionValue="id_Tribunal"
-        placeholder="Seleccione un tribunal"
-        class="w-full"
-        filter
-      />
-    </div>
 
-    <div class="mt-4 text-center">
-      <Button
-        label="Actualizar"
-        icon="pi pi-calendar-plus"
-        class="p-button"
-        :loading="uploading"
-        @click="guardar"
-      />
-    </div>
+      <div class="field">
+        <label class="block mb-2 font-medium text-sm">Tribunal *</label>
+        <Dropdown v-model="id_Tribunal" :options="tribunales" optionLabel="nombre_Tribunal" optionValue="id_Tribunal"
+          placeholder="Seleccione un tribunal" class="w-full" filter />
+      </div>
 
-    <Notivue v-slot="item">
-      <Notifications :item="item" />
-    </Notivue>
-  </div>
-</Dialog>
+      <div class="mt-4 text-center">
+        <Button label="Actualizar" icon="pi pi-calendar-plus" class="p-button" :loading="uploading" @click="guardar" />
+      </div>
+
+      <Notivue v-slot="item">
+        <Notifications :item="item" />
+      </Notivue>
+    </div>
+  </Dialog>
 
 </template>
 
@@ -87,6 +56,28 @@ const props = defineProps({
   }
 });
 
+const hoy = new Date();
+const manana = new Date();
+manana.setDate(hoy.getDate() + 1);
+
+const placeholderFecha = manana.toISOString().split('T')[0]; // "YYYY-MM-DD"
+
+const horaPorDefecto = new Date();
+horaPorDefecto.setDate(hoy.getDate() + 1);
+horaPorDefecto.setHours(9, 0, 0, 0);
+
+// Asignar valores por defecto si no se carga una audiencia existente
+onMounted(async () => {
+  await Promise.all([
+    cargarDatosDropdowns(),
+    cargarUltimaAudiencia()
+  ]);
+
+  if (!Fecha.value) Fecha.value = new Date(manana); // mañana
+  if (!horaSeleccionada.value) horaSeleccionada.value = horaPorDefecto;
+});
+
+
 const numero = ref('');
 const tipo = ref('');
 const Fecha = ref(null);
@@ -95,7 +86,7 @@ const id_Tribunal = ref(null);
 const visible = ref(true);
 const tribunales = ref([]);
 
-const hoy = new Date(); // Para el minDate
+
 
 // 🔹 Cargar dropdown de tribunales
 const cargarDatosDropdowns = async () => {
@@ -125,21 +116,37 @@ const cargarUltimaAudiencia = async () => {
     const response = await axios.get(`/api/Files/ultima-Audiencia/${props.id_Ltg}`);
     const datos = response.data.data;
 
-    // console.log('Datos de la última audiencia:', datos);
-
-    numero.value = datos.NumeroAudiencia;
-    tipo.value = datos.TipoAudiencia;
+    numero.value = datos.NumeroAudiencia || '';
+    tipo.value = datos.TipoAudiencia || '';
+    id_Tribunal.value = datos.Id_Tribunal || null;
 
     const { fecha, hora } = separarFechaYHora(datos.FechaAudiencia);
+
+    // Asignar valores si existen
     Fecha.value = fecha;
     horaSeleccionada.value = hora;
 
-    id_Tribunal.value = datos.Id_Tribunal;
+    // Si son nulos, asignar por defecto mañana a las 9:00am
+    if (!Fecha.value) {
+      const f = new Date();
+      f.setDate(f.getDate() + 1);
+      f.setHours(0, 0, 0, 0);
+      Fecha.value = f;
+    }
+
+    if (!horaSeleccionada.value) {
+      const h = new Date();
+      h.setDate(h.getDate() + 1);
+      h.setHours(9, 0, 0, 0);
+      horaSeleccionada.value = h;
+    }
+
   } catch (error) {
     console.error('Error al cargar última audiencia:', error);
     push.error('No se pudo cargar la última audiencia.');
   }
 };
+
 function combinarFechaYHora(fecha, hora) {
   if (!fecha || !hora) return null;
 
@@ -186,7 +193,7 @@ async function guardar() {
     emit('actualizar');
     emit('close');
     notif.resolve('Audiencia actualizada correctamente');
-      window.location.reload();
+    window.location.reload();
 
   } catch (error) {
     console.error('Error al actualizar audiencia:', error.response?.data || error.message);
@@ -196,10 +203,8 @@ async function guardar() {
 
 
 onMounted(async () => {
-  await Promise.all([
-    cargarDatosDropdowns(),
-    cargarUltimaAudiencia()
-  ]);
+  await cargarDatosDropdowns();
+  await cargarUltimaAudiencia();
 });
 </script>
 
@@ -210,8 +215,8 @@ onMounted(async () => {
   width: 500px;
   max-width: 90vw;
 }
+
 .field {
   margin-bottom: 1rem;
 }
-
 </style>

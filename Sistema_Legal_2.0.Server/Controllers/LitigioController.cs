@@ -142,7 +142,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                         command.Parameters.AddWithValue("@Nombre_Evidencia", string.IsNullOrWhiteSpace(datos.NombreEvidencia) ? nombreCarpeta : datos.NombreEvidencia);
                         command.Parameters.AddWithValue("@Comentario_Evidencia", string.IsNullOrWhiteSpace(datos.comentario) ? "Archivo subido sin nombre." : datos.comentario);
 
-                        command.Parameters.AddWithValue("@Fecha", datos.Fecha);
+                        command.Parameters.AddWithValue("@Fecha", datos.ltg_Fecha_Audiencia);
                         command.Parameters.AddWithValue("@Id_tribunal", datos.Id_tribunal);                   
                         command.Parameters.AddWithValue("@Tipo", (object?)datos.Tipo_audiencia ?? DBNull.Value);
 

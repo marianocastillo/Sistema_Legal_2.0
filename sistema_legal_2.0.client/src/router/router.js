@@ -5,10 +5,12 @@ import LoginView from '../components/views/LoginView.vue';
 import Drawer from '../layouts/Drawer.vue';
 import TodosRegistro from '../components/views/TodosRegistro.vue';
 import RegistroLitigio from '../components/views/RegistrarLitigio.vue';
+import ListadoTribunales from '@/components/views/Tribunales/ListadoTribunales.vue';
 import TableView from '../components/views/TableView.vue';
 import ModificarRegistro from '../components/views/ModificarRegistro.vue';
 import ListadoUsuariosView from '../components/views/Configs/ListadoUsuariosView.vue';
 import FormularioView from '../components/views/Configs/FormularioView.vue';
+import EdicionTribunales from '@/components/views/Tribunales/EdicionTribunales.vue';
 import BuscarLitigio from '@/components/views/BuscarLitigio.vue';
 import AdministradorLitigio from '@/components/views/AdministradorLitigio.vue';
 import VistaAbogado from '@/components/views/VistaAbogado.vue';
@@ -30,6 +32,13 @@ const routes = [
         path: 'GestionLitigios',
         name: 'GestionLitigios',
         component: AdministradorLitigio,
+        meta: { requiresAuth: true, roles: [1, 2] }
+      },
+      { path: '', redirect: '/GestionTribunales' },
+      {
+        path: 'GestionTribunales',
+        name: 'GestionTribunales',
+        component:ListadoTribunales ,
         meta: { requiresAuth: true, roles: [1, 2] }
       },
       {
@@ -91,6 +100,18 @@ const routes = [
         name: 'formulario',
         component: FormularioView,
         meta: { requiresAuth: true, roles: [1] }
+      },
+           {
+        path: 'EdicionTribunales',
+        name: 'NuevoTribunal',
+        component: EdicionTribunales,
+        meta: { requiresAuth: true, roles: [1, 2, 3, 4] }
+      },
+      {
+        path: 'EdicionTribunales/:id_Tribunal',
+        name: 'EdicionTribunales',
+        component: EdicionTribunales,
+        meta: { requiresAuth: true, roles: [1, 2, 3, 4] }
       },
       {
         path: 'litigio/detalle/:id',

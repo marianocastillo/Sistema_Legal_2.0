@@ -32,7 +32,6 @@ namespace Sistema_Legal_2._0.Server.Models
         // Evidencia
     public string NombreEvidencia { get; set; }
     public string comentario { get; set; }
-    public DateTime Fecha { get; set; }
     public IFormFile Archivo { get; set; }
 }
 

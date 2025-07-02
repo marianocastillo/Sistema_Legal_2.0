@@ -35,6 +35,12 @@ rutaInicio<template>
                 <span>Modificar</span>
               </router-link>
             </li>
+              <li v-if="['Supervisor'].includes(usuario.rol)">
+              <router-link to="/GestionTribunales" class="sidebar-link" exact-active-class="active">
+                <i class="pi pi-pencil" />
+                <span>Tribunales</span>
+              </router-link>
+            </li>
 
             <!-- Configuración: visible para todos -->
             <li ref="submenuRef">

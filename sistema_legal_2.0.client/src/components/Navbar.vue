@@ -52,6 +52,13 @@ const items = ref([
       router.push('/Configuracion/Usuarios');
     }
   },
+   {
+    label: 'Manejo de Tribuanles',
+    icon: 'pi pi-user-edit',
+    command: () => {
+      router.push('/Configuracion/Usuarios');
+    }
+  },
   {
     label: 'Cerrar sesión',
     icon: 'pi pi-sign-out',

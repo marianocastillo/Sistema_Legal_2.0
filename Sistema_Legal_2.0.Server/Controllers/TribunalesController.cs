@@ -47,12 +47,12 @@ namespace Sistema_Legal_2._0.Server.Controllers
         }
 
         // 🔍 Obtener un tribunal por ID
-        [HttpGet("ObtenerTribunales{id}")]
-        public async Task<IActionResult> GetPorId(int id)
+        [HttpGet("ObtenerTribunales/{id_Tribunal}")]
+        public async Task<IActionResult> GetPorId(int id_Tribunal)
         {
             using var connection = new SqlConnection(_cadenaSQL);
             var tribunal = await connection.QueryFirstOrDefaultAsync<Tribunales>(
-                "SELECT * FROM Tribunales WHERE Id_Tribunal = @id", new { id });
+                "SELECT * FROM Tribunales WHERE Id_Tribunal = @id_Tribunal", new { id_Tribunal });
 
             if (tribunal == null)
                 return NotFound(new { mensaje = "Tribunal no encontrado" });
@@ -76,7 +76,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
         }
 
         // ✏️ Actualizar tribunal
-        [HttpPut("ActualizarTribunal{id}")]
+        [HttpPut("ActualizarTribunal/{id}")]
         public async Task<IActionResult> Actualizar(int id, [FromBody] Tribunales dto)
         {
             const string sql = @"
@@ -102,7 +102,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
         }
 
         // ❌ Eliminar tribunal
-        [HttpDelete("EliminarTribunal{id}")]
+        [HttpDelete("EliminarTribunal/{id}")]
         public async Task<IActionResult> Eliminar(int id)
         {
             using var connection = new SqlConnection(_cadenaSQL);
@@ -113,6 +113,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
             return Ok(new { mensaje = "Tribunal eliminado correctamente" });
         }
+
     }
 }
 

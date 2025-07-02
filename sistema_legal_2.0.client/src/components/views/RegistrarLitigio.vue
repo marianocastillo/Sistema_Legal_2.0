@@ -462,7 +462,7 @@ function validarFormulario() {
 
   if (!expedienteFile.value) return "Debe subir un archivo.";
 
-  return null; // todo válido
+  return null;
 }
 
 const combinarFechaYHora = (fecha, hora) => {
@@ -513,22 +513,16 @@ const registrarLitigio = async () => {
   formData.append('id_Sentencia', parseInt(form.id_sentencia));
   formData.append('id_usuario', parseInt(form.id_usuario));
   formData.append('id_Estatus', 1);
-  formData.append('Tipo_audiencia', form.Tipo_audiencia || 'Documentos del acto');
+  formData.append('Tipo_audiencia', form.Tipo_audiencia || 'Indefinida');
   formData.append('NombreEvidencia', form.NombreEvidencia || 'Evidencia');
   formData.append('comentario', form.comentario || 'Sin comentario');
   formData.append('Nombre_Archivo', expedienteFile.value?.name || '');
-  formData.append('Ruta_Archivo', expedienteFile.value?.name || ''); // si tu backend lo genera, puedes omitirlo
-
+  formData.append('Ruta_Archivo', expedienteFile.value?.name || '');
   const fechaCompletaAudiencia = combinarFechaYHora(form.ltg_Fecha_Audiencia, horaSeleccionada.value);
 
-  // Solo agregar la fecha si es válida
   if (fechaCompletaAudiencia instanceof Date && !isNaN(fechaCompletaAudiencia.getTime())) {
-    formData.append('Fecha', fechaCompletaAudiencia.toISOString());
+    formData.append('ltg_Fecha_Audiencia', fechaCompletaAudiencia.toISOString());
   }
-
-
-  // Solo después de validar, usarla
-  formData.append('Fecha', fechaCompletaAudiencia.toISOString());
   if (form.id_Tribunal) {
     formData.append('Id_tribunal', parseInt(form.id_Tribunal));
   }
