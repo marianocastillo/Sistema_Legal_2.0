@@ -194,7 +194,8 @@
             :header="`-${audiencia.numeroAudiencia} - (${audiencia.tipoAudiencia}) - ${audiencia.fechaAudiencia ? formatDate(audiencia.fechaAudiencia) : 'Sin fecha asignada'}-`">
             <div v-if="audiencia.evidenciasYComentarios?.length">
               <Accordion :activeIndex="null" multiple>
-                <AccordionTab v-for="(ev, i) in audiencia.evidenciasYComentarios" :key="i" :header="ev.nombre_Evidencia">
+                <AccordionTab v-for="(ev, i) in audiencia.evidenciasYComentarios" :key="i"
+                  :header="ev.nombre_Evidencia">
                   <p>
                     <strong>Comentario:</strong>
                     {{ ev.comentario_Evidencia && ev.comentario_Evidencia.length > 250
@@ -202,7 +203,8 @@
                       : ev.comentario_Evidencia || 'Sin comentario' }}
 
                     <span v-if="ev.comentario_Evidencia && ev.comentario_Evidencia.length > 250">
-                      <a href="#" role="button" tabindex="0" @click.prevent="mostrarDialogo(ev.comentario_Evidencia)">Ver
+                      <a href="#" role="button" tabindex="0"
+                        @click.prevent="mostrarDialogo(ev.comentario_Evidencia)">Ver
                         más</a>
                     </span>
                   </p>
@@ -264,7 +266,8 @@
         </teleport>
 
         <!-- dialogo para ver comentario completo -->
-        <Dialog v-model:visible="dialogoVisible" modal header="Comentario completo" class="w-6">
+        <Dialog v-model:visible="dialogoVisible" modal header="Comentario completo" class="w-6 comentario"
+          style="white-space: pre-wrap; word-break: break-word;">
           <p style="white-space: pre-wrap;">{{ comentarioCompleto }}</p>
         </Dialog>
 
@@ -311,6 +314,7 @@ const props = defineProps({
     }
   }
 });
+
 
 const obtenerAudiencias = async () => {
   try {

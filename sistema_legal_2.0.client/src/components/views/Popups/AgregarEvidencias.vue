@@ -13,7 +13,9 @@
       <div class="comment-container">
         <textarea v-model="NombreEvidencia" placeholder="Nombre de la evidencia" rows="1" cols="1"></textarea>
         <br>
-        <textarea v-model="Comentario" placeholder="Descripción del documento" rows="8" cols="50"></textarea>
+        <textarea v-model="Comentario" placeholder="Escribe tu comentario aquí..." rows="8" cols="50"
+          maxlength="2000" class="texAreaComentario"></textarea>
+        <p>{{ Comentario.length }}/2000 caracteres</p>
       </div>
 
       <Notivue v-slot="item">
@@ -21,7 +23,7 @@
       </Notivue>
 
 
-      <Button label= " Subir Archivo" class="block mx-auto" icon="pi pi-upload" :loading="uploading" @click="guardar" />
+      <Button label=" Subir Archivo" class="block mx-auto" icon="pi pi-upload" :loading="uploading" @click="guardar" />
 
     </div>
   </div>
@@ -78,7 +80,7 @@ async function guardar() {
   try {
 
     await new Promise(resolve => setTimeout(resolve, 500));
-const response = await axios.post(`/api/Files/subir-evidencia`, formData, {
+    const response = await axios.post(`/api/Files/subir-evidencia`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -90,7 +92,7 @@ const response = await axios.post(`/api/Files/subir-evidencia`, formData, {
     emit('close');
 
     notif.resolve('Archivo subido correctamente');
-  // window.location.reload();
+    // window.location.reload();
   } catch (error) {
     console.error('Error al subir el archivo:', error.response?.data || error.message);
     notif.reject('Error al subir el archivo');
@@ -115,7 +117,8 @@ const response = await axios.post(`/api/Files/subir-evidencia`, formData, {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999; /* Opcional para asegurarte de que esté al frente */
+  z-index: 9999;
+  /* Opcional para asegurarte de que esté al frente */
 }
 
 .pop-up-content {
@@ -146,12 +149,27 @@ const response = await axios.post(`/api/Files/subir-evidencia`, formData, {
   position: relative;
 }
 
+.texAreaComentario{
+  white-space: pre-wrap;
+   word-wrap: break-word;
+   resize: vertical;
+   width: 100%;
+   padding: 10px;
+   font-size: 16px;
+   border: 1px solid #ccc;
+   border-radius: 5px;
+}
+
 .file-container,
 .comment-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-bottom: 15px;
+  width: 100%;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 textarea {
