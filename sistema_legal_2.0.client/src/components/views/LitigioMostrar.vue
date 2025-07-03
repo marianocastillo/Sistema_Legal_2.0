@@ -145,12 +145,20 @@
       <div class="info-card-double grid mb-5">
         <!-- Primera mitad -->
         <div class="info-half">
-          <h4 class="section-title">Detalles del tribunal </h4>
+          <h4 class="section-title">Detalles de la Audiencia </h4>
           <div class="info-table">
             <div class="row">
               <div class="cell">
                 <label>Tribunal</label>
                 <p>{{ litigio?.nombre_Tribunal || 'N/A' }}</p>
+              </div>
+               <div class="cell">
+                <label>Distrito Judicial</label>
+                <p>{{ litigio?.distrito || 'N/A' }}</p>
+              </div>
+               <div class="cell">
+                <label>Sala</label>
+                <p>{{ litigio?.nombre || 'N/A' }}</p>
               </div>
               <div class="cell">
                 <label>Teléfono</label>
@@ -162,21 +170,34 @@
                 <label>Dirección</label>
                 <p>{{ litigio?.tribunal_Direccion || 'N/A' }}</p>
               </div>
-              <div class="cell">
-                <label>Fecha Audiencia</label>
-                <p>{{ litigio.ltg_Fecha_Audiencia ? formatDate(litigio?.ltg_Fecha_Audiencia) : 'N/A' }}</p>
-              </div>
             </div>
           </div>
         </div>
 
         <!-- Segunda mitad (Descripción) -->
         <div class="info-half bordered-left">
-          <h4 class="section-title">Descripción</h4>
+          <h4 class="section-title">Detalles del horario</h4>
           <div class="info-table">
             <div class="row">
-              <div class="cell" style="grid-column: 1 / -1;">
+              <!-- <div class="cell" style="grid-column: 1 / -1;">
+                <label> Descripción</label>
                 <p>{{ litigio?.tribunal_Descripcion || 'N/A' }}</p>
+              </div> -->
+              <div class="cell">
+                <label>Audiencia actual</label>
+                <p>{{ litigio?.numeroAudiencia || 'N/A' }}</p>
+              </div>
+               <div class="cell">
+                <label>Fecha Audiencia</label>
+                <p>{{ litigio.ltg_Fecha_Audiencia ? formatDate(litigio?.ltg_Fecha_Audiencia) : 'N/A' }}</p>
+              </div>
+              <div class="cell">
+                <label>Modalidad</label>
+                <p>{{ litigio?.tipoAudiencia || 'N/A' }}</p>
+              </div>
+               <div class="cell">
+                <label>Location del tribunal</label>
+                <a :href="litigio?.mapsUrl" style="text-decoration: none;" target="_blank"><p> ir a la ubicacion</p></a>
               </div>
             </div>
           </div>
@@ -291,6 +312,7 @@ import AgregarAudiencias from '@/components/views/Popups/AgregarAudiencias.vue';
 import dayjs from 'dayjs';
 
 const audiencias = ref([]);
+const tribunalFinal = ref([]);
 const dialogoVisible = ref(false)
 const comentarioCompleto = ref('')
 const scrollContainer = ref(null);
@@ -320,7 +342,9 @@ const obtenerAudiencias = async () => {
   try {
     const res = await api.get(`/api/Litigio/audiencias-con-evidencias-y-tribunal/${props.id}`);
     audiencias.value = res.data.audiencias || [];
-    console.log(`este es la audiencia : ${audiencias.value}`)
+    tribunalFinal.value = res.data.tribunalFinal || [];
+
+    console.log(tribunalFinal.value);
     //Mezclar los datos del tribunal dentro del objeto litigio ya existente
     if (res.data.tribunalFinal) {
       litigio.value = {
@@ -500,6 +524,8 @@ onMounted(async () => {
     const response = await api.get(`/api/Litigio/detallados/${props.id}`);
     if (!response.data) throw new Error('La respuesta no contiene datos');
     litigio.value = response.data;
+
+
     await obtenerAudiencias();
     await cargarLineaDeTiempo();              // Carga eventos
     await nextTick();                         // Espera render del DOM
