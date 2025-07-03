@@ -107,10 +107,11 @@ namespace Sistema_Legal_2._0.Server.Controllers
                     new
                     {
                         IdLitigio = dto.IdLitigio,
-                        IdTribunal = dto.IdTribunal,
+                    
                         Numero = dto.Numero,
                         Tipo = dto.Tipo,
-                        Fecha = dto.Fecha
+                        Fecha = dto.Fecha,
+                        SalaId = dto.SalaId
                     },
                     commandType: CommandType.StoredProcedure
                 );
