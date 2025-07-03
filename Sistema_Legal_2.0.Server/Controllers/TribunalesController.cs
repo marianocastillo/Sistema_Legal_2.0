@@ -38,7 +38,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
             _configuration = config;
         }
 
-        [HttpGet]
+        [HttpGet("Tribunales")]
         public async Task<IActionResult> GetTodos()
         {
             using var connection = new SqlConnection(_cadenaSQL);
@@ -112,6 +112,77 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 return NotFound(new { mensaje = "Tribunal no encontrado para eliminar" });
 
             return Ok(new { mensaje = "Tribunal eliminado correctamente" });
+        }
+
+        [HttpGet("Salas")]
+        public async Task<IActionResult> GetTodas()
+        {
+            using var connection = new SqlConnection(_cadenaSQL);
+            var salas = await connection.QueryAsync<SalaDto>("SELECT * FROM Salas");
+            return Ok(salas);
+        }
+
+        // 🔍 Obtener sala por ID
+        [HttpGet("Salaspor/{id}")]
+        public async Task<IActionResult> PorId(int id)
+        {
+            using var connection = new SqlConnection(_cadenaSQL);
+            var sala = await connection.QueryFirstOrDefaultAsync<SalaDto>(
+                "SELECT * FROM Salas WHERE IdSala = @id", new { id });
+
+            if (sala == null)
+                return NotFound(new { mensaje = "Sala no encontrada" });
+
+            return Ok(sala);
+        }
+
+        // ➕ Crear nueva sala
+        [HttpPost("CrearSalas")]
+        public async Task<IActionResult> Crear([FromBody] SalaDto dto)
+        {
+            const string sql = @"
+            INSERT INTO Salas (Nombre, IdTribunal)
+            VALUES (@Nombre, @IdTribunal);
+            SELECT CAST(SCOPE_IDENTITY() AS INT);";
+
+            using var connection = new SqlConnection(_cadenaSQL);
+            var id = await connection.ExecuteScalarAsync<int>(sql, dto);
+
+            return Ok(new { mensaje = "Sala creada correctamente", id });
+        }
+
+        // ✏️ Actualizar sala
+        [HttpPut("Actualizarsalas/{id}")]
+        public async Task<IActionResult> Actualizar(int id, [FromBody] SalaDto dto)
+        {
+            dto.IdSala = id;
+
+            const string sql = @"
+            UPDATE Salas SET
+                Nombre = @Nombre,
+                IdTribunal = @IdTribunal
+            WHERE IdSala = @IdSala;";
+
+            using var connection = new SqlConnection(_cadenaSQL);
+            var filas = await connection.ExecuteAsync(sql, dto);
+
+            if (filas == 0)
+                return NotFound(new { mensaje = "Sala no encontrada para actualizar" });
+
+            return Ok(new { mensaje = "Sala actualizada correctamente" });
+        }
+
+        // ❌ Eliminar sala
+        [HttpDelete("Eliminarsalas/{id}")]
+        public async Task<IActionResult> Eliminarsalas(int id)
+        {
+            using var connection = new SqlConnection(_cadenaSQL);
+            var filas = await connection.ExecuteAsync("DELETE FROM Salas WHERE IdSala = @id", new { id });
+
+            if (filas == 0)
+                return NotFound(new { mensaje = "Sala no encontrada para eliminar" });
+
+            return Ok(new { mensaje = "Sala eliminada correctamente" });
         }
 
     }

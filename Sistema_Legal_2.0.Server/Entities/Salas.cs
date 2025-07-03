@@ -15,3 +15,10 @@ public partial class Salas
 
     public virtual Tribunales IdTribunalNavigation { get; set; }
 }
+
+public class SalaDto
+{
+    public int? IdSala { get; set; }
+    public string Nombre { get; set; }
+    public int IdTribunal { get; set; }
+}

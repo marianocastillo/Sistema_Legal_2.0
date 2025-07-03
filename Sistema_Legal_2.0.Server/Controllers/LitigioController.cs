@@ -241,10 +241,16 @@ public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
         // 2. Tribunal final (última audiencia)
         if (await reader.NextResultAsync() && await reader.ReadAsync())
         {
-            result.TribunalFinal = new TribunalDt
+            result.TribunalFinal = new AudienciaFinalDto
             {
+                tipoAudiencia = reader["Tipo"] as string,
+                numeroAudiencia = reader["Numero"] as string,
+                IdSala = reader["IdSala"] as int?,
+                Nombre = reader["Nombre"] as string,
                 id_Tribunal = reader["Id_Tribunal"] as int?,
-                nombre_Tribunal = reader["Nombre_Tribunal"] as string,
+                Distrito = reader["Distrito"] as string,
+                MapsUrl = reader["MapsUrl"] as string,
+                nombre_Tribunal = reader["Nombre_Tribunal"] as string,            
                 tribunal_Direccion = reader["tribunal_Direccion"] as string,
                 tribunal_Telefono = reader["tribunal_Telefono"] as string,
                 tribunal_Descripcion = reader["tribunal_Descripcion"] as string,

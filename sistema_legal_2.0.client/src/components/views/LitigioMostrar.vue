@@ -194,21 +194,24 @@
             :header="`-${audiencia.numeroAudiencia} - (${audiencia.tipoAudiencia}) - ${formatDate(audiencia.fechaAudiencia)}-`">
             <div v-if="audiencia.evidenciasYComentarios?.length">
               <Accordion :activeIndex="null" multiple>
-                <AccordionTab v-for="(ev, i) in audiencia.evidenciasYComentarios" :key="i" :header="ev.nombreEvidencia">
+                <AccordionTab v-for="(ev, i) in audiencia.evidenciasYComentarios" :key="i" :header="ev.nombre_Evidencia">
                   <p>
                     <strong>Comentario:</strong>
-                    {{ ev.textoComentario.length > 250 ? ev.textoComentario.slice(0, 250) + '...' : ev.textoComentario
-                    }}
-                    <span v-if="ev.textoComentario.length > 250">
-                      <a href="#" role="button" tabindex="0" @click.prevent="mostrarDialogo(ev.textoComentario)">Ver más</a>
+                    {{ ev.comentario_Evidencia && ev.comentario_Evidencia.length > 250
+                      ? ev.comentario_Evidencia.slice(0, 250) + '...'
+                      : ev.comentario_Evidencia || 'Sin comentario' }}
+
+                    <span v-if="ev.comentario_Evidencia && ev.comentario_Evidencia.length > 250">
+                      <a href="#" role="button" tabindex="0" @click.prevent="mostrarDialogo(ev.comentario_Evidencia)">Ver
+                        más</a>
                     </span>
                   </p>
                   <p><strong>Fecha:</strong> {{ formatDate(ev.fechaComentario) }}</p>
                   <p><strong>Archivo:</strong>
-                    <a :href="`/api/Files/rutaspor/${ev.rutaArchivo}`" target="_blank"
+                    <a :href="`/api/Files/rutaspor/${ev.ruta_Archivo}`" target="_blank"
                       class="text-blue-600 hover:underline">
-                      <i :class="getFileIcon(ev.nombreArchivo)" style="color: #ff0000;"></i>
-                      {{ ev.nombreArchivo }}
+                      <i :class="getFileIcon(ev.nombre_Archivo)" style="color: #ff0000;"></i>
+                      {{ ev.nombre_Archivo }}
                     </a>
                   </p>
                 </AccordionTab>
@@ -399,18 +402,24 @@ const togglePopUpTribunal = (id) => {
 };
 
 function mostrarDialogo(texto) {
-  comentarioCompleto.value = texto
+  comentarioCompleto.value = texto || 'Sin comentario'
   dialogoVisible.value = true
 }
 
-const getFileIcon = (nombre) => {
-  const ext = nombre.split('.').pop().toLowerCase();
-  if (ext === 'pdf') return 'pi pi-file-pdf';
-  if (['jpg', 'jpeg', 'png'].includes(ext)) return 'pi pi-image';
-  if (['doc', 'docx'].includes(ext)) return 'pi pi-file-word';
-  if (['xls', 'xlsx'].includes(ext)) return 'pi pi-file-excel';
-  return 'pi pi-file';
-};
+function getFileIcon(fileName) {
+  if (!fileName || typeof fileName !== 'string') return 'default-icon.png'
+
+  const extension = (fileName || '').split('.').pop()
+
+  switch (extension) {
+    case 'pdf': return 'pdf-icon.png'
+    case 'doc':
+    case 'docx': return 'word-icon.png'
+    case 'xls':
+    case 'xlsx': return 'excel-icon.png'
+    default: return 'file-icon.png'
+  }
+}
 
 function formatDate(fecha) {
   return dayjs(fecha).format('DD/MM/YYYY [a las] hh:mm A');
