@@ -24,4 +24,6 @@ public partial class Tribunales
     public string MapsUrl { get; set; }
 
     public virtual ICollection<Audiencias> Audiencias { get; set; } = new List<Audiencias>();
+
+    public virtual ICollection<Salas> Salas { get; set; } = new List<Salas>();
 }

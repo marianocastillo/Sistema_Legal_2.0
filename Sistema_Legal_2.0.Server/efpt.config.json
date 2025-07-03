@@ -59,6 +59,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[Salas]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[Tipo_Demanda]",
          "ObjectType": 0
       },

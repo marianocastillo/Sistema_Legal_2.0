@@ -31,6 +31,8 @@ public partial class db_silegContext : DbContext
 
     public virtual DbSet<Perfiles> Perfiles { get; set; }
 
+    public virtual DbSet<Salas> Salas { get; set; }
+
     public virtual DbSet<Tipo_Demanda> Tipo_Demanda { get; set; }
 
     public virtual DbSet<Tipo_Sentencia> Tipo_Sentencia { get; set; }
@@ -55,9 +57,6 @@ public partial class db_silegContext : DbContext
             entity.Property(e => e.Numero)
                 .IsRequired()
                 .HasMaxLength(30)
-                .IsUnicode(false);
-            entity.Property(e => e.Sala)
-                .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.Tipo)
                 .HasMaxLength(50)
@@ -255,6 +254,22 @@ public partial class db_silegContext : DbContext
             entity.Property(e => e.Nombre)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<Salas>(entity =>
+        {
+            entity.HasKey(e => e.IdSala);
+
+            entity.Property(e => e.IdSala).ValueGeneratedNever();
+            entity.Property(e => e.Nombre)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsFixedLength();
+
+            entity.HasOne(d => d.IdTribunalNavigation).WithMany(p => p.Salas)
+                .HasForeignKey(d => d.IdTribunal)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Salas_Tribunales");
         });
 
         modelBuilder.Entity<Tipo_Demanda>(entity =>

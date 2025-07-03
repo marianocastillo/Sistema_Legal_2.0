@@ -200,68 +200,71 @@ namespace Sistema_Legal_2._0.Server.Controllers
             }
         }
 
-        [HttpGet("audiencias-con-evidencias-y-tribunal/{id_litigio}")]
-        public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
+       [HttpGet("audiencias-con-evidencias-y-tribunal/{id_litigio}")]
+public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
+{
+    var result = new LitigioDetalleDto();
+
+    try
+    {
+        using var connection = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal"));
+        await connection.OpenAsync();
+
+        using var command = new SqlCommand("sp_ObtenerAudienciasConEvidenciasYTribunalFinal", connection)
         {
-            var result = new LitigioDetalleDto();
+            CommandType = CommandType.StoredProcedure
+        };
 
-            try
+        command.Parameters.AddWithValue("@id_litigio", id_litigio);
+
+        using var reader = await command.ExecuteReaderAsync();
+
+        // 1. Audiencias con evidencias, sala y tribunal
+        while (await reader.ReadAsync())
+        {
+            var audiencia = new AudienciaDto
             {
-                using var connection = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal"));
-                await connection.OpenAsync();
+                Id_audiencia = reader["Id_audiencia"] as int?,
+                numeroAudiencia = reader["numeroAudiencia"] as string,
+                tipoAudiencia = reader["tipoAudiencia"] as string,
+                fechaAudiencia = reader["fechaAudiencia"] as DateTime?,
+                IdSala = reader["IdSala"] as int?,
+                evidenciasYComentarios = reader["evidenciasJSON"] == DBNull.Value
+                    ? new List<EvidenciaDto>()
+                    : JsonConvert.DeserializeObject<List<EvidenciaDto>>(reader["evidenciasJSON"].ToString())
+            };
 
-                using var command = new SqlCommand("sp_ObtenerAudienciasConEvidenciasYTribunalFinal", connection)
-                {
-                    CommandType = CommandType.StoredProcedure
-                };
-
-                command.Parameters.AddWithValue("@id_litigio", id_litigio);
-
-                using var reader = await command.ExecuteReaderAsync();
-
-                // 1. Audiencias con evidencias
-                while (await reader.ReadAsync())
-                {
-                    var audiencia = new AudienciaDto
-                    {
-                        Id_audiencia = reader.IsDBNull(0) ? (int?)null : reader.GetInt32(0),
-                        numeroAudiencia = reader.IsDBNull(1) ? null : reader.GetString(1),
-                        tipoAudiencia = reader.IsDBNull(2) ? null : reader.GetString(2),
-                        fechaAudiencia = reader.IsDBNull(3) ? (DateTime?)null : reader.GetDateTime(3),
-                        Id_tribunal = reader.IsDBNull(4) ? (int?)null : reader.GetInt32(4),
-                        evidenciasYComentarios = reader.IsDBNull(5)
-                            ? new List<EvidenciaDto>()
-                            : JsonConvert.DeserializeObject<List<EvidenciaDto>>(reader.GetString(5))
-                    };
-                    result.Audiencias.Add(audiencia);
-                }
-
-                // 2. Tribunal final
-                if (await reader.NextResultAsync() && await reader.ReadAsync())
-                {
-                    result.TribunalFinal = new TribunalDt
-                    {
-                        id_Tribunal = reader.IsDBNull(0) ? (int?)null : reader.GetInt32(0),
-                        nombre_Tribunal = reader.IsDBNull(1) ? null : reader.GetString(1),
-                        tribunal_Direccion = reader.IsDBNull(2) ? null : reader.GetString(2),
-                        tribunal_Telefono = reader.IsDBNull(3) ? null : reader.GetString(3),
-                        tribunal_Descripcion = reader.IsDBNull(4) ? null : reader.GetString(4),
-                        ltg_Fecha_Audiencia = reader.IsDBNull(5) ? (DateTime?)null : reader.GetDateTime(5)
-                    };
-                }
-
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Error al obtener los datos",
-                    error = ex.Message
-                });
-            }
+            // Si quieres guardar sala o tribunal en el DTO, deberías ampliar AudienciaDto
+            result.Audiencias.Add(audiencia);
         }
+
+        // 2. Tribunal final (última audiencia)
+        if (await reader.NextResultAsync() && await reader.ReadAsync())
+        {
+            result.TribunalFinal = new TribunalDt
+            {
+                id_Tribunal = reader["Id_Tribunal"] as int?,
+                nombre_Tribunal = reader["Nombre_Tribunal"] as string,
+                tribunal_Direccion = reader["tribunal_Direccion"] as string,
+                tribunal_Telefono = reader["tribunal_Telefono"] as string,
+                tribunal_Descripcion = reader["tribunal_Descripcion"] as string,
+                ltg_Fecha_Audiencia = reader["ltg_Fecha_Audiencia"] as DateTime?
+            };
+        }
+
+        return Ok(result);
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500, new
+        {
+            success = false,
+            message = "Error al obtener los datos",
+            error = ex.Message
+        });
+    }
+}
+
 
 
 

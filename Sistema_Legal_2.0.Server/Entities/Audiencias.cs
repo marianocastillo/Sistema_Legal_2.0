@@ -19,11 +19,26 @@ public partial class Audiencias
 
     public DateTime? Fecha { get; set; }
 
-    public string Sala { get; set; }
-
     public virtual ICollection<Evidencias> Evidencias { get; set; } = new List<Evidencias>();
 
     public virtual Litigios Id_litigioNavigation { get; set; }
 
     public virtual Tribunales Id_tribunalNavigation { get; set; }
 }
+public partial class Audienciasltg
+{
+
+    public int Id_audiencia { get; set; }
+    public int Id_litigio { get; set; }
+
+    public string Numero { get; set; }
+
+    public string Tipo { get; set; }
+    public DateTime? Fecha { get; set; }
+
+    public virtual ICollection<Evidencias> Evidencias { get; set; } = new List<Evidencias>();
+
+
+}
+
+
