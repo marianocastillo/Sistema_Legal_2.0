@@ -164,7 +164,7 @@
               </div>
               <div class="cell">
                 <label>Fecha Audiencia</label>
-                <p>{{ formatDate(litigio?.ltg_Fecha_Audiencia) || 'N/A' }}</p>
+                <p>{{ litigio.ltg_Fecha_Audiencia ? formatDate(litigio?.ltg_Fecha_Audiencia) : 'N/A' }}</p>
               </div>
             </div>
           </div>
@@ -191,7 +191,7 @@
         </h2>
         <Accordion :activeIndex="null" multiple>
           <AccordionTab v-for="(audiencia, index) in audiencias" :key="index"
-            :header="`-${audiencia.numeroAudiencia} - (${audiencia.tipoAudiencia}) - ${formatDate(audiencia.fechaAudiencia)}-`">
+            :header="`-${audiencia.numeroAudiencia} - (${audiencia.tipoAudiencia}) - ${audiencia.fechaAudiencia ? formatDate(audiencia.fechaAudiencia) : 'Sin fecha asignada'}-`">
             <div v-if="audiencia.evidenciasYComentarios?.length">
               <Accordion :activeIndex="null" multiple>
                 <AccordionTab v-for="(ev, i) in audiencia.evidenciasYComentarios" :key="i" :header="ev.nombreEvidencia">
@@ -313,7 +313,7 @@ const obtenerAudiencias = async () => {
   try {
     const res = await api.get(`/api/Litigio/audiencias-con-evidencias-y-tribunal/${props.id}`);
     audiencias.value = res.data.audiencias || [];
-
+    console.log(`este es la audiencia : ${audiencias.value}`)
     //Mezclar los datos del tribunal dentro del objeto litigio ya existente
     if (res.data.tribunalFinal) {
       litigio.value = {

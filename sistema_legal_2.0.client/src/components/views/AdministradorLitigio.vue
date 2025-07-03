@@ -52,7 +52,10 @@
       <Column field="tipoDemanda_Nombre" header="Tipo de Demanda" />
       <Column field="ltg_Fecha_Audiencia" header="Fecha audiencia">
         <template #body="{ data }">
-          {{ new Date(data.ltg_Fecha_Audiencia).toLocaleString('es-ES', { hour12: false }) }}
+          {{ data.ltg_Fecha_Audiencia ? new Date(data.ltg_Fecha_Audiencia).toLocaleString('es-ES', { hour12: false }) :
+          'Sin fecha' }}
+
+          <!-- {{ new Date(data.ltg_Fecha_Audiencia).toLocaleString('es-ES', { hour12: false }) }} -->
         </template>
       </Column>
       <Column field="estatus_Descripcion">
@@ -185,6 +188,7 @@ function mostrarSinAsignar() {
     l => l.estatus_Descripcion?.toLowerCase().trim() === 'recibido'
   );
   data.value = filtrados;
+  console.log(data.value);
   totalSinAsignar.value = filtrados.length;
 }
 
@@ -236,7 +240,6 @@ onMounted(async () => {
   try {
     const response = await api.get('/api/Litigio/Litigio_detallado');
     todosLosLitigios.value = response.data;
-
     // Calcula todos los totales correctamente
     actualizarTotales();
     mostrarAsignados();

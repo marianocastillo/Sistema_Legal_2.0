@@ -156,7 +156,7 @@
           <legend class="font-bold text-lg">Datos del Representante</legend>
           <div class="grid">
 
-            <div class="field col-12 md:col-2">
+            <div class="field col-12 md:col-3">
               <label for="cedulaRepresentante" class="block mb-2 font-medium text-sm">Cédula <span
                   class="text-red-500">*</span></label>
               <InputText id="cedulaRepresentante" :maxlength="11" v-model="form.ltg_Cedula_Representante"
@@ -174,7 +174,7 @@
                 placeholder="Nombre completo" :disabled="!nombreHabilitado" />
             </div>
 
-            <div class="field col-12 md:col-5">
+            <div class="field col-12 md:col-3">
               <label for="nacionalidadRepresentante" class="block mb-2 font-medium text-sm">Nacionalidad del
                 Representante <span class="text-red-500">*</span></label>
               <InputText id="nacionalidadRepresentante" v-model="form.ltg_Nacionalidad_Representante" class="w-full"

@@ -7,7 +7,9 @@
       </div>
 
       <div class="field">
-        <InputText v-model="tipo" class="w-full" placeholder="Tipo de audiencia" />
+        <label for="tipoAudiencia" class="block mb-2 font-medium text-sm">Tipo de Audiencia *</label>
+        <Dropdown id="tipoAudiencia" v-model="tipo" :options="tiposAudiencia" optionLabel="label" optionValue="value"
+          class="w-full" placeholder="Seleccione un tipo" />
       </div>
 
       <div class="field">
@@ -55,6 +57,12 @@ const props = defineProps({
     required: true
   }
 });
+
+const tiposAudiencia = [
+  { label: 'Presencial ', value: 'Presencial' },
+  { label: 'Virtual', value: 'Virtual' },
+]
+
 
 const hoy = new Date();
 const manana = new Date();
@@ -120,6 +128,7 @@ const cargarUltimaAudiencia = async () => {
     tipo.value = datos.TipoAudiencia || '';
     id_Tribunal.value = datos.Id_Tribunal || null;
 
+    console.log(datos.FechaAudiencia);
     const { fecha, hora } = separarFechaYHora(datos.FechaAudiencia);
 
     // Asignar valores si existen
@@ -175,14 +184,16 @@ async function guardar() {
     return;
   }
 
+
   const body = {
     IdLitigio: props.id_Ltg,
     Numero: numero.value?.trim(),
     Tipo: tipo.value?.trim(),
     id_tribunal: id_Tribunal.value,
     fecha: fechaCompletaAudiencia
-
   };
+
+
 
   const notif = push.promise('Actualizando audiencia...');
 

@@ -31,7 +31,7 @@
           </div>
 
           <div class="col-md-4">
-            <label class="form-label">Distrito</label>
+            <label class="form-label">Provincia</label>
             <input type="text" v-model="tribunal.distrito" class="form-control"
               :class="{ 'is-invalid': errors.distrito }" />
             <div class="invalid-feedback" v-if="errors.distrito">{{ errors.distrito }}</div>

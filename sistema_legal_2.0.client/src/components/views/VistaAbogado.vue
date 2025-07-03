@@ -20,7 +20,7 @@
       'estatus_Descripcion'
     ]" class="p-datatable-sm" responsiveLayout="scroll">
       <Column field="ltg_acto" header="No.Acto" />
-      <Column field="ltg_Fecha_Acto" header="Fecha acto">
+      <Column field="ltg_Fecha_Acto" header="Fecha acto" style="min-width: 110px;">
         <template #body="{ data }">
           {{ data.ltg_Fecha_Acto?.split('T')[0] || '' }}
         </template>

@@ -18,7 +18,7 @@
           <th @click="sort('descripcion')">Descripción</th>
           <th @click="sort('telefono')">Teléfono</th>
           <th @click="sort('direccion')">Dirección</th>
-          <th @click="sort('distrito')">Distrito</th>
+          <th @click="sort('distrito')">Provincia </th>
           <th @click="sort('estatus')">Estado</th>
           <th>Acciones</th>
         </tr>
@@ -36,7 +36,7 @@
             </span>
           </td>
           <td>
-            <button class="btn btn-sm me-2" style="background-color: #003870;"
+            <button class="btn btn-sm me-1" style="background-color: #003870;"
               @click="$router.push({ name: 'EdicionTribunales', params: { id_Tribunal: tribunal.id_Tribunal } })">
               <i class="fas fa-edit" style="color: white;"></i>
             </button>
