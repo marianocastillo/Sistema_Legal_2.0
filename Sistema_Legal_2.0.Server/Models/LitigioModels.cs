@@ -25,7 +25,7 @@ namespace Sistema_Legal_2._0.Server.Models
 
     // Audiencia
     public DateTime? ltg_Fecha_Audiencia { get; set; }
-    public int? Id_tribunal { get; set; }
+    public int? SalaId { get; set; }
     public string? Tipo_audiencia { get; set; }
 
 

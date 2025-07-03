@@ -123,7 +123,7 @@ export default {
     },
     async loadTribunales() {
       try {
-        const response = await api.get('/api/Tribunales')
+        const response = await api.get('/api/Tribunales/Tribunales')
         this.tribunales = response.data
       } catch (err) {
         push.error({ title: 'Error', message: 'No se pudieron cargar los tribunales.' })

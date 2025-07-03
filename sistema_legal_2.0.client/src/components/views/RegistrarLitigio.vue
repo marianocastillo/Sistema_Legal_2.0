@@ -73,13 +73,14 @@
               <Calendar v-model="horaSeleccionada" showIcon timeOnly hourFormat="12" placeholder="Ej: 8:00am" />
             </div>
 
-            <!-- Tribunal -->
-            <div class="field col-12 md:col-3">
-              <label for="tribunal" class="block mb-2 font-medium text-sm">Tribunal <span
-                  class="text-muted">(opcional)</span></label>
-              <Dropdown id="tribunal" v-model="form.id_Tribunal" :options="tribunales" optionLabel="nombre_Tribunal"
+            <div class="field">
+              <label class="block mb-2 text-sm font-medium">Tribunal *</label>
+              <Dropdown v-model="tribunalSeleccionado" :options="tribunales" optionLabel="nombre_Tribunal"
                 optionValue="id_Tribunal" placeholder="Seleccione un tribunal" class="w-full" filter />
             </div>
+            <Dropdown v-model="form.SalaId" :options="salasFiltradas" :disabled="!tribunalSeleccionado" optionLabel="nombre"
+              optionValue="idSala" placeholder="Seleccione una sala" class="w-full" filter />
+
 
             <!-- Tipo de Audiencia -->
             <div class="field col-12 md:col-3">
@@ -234,7 +235,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted, watch } from 'vue'
+import { reactive, ref, onMounted, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { push } from 'notivue'
 import InputText from 'primevue/inputtext'
@@ -250,7 +251,7 @@ const hoy = ref(new Date()) // Esto representa la fecha de hoy
 const formRef = ref(null);
 const tiposDemanda = ref([])
 const estatusLitigios = ref([])
-const tribunales = ref([])
+
 const expedienteFile = ref(null)
 const enviando = ref(false)
 const rutaInicio = ref('');
@@ -258,7 +259,25 @@ const cedulaHabilitado = ref(false)
 const nombreHabilitado = ref(false)
 const nacionalidadHabilitado = ref(false)
 const horaSeleccionada = ref(null)
-const NombreEvidencia = ref(null)
+
+
+
+const tribunalSeleccionado = ref(null);
+const salaId = ref(null);
+const tribunales = ref([]);
+const todasLasSalas = ref([]);
+
+// Computed: filtrar salas del tribunal seleccionado
+const salasFiltradas = computed(() => {
+  return tribunalSeleccionado.value
+    ? todasLasSalas.value.filter(s => s.idTribunal === tribunalSeleccionado.value)
+    : [];
+});
+
+// Limpiar sala si cambia el tribunal
+watch(tribunalSeleccionado, () => {
+  salaId.value = null;
+});
 
 
 onMounted(async () => {
@@ -300,6 +319,7 @@ const form = reactive({
   ltg_Nacionalidad_Representante: '',
   ltg_Fecha_Audiencia: '',
   id_Tribunal: '',
+  SalaId: '',
   Tipo_audiencia: '',
   comentario: '',
   NombreEvidencia: '',
@@ -394,6 +414,7 @@ const cargarDatosDropdowns = async () => {
     tiposDemanda.value = data.tiposDemanda
     estatusLitigios.value = data.estatusLitigios
     tribunales.value = data.tribunales
+    todasLasSalas.value = data.salas
   } catch (error) {
     console.error('Error al cargar los datos de los dropdowns:', error)
   }
@@ -526,8 +547,8 @@ const registrarLitigio = async () => {
   if (fechaCompletaAudiencia instanceof Date && !isNaN(fechaCompletaAudiencia.getTime())) {
     formData.append('ltg_Fecha_Audiencia', fechaCompletaAudiencia.toISOString());
   }
-  if (form.id_Tribunal) {
-    formData.append('Id_tribunal', parseInt(form.id_Tribunal));
+  if (form.SalaId) {
+    formData.append('SalaId', parseInt(form.SalaId));
   }
   if (form.Tipo_audiencia) {
     formData.append('Tipo', form.Tipo_audiencia);
