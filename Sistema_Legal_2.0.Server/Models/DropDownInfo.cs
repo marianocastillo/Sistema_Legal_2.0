@@ -37,6 +37,15 @@
         public List<TribunalDto> Tribunales { get; set; }
         public List<TipoDemandaDto> TiposDemanda { get; set; }
         public List<EstatusLitigioDto> EstatusLitigios { get; set; }
+        public List<Salao> Salas { get; set; }  
+
+    }
+
+    public class Salao
+    {
+        public int IdSala { get; set; }
+        public string Nombre { get; set; }
+        public int IdTribunal { get; set; }
     }
 
 }

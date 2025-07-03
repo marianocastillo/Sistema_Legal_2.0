@@ -325,7 +325,6 @@ public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
             return Ok(resultado);
         }
 
-
         [HttpGet("datos-litigio")]
         public async Task<IActionResult> ObtenerDatosLitigio()
         {
@@ -333,7 +332,8 @@ public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
             {
                 Tribunales = new List<TribunalDto>(),
                 TiposDemanda = new List<TipoDemandaDto>(),
-                EstatusLitigios = new List<EstatusLitigioDto>()
+                EstatusLitigios = new List<EstatusLitigioDto>(),
+                Salas = new List<Salao>()
             };
 
             using (var connection = _db_silegContext.Database.GetDbConnection())
@@ -347,7 +347,7 @@ public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
 
                     using (var reader = await command.ExecuteReaderAsync())
                     {
-                        // Leer tribunales
+                      
                         while (await reader.ReadAsync())
                         {
                             datos.Tribunales.Add(new TribunalDto
@@ -356,31 +356,25 @@ public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
                                 Nombre_Tribunal = reader.GetString(1),
                                 Descripcion = reader.GetString(2),
                                 Telefono = reader.GetString(3),
-                                Estatus = reader.GetBoolean(4),                         
-                                Direccion = reader.GetString(5),
-                                Distrito = reader.GetString(6),
-                                MapsUrl = reader.GetString(7)
+                                Estatus = reader.GetBoolean(4),
+                                Distrito = reader.GetString(5),
+                                MapsUrl = reader.GetString(6),
+                                Direccion = reader.GetString(7)
                             });
                         }
 
-                        // Siguiente resultset
                         await reader.NextResultAsync();
-
-                        // Leer tipos de demanda
                         while (await reader.ReadAsync())
                         {
                             datos.TiposDemanda.Add(new TipoDemandaDto
                             {
                                 id_demanda = reader.GetInt32(0),
                                 Nombre = reader.GetString(1),
-                           
                             });
                         }
 
-                        // Siguiente resultset
+                   
                         await reader.NextResultAsync();
-
-                        // Leer estatus de litigios
                         while (await reader.ReadAsync())
                         {
                             datos.EstatusLitigios.Add(new EstatusLitigioDto
@@ -389,12 +383,25 @@ public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
                                 ltg_description = reader.GetString(1)
                             });
                         }
+
+                  
+                        await reader.NextResultAsync();
+                        while (await reader.ReadAsync())
+                        {
+                            datos.Salas.Add(new Salao
+                            {
+                                IdSala = reader.GetInt32(0),
+                                Nombre = reader.GetString(1),
+                                IdTribunal = reader.GetInt32(2)
+                            });
+                        }
                     }
                 }
             }
 
             return Ok(datos);
         }
+
 
         [HttpGet("Litigio_detallado")]
         public async Task<ActionResult<IEnumerable<LitigioDetallado>>> ObtenerLitigiosDetallados()
