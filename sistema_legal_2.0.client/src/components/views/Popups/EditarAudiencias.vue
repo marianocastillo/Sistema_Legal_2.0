@@ -107,6 +107,8 @@ const cargarUltimaAudiencia = async () => {
     horaSeleccionada.value = new Date(audiencia.FechaAudiencia);
 
     // ✅ Setea tribunal primero
+
+    console.log(audiencia)
     tribunalSeleccionado.value = audiencia.IdSala
       ? todasLasSalas.value.find(s => s.idSala === audiencia.IdSala)?.idTribunal || null
       : null;

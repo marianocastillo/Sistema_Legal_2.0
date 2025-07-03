@@ -179,10 +179,6 @@
           <h4 class="section-title">Detalles del horario</h4>
           <div class="info-table">
             <div class="row">
-              <!-- <div class="cell" style="grid-column: 1 / -1;">
-                <label> Descripción</label>
-                <p>{{ litigio?.tribunal_Descripcion || 'N/A' }}</p>
-              </div> -->
               <div class="cell">
                 <label>Audiencia actual</label>
                 <p>{{ litigio?.numeroAudiencia || 'N/A' }}</p>
@@ -197,7 +193,11 @@
               </div>
                <div class="cell">
                 <label>Location del tribunal</label>
-                <a :href="litigio?.mapsUrl" style="text-decoration: none;" target="_blank"><p> ir a la ubicacion</p></a>
+                <a :href="litigio?.mapsUrl" style="text-decoration: none;" target="_blank"><p> ir a la ubicación</p></a>
+              </div>
+               <div class="cell" style="grid-column: 1 / -1;">
+                <label> Descripción del tribunal</label>
+                <p>{{ litigio?.tribunal_Descripcion || 'N/A' }}</p>
               </div>
             </div>
           </div>
