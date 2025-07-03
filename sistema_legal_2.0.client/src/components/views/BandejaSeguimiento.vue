@@ -38,7 +38,7 @@
       responsiveLayout="scroll"
     >
       <Column field="ltg_acto" header="N⁰ Acto" />
-      <Column field="ltg_Fecha_Acto" header="Fecha Acto">
+      <Column field="ltg_Fecha_Acto" header="Fecha Acto" style="min-width: 110px;">
         <template #body="{ data }">
           {{ data.ltg_Fecha_Acto?.split('T')[0] || '' }}
         </template>
@@ -46,7 +46,7 @@
       <Column field="ltg_Cedula_Demandante" header="N⁰ Documento" />
       <Column field="ltg_Nombre_Demandante" header="Nombre Demandante" />
       <Column field="tipoDemanda_Nombre" header="Tipo de Demanda" />
-      <Column field="ltg_Fecha_Audiencia" header="Fecha Audiencia">
+      <Column field="ltg_Fecha_Audiencia" header="Fecha Audiencia" style="min-width: 110px;">
         <template #body="{ data }">
           {{ new Date(data.ltg_Fecha_Audiencia).toLocaleString('es-ES', { hour12: false }) }}
         </template>

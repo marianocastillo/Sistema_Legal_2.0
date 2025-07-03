@@ -160,8 +160,6 @@ function calculateRows() {
   rows.value = Math.max(Math.floor(tableHeight / estimatedRowHeight) - 1, 1);
 }
 
-
-
 function handleAsignacionExitosa() {
   // Recargar todos los litigios desde el backend
   api.get('/api/Litigio/Litigio_detallado')

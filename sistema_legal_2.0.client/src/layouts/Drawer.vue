@@ -1,4 +1,4 @@
-rutaInicio<template>
+<template>
   <div class="layout">
     <!-- Sidebar -->
     <aside class="sidebar" :class="{ hidden: !isSidebarVisible && isMobile }">
@@ -35,7 +35,7 @@ rutaInicio<template>
                 <span>Modificar</span>
               </router-link>
             </li>
-              <li v-if="['Supervisor'].includes(usuario.rol)">
+              <li v-if="['Supervisor', 'Administrador'].includes(usuario.rol)">
               <router-link to="/GestionTribunales" class="sidebar-link" exact-active-class="active">
                 <i class="pi pi-pencil" />
                 <span>Tribunales</span>
