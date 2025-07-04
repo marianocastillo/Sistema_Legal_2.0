@@ -87,6 +87,7 @@ const todasLasSalas = ref([]);
 const rawUser = localStorage.getItem('usuario');
 const user = rawUser ? JSON.parse(rawUser) : null;
 
+
 const tiposAudiencia = [
   { label: 'Presencial', value: 'Presencial' },
   { label: 'Virtual', value: 'Virtual' },

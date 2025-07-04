@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.CodeAnalysis;
 using Newtonsoft.Json;
+using System.Globalization;
 
 namespace Sistema_Legal_2._0.Server.Controllers
 {
@@ -562,7 +563,7 @@ public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
                     {
                         Status = tipo,
                         Date = fecha,
-                        Content = anterior != null ? $"De {anterior} a {nuevo}" : nuevo,
+                        Content = anterior != null ? $"-{anterior}--{nuevo}-" : nuevo,
                         Icon = IconoPorTipo(tipo),
                         Color = ColorPorTipo(tipo),
                         Usuario = usuarioNombre
@@ -575,12 +576,23 @@ public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
             private string IconoPorTipo(string tipo)
             {
                 return tipo switch
+
+
+              
                 {
+                    
+                    "Creación del litigio" => "pi pi-building",
+                    "Nueva Audiencia" => "pi pi-calendar-plus",
+                    "Actualización de Audiencia" => "pi pi-calendar",
+
+                    "Nueva Evidencia" => "pi pi-file-pdf",
                     "Cambio de tribunal" => "pi pi-building",
                     "Cambio de estatus" => "pi pi-info-circle",
-                    "Registro de sentencia" => "pi pi-check",
+                    "Cambio de sentencia" => "pi pi-check",
                     "Inicio del litigio" => "pi pi-flag",
-                    _ => "pi pi-clock"
+                    "Cambio de representante" => "pi pi-user-edit",
+
+                    _ => "pi-exclamation-triangle"
                 };
             }
 
@@ -588,11 +600,15 @@ public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
             {
                 return tipo switch
                 {
-                    "Cambio de tribunal" => "#2196F3",
+                    "Nueva Audiencia" => "#75F07B",
+                    "Actualización de Audiencia" => "#75F0B2",
+                    "Nueva Evidencia" => "#E02500",
+                    "Cambio de tribunal" => "##C5F0DE",
                     "Cambio de estatus" => "#FFC107",
-                    "Registro de sentencia" => "#4CAF50",
+                    "Cambio de sentencia" => "#4CAF50",
                     "Inicio del litigio" => "#9C27B0",
-                    _ => "#607D8B"
+                    "Cambio de representante" => "#CABBE1",
+                    _ => "#E0CB00"
                 };
             }
         }

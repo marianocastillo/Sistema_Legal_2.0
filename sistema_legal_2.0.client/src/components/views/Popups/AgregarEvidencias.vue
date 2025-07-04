@@ -39,11 +39,11 @@ import axios from 'axios';
 const uploading = ref(false);
 const emit = defineEmits(['close', 'actualizar']);
 
-
+const rawUser = localStorage.getItem('usuario');
+const user = rawUser ? JSON.parse(rawUser) : null;
 const archivo = ref(null);
 const Comentario = ref('');
 const NombreEvidencia = ref('');
-const IdUsuario = 1;
 const props = defineProps({
   id_Ltg: {
     type: Number,
@@ -70,9 +70,10 @@ async function guardar() {
   const formData = new FormData();
   formData.append('Archivo', archivo.value);
   formData.append('Comentario', comentarioAuto);
-  formData.append('IdUsuario', IdUsuario);
+  formData.append('IdUsuario', user.idUsuario);
   formData.append('NombreEvidencia', nombreAuto);
   formData.append('IdLitigio', props.id_Ltg);
+
 
   // Notificación tipo promesa
   const notif = push.promise('Subiendo archivo...');
