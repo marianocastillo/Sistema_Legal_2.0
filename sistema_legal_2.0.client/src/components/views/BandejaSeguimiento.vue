@@ -5,14 +5,8 @@
 
       <!-- Filtros por estatus -->
       <div class="flex items-center gap-2 filtro-busqueda-bar">
-        <Dropdown
-          v-model="estatusSeleccionado"
-          :options="estatusDisponibles"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="Filtrar por estatus"
-          class="w-full md:w-16rem"
-        />
+        <Dropdown v-model="estatusSeleccionado" :options="estatusDisponibles" optionLabel="label" optionValue="value"
+          placeholder="Filtrar por estatus" class="w-full md:w-16rem" />
 
         <span class="p-input-icon-left search-input-wrapper">
           <i class="pi pi-search search-icon" />
@@ -23,20 +17,12 @@
     </div>
 
     <!-- Tabla -->
-    <DataTable
-      :value="litigiosFiltrados"
-      :paginator="true"
-      :rows="rows"
-      :filters="filters"
-      :globalFilterFields="[
-        'ltg_acto',
-        'ltg_Cedula_Demandante',
-        'ltg_Nombre_Demandante',
-        'estatus_Descripcion'
-      ]"
-      class="p-datatable-sm"
-      responsiveLayout="scroll"
-    >
+    <DataTable :value="litigiosFiltrados" :paginator="true" :rows="rows" :filters="filters" :globalFilterFields="[
+      'ltg_acto',
+      'ltg_Cedula_Demandante',
+      'ltg_Nombre_Demandante',
+      'estatus_Descripcion'
+    ]" class="p-datatable-sm" responsiveLayout="scroll">
       <Column field="ltg_acto" header="N⁰ Acto" />
       <Column field="ltg_Fecha_Acto" header="Fecha Acto" style="min-width: 110px;">
         <template #body="{ data }">
@@ -48,7 +34,8 @@
       <Column field="tipoDemanda_Nombre" header="Tipo de Demanda" />
       <Column field="ltg_Fecha_Audiencia" header="Fecha Audiencia" style="min-width: 110px;">
         <template #body="{ data }">
-          {{ new Date(data.ltg_Fecha_Audiencia).toLocaleString('es-ES', { hour12: false }) }}
+          {{ data.ltg_Fecha_Audiencia ? new Date(data.ltg_Fecha_Audiencia).toLocaleString('es-ES', { hour12: false }) :
+            'Sin fecha' }}
         </template>
       </Column>
       <Column field="estatus_Descripcion">
@@ -66,12 +53,8 @@
 
       <Column header="Acciones">
         <template #body="{ data }">
-          <router-link
-            :to="`/litigio/detalle/${data.id_Ltg}`"
-            class="btn btn-sm"
-            style="background-color: #003870; border-color: #003870"
-            title="Ver litigio"
-          >
+          <router-link :to="`/litigio/detalle/${data.id_Ltg}`" class="btn btn-sm"
+            style="background-color: #003870; border-color: #003870" title="Ver litigio">
             <i class="pi pi-eye white-icon"></i>
           </router-link>
         </template>
@@ -162,29 +145,35 @@ onMounted(async () => {
   display: block;
   width: 100%;
 }
+
 .status-recibido {
   background-color: #d0eaff;
   color: #004085;
 }
+
 .status-analisis {
   background-color: #b8ecff;
   color: #07506c;
 }
+
 .status-tribunal {
   background-color: #fff3cd;
   color: #856404;
 }
+
 .status-sentencia {
   background-color: #d4edda;
   color: #155724;
 }
+
 .status-casacion {
   background-color: #f8d7da;
   color: #721c24;
 }
+
 .status-cierre {
   background-color: #d5f1c4;
-  color:  #47ac6d;
+  color: #47ac6d;
 }
 
 .filtro-busqueda-bar {
