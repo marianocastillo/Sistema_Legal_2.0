@@ -263,7 +263,7 @@
       <div class="flex justify-content-between mt-4 pt-3 border-top-1 surface-border">
         <Button label="Agregar Evidencia y Comentario" icon="pi pi-comment" class="custom-home-btn "
           @click="togglePopUpEvidencia(id)" />
-        <Button label="Agregar Audiencia" icon="pi pi-calendar-plus" class="custom-home-btn "
+        <Button  label="Agregar Audiencia" icon="pi pi-calendar-plus" class="custom-home-btn "
           @click="togglePopUpAudiencia(id)" />
         <teleport to="body">
           <transition name="fade">

@@ -1,13 +1,25 @@
 <template>
-  <Dialog v-model:visible="visible" modal class="dialog-agregar-audiencia" header="Editar Audiencia"
-    :closable="true" :draggable="false" :style="{ width: '500px' }">
+  <Dialog v-model:visible="visible" modal class="dialog-agregar-audiencia" :closable="false" :draggable="false"
+    @hide="emit('close')">
+    <template #header>
+      <div class="custom-header">
+        <span class="dialog-title">Editar Audiencia</span>
+        <button class="close-btn" @click="visible = false">
+          &times;
+        </button>
+      </div>
+    </template>
+
     <div class="form-content">
       <div class="field">
+          <label class="block mb-2 text-sm font-medium">Nombre de la Audiencia *</label>
         <InputText v-model="numero" class="w-full" placeholder="Nombre de la Nueva Audiencia" />
       </div>
 
       <div class="field">
-        <InputText v-model="tipo" class="w-full" placeholder="Tipo de audiencia" />
+        <label class="block mb-2 text-sm font-medium">Modalidad*</label>
+         <Dropdown id="tipoAudiencia" v-model="tipo" :options="tiposAudiencia" optionLabel="label"
+          optionValue="value" class="w-full" placeholder="Seleccione un tipo" />
       </div>
 
       <div class="field">
@@ -18,8 +30,7 @@
 
       <div class="field">
         <label class="block mb-2 font-medium text-sm">Hora Audiencia *</label>
-        <Calendar v-model="horaSeleccionada" showIcon timeOnly hourFormat="12" placeholder="09:00am"
-          class="w-full" />
+        <Calendar v-model="horaSeleccionada" showIcon timeOnly hourFormat="12" placeholder="09:00am" class="w-full" />
       </div>
 
       <div class="field">
@@ -30,13 +41,12 @@
 
       <div class="field">
         <label class="block mb-2 font-medium text-sm">Sala *</label>
-        <Dropdown v-model="salaId" :options="salasFiltradas" :disabled="!tribunalSeleccionado"
-          optionLabel="nombre" optionValue="idSala" placeholder="Seleccione una sala" class="w-full" filter />
+        <Dropdown v-model="salaId" :options="salasFiltradas" :disabled="!tribunalSeleccionado" optionLabel="nombre"
+          optionValue="idSala" placeholder="Seleccione una sala" class="w-full" filter />
       </div>
 
       <div class="mt-4 text-center">
-        <Button label="Actualizar" icon="pi pi-calendar-plus" class="p-button" :loading="uploading"
-          @click="guardar" />
+        <Button label="Actualizar" icon="pi pi-calendar-plus" class="p-button" :loading="uploading" @click="guardar" />
       </div>
 
       <Notivue v-slot="item">
@@ -47,7 +57,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch, nextTick} from 'vue';
+import { ref, onMounted, computed, watch, nextTick } from 'vue';
 
 import axios from 'axios';
 import Dialog from 'primevue/dialog';
@@ -76,6 +86,11 @@ const tribunales = ref([]);
 const todasLasSalas = ref([]);
 const rawUser = localStorage.getItem('usuario');
 const user = rawUser ? JSON.parse(rawUser) : null;
+
+const tiposAudiencia = [
+  { label: 'Presencial', value: 'Presencial' },
+  { label: 'Virtual', value: 'Virtual' },
+]
 
 // Filtrar salas según el tribunal seleccionado
 const salasFiltradas = computed(() => {
@@ -168,7 +183,38 @@ onMounted(async () => {
   width: 500px;
   max-width: 90vw;
 }
+
 .field {
   margin-bottom: 1rem;
 }
+
+
+.custom-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  font-weight: bold;
+  padding: 0 0 0 6.5rem;
+  border-bottom: 1px solid rgb(221, 216, 216);
+}
+
+.dialog-title {
+  font-size: 1.2rem;
+  color: #003870;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: #888;
+  transition: color 0.2s;
+}
+
+.close-btn:hover {
+  color: #e53935;
+}
+
 </style>
