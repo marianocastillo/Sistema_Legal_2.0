@@ -62,6 +62,8 @@ const tribunalSeleccionado = ref(null);
 const salaId = ref(null);
 const tribunales = ref([]);
 const todasLasSalas = ref([]);
+const rawUser = localStorage.getItem('usuario');
+const user = rawUser ? JSON.parse(rawUser) : null;
 
 // Computed: filtrar salas del tribunal seleccionado
 const salasFiltradas = computed(() => {
@@ -102,13 +104,20 @@ async function guardar() {
   if (!fechaCompleta) return push.warning("Debe seleccionar fecha y hora.");
   if (!salaId.value) return push.warning("Debe seleccionar una sala.");
 
-  const body = {
-    idLitigio: props.id_Ltg,
-    Numero: numero.value.trim(),
-    Tipo: tipo.value.trim(),
-    Fecha: fechaCompleta,
-    SalaId: salaId.value
-  };
+  if (!user || !user.idUsuario) {
+  return push.warning("No se encontró el usuario en localStorage.");
+
+
+}
+const body = {
+  idLitigio: Number(props.id_Ltg),
+  numero: numero.value.trim(),
+  tipo: tipo.value.trim(),
+  fecha: fechaCompleta,
+  salaId: Number(salaId.value),
+  id_usuario: user.idUsuario
+}
+
 
   const notif = push.promise('Agregando audiencia...');
   try {
@@ -124,7 +133,10 @@ async function guardar() {
 
 onMounted(async () => {
   await cargarDatosDropdowns();
+  console.log(user);
 });
+
+
 </script>
 
 <style scoped>

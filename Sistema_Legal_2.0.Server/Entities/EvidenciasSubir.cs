@@ -17,6 +17,8 @@ namespace Sistema_Legal_2._0.Server.Entities
         public string Tipo { get; set; }
         public DateTime Fecha { get; set; }
         public int SalaId { get; set; } // ← importante
+
+        public int id_usuario { get; set; }
     }
 
 

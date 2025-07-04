@@ -104,21 +104,6 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 using var conn = new SqlConnection(_cadenaSQL);
                 await conn.OpenAsync();
 
-                // ✅ Obtener ID del usuario desde Claims (o donde lo guardes)
-                var usuarioIdClaim = User.FindFirst(ClaimTypes.NameIdentifier); // o "sub", o tu propio claim
-                int? usuarioId = usuarioIdClaim != null ? int.Parse(usuarioIdClaim.Value) : null;
-
-                // ✅ Guardar el usuario en SQL Server Session Context
-                if (usuarioId.HasValue)
-                {
-                    await conn.ExecuteAsync("EXEC sp_set_session_context @key, @value", new
-                    {
-                        key = "usuario_id",
-                        value = usuarioId.Value
-                    });
-                }
-
-                // 🟢 Ejecutar el SP normalmente
                 var result = await conn.QueryFirstAsync<int>(
                     "InsertarAudiencia",
                     new
@@ -127,7 +112,8 @@ namespace Sistema_Legal_2._0.Server.Controllers
                         Numero = dto.Numero,
                         Tipo = dto.Tipo,
                         Fecha = dto.Fecha,
-                        SalaId = dto.SalaId
+                        SalaId = dto.SalaId,
+                        id_usuario  = dto.id_usuario
                     },
                     commandType: CommandType.StoredProcedure
                 );
@@ -159,27 +145,16 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 using var connection = new SqlConnection(_cadenaSQL);
                 await connection.OpenAsync();
 
-                // ✅ Establecer usuario_id en session_context si aplica
-                var usuarioIdClaim = User.FindFirst(ClaimTypes.NameIdentifier); // o "sub", o personalizado
-                int? usuarioId = usuarioIdClaim != null ? int.Parse(usuarioIdClaim.Value) : null;
 
-                if (usuarioId.HasValue)
-                {
-                    await connection.ExecuteAsync("EXEC sp_set_session_context @key, @value", new
-                    {
-                        key = "usuario_id",
-                        value = usuarioId.Value
-                    });
-                }
-
-                // 🟢 Ejecutar SP con la sala en lugar del tribunal
+       
                 var parametros = new
                 {
                     IdLitigio = dto.IdLitigio,
                     Numero = dto.Numero,
                     Tipo = dto.Tipo,
                     Fecha = fechaLocal,
-                    SalaId = dto.SalaId
+                    SalaId = dto.SalaId,
+                    id_usuario = dto.id_usuario
                 };
 
                 await connection.ExecuteAsync("ActualizarAudiencia", parametros, commandType: CommandType.StoredProcedure);

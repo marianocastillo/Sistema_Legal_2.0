@@ -74,6 +74,8 @@ const tribunalSeleccionado = ref(null);
 
 const tribunales = ref([]);
 const todasLasSalas = ref([]);
+const rawUser = localStorage.getItem('usuario');
+const user = rawUser ? JSON.parse(rawUser) : null;
 
 // Filtrar salas según el tribunal seleccionado
 const salasFiltradas = computed(() => {
@@ -105,20 +107,12 @@ const cargarUltimaAudiencia = async () => {
     tipo.value = audiencia.TipoAudiencia || '';
     Fecha.value = new Date(audiencia.FechaAudiencia);
     horaSeleccionada.value = new Date(audiencia.FechaAudiencia);
-
-    // ✅ Setea tribunal primero
-
     console.log(audiencia)
     tribunalSeleccionado.value = audiencia.IdSala
       ? todasLasSalas.value.find(s => s.idSala === audiencia.IdSala)?.idTribunal || null
       : null;
-
-    // ✅ Luego espera un tick para que computed salasFiltradas se actualice
     await nextTick();
-
-    // ✅ Ahora puedes asignar la sala correctamente
     salaId.value = audiencia.IdSala || null;
-
   } catch (error) {
     console.error('Error al cargar audiencia:', error);
     push.error('No se pudo cargar la audiencia.');
@@ -146,7 +140,8 @@ async function guardar() {
     Numero: numero.value.trim(),
     Tipo: tipo.value.trim(),
     Fecha: fechaFinal,
-    SalaId: salaId.value
+    SalaId: salaId.value,
+    id_usuario: user.idUsuario
   };
 
   const notif = push.promise('Actualizando audiencia...');

@@ -161,11 +161,11 @@ const form = ref({
   fechaAudiencia: '',
   tribunal: null,
   estatus: null,
-  id_usuario: null,
-  id_Sentencia: null
+  id_Sentencia: null,
 })
 
-//Estado visual de error para cédula o RNC
+  const usuarioLogueado = JSON.parse(localStorage.getItem('usuario'));
+  form.id_usuario = usuarioLogueado.idUsuario;
 
 
 const tiposDemandante = [
@@ -220,7 +220,8 @@ onMounted(async () => {
       fechaAudiencia: data.ltg_Fecha_Audiencia ? new Date(data.ltg_Fecha_Audiencia) : null,
       tribunal: data.id_Tribunal,
       estatus: data.id_Estatus ?? data.ltg_estatus ?? null,
-      id_Sentencia: data.id_Sentencia ?? null
+      id_Sentencia: data.id_Sentencia ?? null,
+      id_usuario: data.id_usuario ?? null
     }
 
     const usuarioActual = localStorage.getItem('usuario');
@@ -296,7 +297,8 @@ const registrarLitigio = async () => {
     id_Tribunal: form.value.tribunal,
     id_Sentencia: form.value.id_Sentencia,
     id_usuario: form.value.id_usuario,
-    id_Estatus: form.value.estatus
+    id_Estatus: form.value.estatus,
+    id_usuario: form.value.id_usuario
   }
 
   try {

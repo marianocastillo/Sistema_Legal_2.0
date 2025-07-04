@@ -76,8 +76,10 @@ namespace Sistema_Legal_2._0.Server.Controllers
                     cmd.Parameters.AddWithValue("@ltg_Nombre_Representante", (object?)litigio.ltg_Nombre_Representante ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@id_Sentencia", litigio.id_Sentencia);
                     cmd.Parameters.AddWithValue("@id_Estatus", litigio.id_Estatus);
+                    cmd.Parameters.AddWithValue("@id_usuario", litigio.id_usuario);
 
-                    int rowsAffected = await cmd.ExecuteNonQueryAsync();
+
+                        int rowsAffected = await cmd.ExecuteNonQueryAsync();
 
                     if (rowsAffected == 0)
                         return NotFound("Litigio no encontrado o no modificado.");

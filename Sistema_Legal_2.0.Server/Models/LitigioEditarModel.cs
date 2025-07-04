@@ -15,6 +15,8 @@
         public int? id_Tipo_Demanda { get; set; }
         public int? id_Sentencia { get; set; }
         public int? id_Estatus { get; set; }
+        public int id_usuario { get; set; }
+
     }
 
 }

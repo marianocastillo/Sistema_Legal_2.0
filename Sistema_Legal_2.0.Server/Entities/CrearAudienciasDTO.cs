@@ -9,6 +9,7 @@
         public DateTime? Fecha { get; set; }
 
         public int SalaId { get; set; }
+        public int id_usuario { get; set; }
 
 
     }

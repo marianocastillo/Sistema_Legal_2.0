@@ -22,3 +22,12 @@ public class SalaDto
     public string Nombre { get; set; }
     public int IdTribunal { get; set; }
 }
+
+public class SalaConTribunalDto
+{
+    public int IdSala { get; set; }
+    public string Nombre { get; set; }
+    public int IdTribunal { get; set; }
+    public string Nombre_Tribunal { get; set; }
+}
+

@@ -101,7 +101,6 @@ namespace Sistema_Legal_2._0.Server.Controllers
             return Ok(new { mensaje = "Tribunal actualizado correctamente" });
         }
 
-        // ❌ Eliminar tribunal
         [HttpDelete("EliminarTribunal/{id}")]
         public async Task<IActionResult> Eliminar(int id)
         {
@@ -113,28 +112,65 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
             return Ok(new { mensaje = "Tribunal eliminado correctamente" });
         }
-
+        //
+        //
+        //
+        //
+        //
+        //            Salas
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
         [HttpGet("Salas")]
         public async Task<IActionResult> GetTodas()
         {
             using var connection = new SqlConnection(_cadenaSQL);
-            var salas = await connection.QueryAsync<SalaDto>("SELECT * FROM Salas");
+
+            var query = @"
+        SELECT 
+            s.IdSala,
+            s.Nombre,
+            s.IdTribunal,
+            t.Nombre_Tribunal
+        FROM Salas s
+        INNER JOIN Tribunales t ON s.IdTribunal = t.Id_Tribunal
+    ";
+
+            var salas = await connection.QueryAsync<SalaConTribunalDto>(query);
             return Ok(salas);
         }
+
 
         // 🔍 Obtener sala por ID
         [HttpGet("Salaspor/{id}")]
         public async Task<IActionResult> PorId(int id)
         {
             using var connection = new SqlConnection(_cadenaSQL);
-            var sala = await connection.QueryFirstOrDefaultAsync<SalaDto>(
-                "SELECT * FROM Salas WHERE IdSala = @id", new { id });
+
+            var query = @"
+        SELECT 
+            s.IdSala,
+            s.Nombre,
+            s.IdTribunal,
+            t.Nombre_Tribunal
+        FROM Salas s
+        INNER JOIN Tribunales t ON s.IdTribunal = t.Id_Tribunal
+        WHERE s.IdSala = @id
+    ";
+
+            var sala = await connection.QueryFirstOrDefaultAsync<SalaConTribunalDto>(query, new { id });
 
             if (sala == null)
                 return NotFound(new { mensaje = "Sala no encontrada" });
 
             return Ok(sala);
         }
+
 
         // ➕ Crear nueva sala
         [HttpPost("CrearSalas")]
