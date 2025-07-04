@@ -37,52 +37,54 @@
         </div>
       </div>
 
-
-      <div class="card surface-50 p-4 mb-5 border-round-lg border bg-white">
-        <h2 class="text-xl font-semibold mb-3" style="color: #003870;">Historial del Litigio</h2>
-        <div ref="scrollContainer" class="timeline-wrapper">
-          <div style="min-width: max-content;">
-            <Timeline :value="events" align="left" layout="horizontal" class="customized-timeline fade-timeline">
-              <template #marker="slotProps">
-                <div class="timeline-marker"
-                  :class="{ 'no-final-line': slotProps.index === events.length - 2 && !estaCerrado }" :style="{
-                    backgroundColor: slotProps.item.color,
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '50%',
-                    display: 'grid',
-                    placeItems: 'center',
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
-                  }">
-                  <i :class="slotProps.item.icon" style="color: white; font-size: 16px;"></i>
-                </div>
-              </template>
-
-              <template #content="slotProps">
-                <Card v-if="slotProps.item.content !== null" class="mt-2 p-card">
-                  <template #title>
-                    <span class="p-card-title">{{ slotProps.item.status }}</span>
+      <Accordion :activeIndex="null" class="mb-5 section-title" >
+        <AccordionTab header="Historial del Litigio">
+          <div class="card surface-50 p-4 border-round-lg border bg-white">
+            <div ref="scrollContainer" class="timeline-wrapper">
+              <div style="min-width: max-content;">
+                <Timeline :value="events" align="left" layout="horizontal" class="customized-timeline fade-timeline">
+                  <template #marker="slotProps">
+                    <div class="timeline-marker"
+                      :class="{ 'no-final-line': slotProps.index === events.length - 2 && !estaCerrado }" :style="{
+                        backgroundColor: slotProps.item.color,
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        display: 'grid',
+                        placeItems: 'center',
+                        boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
+                      }">
+                      <i :class="slotProps.item.icon" style="color: white; font-size: 16px;"></i>
+                    </div>
                   </template>
-                  <template #subtitle>
-                    <span class="p-card-subtitle detalle-usuario">
-                      {{ dayjs(slotProps.item.date).format('YYYY-MM-DD HH:mm:ss') }} -
-                      <i class="pi pi-user mr-1 icono-pequeno"></i>
-                      <span class="nombre-usuario">{{ slotProps.item.usuario }}</span>
-                    </span>
-                  </template>
-                  <template #content>
-                    <p class="p-card-content whitespace-pre-wrap">
-                      {{ slotProps.item.content }}
-                    </p>
-                  </template>
-                </Card>
 
-                <div v-else class="mt-4" style="height: 153px; width: 100%; visibility: hidden;"></div>
-              </template>
-            </Timeline>
+                  <template #content="slotProps">
+                    <Card v-if="slotProps.item.content !== null" class="mt-2 p-card">
+                      <template #title>
+                        <span class="p-card-title">{{ slotProps.item.status }}</span>
+                      </template>
+                      <template #subtitle>
+                        <span class="p-card-subtitle detalle-usuario">
+                          {{ dayjs(slotProps.item.date).format('YYYY-MM-DD HH:mm:ss') }} -
+                          <i class="pi pi-user mr-1 icono-pequeno"></i>
+                          <span class="nombre-usuario">{{ slotProps.item.usuario }}</span>
+                        </span>
+                      </template>
+                      <template #content>
+                        <p class="p-card-content whitespace-pre-wrap">
+                          {{ slotProps.item.content }}
+                        </p>
+                      </template>
+                    </Card>
+
+                    <div v-else class="mt-4" style="height: 153px; width: 100%; visibility: hidden;"></div>
+                  </template>
+                </Timeline>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        </AccordionTab>
+      </Accordion>
 
       <!-- Sección combinada: Demandante y Representante -->
       <div class="info-card-double grid mb-5">
@@ -152,11 +154,11 @@
                 <label>Tribunal</label>
                 <p>{{ litigio?.nombre_Tribunal || 'N/A' }}</p>
               </div>
-               <div class="cell">
+              <div class="cell">
                 <label>Distrito Judicial</label>
                 <p>{{ litigio?.distrito || 'N/A' }}</p>
               </div>
-               <div class="cell">
+              <div class="cell">
                 <label>Sala</label>
                 <p>{{ litigio?.nombre || 'N/A' }}</p>
               </div>
@@ -183,7 +185,7 @@
                 <label>Audiencia actual</label>
                 <p>{{ litigio?.numeroAudiencia || 'N/A' }}</p>
               </div>
-               <div class="cell">
+              <div class="cell">
                 <label>Fecha Audiencia</label>
                 <p>{{ litigio.ltg_Fecha_Audiencia ? formatDate(litigio?.ltg_Fecha_Audiencia) : 'N/A' }}</p>
               </div>
@@ -191,11 +193,13 @@
                 <label>Modalidad</label>
                 <p>{{ litigio?.tipoAudiencia || 'N/A' }}</p>
               </div>
-               <div class="cell">
+              <div class="cell">
                 <label>Location del tribunal</label>
-                <a :href="litigio?.mapsUrl" style="text-decoration: none;" target="_blank"><p> ir a la ubicación</p></a>
+                <a :href="litigio?.mapsUrl" style="text-decoration: none;" target="_blank">
+                  <p> ir a la ubicación</p>
+                </a>
               </div>
-               <div class="cell" style="grid-column: 1 / -1;">
+              <div class="cell" style="grid-column: 1 / -1;">
                 <label> Descripción del tribunal</label>
                 <p>{{ litigio?.tribunal_Descripcion || 'N/A' }}</p>
               </div>
@@ -207,8 +211,8 @@
       <!-- Audiencias con evidencias y comentarios -->
       <div class="mt-6">
         <h2 class="text-xl font-semibold mb-3" style="color: #003870;">Audiencias y Evidencias
-          <Button label="Editar Audiencias" icon="pi pi-pencil" class="custom-home-btn" @click="togglePopUpTribunal(id)"
-            style="background-color: #5a7cb3;" />
+          <Button ref="btnEditarAudiencia" label="Editar Audiencias" icon="pi pi-pencil" class="custom-home-btn"
+            @click="togglePopUpTribunal(id)" style="background-color: #5a7cb3;" />
         </h2>
         <Accordion :activeIndex="null" multiple>
           <AccordionTab v-for="(audiencia, index) in audiencias" :key="index"
@@ -263,7 +267,7 @@
       <div class="flex justify-content-between mt-4 pt-3 border-top-1 surface-border">
         <Button label="Agregar Evidencia y Comentario" icon="pi pi-comment" class="custom-home-btn "
           @click="togglePopUpEvidencia(id)" />
-        <Button  label="Agregar Audiencia" icon="pi pi-calendar-plus" class="custom-home-btn "
+        <Button ref="btnAgregarAudiencia" label="Agregar Audiencia" icon="pi pi-calendar-plus" class="custom-home-btn "
           @click="togglePopUpAudiencia(id)" />
         <teleport to="body">
           <transition name="fade">
@@ -313,6 +317,8 @@ import dayjs from 'dayjs';
 
 const audiencias = ref([]);
 const tribunalFinal = ref([]);
+const btnAgregarAudiencia = ref(null);
+const btnEditarAudiencia = ref(null);
 const dialogoVisible = ref(false)
 const comentarioCompleto = ref('')
 const scrollContainer = ref(null);
@@ -416,17 +422,31 @@ const togglePopUpEvidencia = (id) => {
   litigioactual.value = id;
 };
 
-const togglePopUpAudiencia = (id) => {
 
-  // console.log(popUpAudiencia.value);
+
+const togglePopUpAudiencia = (id) => {
   popUpAudiencia.value = !popUpAudiencia.value;
   litigioactual.value = id;
-  // console.log(popUpAudiencia.value);
+
+  // Si el popup se cierra, forzamos la pérdida de foco
+  if (!popUpAudiencia.value && btnAgregarAudiencia.value) {
+    requestAnimationFrame(() => {
+      btnAgregarAudiencia.value.$el?.blur?.();
+    });
+  }
 };
+
 
 const togglePopUpTribunal = (id) => {
   popUpTribunal.value = !popUpTribunal.value;
   litigioactual.value = id;
+
+  // Si el popup se cierra, forzamos la pérdida de foco
+  if (!popUpTribunal.value && btnEditarAudiencia.value) {
+    requestAnimationFrame(() => {
+      btnEditarAudiencia.value.$el?.blur?.();
+    });
+  }
 };
 
 function mostrarDialogo(texto) {
@@ -763,7 +783,7 @@ p {
   overflow-y: hidden;
   white-space: nowrap;
   width: 100%;
-  transition: opacity 0.5s ease-in-out;
+  transition: opacity 0.1s ease-in-out;
   scrollbar-width: none;
 }
 
@@ -806,7 +826,7 @@ p {
 .fade-timeline>>>.p-timeline-event {
   opacity: 0;
   transform: translateY(12px);
-  animation: fadeInUp 2s ease forwards;
+  animation: fadeInUp 0.5s ease forwards;
 }
 
 .fade-timeline>>>.p-timeline-event:nth-child(1) {
