@@ -68,27 +68,32 @@
                 :minDate="hoy" class="w-full" placeholder="Seleccione una fecha" />
             </div>
             <div class="field col-12 md:col-3">
-              <label for="fechaAudiencia" class="block mb-2 font-medium text-sm">Hora Audiencia <span
+              <label for="horaAudiencia" class="block mb-2 font-medium text-sm">Hora Audiencia <span
                   class="text-muted">(opcional)</span></label>
-              <Calendar v-model="horaSeleccionada" showIcon timeOnly hourFormat="12" placeholder="Ej: 8:00am" />
+              <Calendar id="horaAudiencia" v-model="horaSeleccionada" showIcon timeOnly hourFormat="12" class="w-full" placeholder="Ej: 8:00am" />
             </div>
-
-            <div class="field">
-              <label class="block mb-2 text-sm font-medium">Tribunal *</label>
-              <Dropdown v-model="tribunalSeleccionado" :options="tribunales" optionLabel="nombre_Tribunal"
-                optionValue="id_Tribunal" placeholder="Seleccione un tribunal" class="w-full" filter />
-            </div>
-            <Dropdown v-model="form.SalaId" :options="salasFiltradas" :disabled="!tribunalSeleccionado" optionLabel="nombre"
-              optionValue="idSala" placeholder="Seleccione una sala" class="w-full" filter />
-
-
             <!-- Tipo de Audiencia -->
             <div class="field col-12 md:col-3">
               <label for="tipoAudiencia" class="block mb-2 font-medium text-sm">Tipo de Audiencia <span
                   class="text-muted">(opcional)</span></label>
-              <Dropdown id="tipoAudiencia" v-model="form.Tipo_audiencia" :options="tiposAudiencia" optionLabel="label"
+              <Dropdown id="tipoAudiencia" v-model="form.Tipo_audiencia" :options="tiposAudiencia" optionLabel="tipoAudiencia"
                 optionValue="value" class="w-full" placeholder="Seleccione un tipo" />
             </div>
+             <div class="field col-12 md:col-3">
+              <label for="fechaAudiencia" class="block mb-2 font-medium text-sm">Tribunal <span
+                  class="text-muted">(opcional)</span></label>
+              <Dropdown v-model="tribunalSeleccionado" :options="tribunales" optionLabel="nombre_Tribunal"
+                optionValue="id_Tribunal" placeholder="Seleccione un tribunal" class="w-full" filter />
+            </div>
+            <div class="field col-12 md:col-3">
+              <label for="tipoAudiencia" class="block mb-2 font-medium text-sm">Sala <span
+                  class="text-muted">(opcional)</span></label>
+              <Dropdown v-model="form.SalaId" :options="salasFiltradas" :disabled="!tribunalSeleccionado"
+                optionLabel="nombre" optionValue="idSala" placeholder="Seleccione una sala" class="w-full" filter />
+            </div>
+
+
+
 
           </div>
         </fieldset>

@@ -35,15 +35,21 @@
                 <span>Modificar</span>
               </router-link>
             </li>
-              <li v-if="['Supervisor', 'Administrador'].includes(usuario.rol)">
+            <li v-if="['Supervisor', 'Administrador'].includes(usuario.rol)">
+              <a href="#" class="sidebar-link" @click.prevent="mostrarDialogoTribunales = true">
+                <i class="pi pi-pencil" />
+                <span>Tribunales</span>
+              </a>
+            </li>
+
+            <!-- <li v-if="['Supervisor', 'Administrador'].includes(usuario.rol)">
               <router-link to="/GestionTribunales" class="sidebar-link" exact-active-class="active">
                 <i class="pi pi-pencil" />
                 <span>Tribunales</span>
               </router-link>
-            </li>
+            </li> -->
 
-
-             <li v-if="['Supervisor', 'Administrador'].includes(usuario.rol)">
+            <li v-if="['Supervisor', 'Administrador'].includes(usuario.rol)">
               <router-link to="/GestionSalas" class="sidebar-link" exact-active-class="active">
                 <i class="pi pi-pencil" />
                 <span>Salas</span>
@@ -91,6 +97,11 @@
         </nav>
       </div>
 
+      <teleport to="body">
+        <CrudTribunalesDialog v-if="mostrarDialogoTribunales" :visible="mostrarDialogoTribunales"
+          @close="mostrarDialogoTribunales = false" />
+      </teleport>
+
       <footer class="sidebar-footer">
         © 2025 Sistema Sileg 2.0
       </footer>
@@ -135,8 +146,12 @@ import Button from 'primevue/button';
 import Menu from 'primevue/menu';
 import Avatar from 'primevue/avatar';
 import { push } from 'notivue';
+import ListadoTribunales from '@/components/views/Tribunales/ListadoTribunales.vue';
+
 
 const router = useRouter();
+
+const mostrarDialogoTribunales = ref(false)
 
 const rutaInicio = ref('');
 const mostrarSubmenu = ref(false);
@@ -273,7 +288,7 @@ body {
 
 }
 
-.contenedor-menu{
+.contenedor-menu {
   list-style: none;
   padding-left: 0;
   margin-left: 0;
@@ -410,11 +425,11 @@ body {
   object-fit: contain;
 }
 
-.submenu{
+.submenu {
   list-style: none;
 }
 
-.submenu .p-button  {
+.submenu .p-button {
   justify-content: left !important;
 
 }
@@ -436,6 +451,4 @@ body {
   color: #fff;
   font-size: 1.2rem;
 }
-
-
 </style>
