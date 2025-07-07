@@ -42,3 +42,27 @@ public partial class Audienciasltg
 }
 
 
+    public class AudienciaCalendarioDto
+    {
+        public int Id_audiencia { get; set; }
+        public string NumeroAudiencia { get; set; }
+        public string TipoAudiencia { get; set; }
+        public DateTime FechaAudiencia { get; set; }
+
+        public int? IdSala { get; set; }
+        public string NombreSala { get; set; }
+
+        public int? Id_Tribunal { get; set; }
+        public string Nombre_Tribunal { get; set; }
+
+        public int? id_Ltg { get; set; }
+        public string ltg_acto { get; set; }
+        public string ltg_Nombre_Demandante { get; set; }
+
+        public int? id_demanda { get; set; }
+        public string TipoDemanda { get; set; }
+    }
+
+
+
+

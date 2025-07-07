@@ -256,8 +256,48 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 return StatusCode(500, new { mensaje = "Error al acceder al archivo", error = ex.Message });
             }
         }
+        [HttpGet("AudienciasHistorial")]
+        public async Task<ActionResult<IEnumerable<AudienciaCalendarioDto>>> GetAudienciasCalendario()
+        {
+            var result = new List<AudienciaCalendarioDto>();
+
+            using (SqlConnection conn = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal")))
+            {
+                using (SqlCommand cmd = new SqlCommand("sp_GetAudienciasCalendarioFull", conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    await conn.OpenAsync();
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            result.Add(new AudienciaCalendarioDto
+                            {
+                                Id_audiencia = reader.GetInt32(reader.GetOrdinal("Id_audiencia")),
+                                NumeroAudiencia = reader["NumeroAudiencia"]?.ToString(),
+                                TipoAudiencia = reader["TipoAudiencia"]?.ToString(),
+                                FechaAudiencia = reader.GetDateTime(reader.GetOrdinal("FechaAudiencia")),
+                                IdSala = reader["IdSala"] as int?,
+                                NombreSala = reader["NombreSala"]?.ToString(),
+                                Id_Tribunal = reader["Id_Tribunal"] as int?,
+                                Nombre_Tribunal = reader["Nombre_Tribunal"]?.ToString(),
+                                id_Ltg = reader["id_Ltg"] as int?,
+                                ltg_acto = reader["ltg_acto"]?.ToString(),
+                                ltg_Nombre_Demandante = reader["ltg_Nombre_Demandante"]?.ToString(),
+                                id_demanda = reader["id_demanda"] as int?,
+                                TipoDemanda = reader["TipoDemanda"]?.ToString()
+                            });
+                        }
+                    }
+                }
+            }
+
+            return Ok(result);
+        }
     }
 }
+
 
 
 

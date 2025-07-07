@@ -3,7 +3,6 @@ import { createRouter, createWebHistory } from 'vue-router';
 
 import LoginView from '../components/views/LoginView.vue';
 import Drawer from '../layouts/Drawer.vue';
-import TodosRegistro from '../components/views/TodosRegistro.vue';
 import RegistroLitigio from '../components/views/RegistrarLitigio.vue';
 import ListadoTribunales from '@/components/views/Tribunales/ListadoTribunales.vue';
 import TableView from '../components/views/TableView.vue';
@@ -18,7 +17,7 @@ import BandejaRegistrados from '@/components/views/BandejaRegistrados.vue';
 import BandejaSeguimiento from '@/components/views/BandejaSeguimiento.vue';
 import EdicionSalas from '@/components/views/Salas/EdicionSalas.vue';
 import ListadoSalas from '@/components/views/Salas/ListadoSalas.vue';
-
+import Qalendar from '@/components/views/Qalendar.vue';
 const routes = [
   {
     path: '/',
@@ -50,6 +49,13 @@ const routes = [
         component:ListadoSalas ,
         meta: { requiresAuth: true, roles: [1, 2] }
       },
+      //  { path: '', redirect: '/Calendario' },
+      // {
+      //   path: 'Calendario',
+      //   name: 'Calendario',
+      //   component:Calendar ,
+      //   meta: { requiresAuth: true, roles: [1, 2,3,4] }
+      // },
       {
         path: 'abogado/inicio',
         name: 'VistaAbogado',
@@ -60,6 +66,12 @@ const routes = [
         path: 'registrar',
         name: 'RegistroLitigio',
         component: RegistroLitigio,
+        meta: { requiresAuth: true, roles: [1, 2, 3] }
+      },
+            {
+        path: 'Calendario',
+        name: 'Calendatio',
+        component: Qalendar,
         meta: { requiresAuth: true, roles: [1, 2, 3] }
       },
       {

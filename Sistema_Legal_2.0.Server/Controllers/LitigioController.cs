@@ -356,13 +356,13 @@ public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
                             datos.Tribunales.Add(new TribunalDto
                             {
                                 Id_Tribunal = reader.GetInt32(0),
-                                Nombre_Tribunal = reader.GetString(1),
-                                Descripcion = reader.GetString(2),
-                                Telefono = reader.GetString(3),
-                                Estatus = reader.GetBoolean(4),
-                                Distrito = reader.GetString(5),
-                                MapsUrl = reader.GetString(6),
-                                Direccion = reader.GetString(7)
+                                Nombre_Tribunal = reader.IsDBNull(1) ? null : reader.GetString(1),
+                                Descripcion = reader.IsDBNull(2) ? null : reader.GetString(2),
+                                Telefono = reader.IsDBNull(3) ? null : reader.GetString(3),
+                                Estatus = reader.IsDBNull(4) ? false : reader.GetBoolean(4),
+                                Distrito = reader.IsDBNull(5) ? null : reader.GetString(5),
+                                MapsUrl = reader.IsDBNull(6) ? null : reader.GetString(6),
+                                Direccion = reader.IsDBNull(7) ? null : reader.GetString(7)
                             });
                         }
 
@@ -371,8 +371,8 @@ public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
                         {
                             datos.TiposDemanda.Add(new TipoDemandaDto
                             {
-                                id_demanda = reader.GetInt32(0),
-                                Nombre = reader.GetString(1),
+                                id_demanda = reader.IsDBNull(1) ? null : reader.GetInt32(0),
+                                Nombre = reader.IsDBNull(1) ? null : reader.GetString(1),
                             });
                         }
 
@@ -383,7 +383,7 @@ public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
                             datos.EstatusLitigios.Add(new EstatusLitigioDto
                             {
                                 ltg_estatus = reader.GetInt32(0),
-                                ltg_description = reader.GetString(1)
+                                ltg_description = reader.IsDBNull(1) ? null : reader.GetString(1),
                             });
                         }
 
@@ -393,9 +393,9 @@ public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
                         {
                             datos.Salas.Add(new Salao
                             {
-                                IdSala = reader.GetInt32(0),
-                                Nombre = reader.GetString(1),
-                                IdTribunal = reader.GetInt32(2)
+                                IdSala = reader.IsDBNull(1) ? null : reader.GetInt32(0),
+                                Nombre = reader.IsDBNull(1) ? null : reader.GetString(1),
+                                IdTribunal = reader.IsDBNull(1) ? null : reader.GetInt32(2),
                             });
                         }
                     }
@@ -563,7 +563,7 @@ public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
                     {
                         Status = tipo,
                         Date = fecha,
-                        Content = anterior != null ? $"-{anterior}--{nuevo}-" : nuevo,
+                        Content = anterior != null ? $"-{anterior}-{nuevo}-" : nuevo,
                         Icon = IconoPorTipo(tipo),
                         Color = ColorPorTipo(tipo),
                         Usuario = usuarioNombre
@@ -608,7 +608,7 @@ public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
                     "Cambio de sentencia" => "#4CAF50",
                     "Inicio del litigio" => "#9C27B0",
                     "Cambio de representante" => "#CABBE1",
-                    _ => "#E0CB00"
+                    _ => "#00254F"
                 };
             }
         }
