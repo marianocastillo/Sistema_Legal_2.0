@@ -49,7 +49,7 @@
               </router-link>
             </li> -->
 
-            <li v-if="['Supervisor', 'Administrador'].includes(usuario.rol)">
+            <li v-if="['Supervisor', 'Administrador', 'Digitador'].includes(usuario.rol)">
               <router-link to="/GestionSalas" class="sidebar-link" exact-active-class="active">
                 <i class="pi pi-pencil" />
                 <span>Salas</span>

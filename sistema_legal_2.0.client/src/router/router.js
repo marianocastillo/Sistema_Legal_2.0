@@ -46,7 +46,7 @@ const routes = [
         path: 'GestionSalas',
         name: 'GestionSalas',
         component:ListadoSalas ,
-        meta: { requiresAuth: true, roles: [1, 2] }
+        meta: { requiresAuth: true, roles: [1, 2, 3] }
       },
       //  { path: '', redirect: '/Calendario' },
       // {
