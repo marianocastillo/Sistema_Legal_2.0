@@ -21,14 +21,14 @@
 
     public class TipoDemandaDto
     {
-        public int id_demanda { get; set; }
-        public string Nombre { get; set; }
+        public int? id_demanda { get; set; }
+        public string? Nombre { get; set; }
     }
 
     public class EstatusLitigioDto
     {
-        public int ltg_estatus { get; set; }
-        public string ltg_description { get; set; }
+        public int? ltg_estatus { get; set; }
+        public string? ltg_description { get; set; }
     }
 
 
@@ -43,9 +43,9 @@
 
     public class Salao
     {
-        public int IdSala { get; set; }
-        public string Nombre { get; set; }
-        public int IdTribunal { get; set; }
+        public int? IdSala { get; set; }
+        public string? Nombre { get; set; }
+        public int? IdTribunal { get; set; }
     }
 
 }
