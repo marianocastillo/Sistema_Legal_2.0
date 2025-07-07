@@ -35,7 +35,7 @@
                 <span>Modificar</span>
               </router-link>
             </li>
-            <li v-if="['Supervisor', 'Administrador','Digitador'].includes(usuario.rol)">
+            <li v-if="['Supervisor', 'Administrador'].includes(usuario.rol)">
               <a href="#" class="sidebar-link" @click.prevent="mostrarDialogoTribunales = true">
                 <i class="pi pi-pencil" />
                 <span>Tribunales</span>

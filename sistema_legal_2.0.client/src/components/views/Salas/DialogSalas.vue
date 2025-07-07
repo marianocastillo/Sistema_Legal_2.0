@@ -57,14 +57,14 @@ import InputText from 'primevue/inputtext'
 import api from '@/utilities/api'
 import { push } from 'notivue'
 
-// ✅ Props
+//Props
 const props = defineProps({
   visible: Boolean,
   tribunalId: Number
 })
 const emit = defineEmits(['update:visible'])
 
-// ✅ Computed para manejar el v-model correctamente
+//Computed para manejar el v-model correctamente
 const dialogVisible = computed({
   get: () => props.visible,
   set: val => emit('update:visible', val)
@@ -87,15 +87,23 @@ const paginatedSalas = computed(() => filteredSalas.value)
 watch(() => props.visible, async (val) => {
   if (val && props.tribunalId) {
     await cargarSalas()
+
+
   }
 })
 
 async function cargarSalas() {
   try {
-    const res = await api.get(`/api/Tribunales/SalasTribunal/${props.tribunalId}`)
-    salas.value = res.data
+    const res = await api.get(`/api/Tribunales/Salas`)
+
+    // ✅ Asegura que salas.value sea siempre un array
+    const resultado = res.data
+    console.log('Salas:', resultado)
+    salas.value = Array.isArray(resultado) ? resultado : resultado?.data || []
+
   } catch (err) {
     push.error('Error al cargar salas')
+    salas.value = [] // asegúrate de dejarlo vacío para evitar errores posteriores
   }
 }
 

@@ -97,6 +97,7 @@ async function guardarTribunal() {
 }
 
 function confirmarEliminacion(id) {
+  console.log(id);
   confirm.require({
     message: '¿Seguro que deseas eliminar este tribunal?',
     header: 'Eliminar Tribunal',
