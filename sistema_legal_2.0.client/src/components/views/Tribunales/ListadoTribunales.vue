@@ -1,5 +1,5 @@
 <template>
-  <!-- 📦 Diálogo principal -->
+
   <Dialog v-model:visible="visible" modal class="w-11" :closable="false" :draggable="false"
     header="Mantenimiento de Tribunales">
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -9,7 +9,7 @@
       <input type="text" class="form-control-sm bg-white text-dark" placeholder="Buscar..." v-model="search" />
     </div>
 
-    <!-- Tabla -->
+
     <table class="table table-bordered table-hover table-sm">
       <thead class="table-light">
         <tr>
@@ -47,7 +47,7 @@
       </tbody>
     </table>
 
-    <!-- Paginación -->
+
     <nav>
       <ul class="pagination justify-content-end">
         <li class="page-item" :class="{ disabled: page === 1 }">
@@ -62,13 +62,13 @@
       </ul>
     </nav>
 
-    <!-- Cerrar -->
+
     <div class="text-end mt-4">
       <Button label="Cerrar" class="p-button-text" @click="emit('close')" />
     </div>
   </Dialog>
 
-  <!-- ✏️ Diálogo crear/editar -->
+
   <Dialog v-model:visible="mostrarDialogoFormulario" modal :closable="false" header="Formulario Tribunal"
     style="width: 40vw;">
     <div class="p-fluid">
