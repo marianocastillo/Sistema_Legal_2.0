@@ -1,100 +1,5 @@
-<template>
-  <!-- 📦 Diálogo principal -->
-  <Dialog v-model:visible="visible" modal class="w-11" :closable="false" :draggable="false"
-    header="Mantenimiento de Tribunales">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <Button class="text-white" style="background-color: #003870;" @click="abrirFormularioNuevo">
-        <i class="fas fa-plus me-2"></i> Nuevo Tribunal
-      </Button>
-      <input type="text" class="form-control-sm bg-white text-dark" placeholder="Buscar..." v-model="search" />
-    </div>
-
-    <!-- Tabla -->
-    <table class="table table-bordered table-hover table-sm">
-      <thead class="table-light">
-        <tr>
-          <th @click="sort('nombre_Tribunal')">Nombre</th>
-          <th @click="sort('descripcion')">Descripción</th>
-          <th @click="sort('telefono')">Teléfono</th>
-          <th @click="sort('direccion')">Dirección</th>
-          <th @click="sort('distrito')">Provincia</th>
-          <th @click="sort('estatus')">Estado</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="tribunal in paginatedTribunales" :key="tribunal.id_Tribunal">
-          <td>{{ tribunal.nombre_Tribunal }}</td>
-          <td>{{ tribunal.descripcion }}</td>
-          <td>{{ tribunal.telefono }}</td>
-          <td>{{ tribunal.direccion }}</td>
-          <td>{{ tribunal.distrito }}</td>
-          <td>
-            <span :class="['badge', tribunal.estatus ? 'bg-success' : 'bg-danger']">
-              {{ tribunal.estatus ? 'Activo' : 'Inactivo' }}
-            </span>
-          </td>
-          <td>
-            <Button size="small" icon="pi pi-pencil" class="me-2" style="background-color: #003870; color: white"
-              @click="abrirFormularioEditar(tribunal)" />
-            <Button size="small" icon="pi pi-trash" style="background-color: #003870; color: white"
-              @click="confirmarEliminacion(tribunal.id_Tribunal)" />
-          </td>
-        </tr>
-        <tr v-if="filteredTribunales.length === 0">
-          <td colspan="7" class="text-center">No se han encontrado tribunales.</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <!-- Paginación -->
-    <nav>
-      <ul class="pagination justify-content-end">
-        <li class="page-item" :class="{ disabled: page === 1 }">
-          <button class="page-link" @click="page--">Anterior</button>
-        </li>
-        <li class="page-item" v-for="p in totalPages" :key="p" :class="{ active: page === p }">
-          <button class="page-link" @click="page = p">{{ p }}</button>
-        </li>
-        <li class="page-item" :class="{ disabled: page === totalPages }">
-          <button class="page-link" @click="page++">Siguiente</button>
-        </li>
-      </ul>
-    </nav>
-
-    <!-- Cerrar -->
-    <div class="text-end mt-4">
-      <Button label="Cerrar" class="p-button-text" @click="emit('close')" />
-    </div>
-  </Dialog>
-
-  <!-- ✏️ Diálogo crear/editar -->
-  <Dialog v-model:visible="mostrarDialogoFormulario" modal :closable="false" header="Formulario Tribunal"
-    style="width: 40vw;">
-    <div class="p-fluid">
-      <div class="field" v-for="(label, key) in camposTexto" :key="key">
-        <label :for="key">{{ label }}</label>
-        <InputText v-model="tribunalEditando[key]" />
-      </div>
-
-      <div class="field">
-        <label>Estado</label>
-        <Dropdown v-model="tribunalEditando.estatus" :options="estadoOptions" optionLabel="label"
-          optionValue="value" />
-      </div>
-
-      <div class="text-end mt-4">
-        <Button label="Cancelar" class="p-button-text me-2" @click="cerrarDialogo" />
-        <Button label="Guardar" class="p-button" style="background-color: #003870;" @click="guardarTribunal" />
-      </div>
-    </div>
-  </Dialog>
-
-  <ConfirmDialog />
-</template>
-
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import Dialog from 'primevue/dialog'
 import ConfirmDialog from 'primevue/confirmdialog'
 import InputText from 'primevue/inputtext'
@@ -104,85 +9,80 @@ import { useConfirm } from 'primevue/useconfirm'
 import { push } from 'notivue'
 import api from '@/utilities/api.js'
 
-const emit = defineEmits(['close'])
-const props = defineProps({ visible: Boolean })
+const props = defineProps(['visible'])
+const emit = defineEmits(['update:visible', 'close'])
 
-const mostrarDialogoFormulario = ref(false)
+const dialogVisible = computed({
+  get: () => props.visible,
+  set: (val) => emit('update:visible', val)
+})
+
+const mostrarFormulario = ref(false)
 const tribunalEditando = ref({})
 const confirm = useConfirm()
 
 const tribunales = ref([])
 const search = ref('')
-const sortBy = ref('nombre_Tribunal')
-const sortDesc = ref(false)
 const page = ref(1)
 const perPage = 10
-
-const camposTexto = {
-  nombre_Tribunal: 'Nombre',
-  descripcion: 'Descripción',
-  telefono: 'Teléfono',
-  direccion: 'Dirección',
-  distrito: 'Provincia'
-}
 
 const estadoOptions = [
   { label: 'Activo', value: true },
   { label: 'Inactivo', value: false }
 ]
 
-onMounted(() => {
-  loadTribunales()
-})
+const camposFormulario = [
+  { label: 'Nombre', model: 'nombre_Tribunal' },
+  { label: 'Descripción', model: 'descripcion' },
+  { label: 'Teléfono', model: 'telefono' },
+  { label: 'Dirección', model: 'direccion' },
+  { label: 'Provincia', model: 'distrito' }
+]
 
-async function loadTribunales() {
+onMounted(() => cargarTribunales())
+
+async function cargarTribunales() {
   try {
-    const response = await api.get('/api/Tribunales/Tribunales')
-    tribunales.value = response.data
-  } catch {
+    const { data } = await api.get('/api/Tribunales/Tribunales')
+    tribunales.value = data
+  } catch (err) {
     push.error('No se pudieron cargar los tribunales')
   }
 }
 
 function abrirFormularioNuevo() {
   tribunalEditando.value = {
-    nombre_Tribunal: '',
-    descripcion: '',
-    telefono: '',
-    direccion: '',
-    distrito: '',
-    estatus: true
+    nombre_Tribunal: '', descripcion: '', telefono: '', direccion: '', distrito: '', estatus: true
   }
-  mostrarDialogoFormulario.value = true
+  mostrarFormulario.value = true
 }
 
 function abrirFormularioEditar(tribunal) {
   tribunalEditando.value = { ...tribunal }
-  mostrarDialogoFormulario.value = true
+  mostrarFormulario.value = true
 }
 
-function cerrarDialogo() {
-  mostrarDialogoFormulario.value = false
+function cerrarFormulario() {
+  mostrarFormulario.value = false
 }
 
 async function guardarTribunal() {
   try {
     const body = tribunalEditando.value
-    if (!body.nombre_Tribunal?.trim()) {
-      return push.warning('El nombre es obligatorio')
-    }
+    if (!body.nombre_Tribunal?.trim()) return push.warning('El nombre es obligatorio')
 
     if (body.id_Tribunal) {
-      await api.put('/api/Tribunales/Editar', body)
+      // ✅ Corrección aquí: ID se pasa por la URL
+      await api.put(`/api/Tribunales/ActualizarTribunal/${body.id_Tribunal}`, body)
       push.success('Tribunal actualizado correctamente')
     } else {
-      await api.post('/api/Tribunales/Crear', body)
+      await api.post('/api/Tribunales/CrearTribunal', body)
       push.success('Tribunal creado correctamente')
     }
 
-    cerrarDialogo()
-    await loadTribunales()
-  } catch {
+    cerrarFormulario()
+    await cargarTribunales()
+  } catch (err) {
     push.error('Error al guardar el tribunal')
   }
 }
@@ -198,40 +98,20 @@ function confirmarEliminacion(id) {
     accept: async () => {
       try {
         await api.delete(`/api/Tribunales/EliminarTribunal/${id}`)
-        await loadTribunales()
-        if (page.value > totalPages.value) page.value = totalPages.value
+        await cargarTribunales()
         push.success('Tribunal eliminado correctamente')
-      } catch {
+      } catch (err) {
         push.error('No se pudo eliminar el tribunal')
       }
     }
   })
 }
 
-function sort(field) {
-  if (sortBy.value === field) {
-    sortDesc.value = !sortDesc.value
-  } else {
-    sortBy.value = field
-    sortDesc.value = false
-  }
-}
-
-const sortedTribunales = computed(() => {
-  return [...tribunales.value].sort((a, b) => {
-    const aVal = a[sortBy.value]
-    const bVal = b[sortBy.value]
-    if (aVal < bVal) return sortDesc.value ? 1 : -1
-    if (aVal > bVal) return sortDesc.value ? -1 : 1
-    return 0
-  })
-})
-
 const filteredTribunales = computed(() => {
-  if (!search.value) return sortedTribunales.value
+  if (!search.value) return tribunales.value
   const term = search.value.toLowerCase()
-  return sortedTribunales.value.filter(t =>
-    Object.values(t).some(val => String(val ?? '').toLowerCase().includes(term))
+  return tribunales.value.filter(t =>
+    Object.values(t).some(val => String(val).toLowerCase().includes(term))
   )
 })
 
@@ -239,8 +119,89 @@ const paginatedTribunales = computed(() => {
   const start = (page.value - 1) * perPage
   return filteredTribunales.value.slice(start, start + perPage)
 })
-
-const totalPages = computed(() => {
-  return Math.max(1, Math.ceil(filteredTribunales.value.length / perPage))
-})
 </script>
+
+<template>
+  <Dialog v-model:visible="dialogVisible" modal class="dialog-tribunales" :closable="false" :draggable="false" header="Mantenimiento de Tribunales">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <Button class="text-white" style="background-color: #003870;" @click="abrirFormularioNuevo">
+        <i class="fas fa-plus me-2"></i> Nuevo Tribunal
+      </Button>
+      <input type="text" class="form-control-sm bg-white text-dark" placeholder="Buscar..." v-model="search" />
+    </div>
+
+    <div v-for="tribunal in paginatedTribunales" :key="tribunal.id_Tribunal" class="tribunal-card">
+      <div class="tribunal-info">
+        <div><strong>{{ tribunal.nombre_Tribunal }}</strong></div>
+        <div class="small text-muted">{{ tribunal.descripcion }} - {{ tribunal.telefono }} - {{ tribunal.direccion }}</div>
+        <div class="small">Provincia: {{ tribunal.distrito }}</div>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <span :class="['badge', tribunal.estatus ? 'bg-success' : 'bg-danger']">
+          {{ tribunal.estatus ? 'Activo' : 'Inactivo' }}
+        </span>
+        <Button icon="pi pi-pencil" class="p-button-text p-button-sm text-dark" @click="abrirFormularioEditar(tribunal)" />
+        <Button icon="pi pi-trash" class="p-button-text p-button-sm text-danger" @click="confirmarEliminacion(tribunal.id_Tribunal)" />
+      </div>
+    </div>
+
+    <div v-if="filteredTribunales.length === 0" class="text-center text-muted mt-2">No hay tribunales registrados.</div>
+
+    <div class="text-end mt-3">
+      <Button label="Cerrar" icon="pi pi-times" class="p-button-sm" @click="dialogVisible = false" />
+    </div>
+  </Dialog>
+
+  <Dialog v-model:visible="mostrarFormulario" modal class="dialog-formulario" :closable="false" header="Formulario Tribunal">
+    <div class="p-fluid">
+      <div class="field" v-for="campo in camposFormulario" :key="campo.label">
+        <label>{{ campo.label }}</label>
+        <InputText v-model="tribunalEditando[campo.model]" />
+      </div>
+
+      <div class="field">
+        <label>Estado</label>
+        <Dropdown v-model="tribunalEditando.estatus" :options="estadoOptions" optionLabel="label" optionValue="value" />
+      </div>
+
+      <div class="text-end mt-4">
+        <Button label="Cancelar" class="p-button-text me-2" @click="cerrarFormulario" />
+        <Button label="Guardar" class="p-button" style="background-color: #003870; color: white" @click="guardarTribunal" />
+      </div>
+    </div>
+  </Dialog>
+
+  <ConfirmDialog />
+</template>
+
+<style scoped>
+.dialog-tribunales {
+  width: 38vw;
+}
+
+.tribunal-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tribunal-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.dialog-formulario {
+  width: 35vw;
+}
+
+.p-dropdown.p-focus {
+  border-color: #003870 !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 56, 112, 0.25);
+}
+</style>

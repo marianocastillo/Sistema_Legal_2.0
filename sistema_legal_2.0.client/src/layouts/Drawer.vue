@@ -92,8 +92,10 @@
       </div>
 
       <teleport to="body">
-        <CrudTribunalesDialog v-if="mostrarDialogoTribunales" :visible="mostrarDialogoTribunales"
-          @close="mostrarDialogoTribunales = false" />
+   <ListadoTribunales
+  v-model:visible="mostrarDialogoTribunales"
+/>
+
       </teleport>
 
       <footer class="sidebar-footer">
