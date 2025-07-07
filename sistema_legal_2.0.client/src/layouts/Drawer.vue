@@ -35,7 +35,7 @@
                 <span>Modificar</span>
               </router-link>
             </li>
-            <li v-if="['Supervisor', 'Administrador'].includes(usuario.rol)">
+            <li v-if="['Supervisor', 'Administrador','Digitador'].includes(usuario.rol)">
               <a href="#" class="sidebar-link" @click.prevent="mostrarDialogoTribunales = true">
                 <i class="pi pi-pencil" />
                 <span>Tribunales</span>
@@ -98,8 +98,10 @@
       </div>
 
       <teleport to="body">
-        <CrudTribunalesDialog v-if="mostrarDialogoTribunales" :visible="mostrarDialogoTribunales"
-          @close="mostrarDialogoTribunales = false" />
+   <ListadoTribunales
+  v-model:visible="mostrarDialogoTribunales"
+/>
+
       </teleport>
 
       <footer class="sidebar-footer">
