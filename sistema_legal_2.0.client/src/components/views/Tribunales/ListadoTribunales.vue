@@ -8,9 +8,13 @@ import Button from 'primevue/button'
 import { useConfirm } from 'primevue/useconfirm'
 import { push } from 'notivue'
 import api from '@/utilities/api.js'
+import DialogSalas from '../Salas/DialogSalas.vue'
+
 
 const props = defineProps(['visible'])
 const emit = defineEmits(['update:visible', 'close'])
+const mostrarDialogoSalas = ref(false)
+const tribunalSeleccionado = ref(null)
 
 const dialogVisible = computed({
   get: () => props.visible,
@@ -38,6 +42,11 @@ const camposFormulario = [
   { label: 'Dirección', model: 'direccion' },
   { label: 'Provincia', model: 'distrito' }
 ]
+
+function abrirDialogoSalas(tribunal) {
+  tribunalSeleccionado.value = tribunal
+  mostrarDialogoSalas.value = true
+}
 
 onMounted(() => cargarTribunales())
 
@@ -142,6 +151,7 @@ const paginatedTribunales = computed(() => {
         </span>
         <Button icon="pi pi-pencil" class="p-button-text p-button-sm text-dark" @click="abrirFormularioEditar(tribunal)" />
         <Button icon="pi pi-trash" class="p-button-text p-button-sm text-danger" @click="confirmarEliminacion(tribunal.id_Tribunal)" />
+        <Button icon="pi pi-eye white-icon" class="p-button-text p-button-sm text-danger" @click="abrirDialogoSalas(tribunal)"/>
       </div>
     </div>
 
@@ -170,6 +180,13 @@ const paginatedTribunales = computed(() => {
       </div>
     </div>
   </Dialog>
+
+  <DialogSalas
+  v-if="tribunalSeleccionado"
+  v-model:visible="mostrarDialogoSalas"
+  :tribunalId="tribunalSeleccionado.id_Tribunal"
+/>
+
 
   <ConfirmDialog />
 </template>

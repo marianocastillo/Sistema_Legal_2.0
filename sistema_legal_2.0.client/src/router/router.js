@@ -14,8 +14,8 @@ import AdministradorLitigio from '@/components/views/AdministradorLitigio.vue';
 import VistaAbogado from '@/components/views/VistaAbogado.vue';
 import BandejaRegistrados from '@/components/views/BandejaRegistrados.vue';
 import BandejaSeguimiento from '@/components/views/BandejaSeguimiento.vue';
-import EdicionSalas from '@/components/views/Salas/EdicionSalas.vue';
-import ListadoSalas from '@/components/views/Salas/ListadoSalas.vue';
+// import EdicionSalas from '@/components/views/Salas/EdicionSalas.vue';
+// import ListadoSalas from '@/components/views/Salas/ListadoSalas.vue';
 import Qalendar from '@/components/views/Qalendar.vue';
 const routes = [
   {
@@ -41,13 +41,13 @@ const routes = [
         component:ListadoTribunales ,
         meta: { requiresAuth: true, roles: [1, 2] }
       },
-            { path: '', redirect: '/GestionSalas' },
-      {
-        path: 'GestionSalas',
-        name: 'GestionSalas',
-        component:ListadoSalas ,
-        meta: { requiresAuth: true, roles: [1, 2, 3] }
-      },
+      //       { path: '', redirect: '/GestionSalas' },
+      // {
+      //   path: 'GestionSalas',
+      //   name: 'GestionSalas',
+      //   component:ListadoSalas ,
+      //   meta: { requiresAuth: true, roles: [1, 2, 3] }
+      // },
       //  { path: '', redirect: '/Calendario' },
       // {
       //   path: 'Calendario',
@@ -128,19 +128,19 @@ const routes = [
         props: true,
         meta: { requiresAuth: true, roles: [1, 2, 3, 4] }
       },
-            {
-        path: 'EdicionSalas/:idSala',
-        name: 'EdicionSalas',
-        component: EdicionSalas,
-        meta: { requiresAuth: true, roles: [1, 2, 3, 4] }
-      },
+      //       {
+      //   path: 'EdicionSalas/:idSala',
+      //   name: 'EdicionSalas',
+      //   component: EdicionSalas,
+      //   meta: { requiresAuth: true, roles: [1, 2, 3, 4] }
+      // },
 
-     {
-        path: 'EdicionSalas',
-        name: 'NuevaSala',
-        component: EdicionSalas,
-        meta: { requiresAuth: true, roles: [1, 2, 3, 4] }
-      }
+    //  {
+    //     path: 'EdicionSalas',
+    //     name: 'NuevaSala',
+    //     component: EdicionSalas,
+    //     meta: { requiresAuth: true, roles: [1, 2, 3, 4] }
+    //   }
     ]
   },
   {
