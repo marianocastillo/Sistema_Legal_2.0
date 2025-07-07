@@ -1,5 +1,7 @@
 <template>
-  <Dialog v-model:visible="dialogVisible" modal header="Salas del Tribunal" class="dialog-salas">
+  <Dialog v-model:visible="dialogVisible" modal :header="`Salas del Tribunal: ${props.nombreTribunal}`"
+    class="dialog-salas">
+
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h5 class="text-dark">Salas registradas</h5>
       <div class="d-flex gap-2">
@@ -20,7 +22,8 @@
           <td>{{ sala.nombre }}</td>
           <td>
             <Button icon="pi pi-pencil" class="p-button-text p-button-sm" @click="editarSala(sala)" />
-            <Button icon="pi pi-trash" class="p-button-text p-button-sm text-danger" @click="eliminarSala(sala.idSala)" />
+            <Button icon="pi pi-trash" class="p-button-text p-button-sm text-danger"
+              @click="eliminarSala(sala.idSala)" />
           </td>
         </tr>
         <tr v-if="filteredSalas.length === 0">
@@ -50,7 +53,7 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, onMounted } from 'vue'
 import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
@@ -60,7 +63,14 @@ import { push } from 'notivue'
 //Props
 const props = defineProps({
   visible: Boolean,
-  tribunalId: Number
+  tribunalId: Number,
+  nombreTribunal: String // 👈 agrega esta línea
+})
+
+onMounted(async () => {
+  if (dialogVisible.value && props.tribunalId) {
+    await cargarSalas()
+  }
 })
 const emit = defineEmits(['update:visible'])
 
@@ -87,23 +97,26 @@ const paginatedSalas = computed(() => filteredSalas.value)
 watch(() => props.visible, async (val) => {
   if (val && props.tribunalId) {
     await cargarSalas()
-
-
   }
 })
 
 async function cargarSalas() {
   try {
-    const res = await api.get(`/api/Tribunales/Salas`)
+    const res = await api.get(`/api/Tribunales/${props.tribunalId}/Salas`)
+    console.log('Respuesta de la API:', res.data)
 
-    // ✅ Asegura que salas.value sea siempre un array
-    const resultado = res.data
-    console.log('Salas:', resultado)
-    salas.value = Array.isArray(resultado) ? resultado : resultado?.data || []
+    // Verifica si res.data tiene una propiedad "data"
+    if (Array.isArray(res.data)) {
+      salas.value = res.data
+    } else if (Array.isArray(res.data.data)) {
+      salas.value = res.data.data
+    } else {
+      salas.value = []
+    }
 
   } catch (err) {
     push.error('Error al cargar salas')
-    salas.value = [] // asegúrate de dejarlo vacío para evitar errores posteriores
+    salas.value = []
   }
 }
 
@@ -156,6 +169,7 @@ async function eliminarSala(id) {
 .dialog-salas {
   width: 50vw;
 }
+
 .dialog-form {
   width: 30vw;
 }
