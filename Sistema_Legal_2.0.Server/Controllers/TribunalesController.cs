@@ -221,6 +221,24 @@ namespace Sistema_Legal_2._0.Server.Controllers
             return Ok(new { mensaje = "Sala eliminada correctamente" });
         }
 
+
+        [HttpGet("Tribunal/{idTribunal}/Salas")]
+        public async Task<IActionResult> ObtenerSalasPorTribunal(int idTribunal)
+        {
+            using var connection = new SqlConnection(_cadenaSQL);
+
+            var query = @"SELECT IdSala, Nombre, IdTribunal
+                  FROM Salas
+                  WHERE IdTribunal = @idTribunal";
+
+            var salas = await connection.QueryAsync<SalaDto>(query, new { idTribunal });
+
+            if (!salas.Any())
+                return NotFound(new { mensaje = "No se encontraron salas para el tribunal especificado." });
+
+            return Ok(salas);
+        }
+
     }
 }
 
