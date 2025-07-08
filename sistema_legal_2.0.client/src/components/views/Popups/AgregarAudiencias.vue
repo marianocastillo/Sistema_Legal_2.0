@@ -157,10 +157,12 @@ const body = {
     emit('close');
     notif.resolve('Audiencia creada correctamente');
   } catch (error) {
-    console.error('Error al crear audiencia:', error);
-    notif.reject('Error al crear la audiencia');
-  }
+  const msg = error.response?.data?.error || 'Error al crear la audiencia';
+  notif.reject(msg);
 }
+
+  }
+
 
 onMounted(async () => {
   await cargarDatosDropdowns();
