@@ -214,55 +214,98 @@
           <Button ref="btnEditarAudiencia" label="Editar Audiencias" icon="pi pi-pencil" class="custom-home-btn"
             @click="togglePopUpTribunal(id)" style="background-color: #5a7cb3;" />
         </h2>
-       <Accordion :activeIndex="null" multiple>
-  <AccordionTab
-    v-for="(audiencia, index) in audiencias"
-    :key="index"
-  >
-    <template #header>
-      <div class="flex justify-between items-center w-full">
-        <span>
-          -{{ audiencia.numeroAudiencia }} - ({{ audiencia.tipoAudiencia }}) -
-          {{ audiencia.fechaAudiencia ? formatDate(audiencia.fechaAudiencia) : 'Sin fecha asignada' }}-
-        </span>
-        <Button
-          label="Agregar"
-          icon="pi pi-plus"
-          class="p-button-sm ml-4"
-          @click.stop="togglePopUpEvidencia(audiencia.id)" />
-      </div>
-    </template>
+        <!-- <Accordion :activeIndex="null" multiple>
+          <AccordionTab v-for="(audiencia, index) in audiencias" :key="index"
+            :header="`-${audiencia.numeroAudiencia} - (${audiencia.tipoAudiencia}) - ${audiencia.fechaAudiencia ? formatDate(audiencia.fechaAudiencia) : 'Sin fecha asignada'}-`">
+            <Button label="Agregar Evidencia y Comentario" icon="pi pi-comment" class="custom-home-btn "
+                  @click="togglePopUpEvidencia(id)" />
+            <div v-if="audiencia.evidenciasYComentarios?.length">
 
-    <div v-if="audiencia.evidenciasYComentarios?.length">
-      <Accordion :activeIndex="null" multiple>
-        <AccordionTab v-for="(ev, i) in audiencia.evidenciasYComentarios" :key="i" :header="ev.nombre_Evidencia">
-          <p>
-            <strong>Comentario:</strong>
-            {{ ev.comentario_Evidencia && ev.comentario_Evidencia.length > 250
-              ? ev.comentario_Evidencia.slice(0, 250) + '...'
-              : ev.comentario_Evidencia || 'Sin comentario' }}
-            <span v-if="ev.comentario_Evidencia && ev.comentario_Evidencia.length > 250">
-              <a href="#" @click.prevent="mostrarDialogo(ev.comentario_Evidencia)">Ver más</a>
-            </span>
-          </p>
-          <p><strong>Fecha:</strong> {{ formatDate(ev.fechaComentario) }}</p>
-          <p><strong>Archivo:</strong>
-            <a :href="`/api/Files/rutaspor/${ev.ruta_Archivo}`" target="_blank" class="text-blue-600 hover:underline">
-              <i :class="getFileIcon(ev.nombre_Archivo)" style="color: #ff0000;"></i>
-              {{ ev.nombre_Archivo }}
-            </a>
-          </p>
-        </AccordionTab>
-      </Accordion>
-    </div>
+              <Accordion :activeIndex="null" multiple>
+                <AccordionTab v-for="(ev, i) in audiencia.evidenciasYComentarios" :key="i"
+                  :header="ev.nombre_Evidencia">
+                  <p>
+                    <strong>Comentario:</strong>
+                    {{ ev.comentario_Evidencia && ev.comentario_Evidencia.length > 250
+                      ? ev.comentario_Evidencia.slice(0, 250) + '...'
+                      : ev.comentario_Evidencia || 'Sin comentario' }}
 
-    <div v-else class="text-gray-500">
-      No hay evidencias ni comentarios para esta audiencia.
-    </div>
-  </AccordionTab>
-</Accordion>
+                    <span v-if="ev.comentario_Evidencia && ev.comentario_Evidencia.length > 250">
+                      <a href="#" role="button" tabindex="0"
+                        @click.prevent="mostrarDialogo(ev.comentario_Evidencia)">Ver
+                        más</a>
+                    </span>
+                  </p>
+                  <p><strong>Fecha:</strong> {{ formatDate(ev.fechaComentario) }}</p>
+                  <p><strong>Archivo:</strong>
+                    <a :href="`/api/Files/rutaspor/${ev.ruta_Archivo}`" target="_blank"
+                      class="text-blue-600 hover:underline">
+                      <i :class="getFileIcon(ev.nombre_Archivo)" style="color: #ff0000;"></i>
+                      {{ ev.nombre_Archivo }}
+                    </a>
+                  </p>
+
+                </AccordionTab>
 
 
+              </Accordion>
+            </div>
+            <div v-else class="text-gray-500">
+              No hay evidencias ni comentarios para esta audiencia.
+            </div>
+          </AccordionTab>
+        </Accordion> -->
+
+        <Accordion :activeIndex="null" multiple>
+          <AccordionTab v-for="(audiencia, index) in audiencias" :key="index">
+            <template #header>
+              <div class=".qalendar-header-custom">
+
+                <span>
+                  -{{ audiencia.numeroAudiencia }} - ({{ audiencia.tipoAudiencia }}) -
+                  {{ audiencia.fechaAudiencia ? formatDate(audiencia.fechaAudiencia) : 'Sin fecha asignada' }}-
+                </span>
+
+                <!-- Solo mostrar botón si es la última audiencia -->
+                <Button v-if="index === audiencias.length - 1" label="Agregar evidencia"
+                  icon="pi pi-comment " class="custom-home-btn btn-comentario" @click.stop="togglePopUpEvidencia(id)" />
+              </div>
+            </template>
+
+
+            <!-- Contenido del AccordionTab -->
+            <div v-if="audiencia.evidenciasYComentarios?.length">
+              <Accordion :activeIndex="null" multiple>
+                <AccordionTab v-for="(ev, i) in audiencia.evidenciasYComentarios" :key="i"
+                  :header="ev.nombre_Evidencia">
+                  <p>
+                    <strong>Comentario:</strong>
+                    {{ ev.comentario_Evidencia && ev.comentario_Evidencia.length > 250
+                      ? ev.comentario_Evidencia.slice(0, 250) + '...'
+                      : ev.comentario_Evidencia || 'Sin comentario' }}
+                    <span v-if="ev.comentario_Evidencia && ev.comentario_Evidencia.length > 250">
+                      <a href="#" @click.prevent="mostrarDialogo(ev.comentario_Evidencia)">Ver más</a>
+                    </span>
+                  </p>
+
+                  <p><strong>Fecha:</strong> {{ formatDate(ev.fechaComentario) }}</p>
+
+                  <p><strong>Archivo:</strong>
+                    <a :href="`/api/Files/rutaspor/${ev.ruta_Archivo}`" target="_blank"
+                      class="text-blue-600 hover:underline">
+                      <i :class="getFileIcon(ev.nombre_Archivo)" style="color: #ff0000;"></i>
+                      {{ ev.nombre_Archivo }}
+                    </a>
+                  </p>
+                </AccordionTab>
+              </Accordion>
+            </div>
+
+            <div v-else class="text-gray-500">
+              No hay evidencias ni comentarios para esta audiencia.
+            </div>
+          </AccordionTab>
+        </Accordion>
 
       </div>
 
@@ -430,6 +473,7 @@ const obtenerTribunal = async () => {
 const estaCerrado = computed(() => litigio.value?.ltg_estatus === 7);
 
 const togglePopUpEvidencia = (id) => {
+  console.log("ID recibido:", id);
   popUpEvidencia.value = !popUpEvidencia.value;
   litigioactual.value = id;
 };
@@ -603,6 +647,14 @@ onMounted(async () => {
   z-index: 9999;
 }
 
+:deep(.qalendar-header-custom) {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+
 .pop-up-inner {
   background: white;
   color: black;
@@ -623,6 +675,12 @@ onMounted(async () => {
   cursor: pointer;
 }
 
+:deep(.custom-home-btn .pi-comment) {
+  font-size: 0.70rem; /* o usa 12px */
+}
+.btn-comentario{
+  font-size: 13px;
+}
 
 .custom-home-btn {
   background-color: #003870 !important;

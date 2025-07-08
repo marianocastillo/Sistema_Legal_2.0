@@ -76,7 +76,7 @@
             <div class="field col-12 md:col-3">
               <label for="tipoAudiencia" class="block mb-2 font-medium text-sm">Tipo de Audiencia <span
                   class="text-muted">(opcional)</span></label>
-              <Dropdown id="tipoAudiencia" v-model="form.Tipo_audiencia" :options="tiposAudiencia" optionLabel="tipoAudiencia"
+              <Dropdown id="tipoAudiencia" v-model="form.Tipo_audiencia" :options="tiposAudiencia" optionLabel="label"
                 optionValue="value" class="w-full" placeholder="Seleccione un tipo" />
             </div>
              <div class="field col-12 md:col-3">

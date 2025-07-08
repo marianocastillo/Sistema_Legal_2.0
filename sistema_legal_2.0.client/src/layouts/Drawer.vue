@@ -35,29 +35,21 @@
                 <span>Modificar</span>
               </router-link>
             </li>
-            <li v-if="['Supervisor', 'Administrador'].includes(usuario.rol)">
+            <li v-if="['Supervisor', 'Digitador'].includes(usuario.rol)">
               <a href="#" class="sidebar-link" @click.prevent="mostrarDialogoTribunales = true">
-                <i class="pi pi-pencil" />
+                <i class="pi pi-building" />
                 <span>Tribunales</span>
               </a>
             </li>
-
-
-            <li v-if="['Supervisor', 'Administrador', 'Digitador'].includes(usuario.rol)">
-              <router-link to="/GestionSalas" class="sidebar-link" exact-active-class="active">
-                <i class="pi pi-pencil" />
-                <span>Salas</span>
-              </router-link>
-            </li>
                <li v-if="['Supervisor', 'Administrador'].includes(usuario.rol)">
               <router-link to="/Calendario" class="sidebar-link" exact-active-class="active">
-                <i class="pi pi-pencil" />
+                <i class="pi pi-calendar" />
                 <span>Calendario</span>
               </router-link>
             </li>
 
             <!-- Configuración: visible para todos -->
-            <li ref="submenuRef">
+            <!-- <li ref="submenuRef">
               <div class="sidebar-link" @click="toggleSubmenu" style="cursor: pointer;">
                 <i class="pi pi-cog" />
                 <span>Configuración</span>
@@ -65,27 +57,25 @@
               </div>
 
               <ul v-if="mostrarSubmenu" class="submenu">
-                <!-- Solo Admin -->
+
                 <li v-if="usuario.rol === 'Administrador'">
                   <router-link to="/listadodeusuario">
                     <Button label="Lista de Usuario" icon="pi pi-user" class="p-button-text p-button-sm w-full" />
                   </router-link>
                 </li>
-
-                <!-- Solo Admin -->
+>
                 <li v-if="usuario.rol === 'Administrador'">
                   <router-link to="/formulario">
                     <Button label="Añadir Usuario" icon="pi pi-user" class="p-button-text p-button-sm w-full" />
                   </router-link>
                 </li>
 
-                <!-- Todos -->
                 <li>
                   <Button label="Cerrar sesión" icon="pi pi-sign-out" class="p-button-text p-button-sm w-full"
                     @click="cerrarSesion" />
                 </li>
               </ul>
-            </li>
+            </li> -->
           </ul>
 
         </nav>

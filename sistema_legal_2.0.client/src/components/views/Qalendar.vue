@@ -9,8 +9,27 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const eventos = ref([])
 
+const calendarConfig = {
+  defaultMode: 'week',
+  locale: 'es',
+  week: { startsOn: 'monday' },
+
+  // ✅ Mostrar solo desde las 9 AM hasta medianoche
+  dayBoundaries: {
+    start: 8,
+    end: 24
+  },
+
+  isDark: false,
+  eventDialog: true,
+  showEventActions: true,
+  eventTypes: [
+    { name: 'virtual', color: '#10b981' },
+    { name: 'presencial', color: '#3b82f6' }
+  ]
+}
+
 onMounted(async () => {
-  // Definir la función global para el botón HTML
   window.__goToDetalle = (id) => {
     router.push(`/litigio/detalle/${id}`)
   }
@@ -27,10 +46,10 @@ onMounted(async () => {
         with: a.ltg_Nombre_Demandante,
         time: { start, end },
         description: `
-  Tipo: (${a.tipoAudiencia})<br />
-  Sala: ${a.nombreSala} | Tribunal: ${a.nombre_Tribunal} | ${a.tipoDemanda}<br /><br />
-  <button class="ver-detalle-btn" onclick="window.__goToDetalle(${a.id_Ltg})">🔍 Ver Detalle</button>
-`,
+          Tipo: (${a.tipoAudiencia})<br />
+          Sala: ${a.nombreSala} | Tribunal: ${a.nombre_Tribunal} | ${a.tipoDemanda}<br /><br />
+          <button class="ver-detalle-btn" onclick="window.__goToDetalle(${a.id_Ltg})">🔍 Ver Detalle</button>
+        `,
         eventType: a.tipoAudiencia?.toLowerCase().includes('virtual') ? 'virtual' : 'presencial',
         actions: [
           {
@@ -43,6 +62,7 @@ onMounted(async () => {
         ]
       }
     })
+
   } catch (error) {
     console.error('Error al cargar audiencias:', error)
   }
@@ -52,18 +72,7 @@ onMounted(async () => {
 <template>
   <Qalendar
     :events="eventos"
-    :config="{
-      defaultMode: 'week',
-      locale: 'es',
-      week: { startsOn: 'monday' },
-      isDark: false,
-      eventDialog: true,
-      showEventActions: true,
-      eventTypes: [
-        { name: 'virtual', color: '#10b981' },
-        { name: 'presencial', color: '#3b82f6' }
-      ]
-    }"
+    :config="calendarConfig"
   />
 </template>
 
@@ -73,7 +82,6 @@ onMounted(async () => {
   padding-right: 2rem !important;
 }
 
-/* Estilo del botón dentro del diálogo */
 .ver-detalle-btn {
   background-color: #003870;
   color: white;
@@ -89,7 +97,6 @@ onMounted(async () => {
   background-color: #0050aa;
 }
 
-/* Ícono flotante del evento en el calendario */
 .qalendar__event .qalendar__event-action-button {
   position: absolute;
   top: 4px;
@@ -110,7 +117,6 @@ onMounted(async () => {
   background: #f3f4f6;
 }
 
-/* Texto del evento */
 .qalendar-event__title,
 .qalendar-event__with,
 .qalendar-event__description {
@@ -134,5 +140,4 @@ onMounted(async () => {
 :deep(.ver-detalle-btn:hover) {
   background-color: #0050aa;
 }
-
 </style>
