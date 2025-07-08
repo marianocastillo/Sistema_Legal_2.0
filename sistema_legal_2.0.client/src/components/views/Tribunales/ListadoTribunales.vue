@@ -44,6 +44,8 @@ const camposFormulario = [
 ]
 
 function abrirDialogoSalas(tribunal) {
+
+  console.log(tribunal.nombre_Tribunal)
   tribunalSeleccionado.value = tribunal
   mostrarDialogoSalas.value = true
 }
@@ -81,7 +83,7 @@ async function guardarTribunal() {
     if (!body.nombre_Tribunal?.trim()) return push.warning('El nombre es obligatorio')
 
     if (body.id_Tribunal) {
-      // ✅ Corrección aquí: ID se pasa por la URL
+      // Corrección aquí: ID se pasa por la URL
       await api.put(`/api/Tribunales/ActualizarTribunal/${body.id_Tribunal}`, body)
       push.success('Tribunal actualizado correctamente')
     } else {
@@ -97,6 +99,7 @@ async function guardarTribunal() {
 }
 
 function confirmarEliminacion(id) {
+  console.log(id);
   confirm.require({
     message: '¿Seguro que deseas eliminar este tribunal?',
     header: 'Eliminar Tribunal',
@@ -131,7 +134,8 @@ const paginatedTribunales = computed(() => {
 </script>
 
 <template>
-  <Dialog v-model:visible="dialogVisible" modal class="dialog-tribunales" :closable="false" :draggable="false" header="Mantenimiento de Tribunales">
+  <Dialog v-model:visible="dialogVisible" modal class="dialog-tribunales" :closable="false" :draggable="false"
+    header="Mantenimiento de Tribunales">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <Button class="text-white" style="background-color: #003870;" @click="abrirFormularioNuevo">
         <i class="fas fa-plus me-2"></i> Nuevo Tribunal
@@ -142,16 +146,20 @@ const paginatedTribunales = computed(() => {
     <div v-for="tribunal in paginatedTribunales" :key="tribunal.id_Tribunal" class="tribunal-card">
       <div class="tribunal-info">
         <div><strong>{{ tribunal.nombre_Tribunal }}</strong></div>
-        <div class="small text-muted">{{ tribunal.descripcion }} - {{ tribunal.telefono }} - {{ tribunal.direccion }}</div>
+        <div class="small text-muted">{{ tribunal.descripcion }} - {{ tribunal.telefono }} - {{ tribunal.direccion }}
+        </div>
         <div class="small">Provincia: {{ tribunal.distrito }}</div>
       </div>
       <div class="d-flex align-items-center gap-2">
         <span :class="['badge', tribunal.estatus ? 'bg-success' : 'bg-danger']">
           {{ tribunal.estatus ? 'Activo' : 'Inactivo' }}
         </span>
-        <Button icon="pi pi-pencil" class="p-button-text p-button-sm text-dark" @click="abrirFormularioEditar(tribunal)" />
-        <Button icon="pi pi-trash" class="p-button-text p-button-sm text-danger" @click="confirmarEliminacion(tribunal.id_Tribunal)" />
-        <Button icon="pi pi-eye white-icon" class="p-button-text p-button-sm text-danger" @click="abrirDialogoSalas(tribunal)"/>
+        <Button icon="pi pi-pencil" class="p-button-text p-button-sm text-dark"
+          @click="abrirFormularioEditar(tribunal)" />
+        <Button icon="pi pi-trash" class="p-button-text p-button-sm text-danger"
+          @click="confirmarEliminacion(tribunal.id_Tribunal)" />
+        <Button icon="pi pi-eye white-icon" class="p-button-text p-button-sm text-danger"
+          @click="abrirDialogoSalas(tribunal)" />
       </div>
     </div>
 
@@ -162,7 +170,8 @@ const paginatedTribunales = computed(() => {
     </div>
   </Dialog>
 
-  <Dialog v-model:visible="mostrarFormulario" modal class="dialog-formulario" :closable="false" header="Formulario Tribunal">
+  <Dialog v-model:visible="mostrarFormulario" modal class="dialog-formulario" :closable="false"
+    header="Formulario Tribunal">
     <div class="p-fluid">
       <div class="field" v-for="campo in camposFormulario" :key="campo.label">
         <label>{{ campo.label }}</label>
@@ -176,17 +185,15 @@ const paginatedTribunales = computed(() => {
 
       <div class="text-end mt-4">
         <Button label="Cancelar" class="p-button-text me-2" @click="cerrarFormulario" />
-        <Button label="Guardar" class="p-button" style="background-color: #003870; color: white" @click="guardarTribunal" />
+        <Button label="Guardar" class="p-button" style="background-color: #003870; color: white"
+          @click="guardarTribunal" />
       </div>
     </div>
   </Dialog>
 
-  <DialogSalas
-  v-if="tribunalSeleccionado"
-  v-model:visible="mostrarDialogoSalas"
-  :tribunalId="tribunalSeleccionado.id_Tribunal"
-/>
 
+  <DialogSalas v-if="tribunalSeleccionado" v-model:visible="mostrarDialogoSalas"
+    :tribunal-id="tribunalSeleccionado.id_Tribunal" :nombre-tribunal="tribunalSeleccionado.nombre_Tribunal" />
 
   <ConfirmDialog />
 </template>

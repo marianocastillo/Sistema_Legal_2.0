@@ -222,7 +222,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
         }
 
 
-        [HttpGet("Tribunal/{idTribunal}/Salas")]
+        [HttpGet("{idTribunal}/Salas")]
         public async Task<IActionResult> ObtenerSalasPorTribunal(int idTribunal)
         {
             using var connection = new SqlConnection(_cadenaSQL);
