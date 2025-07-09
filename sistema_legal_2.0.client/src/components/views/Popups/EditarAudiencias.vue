@@ -13,7 +13,7 @@
     <div class="form-content">
       <div class="field">
           <label class="block mb-2 text-sm font-medium">Nombre de la Audiencia *</label>
-        <InputText v-model="numero" class="w-full" placeholder="Nombre de la Nueva Audiencia" />
+        <InputText v-model="numero" class="w-full" />
       </div>
 
       <div class="field">
@@ -165,12 +165,11 @@ async function guardar() {
     await axios.put('/api/Files/actualizarAudiencias', body);
     emit('actualizar');
     emit('close');
-    notif.resolve('Audiencia actualizada correctamente');
+  notif.resolve('Audiencia creada correctamente');
   } catch (error) {
-    console.error('Error al actualizar audiencia:', error);
-    notif.reject('Error al actualizar la audiencia');
-  }
-}
+  const msg = error.response?.data?.error || 'Error al crear la audiencia';
+  notif.reject(msg);
+}}
 
 onMounted(async () => {
   await cargarDatosDropdowns();

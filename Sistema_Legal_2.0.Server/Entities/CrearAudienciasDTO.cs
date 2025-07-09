@@ -11,6 +11,8 @@
         public int? SalaId { get; set; }
         public int id_usuario { get; set; }
 
+        public bool? Cierre { get; set; }
+
 
     }
 

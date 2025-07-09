@@ -1,17 +1,13 @@
 <template>
-  <Dialog v-model:visible="visible" modal :closable="false" :draggable="false"
-    @hide="emit('close')">
-    <template #header>
+
+
       <div class="custom-header">
-        <span class="dialog-title">Agregar Nueva Audiencia</span>
-        <button class="close-btn" @click="visible = false">
-          &times;
-        </button>
       </div>
-    </template>
+
 
     <div class="form-content">
       <div class="field">
+<br>
         <label class="block mb-2 text-sm font-medium">Nombre de la Audiencia *</label>
         <InputText v-model="numero" class="w-full" placeholder="Nombre de la Nueva Audiencia" />
       </div>
@@ -50,13 +46,13 @@
         <Button label="Guardar" icon="pi pi-check" class="p-button" @click="guardar" />
       </div>
     </div>
-  </Dialog>
+
 </template>
 
 <script setup>
 import { push } from 'notivue'
 import axios from 'axios';
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch,nextTick } from 'vue'
 
 const emit = defineEmits(['close', 'actualizar']);
 const props = defineProps({
@@ -122,13 +118,32 @@ const cargarDatosDropdowns = async () => {
 
 function combinarFechaYHora(fecha, hora) {
   if (!fecha || !hora) return null;
-  const resultado = new Date(fecha);
-  resultado.setHours(hora.getHours());
-  resultado.setMinutes(hora.getMinutes());
-  resultado.setSeconds(0);
-  resultado.setMilliseconds(0);
-  return resultado;
+
+  const año = fecha.getFullYear();
+  const mes = fecha.getMonth(); // 0-based
+  const dia = fecha.getDate();
+
+  const horas = hora.getHours();
+  const minutos = hora.getMinutes();
+
+  // Crear fecha en hora local sin desfase por zona
+  return new Date(año, mes, dia, horas, minutos, 0, 0);
 }
+
+const cargarUltimaAudiencia = async () => {
+  try {
+    const { data } = await axios.get(`/api/Files/ultima-Audiencia/${props.id_Ltg}`);
+    const audiencia = data.data;
+    tribunalSeleccionado.value = audiencia.IdSala
+      ? todasLasSalas.value.find(s => s.idSala === audiencia.IdSala)?.idTribunal || null
+      : null;
+    await nextTick();
+    salaId.value = audiencia.IdSala || null;
+  } catch (error) {
+    console.error('Error al cargar audiencia:', error);
+    push.error('No se pudo cargar la audiencia.');
+  }
+};
 
 async function guardar() {
   const fechaCompleta = combinarFechaYHora(Fecha.value, horaSeleccionada.value);
@@ -137,7 +152,6 @@ async function guardar() {
 
   if (!user || !user.idUsuario) {
   return push.warning("No se encontró el usuario en localStorage.");
-
 
 }
 const body = {
@@ -149,6 +163,7 @@ const body = {
   id_usuario: user.idUsuario
 }
 
+  console.log('Datos enviados al backend:', body);
 
   const notif = push.promise('Agregando audiencia...');
   try {
@@ -166,6 +181,8 @@ const body = {
 
 onMounted(async () => {
   await cargarDatosDropdowns();
+    await cargarUltimaAudiencia();
+
   visible.value = true;
 });
 </script>

@@ -147,7 +147,7 @@
       <div class="info-card-double grid mb-5">
         <!-- Primera mitad -->
         <div class="info-half">
-          <h4 class="section-title">Detalles de la Audiencia </h4>
+          <h4 class="section-title">Detalles del Tribunal </h4>
           <div class="info-table">
             <div class="row">
               <div class="cell">
@@ -182,11 +182,11 @@
           <div class="info-table">
             <div class="row">
               <div class="cell">
-                <label>Audiencia actual</label>
+                <label>Estado Actual</label>
                 <p>{{ litigio?.numeroAudiencia || 'N/A' }}</p>
               </div>
               <div class="cell">
-                <label>Fecha Audiencia</label>
+                <label>Fecha</label>
                 <p>{{ litigio.ltg_Fecha_Audiencia ? formatDate(litigio?.ltg_Fecha_Audiencia) : 'N/A' }}</p>
               </div>
               <div class="cell">
@@ -211,8 +211,9 @@
       <!-- Audiencias con evidencias y comentarios -->
       <div class="mt-6">
         <h2 class="text-xl font-semibold mb-3" style="color: #003870;">Audiencias y Evidencias
-          <Button ref="btnEditarAudiencia" label="Editar Audiencias" icon="pi pi-pencil" class="custom-home-btn"
-            @click="togglePopUpTribunal(id)" style="background-color: #5a7cb3;" />
+          <Button v-if="!estaCerrado" ref="btnEditarAudiencia" label="Editar Estatus" icon="pi pi-pencil"
+            class="custom-home-btn" @click="togglePopUpTribunal(id)" style="background-color: #5a7cb3;" />
+
         </h2>
         <!-- <Accordion :activeIndex="null" multiple>
           <AccordionTab v-for="(audiencia, index) in audiencias" :key="index"
@@ -267,7 +268,7 @@
                 </span>
 
                 <!-- Solo mostrar botón si es la última audiencia -->
-                <Button v-if="index === audiencias.length - 1" label="Agregar evidencia"
+                <Button v-if="index === audiencias.length - 1 && !estaCerrado" label="Agregar evidencia"
                   icon="pi pi-comment " class="custom-home-btn btn-comentario" @click.stop="togglePopUpEvidencia(id)" />
               </div>
             </template>
@@ -322,22 +323,33 @@
       <!-- Pie de documento -->
       <div class="flex justify-content-between mt-4 pt-3 border-top-1 surface-border">
 
-        <Button ref="btnAgregarAudiencia" label="Agregar Audiencia" icon="pi pi-calendar-plus" class="custom-home-btn "
-          @click="togglePopUpAudiencia(id)" />
+        <Button v-if="!estaCerrado" label="Nuevo Estado" icon="pi pi-cog" class="custom-home-btn"
+          @click="mostrarDialogoOpciones = true" />
+
         <teleport to="body">
           <transition name="fade">
             <AgregarEvidencias v-if="popUpEvidencia" :id_Ltg="litigioactual" @close="togglePopUpEvidencia"
               @actualizar="obtenerComentariosConEvidencias" />
           </transition>
         </teleport>
-        <teleport to="body">
-          <transition name="fade">
-            <AgregarAudiencias v-if="popUpAudiencia" :id_Ltg="litigioactual" @close="togglePopUpAudiencia"
-              @actualizar="obtenerAudiencias" />
-          </transition>
-        </teleport>
+        <Dialog v-model:visible="mostrarDialogoOpciones" modal header="Selecciona una acción" class="w-4">
+          <div class="flex flex-column gap-3">
+            <Button label="Agregar Audiencia" icon="pi pi-plus-circle" class="custom-home-btn w-full"
+              @click="abrirAgregarAudiencia" />
+            <Button label="Actualizar Proceso" icon="pi pi-refresh" class="custom-home-btn w-full"
+              @click="abrirActualizarProceso" />
+          </div>
+        </Dialog>
+        <!-- Dialog: Actualizar Proceso -->
+        <Dialog v-model:visible="mostrarDialogoActualizar" modal header="Actualizar Proceso" class="w-6"
+          @after-hide="cerrarActualizarProceso">
+          <ActualizarProceso :id_Ltg="litigioactual" @close="cerrarActualizarProceso" @actualizar="obtenerTribunal" />
+        </Dialog>
+        <Dialog v-model:visible="mostrarDialogoAgregarAudiencia" modal header="Agregar Audiencia" class="w-6"
+          @after-hide="cerrarAgregarAudiencia">
+          <AgregarAudiencias :id_Ltg="litigioactual" @close="cerrarAgregarAudiencia" @actualizar="obtenerAudiencias" />
+        </Dialog>
 
-        <!-- Popup 3 -->
         <teleport to="body">
           <transition name="fade">
             <EditarAudiencias v-if="popUpTribunal" :id_Ltg="litigioactual" @close="togglePopUpTribunal"
@@ -345,13 +357,10 @@
           </transition>
         </teleport>
 
-        <!-- dialogo para ver comentario completo -->
         <Dialog v-model:visible="dialogoVisible" modal header="Comentario completo" class="w-6 comentario"
           style="white-space: pre-wrap; word-break: break-word;">
           <p style="white-space: pre-wrap;">{{ comentarioCompleto }}</p>
         </Dialog>
-
-        <!-- <small class="text-500-dark">Sistema Sileg 2.0 - {{ new Date().getFullYear() }}</small> -->
       </div>
     </div>
   </div>
@@ -364,10 +373,9 @@ import AccordionTab from 'primevue/accordiontab';
 import Timeline from 'primevue/timeline';
 import { ref, onMounted, nextTick, computed } from 'vue';
 import api from '@/utilities/api.js';
-import AgregarEvidencias from '@/components/views/Popups/AgregarEvidencias.vue';
 import EditarAudiencias from '@/components/views/Popups/EditarAudiencias.vue';
-import AgregarAudiencias from '@/components/views/Popups/AgregarAudiencias.vue';
-
+import ActualizarProceso from './Popups/ActualizarProceso.vue';
+import AgregarEvidencias from '@/components/views/Popups/AgregarEvidencias.vue';
 import dayjs from 'dayjs';
 
 const audiencias = ref([]);
@@ -385,6 +393,12 @@ const litigio = ref(null);
 const loading = ref(true);
 const evidencias = ref([]);
 const events = ref([]);
+const mostrarDialogoOpciones = ref(false)
+const mostrarDialogoActualizar = ref(false)
+const mostrarDialogoAgregarAudiencia = ref(false)
+
+
+
 
 const props = defineProps({
   id: {
@@ -427,6 +441,25 @@ const abrirArchivo = async (rutaRelativa) => {
     console.error('Error al abrir el archivo:', error)
     push.error('No se pudo abrir el archivo.')
   }
+}
+function abrirAgregarAudiencia() {
+  mostrarDialogoOpciones.value = false
+  mostrarDialogoAgregarAudiencia.value = true
+  litigioactual.value = props.id
+}
+
+function abrirActualizarProceso() {
+  mostrarDialogoOpciones.value = false
+  mostrarDialogoActualizar.value = true
+  litigioactual.value = props.id
+}
+
+function cerrarAgregarAudiencia() {
+  mostrarDialogoAgregarAudiencia.value = false
+}
+
+function cerrarActualizarProceso() {
+  mostrarDialogoActualizar.value = false
 }
 
 
@@ -654,6 +687,55 @@ onMounted(async () => {
   width: 100% !important;
 }
 
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.modal {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  position: relative;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.modal-buttons button {
+  padding: 0.5rem 1rem;
+  background-color: #003870;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.modal-buttons button:hover {
+  background-color: #c00606;
+}
 
 .pop-up-inner {
   background: white;
@@ -676,9 +758,11 @@ onMounted(async () => {
 }
 
 :deep(.custom-home-btn .pi-comment) {
-  font-size: 0.70rem; /* o usa 12px */
+  font-size: 0.70rem;
+  /* o usa 12px */
 }
-.btn-comentario{
+
+.btn-comentario {
   font-size: 13px;
 }
 

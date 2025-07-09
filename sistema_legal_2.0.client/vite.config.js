@@ -57,7 +57,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@fc-daygrid-css': path.resolve(__dirname, 'node_modules/@fullcalendar/daygrid/main.css'),
+
       '@': fileURLToPath(new URL('./src', import.meta.url))
 
     }

@@ -95,12 +95,16 @@ namespace Sistema_Legal_2._0.Server.Controllers
             }
         }
 
-
         [HttpPost("crearAudiencias")]
         public async Task<IActionResult> CrearAudiencia([FromBody] CrearAudienciaDto dto)
         {
             try
             {
+                if (dto.Fecha == null)
+                    return BadRequest(new { success = false, error = "La fecha no puede ser nula." });
+
+                var fechaLocal = dto.Fecha.Value.ToLocalTime();
+
                 using var conn = new SqlConnection(_cadenaSQL);
                 await conn.OpenAsync();
 
@@ -111,9 +115,10 @@ namespace Sistema_Legal_2._0.Server.Controllers
                         IdLitigio = dto.IdLitigio,
                         Numero = dto.Numero,
                         Tipo = dto.Tipo,
-                        Fecha = dto.Fecha,
+                        Fecha = fechaLocal,
                         SalaId = dto.SalaId,
-                        id_usuario  = dto.id_usuario
+                        id_usuario = dto.id_usuario,
+                        Cierre = dto.Cierre
                     },
                     commandType: CommandType.StoredProcedure
                 );
@@ -134,6 +139,8 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 });
             }
         }
+
+
 
         [HttpPut("actualizarAudiencias")]
         public async Task<IActionResult> EditarUltimaAudiencia([FromBody] AudienciaUpdateDto dto)

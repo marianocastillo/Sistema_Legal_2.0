@@ -117,6 +117,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
                 string nombreArchivo = Path.GetFileName(datos.Archivo.FileName);
                 string nombreCarpeta = Path.GetFileNameWithoutExtension(nombreArchivo);
+                var fechabien = datos.ltg_Fecha_Audiencia?.ToLocalTime();
 
                 // 1. Crear litigio y obtener ID
                 using (var connection = new SqlConnection(_cadenaSQL))
@@ -145,7 +146,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                         command.Parameters.AddWithValue("@Nombre_Evidencia", string.IsNullOrWhiteSpace(datos.NombreEvidencia) ? nombreCarpeta : datos.NombreEvidencia);
                         command.Parameters.AddWithValue("@Comentario_Evidencia", string.IsNullOrWhiteSpace(datos.comentario) ? "Archivo subido sin nombre." : datos.comentario);
 
-                        command.Parameters.AddWithValue("@Fecha", datos.ltg_Fecha_Audiencia);
+                        command.Parameters.AddWithValue("@Fecha", fechabien);
                         command.Parameters.AddWithValue("@SalaId", datos.SalaId);                   
                         command.Parameters.AddWithValue("@Tipo", (object?)datos.Tipo_audiencia ?? DBNull.Value);
 
