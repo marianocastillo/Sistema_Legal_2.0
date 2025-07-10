@@ -120,7 +120,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* Puedes copiar el CSS base que ya tienes de etiquetas, inputs, badges, filtros, etc. */
 
 .white-icon {
   color: white !important;
@@ -135,6 +134,15 @@ onMounted(async () => {
   text-align: center;
   min-width: 120px;
   text-transform: capitalize;
+}
+
+::v-deep(.p-datatable .p-datatable-tbody > tr > td),
+::v-deep(.p-datatable .p-datatable-thead > tr > th) {
+  border-right: 1px solid #ebebeb;
+}
+
+::v-deep(.p-datatable .p-datatable-thead > tr > th) {
+  background-color: rgb(241, 242, 250)
 }
 
 .custom-header-center {
