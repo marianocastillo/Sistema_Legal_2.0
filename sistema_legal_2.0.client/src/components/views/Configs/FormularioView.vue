@@ -97,64 +97,65 @@
     <div class="rounded-xl border border-gray-200 p-4 bg-white shadow">
       <h3 class="text-lg font-semibold mb-4">Datos del Usuario</h3>
 
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div>
-          <label class="form-label">Usuario <span class="text-danger" v-if="errors.NombreUsuario">*</span></label>
-          <input
-            type="text"
-            class="form-control"
-            :disabled="FormMode == FormModes.Editar"
-            v-model="usuario.nombreUsuario"
-            placeholder="Digite el usuario de AD"
-            @keyup.enter="LoadUsuarioByAD"
-            @blur="LoadUsuarioByAD"
-            :class="{ 'is-invalid': errors.NombreUsuario }"
-          />
-          <div class="invalid-feedback" v-if="errors.NombreUsuario">{{ errors.NombreUsuario }}</div>
-        </div>
+      <div class="grid p-fluid">
+  <div class="field col-12 md:col-3">
+    <label class="form-label">Usuario <span class="text-danger" v-if="errors.NombreUsuario">*</span></label>
+    <input
+      type="text"
+      class="form-control w-full"
+      :disabled="FormMode == FormModes.Editar"
+      v-model="usuario.nombreUsuario"
+      placeholder="Digite el usuario de AD"
+      @keyup.enter="LoadUsuarioByAD"
+      @blur="LoadUsuarioByAD"
+      :class="{ 'is-invalid': errors.NombreUsuario }"
+    />
+    <div class="invalid-feedback" v-if="errors.NombreUsuario">{{ errors.NombreUsuario }}</div>
+  </div>
 
-        <div>
-          <label class="form-label">Nombres <span class="text-danger" v-if="errors.Nombres">*</span></label>
-          <input
-            type="text"
-            class="form-control"
-            disabled
-            v-model="usuario.nombres"
-            placeholder="Nombres del usuario"
-            :class="{ 'is-invalid': errors.Nombres }"
-          />
-          <div class="invalid-feedback" v-if="errors.Nombres">{{ errors.Nombres }}</div>
-        </div>
+  <div class="field col-12 md:col-3">
+    <label class="form-label">Nombres <span class="text-danger" v-if="errors.Nombres">*</span></label>
+    <input
+      type="text"
+      class="form-control w-full"
+      disabled
+      v-model="usuario.nombres"
+      placeholder="Nombres del usuario"
+      :class="{ 'is-invalid': errors.Nombres }"
+    />
+    <div class="invalid-feedback" v-if="errors.Nombres">{{ errors.Nombres }}</div>
+  </div>
 
-        <div>
-          <label class="form-label">Apellidos <span class="text-danger" v-if="errors.Apellidos">*</span></label>
-          <input
-            type="text"
-            class="form-control"
-            disabled
-            v-model="usuario.apellidos"
-            placeholder="Apellidos del usuario"
-            :class="{ 'is-invalid': errors.Apellidos }"
-          />
-          <div class="invalid-feedback" v-if="errors.Apellidos">{{ errors.Apellidos }}</div>
-        </div>
+  <div class="field col-12 md:col-3">
+    <label class="form-label">Apellidos <span class="text-danger" v-if="errors.Apellidos">*</span></label>
+    <input
+      type="text"
+      class="form-control w-full"
+      disabled
+      v-model="usuario.apellidos"
+      placeholder="Apellidos del usuario"
+      :class="{ 'is-invalid': errors.Apellidos }"
+    />
+    <div class="invalid-feedback" v-if="errors.Apellidos">{{ errors.Apellidos }}</div>
+  </div>
 
-        <div>
-          <label class="form-label">Perfil <span class="text-danger" v-if="errors.IdPerfil">*</span></label>
-          <select
-            class="form-select"
-            v-model="usuario.idPerfil"
-            :disabled="!usuario.withData"
-            :class="{ 'is-invalid': errors.IdPerfil }"
-          >
-            <option value="">Seleccionar...</option>
-            <option v-for="perfil in perfiles" :key="perfil.idPerfil" :value="perfil.idPerfil">
-              {{ perfil.nombre }}
-            </option>
-          </select>
-          <div class="invalid-feedback" v-if="errors.IdPerfil">{{ errors.IdPerfil }}</div>
-        </div>
-      </div>
+  <div class="field col-12 md:col-3">
+    <label class="form-label">Perfil <span class="text-danger" v-if="errors.IdPerfil">*</span></label>
+    <select
+      class="form-select w-full"
+      v-model="usuario.idPerfil"
+      :disabled="!usuario.withData"
+      :class="{ 'is-invalid': errors.IdPerfil }"
+    >
+      <option value="">Seleccionar...</option>
+      <option v-for="perfil in perfiles" :key="perfil.idPerfil" :value="perfil.idPerfil">
+        {{ perfil.nombre }}
+      </option>
+    </select>
+    <div class="invalid-feedback" v-if="errors.IdPerfil">{{ errors.IdPerfil }}</div>
+  </div>
+</div>
+
     </div>
   </div>
 </template>
