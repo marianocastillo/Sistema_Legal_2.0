@@ -3,20 +3,21 @@
   </div>
   <div class="form-content">
     <div class="field pt-4">
-       <label class="block mb-2 text-sm font-medium">Nombre de la Audiencia</label>
-        <InputText v-model="numero" class="w-full" placeholder="Nombre de la Nueva Audiencia" />
+      <label class="block mb-2 text-sm font-medium">Nombre de la Audiencia</label>
+      <InputText v-model="numero" class="w-full" placeholder="Nombre de la Nueva Audiencia" />
     </div>
     <div class="field">
       <label class="block mb-2 text-sm font-medium">Estado</label>
-      <Dropdown id="tipoAudiencia" v-model="numero" :options="tiposEstados" optionLabel="label" optionValue="value"
-        class="w-full" placeholder="Seleccione un tipo" />
+      <Dropdown id="tipoAudiencia" v-model="estadoLitigio" :options="tiposEstados" optionLabel="label"
+        optionValue="value" class="w-full" placeholder="Seleccione un tipo" />
     </div>
-     <div class="field">
+
+    <div class="field">
       <label class="block mb-2 text-sm font-medium">Modalidad</label>
       <Dropdown id="tipoAudiencia" v-model="tipo" :options="tiposAudiencia" optionLabel="label" optionValue="value"
         class="w-full" placeholder="Seleccione un tipo" />
     </div>
-    <div class="field" v-if="numero === 'Cierre del Caso'">
+    <div class="field" v-if="estadoLitigio === 'Cierre del Caso'">
       <label class="block mb-2 text-sm font-medium">Resultado del caso</label>
       <div class="flex items-center gap-4">
         <label class="inline-flex items-center gap-2">
@@ -29,18 +30,18 @@
         </label>
       </div>
     </div>
-    <div v-if="numero === 'Cierre del Caso'" class="field">
+    <div v-if="estadoLitigio === 'Cierre del Caso'" class="field">
       <label class="block mb-2 text-sm font-medium">Evidencia del cierre *</label>
       <FileUpload name="Archivo" customUpload @select="handleExpedienteUpload" mode="basic" chooseLabel="Elegir archivo"
         class="w-full" style="background-color: #003870;" />
     </div>
 
-    <div v-if="numero === 'Cierre del Caso'" class="field">
+    <div v-if="estadoLitigio === 'Cierre del Caso'" class="field">
       <label class="block mb-2 text-sm font-medium">Nombre de la evidencia</label>
       <InputText v-model="nombreEvidencia" class="w-full" placeholder="Ej: Resolución final" />
     </div>
 
-    <div v-if="numero === 'Cierre del Caso'" class="field">
+    <div v-if="estadoLitigio === 'Cierre del Caso'" class="field">
       <label class="block mb-2 text-sm font-medium">Comentario</label>
       <textarea v-model="comentario" rows="4" maxlength="2000" class="texAreaComentario w-full"></textarea>
       <small>{{ comentario.length }}/2000 caracteres</small>
@@ -71,7 +72,7 @@
     </div>
 
     <div class="mt-4 text-center">
-      <Button v-if="numero === 'Cierre del Caso'" label="Guardar Cierre" icon="pi pi-lock"
+      <Button v-if="estadoLitigio === 'Cierre del Caso'" label="Guardar Cierre" icon="pi pi-lock"
         class="p-button p-button-danger" @click="guardarCierre" />
       <Button v-else label="Guardar" icon="pi pi-save" class="p-button p-button-success" @click="guardarSimple" />
     </div>
@@ -105,6 +106,7 @@ const user = rawUser ? JSON.parse(rawUser) : null;
 const archivo = ref(null);
 const nombreEvidencia = ref('');
 const comentario = ref('');
+const estadoLitigio = ref('');
 
 const tiposEstados = [
   { label: 'Sentencia', value: 'Sentencia' },
@@ -195,28 +197,30 @@ async function guardarSimple() {
   const fechaCompleta = combinarFechaYHora(Fecha.value, horaSeleccionada.value);
   if (!fechaCompleta) return push.warning("Debe seleccionar fecha y hora.");
   if (!salaId.value) return push.warning("Debe seleccionar una sala.");
-  if (!tipo.value) return push.warning("Debe seleccionar el nuevo estado del litigio");
-  if (!numero.value) return push.warning("Debe colocar un título para identificar el estado");
+  if (!tipo.value) return push.warning("Debe seleccionar la modalidad.");
+  if (!estadoLitigio.value) return push.warning("Debe seleccionar el estado del litigio.");
+  if (!numero.value) return push.warning("Debe escribir un título personalizado.");
   if (!user || !user.idUsuario) return push.warning("No se encontró el usuario en localStorage.");
 
   const bodySimple = {
     idLitigio: Number(props.id_Ltg),
-    numero: numero.value.trim(),
-    tipo: tipo.value.trim(),
+    numero: numero.value.trim(), // Título personalizado
+    tipo: tipo.value.trim(), // Modalidad
     fecha: fechaCompleta,
     salaId: Number(salaId.value),
-    id_usuario: user.idUsuario
+    id_usuario: user.idUsuario,
+    nuevoEstadoLitigio: estadoLitigio.value // 👈 Estado que será interpretado en el SP
   };
 
-  const notif = push.promise('Agregando audiencia...');
+  const notif = push.promise('Agregando estado...');
   try {
-    await axios.post('/api/Files/crearAudiencias', bodySimple);
-    notif.resolve('Audiencia creada correctamente');
+    await axios.post('/api/Files/CrearEstados', bodySimple);
+    notif.resolve('Estado registrado correctamente');
     emit('actualizar');
     emit('close');
   } catch (error) {
     console.error('Error:', error);
-    const msg = error.response?.data?.error || 'Error al crear la audiencia';
+    const msg = error.response?.data?.error || 'Error al crear el estado';
     push.error(msg);
   }
 }
@@ -225,8 +229,9 @@ async function guardarCierre() {
   const fechaCompleta = combinarFechaYHora(Fecha.value, horaSeleccionada.value);
   if (!fechaCompleta) return push.warning("Debe seleccionar fecha y hora.");
   if (!salaId.value) return push.warning("Debe seleccionar una sala.");
-  if (!tipo.value) return push.warning("Debe seleccionar el nuevo estado del litigio");
-  if (!numero.value) return push.warning("Debe colocar un título para identificar el estado");
+  if (!tipo.value) return push.warning("Debe seleccionar la modalidad.");
+  if (!estadoLitigio.value) return push.warning("Debe seleccionar el estado del litigio.");
+  if (!numero.value) return push.warning("Debe escribir un título personalizado.");
   if (!user || !user.idUsuario) return push.warning("No se encontró el usuario en localStorage.");
   if (cierre.value === null) return push.warning("Debe seleccionar el resultado del caso.");
   if (!archivo.value) return push.warning("Debe seleccionar un archivo de evidencia.");
@@ -236,19 +241,20 @@ async function guardarCierre() {
 
   const body = {
     idLitigio: Number(props.id_Ltg),
-    numero: numero.value.trim(),
-    tipo: tipo.value.trim(),
+    numero: numero.value.trim(), // Título personalizado
+    tipo: tipo.value.trim(), // Modalidad
     fecha: fechaCompleta,
     salaId: Number(salaId.value),
     id_usuario: user.idUsuario,
-    cierre: cierre.value
+    cierre: cierre.value,
+    nuevoEstadoLitigio: estadoLitigio.value
   };
 
-  const notif = push.promise('Agregando audiencia...');
+  const notif = push.promise('Registrando cierre...');
   try {
-    const { data } = await axios.post('/api/Files/crearAudiencias', body);
+    const { data } = await axios.post('/api/Files/CrearEstados', body);
     const idAudiencia = data.idAudiencia;
-    notif.resolve('Audiencia creada correctamente');
+    notif.resolve('Cierre registrado correctamente');
 
     const formData = new FormData();
     formData.append('Archivo', archivo.value);
@@ -268,10 +274,11 @@ async function guardarCierre() {
     emit('close');
   } catch (error) {
     console.error('Error:', error);
-    const msg = error.response?.data?.error || 'Error al crear la audiencia';
+    const msg = error.response?.data?.error || 'Error al crear el estado';
     push.error(msg);
   }
 }
+
 
 
 onMounted(async () => {
