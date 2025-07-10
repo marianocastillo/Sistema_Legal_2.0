@@ -172,6 +172,7 @@ namespace Sistema_Legal_2._0.Server.Controller
         {
             try
             {
+
                 usuariosRepo.Delete(idUsuario);
                 _logger.LogHttpRequest(idUsuario);
                 return new OperationResult(true, "Usuario eliminado exitosamente", idUsuario);

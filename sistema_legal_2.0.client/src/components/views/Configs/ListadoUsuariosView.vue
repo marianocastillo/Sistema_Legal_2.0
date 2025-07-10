@@ -89,12 +89,7 @@
         <div class="search-container">
           <span class="p-input-icon-left search-input-wrapper">
             <i class="pi pi-search search-icon" />
-            <input
-              type="text"
-              class="search-input"
-              placeholder="Buscar..."
-              v-model="search"
-            />
+            <input type="text" class="search-input" placeholder="Buscar..." v-model="search" />
           </span>
         </div>
 
@@ -128,18 +123,12 @@
           </td>
           <td>
             <div class="btn-group">
-              <button
-                class="btn btn-sm"
-                style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;"
-                @click="$router.push({ name: 'formulario', params: { idUsuario: usuario.idUsuario } })"
-              >
+              <button class="btn btn-sm" style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;"
+                @click="$router.push({ name: 'formulario', params: { idUsuario: usuario.idUsuario } })">
                 <i class="fas fa-edit white-icon"></i>
               </button>
-              <button
-                class="btn btn-sm"
-                style="background-color: #003870; border-color: #003870;"
-                @click="ConfirmDelete(usuario.idUsuario)"
-              >
+              <button class="btn btn-sm" style="background-color: #003870; border-color: #003870;"
+                @click="ConfirmDelete(usuario.idUsuario)">
                 <i class="fas fa-trash-alt white-icon"></i>
               </button>
             </div>
@@ -166,11 +155,42 @@
       </ul>
     </nav>
   </div>
+
+
+
+  <!-- Diálogo de confirmación -->
+  <transition name="fade-dialog">
+    <div v-if="showDialog" class="dialog-overlay" @click.self="showDialog = false">
+      <div class="dialog-box">
+        <h3 class="text-lg font-semibold mb-3">¿Eliminar usuario?</h3>
+        <p class="text-sm text-gray-600 mb-5">Esta acción no se puede deshacer.</p>
+        <div class="dialog-buttons">
+          <button :disabled="eliminando" @click="EliminarUsuario"
+            class="btn text-white px-4 py-2 rounded-md flex items-center justify-center"
+            style="background-color: #003870;">
+            <span v-if="!eliminando">Sí, eliminar</span>
+            <span v-else>
+              <i class="fas fa-spinner fa-spin me-2"></i>
+              Eliminando...
+            </span>
+          </button>
+
+          <button @click="showDialog = false" class="btn px-4 py-2 rounded-md border border-gray-300">
+            Cancelar
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </transition>
+
+
 </template>
 
 <script>
 import { push } from 'notivue'
 import api from '@/utilities/api.js'
+import { ref } from 'vue'
 
 export default {
   data() {
@@ -181,6 +201,9 @@ export default {
       sortDesc: true,
       page: 1,
       perPage: 10,
+      showDialog: false,
+      usuarioEliminar: null,
+      eliminando: false,
     }
   },
   computed: {
@@ -206,7 +229,7 @@ export default {
     paginatedUsuarios() {
       const start = (this.page - 1) * this.perPage
       return this.filteredUsuarios.slice(start, start + this.perPage)
-    }
+    },
   },
   mounted() {
     this.LoadUsuarios()
@@ -239,7 +262,30 @@ export default {
           push.warning({ title: 'Advertencia', message: response.data.message })
         }
       }
+    },
+    ConfirmDelete(idUsuario) {
+      this.usuarioAEliminar = idUsuario
+      this.showDialog = true
+    },
+    async EliminarUsuario() {
+      this.eliminando = true;
+
+      try {
+        const response = await api.delete(`/api/Usuarios/${this.usuarioAEliminar}`);
+        if (response.data) {
+          await this.LoadUsuarios();
+          push.success({ title: 'Éxito', message: response.data.message });
+        } else {
+          push.warning({ title: 'Advertencia', message: response.data.message });
+        }
+      } catch (error) {
+        push.error({ title: 'Error', message: 'No se pudo eliminar el usuario.' });
+      } finally {
+        this.eliminando = false;
+        this.showDialog = false;
+      }
     }
+
   }
 }
 </script>
@@ -287,6 +333,23 @@ export default {
   transform: translateY(-1px);
   transition: background-color 0.2s;
 }
+
+/* === Encabezado de tabla === */
+thead th {
+  background-color: rgb(241, 242, 250);
+  border: none !important;
+  font-weight: 600;
+  color: #2e3842;
+  font-size: 0.95rem;
+}
+
+tbody td {
+  border-right: 1px solid #ebebeb;
+  border-top: none !important;
+  border-bottom: none !important;
+  border-left: none !important;
+}
+
 
 /* === Contenedor de botones + búsqueda === */
 .filtro-busqueda-bar {
@@ -377,6 +440,57 @@ export default {
   color: #aaa;
   pointer-events: none;
 }
+
+/* === estilos del diálogo === */
+.dialog-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99;
+}
+
+.dialog-box {
+  background-color: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.dialog-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* === Animación del diálogo === */
+.fade-dialog-enter-active,
+.fade-dialog-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.fade-dialog-enter-from,
+.fade-dialog-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+.fade-dialog-enter-to,
+.fade-dialog-leave-from {
+  opacity: 1;
+  transform: scale(1);
+}
+
+
 
 /* === Responsivo === */
 @media (max-width: 768px) {
