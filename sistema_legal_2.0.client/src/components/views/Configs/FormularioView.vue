@@ -66,7 +66,7 @@
 </template> -->
 
 <template>
-  <div class="card p-6 shadow-2" style="max-height: 80vh; overflow-y: auto; max-width: 1400px;">
+  <div class="card p-6 shadow-2" style="max-height: 80vh; overflow-y: auto;">
     <div class="flex justify-content-between items-center mb-6 flex-wrap gap-2">
       <div class="flex items-center gap-3">
         <h2 class="text-2xl font-bold m-0">Formulario</h2>
