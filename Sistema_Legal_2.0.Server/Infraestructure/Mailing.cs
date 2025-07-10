@@ -5,7 +5,7 @@ using System.Net.Mail;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-//using webapi.ViewModels;
+using webapi.ViewModels;
 
 namespace webapi.Comun
 {
@@ -39,7 +39,7 @@ namespace webapi.Comun
             }
         }
 
-       /* public static async Task SendMailAsync(CorreoVM correo)
+       public static async Task SendMailAsync(CorreoVM correo)
         {
             try
             {
@@ -100,6 +100,6 @@ namespace webapi.Comun
                 Console.WriteLine("Error al enviar correo: " + ex.Message);
             }
         }
-       */
+       
     }
 }
