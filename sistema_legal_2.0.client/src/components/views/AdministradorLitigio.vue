@@ -34,7 +34,7 @@
     </div>
 
 
-    <DataTable :value="data" :paginator="true" :rows="rows" :filters="filters" :globalFilterFields="[
+    <DataTable :value="data" :row-hover="true" :paginator="true" :rows="rows" :filters="filters" :globalFilterFields="[
       'ltg_acto',
       'ltg_Cedula_Demandante',
       'ltg_Fecha_Acto',

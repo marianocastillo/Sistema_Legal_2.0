@@ -17,7 +17,7 @@
     </div>
 
     <!-- Tabla -->
-    <DataTable :value="litigiosFiltrados" :paginator="true" :rows="rows" :filters="filters" :globalFilterFields="[
+    <DataTable :value="litigiosFiltrados" :paginator="true" :rowHover="true" :rows="rows" :filters="filters" :globalFilterFields="[
       'ltg_acto',
       'ltg_Cedula_Demandante',
       'ltg_Nombre_Demandante',
