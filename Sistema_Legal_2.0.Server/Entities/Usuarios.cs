@@ -23,6 +23,8 @@ public partial class Usuarios
 
     public int? idSupervisor { get; set; }
 
+    public virtual ICollection<Audiencias> Audiencias { get; set; } = new List<Audiencias>();
+
     public virtual ICollection<Litigios> Litigios { get; set; } = new List<Litigios>();
 
     public virtual Perfiles idPerfilNavigation { get; set; }

@@ -167,12 +167,11 @@ namespace Sistema_Legal_2._0.Server.Controller
         /// <returns>Resultado de la operacin.</returns>
         [HttpDelete("{idUsuario}", Name = "DeleteUsuario")]
         [AllowAnonymous]
-        //[AuthorizeByPermission(PermisosEnum.Usuarios, PermisosEnum.Editar_Usuario)]
+        // [AuthorizeByPermission(PermisosEnum.Usuarios, PermisosEnum.Editar_Usuario)]
         public OperationResult Delete(int idUsuario)
         {
             try
             {
-
                 usuariosRepo.Delete(idUsuario);
                 _logger.LogHttpRequest(idUsuario);
                 return new OperationResult(true, "Usuario eliminado exitosamente", idUsuario);
@@ -180,9 +179,12 @@ namespace Sistema_Legal_2._0.Server.Controller
             catch (Exception ex)
             {
                 _logger.LogError(ex);
-                throw;
+
+                // Aquí devolvemos el error de forma controlada al frontend
+                return new OperationResult(false, "El usuario actualmente esta asignado a un litigio", ex.Message);
             }
         }
+
 
         [HttpPost("Asignar-Litigio")]
         [AllowAnonymous]

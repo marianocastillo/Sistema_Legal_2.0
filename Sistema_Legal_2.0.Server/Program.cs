@@ -103,6 +103,7 @@ builder.Services.AddSingleton<ActiveDirectoryAuthenticationService>();
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<Authentication>();
 builder.Services.AddScoped<OnlineUser>();
+builder.Services.AddHostedService<RecordatorioJob>();
 
 var app = builder.Build();
 app.UseCors("AllowAllOrigins");

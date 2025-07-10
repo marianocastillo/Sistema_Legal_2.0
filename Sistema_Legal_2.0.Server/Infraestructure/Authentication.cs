@@ -34,7 +34,6 @@ public class Authentication
             ADRepository adRepository = new();
 
             var user = adRepository.GetUserData(credentials.UserName.ToLower());
-
             if (!_adAuthenticationService.ValidateCredentials(credentials.UserName.ToLower(), credentials.Password))
                 return new OperationResult(false, "Usuario o contraseña inválidos", false);
 
