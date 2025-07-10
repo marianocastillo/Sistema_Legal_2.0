@@ -2,7 +2,10 @@
   <div class="custom-header">
   </div>
   <div class="form-content">
-
+    <div class="field pt-4">
+       <label class="block mb-2 text-sm font-medium">Nombre de la Audiencia</label>
+        <InputText v-model="numero" class="w-full" placeholder="Nombre de la Nueva Audiencia" />
+    </div>
     <div class="field">
       <label class="block mb-2 text-sm font-medium">Estado</label>
       <Dropdown id="tipoAudiencia" v-model="numero" :options="tiposEstados" optionLabel="label" optionValue="value"
