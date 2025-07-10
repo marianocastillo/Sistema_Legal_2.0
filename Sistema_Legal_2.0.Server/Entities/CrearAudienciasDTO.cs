@@ -15,5 +15,21 @@
 
 
     }
+   
 
+        public class CrearEstados
+    {
+        public int IdLitigio { get; set; }
+
+        public string Numero { get; set; }
+        public string Tipo { get; set; }
+        public DateTime? Fecha { get; set; }
+
+        public int? SalaId { get; set; }
+        public int id_usuario { get; set; }
+
+        public bool? Cierre { get; set; }
+        public string? NuevoEstadoLitigio { get; set; }
+
+    }
 }

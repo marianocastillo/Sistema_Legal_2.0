@@ -140,6 +140,52 @@ namespace Sistema_Legal_2._0.Server.Controllers
             }
         }
 
+        [HttpPost("CrearEstados")]
+        public async Task<IActionResult> CrearEstados([FromBody] CrearEstados dto)
+        {
+            try
+            {
+                if (dto.Fecha == null)
+                    return BadRequest(new { success = false, error = "La fecha no puede ser nula." });
+
+                var fechaLocal = dto.Fecha.Value.ToLocalTime();
+
+                using var conn = new SqlConnection(_cadenaSQL);
+                await conn.OpenAsync();
+
+                var result = await conn.QueryFirstAsync<int>(
+                    "InsertarEstado",
+                    new
+                    {
+                        IdLitigio = dto.IdLitigio,
+                        Numero = dto.Numero,
+                        Tipo = dto.Tipo,
+                        Fecha = fechaLocal,
+                        SalaId = dto.SalaId,
+                        id_usuario = dto.id_usuario,
+                        Cierre = dto.Cierre,
+                        NuevoEstadoLitigio = dto.NuevoEstadoLitigio
+                    },
+                    commandType: CommandType.StoredProcedure
+                );
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Audiencia creada correctamente",
+                    idAudiencia = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    error = ex.Message
+                });
+            }
+        }
+
 
 
         [HttpPut("actualizarAudiencias")]
