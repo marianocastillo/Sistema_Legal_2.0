@@ -68,7 +68,9 @@
     </div>
 
     <div class="mt-4 text-center">
-      <Button label="Guardar" icon="pi pi-check" class="p-button" @click="guardar" />
+      <Button v-if="tipo === 'Cierre del Caso'" label="Guardar Cierre" icon="pi pi-lock"
+        class="p-button p-button-danger" @click="guardarCierre" />
+      <Button v-else label="Guardar" icon="pi pi-save" class="p-button p-button-success" @click="guardarSimple" />
     </div>
   </div>
 
@@ -181,7 +183,7 @@ const cargarUltimaAudiencia = async () => {
   }
 };
 
-async function guardar() {
+async function guardarSimple() {
   const fechaCompleta = combinarFechaYHora(Fecha.value, horaSeleccionada.value);
   if (!fechaCompleta) return push.warning("Debe seleccionar fecha y hora.");
   if (!salaId.value) return push.warning("Debe seleccionar una sala.");
@@ -189,24 +191,40 @@ async function guardar() {
   if (!numero.value) return push.warning("Debe colocar un título para identificar el estado");
   if (!user || !user.idUsuario) return push.warning("No se encontró el usuario en localStorage.");
 
-  let continuar = true;
+  const bodySimple = {
+    idLitigio: Number(props.id_Ltg),
+    numero: numero.value.trim(),
+    tipo: tipo.value.trim(),
+    fecha: fechaCompleta,
+    salaId: Number(salaId.value),
+    id_usuario: user.idUsuario
+  };
 
-  if (tipo.value === 'Cierre del Caso') {
-    if (cierre.value === null) {
-      push.warning("Debe seleccionar el resultado del caso.");
-      continuar = false;
-    }
-
-    if (!archivo.value) {
-      push.warning("Debe seleccionar un archivo de evidencia.");
-      continuar = false;
-    }
-
-    const confirmar = confirm("¿Está seguro que desea cerrar este caso? Esta acción es irreversible.");
-    if (!confirmar) continuar = false;
+  const notif = push.promise('Agregando audiencia...');
+  try {
+    await axios.post('/api/Files/crearAudiencias', bodySimple);
+    notif.resolve('Audiencia creada correctamente');
+    emit('actualizar');
+    emit('close');
+  } catch (error) {
+    console.error('Error:', error);
+    const msg = error.response?.data?.error || 'Error al crear la audiencia';
+    push.error(msg);
   }
+}
 
-  if (!continuar) return;
+async function guardarCierre() {
+  const fechaCompleta = combinarFechaYHora(Fecha.value, horaSeleccionada.value);
+  if (!fechaCompleta) return push.warning("Debe seleccionar fecha y hora.");
+  if (!salaId.value) return push.warning("Debe seleccionar una sala.");
+  if (!tipo.value) return push.warning("Debe seleccionar el nuevo estado del litigio");
+  if (!numero.value) return push.warning("Debe colocar un título para identificar el estado");
+  if (!user || !user.idUsuario) return push.warning("No se encontró el usuario en localStorage.");
+  if (cierre.value === null) return push.warning("Debe seleccionar el resultado del caso.");
+  if (!archivo.value) return push.warning("Debe seleccionar un archivo de evidencia.");
+
+  const confirmar = confirm("¿Está seguro que desea cerrar este caso? Esta acción es irreversible.");
+  if (!confirmar) return;
 
   const body = {
     idLitigio: Number(props.id_Ltg),
@@ -215,7 +233,7 @@ async function guardar() {
     fecha: fechaCompleta,
     salaId: Number(salaId.value),
     id_usuario: user.idUsuario,
-    cierre: tipo.value === 'Cierre del Caso' ? cierre.value : null
+    cierre: cierre.value
   };
 
   const notif = push.promise('Agregando audiencia...');
@@ -224,21 +242,19 @@ async function guardar() {
     const idAudiencia = data.idAudiencia;
     notif.resolve('Audiencia creada correctamente');
 
-    if (tipo.value === 'Cierre del Caso') {
-      const formData = new FormData();
-      formData.append('Archivo', archivo.value);
-      formData.append('Comentario', comentario.value?.trim() || 'Documento subido sin descripción.');
-      formData.append('IdUsuario', user.idUsuario);
-      formData.append('NombreEvidencia', nombreEvidencia.value?.trim() || archivo.value.name.split('.')[0]);
-      formData.append('IdLitigio', props.id_Ltg);
-      formData.append('IdAudiencia', idAudiencia);
+    const formData = new FormData();
+    formData.append('Archivo', archivo.value);
+    formData.append('Comentario', comentario.value?.trim() || 'Documento subido sin descripción.');
+    formData.append('IdUsuario', user.idUsuario);
+    formData.append('NombreEvidencia', nombreEvidencia.value?.trim() || archivo.value.name.split('.')[0]);
+    formData.append('IdLitigio', props.id_Ltg);
+    formData.append('IdAudiencia', idAudiencia);
 
-      const fileNotif = push.promise('Subiendo evidencia...');
-      await axios.post('/api/Files/subir-evidencia', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      fileNotif.resolve('Evidencia subida correctamente');
-    }
+    const fileNotif = push.promise('Subiendo evidencia...');
+    await axios.post('/api/Files/subir-evidencia', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    fileNotif.resolve('Evidencia subida correctamente');
 
     emit('actualizar');
     emit('close');
