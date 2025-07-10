@@ -2,18 +2,18 @@
   <div class="custom-header">
   </div>
   <div class="form-content">
-    <div class="field">
-      <br>
-      <label class="block mb-2 text-sm font-medium">Título personalizado</label>
-      <InputText v-model="numero" class="w-full" placeholder="" />
-    </div>
 
     <div class="field">
       <label class="block mb-2 text-sm font-medium">Estado</label>
+      <Dropdown id="tipoAudiencia" v-model="numero" :options="tiposEstados" optionLabel="label" optionValue="value"
+        class="w-full" placeholder="Seleccione un tipo" />
+    </div>
+     <div class="field">
+      <label class="block mb-2 text-sm font-medium">Modalidad</label>
       <Dropdown id="tipoAudiencia" v-model="tipo" :options="tiposAudiencia" optionLabel="label" optionValue="value"
         class="w-full" placeholder="Seleccione un tipo" />
     </div>
-    <div class="field" v-if="tipo === 'Cierre del Caso'">
+    <div class="field" v-if="numero === 'Cierre del Caso'">
       <label class="block mb-2 text-sm font-medium">Resultado del caso</label>
       <div class="flex items-center gap-4">
         <label class="inline-flex items-center gap-2">
@@ -26,18 +26,18 @@
         </label>
       </div>
     </div>
-    <div v-if="tipo === 'Cierre del Caso'" class="field">
+    <div v-if="numero === 'Cierre del Caso'" class="field">
       <label class="block mb-2 text-sm font-medium">Evidencia del cierre *</label>
       <FileUpload name="Archivo" customUpload @select="handleExpedienteUpload" mode="basic" chooseLabel="Elegir archivo"
         class="w-full" style="background-color: #003870;" />
     </div>
 
-    <div v-if="tipo === 'Cierre del Caso'" class="field">
+    <div v-if="numero === 'Cierre del Caso'" class="field">
       <label class="block mb-2 text-sm font-medium">Nombre de la evidencia</label>
       <InputText v-model="nombreEvidencia" class="w-full" placeholder="Ej: Resolución final" />
     </div>
 
-    <div v-if="tipo === 'Cierre del Caso'" class="field">
+    <div v-if="numero === 'Cierre del Caso'" class="field">
       <label class="block mb-2 text-sm font-medium">Comentario</label>
       <textarea v-model="comentario" rows="4" maxlength="2000" class="texAreaComentario w-full"></textarea>
       <small>{{ comentario.length }}/2000 caracteres</small>
@@ -68,7 +68,7 @@
     </div>
 
     <div class="mt-4 text-center">
-      <Button v-if="tipo === 'Cierre del Caso'" label="Guardar Cierre" icon="pi pi-lock"
+      <Button v-if="numero === 'Cierre del Caso'" label="Guardar Cierre" icon="pi pi-lock"
         class="p-button p-button-danger" @click="guardarCierre" />
       <Button v-else label="Guardar" icon="pi pi-save" class="p-button p-button-success" @click="guardarSimple" />
     </div>
@@ -103,11 +103,16 @@ const archivo = ref(null);
 const nombreEvidencia = ref('');
 const comentario = ref('');
 
-const tiposAudiencia = [
+const tiposEstados = [
   { label: 'Sentencia', value: 'Sentencia' },
   { label: 'Recurso de Casación', value: 'Recurso de Casación' },
   { label: 'Sentencia Definitiva', value: 'Sentencia Definitiva' },
   { label: 'Cierre del Caso', value: 'Cierre del Caso' },
+]
+
+const tiposAudiencia = [
+  { label: 'Presencial', value: 'Presencial' },
+  { label: 'Virtual', value: 'Virtual' },
 ]
 
 // Computed: filtrar salas del tribunal seleccionado
