@@ -76,16 +76,26 @@
 /* DIÁLOGO DE FORMULARIOS  */
 /* ======================== */
 
-/* Tamaño del modal */
-.dialog-formulario-form .p-dialog {
+/* Estilo principal para ajustar tamaño del diálogo completo */
+::v-deep(.dialog-formulario-form) .p-dialog {
   max-width: 95vw;
   width: 100%;
+  max-height: 90vh;
 }
+
+/* Para que el contenido interno haga scroll si se desborda */
+::v-deep(.dialog-formulario-form) .p-dialog-content {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Ajuste para pantallas más grandes */
 @media (min-width: 768px) {
-  .dialog-formulario-form .p-dialog {
+  ::v-deep(.dialog-formulario-form) .p-dialog {
     max-width: 960px;
   }
 }
+
 
 /* Contenido interno del diálogo */
 .dialog-formulario-form .p-dialog-content {
@@ -118,6 +128,8 @@
 .dialog-formulario-form .field {
   width: 100%;
 }
+
+
 
 .dialog-formulario-form .p-inputtext,
 .dialog-formulario-form .p-dropdown,

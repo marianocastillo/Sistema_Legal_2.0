@@ -1,58 +1,52 @@
 <template>
 
-
-      <div class="custom-header">
-      </div>
-
-
-    <div class="form-content">
-      <div class="field">
-<br>
-        <label class="block mb-2 text-sm font-medium">Nombre de la Audiencia *</label>
-        <InputText v-model="numero" class="w-full" placeholder="Nombre de la Nueva Audiencia" />
-      </div>
-
-      <div class="field">
-        <label class="block mb-2 text-sm font-medium">Modalidad*</label>
-         <Dropdown id="tipoAudiencia" v-model="tipo" :options="tiposAudiencia" optionLabel="label"
-          optionValue="value" class="w-full" placeholder="Seleccione un tipo" />
-      </div>
-
-      <div class="field">
-        <label class="block mb-2 text-sm font-medium">Fecha de Audiencia *</label>
-        <Calendar v-model="Fecha" dateFormat="yy-mm-dd" showIcon :minDate="hoy" class="w-full"
-          placeholder="Seleccione una fecha" />
-      </div>
-
-      <div class="field">
-        <label class="block mb-2 text-sm font-medium">Hora Audiencia *</label>
-        <Calendar v-model="horaSeleccionada" showIcon timeOnly hourFormat="12" placeholder="Ej: 8:00am"
-          class="w-full" />
-      </div>
-
-      <div class="field">
-        <label class="block mb-2 text-sm font-medium">Tribunal *</label>
-        <Dropdown v-model="tribunalSeleccionado" :options="tribunales" optionLabel="nombre_Tribunal"
-          optionValue="id_Tribunal" placeholder="Seleccione un tribunal" class="w-full" filter />
-      </div>
-
-      <div class="field">
-        <label class="block mb-2 text-sm font-medium">Sala *</label>
-        <Dropdown v-model="salaId" :options="salasFiltradas" :disabled="!tribunalSeleccionado" optionLabel="nombre"
-          optionValue="idSala" placeholder="Seleccione una sala" class="w-full" filter />
-      </div>
-
-      <div class="mt-4 text-center">
-        <Button label="Guardar" icon="pi pi-check" class="p-button" @click="guardar" />
-      </div>
+  <div class="form-content ">
+    <div class="field">
+      <br>
+      <label class="block mb-2 text-sm font-medium">Nombre de la Audiencia *</label>
+      <InputText v-model="numero" class="w-full" placeholder="Nombre de la Nueva Audiencia" />
     </div>
+
+    <div class="field">
+      <label class="block mb-2 text-sm font-medium">Modalidad*</label>
+      <Dropdown id="tipoAudiencia" v-model="tipo" :options="tiposAudiencia" optionLabel="label" optionValue="value"
+        class="w-full" placeholder="Seleccione un tipo" />
+    </div>
+
+    <div class="field">
+      <label class="block mb-2 text-sm font-medium">Fecha de Audiencia *</label>
+      <Calendar v-model="Fecha" dateFormat="yy-mm-dd" showIcon :minDate="hoy" class="w-full"
+        placeholder="Seleccione una fecha" />
+    </div>
+
+    <div class="field">
+      <label class="block mb-2 text-sm font-medium">Hora Audiencia *</label>
+      <Calendar v-model="horaSeleccionada" showIcon timeOnly hourFormat="12" placeholder="Ej: 8:00am" class="w-full" />
+    </div>
+
+    <div class="field">
+      <label class="block mb-2 text-sm font-medium">Tribunal *</label>
+      <Dropdown v-model="tribunalSeleccionado" :options="tribunales" optionLabel="nombre_Tribunal"
+        optionValue="id_Tribunal" placeholder="Seleccione un tribunal" class="w-full" filter />
+    </div>
+
+    <div class="field">
+      <label class="block mb-2 text-sm font-medium">Sala *</label>
+      <Dropdown v-model="salaId" :options="salasFiltradas" :disabled="!tribunalSeleccionado" optionLabel="nombre"
+        optionValue="idSala" placeholder="Seleccione una sala" class="w-full" filter />
+    </div>
+
+    <div class="mt-4 text-center">
+      <Button label="Guardar" icon="pi pi-check" class="p-button" @click="guardar" />
+    </div>
+  </div>
 
 </template>
 
 <script setup>
 import { push } from 'notivue'
 import axios from 'axios';
-import { ref, onMounted, computed, watch,nextTick } from 'vue'
+import { ref, onMounted, computed, watch, nextTick } from 'vue'
 
 const emit = defineEmits(['close', 'actualizar']);
 const props = defineProps({
@@ -151,17 +145,17 @@ async function guardar() {
   if (!salaId.value) return push.warning("Debe seleccionar una sala.");
 
   if (!user || !user.idUsuario) {
-  return push.warning("No se encontró el usuario en localStorage.");
+    return push.warning("No se encontró el usuario en localStorage.");
 
-}
-const body = {
-  idLitigio: Number(props.id_Ltg),
-  numero: numero.value.trim(),
-  tipo: tipo.value.trim(),
-  fecha: fechaCompleta,
-  salaId: Number(salaId.value),
-  id_usuario: user.idUsuario
-}
+  }
+  const body = {
+    idLitigio: Number(props.id_Ltg),
+    numero: numero.value.trim(),
+    tipo: tipo.value.trim(),
+    fecha: fechaCompleta,
+    salaId: Number(salaId.value),
+    id_usuario: user.idUsuario
+  }
 
   console.log('Datos enviados al backend:', body);
 
@@ -172,16 +166,16 @@ const body = {
     emit('close');
     notif.resolve('Audiencia creada correctamente');
   } catch (error) {
-  const msg = error.response?.data?.error || 'Error al crear la audiencia';
-  notif.reject(msg);
-}
-
+    const msg = error.response?.data?.error || 'Error al crear la audiencia';
+    notif.reject(msg);
   }
+
+}
 
 
 onMounted(async () => {
   await cargarDatosDropdowns();
-    await cargarUltimaAudiencia();
+  await cargarUltimaAudiencia();
 
   visible.value = true;
 });
@@ -222,8 +216,9 @@ onMounted(async () => {
   transition: color 0.2s;
 }
 
+
+
 .close-btn:hover {
   color: #e53935;
 }
-
 </style>
