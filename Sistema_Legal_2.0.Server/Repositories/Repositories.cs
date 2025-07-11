@@ -160,8 +160,19 @@ namespace Sistema_Legal_2._0.Server.Repositories
         /// </summary>
         public void SaveChanges()
         {
-            dbContext.SaveChanges();
+            try
+            {
+                dbContext.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Este usuario tiene un caso asignado" + ex.Message);
+              
+                throw;
+
+            }
         }
+
         /// <summary>
         /// Clear all changes been tracked
         /// </summary>

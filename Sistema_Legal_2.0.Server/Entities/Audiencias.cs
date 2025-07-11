@@ -11,19 +11,27 @@ public partial class Audiencias
 
     public int Id_litigio { get; set; }
 
-    public int? Id_tribunal { get; set; }
-
     public string Numero { get; set; }
 
     public string Tipo { get; set; }
 
     public DateTime? Fecha { get; set; }
 
+    public int? SalaId { get; set; }
+
+    public int id_usuario { get; set; }
+
+    public bool? Cierre { get; set; }
+
+    public string Estatus { get; set; }
+
     public virtual ICollection<Evidencias> Evidencias { get; set; } = new List<Evidencias>();
 
     public virtual Litigios Id_litigioNavigation { get; set; }
 
-    public virtual Tribunales Id_tribunalNavigation { get; set; }
+    public virtual Salas Sala { get; set; }
+
+    public virtual Usuarios id_usuarioNavigation { get; set; }
 }
 public partial class Audienciasltg
 {
@@ -42,26 +50,26 @@ public partial class Audienciasltg
 }
 
 
-    public class AudienciaCalendarioDto
-    {
-        public int Id_audiencia { get; set; }
-        public string NumeroAudiencia { get; set; }
-        public string TipoAudiencia { get; set; }
-        public DateTime FechaAudiencia { get; set; }
+public class AudienciaCalendarioDto
+{
+    public int Id_audiencia { get; set; }
+    public string NumeroAudiencia { get; set; }
+    public string TipoAudiencia { get; set; }
+    public DateTime FechaAudiencia { get; set; }
 
-        public int? IdSala { get; set; }
-        public string NombreSala { get; set; }
+    public int? IdSala { get; set; }
+    public string NombreSala { get; set; }
 
-        public int? Id_Tribunal { get; set; }
-        public string Nombre_Tribunal { get; set; }
+    public int? Id_Tribunal { get; set; }
+    public string Nombre_Tribunal { get; set; }
 
-        public int? id_Ltg { get; set; }
-        public string ltg_acto { get; set; }
-        public string ltg_Nombre_Demandante { get; set; }
+    public int? id_Ltg { get; set; }
+    public string ltg_acto { get; set; }
+    public string ltg_Nombre_Demandante { get; set; }
 
-        public int? id_demanda { get; set; }
-        public string TipoDemanda { get; set; }
-    }
+    public int? id_demanda { get; set; }
+    public string TipoDemanda { get; set; }
+}
 
 
 

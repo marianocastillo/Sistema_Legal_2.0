@@ -51,12 +51,19 @@ public partial class db_silegContext : DbContext
         {
             entity.HasKey(e => e.Id_audiencia);
 
-            entity.ToTable(tb => tb.HasTrigger("trg_Audiencias_Historico"));
+            entity.ToTable(tb =>
+                {
+                    tb.HasTrigger("trg_ActualizarEstatusDesdeAudiencia");
+                    tb.HasTrigger("trg_Audiencias_Historico");
+                });
 
+            entity.Property(e => e.Estatus)
+                .HasMaxLength(50)
+                .IsUnicode(false);
             entity.Property(e => e.Fecha).HasColumnType("datetime");
             entity.Property(e => e.Numero)
                 .IsRequired()
-                .HasMaxLength(30)
+                .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.Tipo)
                 .HasMaxLength(50)
@@ -67,9 +74,14 @@ public partial class db_silegContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Audiencias_Litigios");
 
-            entity.HasOne(d => d.Id_tribunalNavigation).WithMany(p => p.Audiencias)
-                .HasForeignKey(d => d.Id_tribunal)
-                .HasConstraintName("FK_Audiencias_Tribunales");
+            entity.HasOne(d => d.Sala).WithMany(p => p.Audiencias)
+                .HasForeignKey(d => d.SalaId)
+                .HasConstraintName("FK_Audiencias_Salas");
+
+            entity.HasOne(d => d.id_usuarioNavigation).WithMany(p => p.Audiencias)
+                .HasForeignKey(d => d.id_usuario)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Audiencias_Usuarios");
         });
 
         modelBuilder.Entity<Estatus_Litigios>(entity =>
@@ -86,20 +98,17 @@ public partial class db_silegContext : DbContext
         {
             entity.HasKey(e => e.Id_Evidencia);
 
-            entity.Property(e => e.Comentario_Evidencia)
-                .IsRequired()
-                .HasColumnType("text");
+            entity.ToTable(tb => tb.HasTrigger("trg_Historico_NuevaEvidencia"));
+
+            entity.Property(e => e.Comentario_Evidencia).HasColumnType("text");
             entity.Property(e => e.Fecha).HasColumnType("datetime");
             entity.Property(e => e.Nombre_Archivo)
-                .IsRequired()
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.Nombre_Evidencia)
-                .IsRequired()
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.Ruta_Archivo)
-                .IsRequired()
                 .HasMaxLength(200)
                 .IsUnicode(false);
 
@@ -260,15 +269,13 @@ public partial class db_silegContext : DbContext
         {
             entity.HasKey(e => e.IdSala);
 
-            entity.Property(e => e.IdSala).ValueGeneratedNever();
             entity.Property(e => e.Nombre)
                 .IsRequired()
-                .HasMaxLength(50)
+                .HasMaxLength(75)
                 .IsFixedLength();
 
             entity.HasOne(d => d.IdTribunalNavigation).WithMany(p => p.Salas)
                 .HasForeignKey(d => d.IdTribunal)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Salas_Tribunales");
         });
 

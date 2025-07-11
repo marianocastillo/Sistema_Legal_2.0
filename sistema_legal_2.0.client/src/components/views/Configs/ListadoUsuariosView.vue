@@ -267,27 +267,29 @@ export default {
       this.usuarioAEliminar = idUsuario
       this.showDialog = true
     },
-    async EliminarUsuario() {
-      this.eliminando = true;
+  async EliminarUsuario() {
+  this.eliminando = true;
 
-      try {
-        const response = await api.delete(`/api/Usuarios/${this.usuarioAEliminar}`);
-        if (response.data) {
-          await this.LoadUsuarios();
-          push.success({ title: 'Éxito', message: response.data.message });
-        } else {
-          push.warning({ title: 'Advertencia', message: response.data.message });
-        }
-      } catch (error) {
-        push.error({ title: 'Error', message: 'No se pudo eliminar el usuario.' });
-      } finally {
-        this.eliminando = false;
-        this.showDialog = false;
-      }
+  try {
+    const response = await api.delete(`/api/Usuarios/${this.usuarioAEliminar}`);
+
+    if (response.data?.success) {
+      await this.LoadUsuarios();
+      push.success({ title: 'Éxito', message: response.data.message });
+    } else {
+      push.warning({ title: 'Advertencia', message: response.data.message || 'No se pudo eliminar el usuario.' });
     }
 
+  } catch (error) {
+    // Extraer mensaje si está en el cuerpo del error
+    const errorMessage = error.response?.data?.message || 'No se pudo eliminar el usuario.';
+    push.error({ title: 'Error', message: errorMessage });
+  } finally {
+    this.eliminando = false;
+    this.showDialog = false;
   }
 }
+  }}
 </script>
 
 <style scoped>
