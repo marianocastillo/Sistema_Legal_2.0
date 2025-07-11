@@ -210,11 +210,7 @@
 
       <!-- Audiencias con evidencias y comentarios -->
       <div class="mt-6">
-        <h2 class="text-xl font-semibold mb-3" style="color: #003870;">Audiencias y Evidencias
-          <Button v-if="!estaCerrado" ref="btnEditarAudiencia" label="Editar Estatus" icon="pi pi-pencil"
-            class="custom-home-btn" @click="togglePopUpTribunal(id)" style="background-color: #5a7cb3;" />
-
-        </h2>
+        <h2 class="text-xl font-semibold mb-3" style="color: #003870;">Audiencias y Evidencias</h2>
         <!-- <Accordion :activeIndex="null" multiple>
           <AccordionTab v-for="(audiencia, index) in audiencias" :key="index"
             :header="`-${audiencia.numeroAudiencia} - (${audiencia.tipoAudiencia}) - ${audiencia.fechaAudiencia ? formatDate(audiencia.fechaAudiencia) : 'Sin fecha asignada'}-`">
@@ -257,21 +253,33 @@
           </AccordionTab>
         </Accordion> -->
 
-        <Accordion :activeIndex="null" multiple>
+        <Accordion v-model:activeIndex="activeIndex" multiple class="accordion-sin-flecha fondo-header">
           <AccordionTab v-for="(audiencia, index) in audiencias" :key="index">
             <template #header>
-              <div class=".qalendar-header-custom">
+              <div class="qalendar-header-custom">
+                <div class="header-left">
+                  <!-- Ícono de flecha -->
+                  <i class="pi transition-all duration-200"
+                    :class="activeIndex.includes(index) ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
 
-                <span>
-                  -{{ audiencia.numeroAudiencia }} - ({{ audiencia.tipoAudiencia }}) -
-                  {{ audiencia.fechaAudiencia ? formatDate(audiencia.fechaAudiencia) : 'Sin fecha asignada' }}-
-                </span>
+                  <!-- Título de la audiencia -->
+                  <span>
+                    -{{ audiencia.numeroAudiencia }} - ({{ audiencia.tipoAudiencia }}) -
+                    {{ audiencia.fechaAudiencia ? formatDate(audiencia.fechaAudiencia) : 'Sin fecha asignada' }}-
+                  </span>
+                </div>
 
-                <!-- Solo mostrar botón si es la última audiencia -->
-                <Button v-if="index === audiencias.length - 1 && !estaCerrado" label="Agregar evidencia"
-                  icon="pi pi-comment " class="custom-home-btn btn-comentario" @click.stop="togglePopUpEvidencia(id)" />
+                <div class="botones" v-if="index === audiencias.length - 1 && !estaCerrado">
+                  <Button icon="pi pi-comment" class="custom-home-btn btn-comentario"
+                    @click.stop="togglePopUpEvidencia(id)" v-tooltip="'Agregar evidencia'" />
+
+                  <Button ref="btnEditarAudiencia" icon="pi pi-pencil" class="custom-home-btn btn-comentario"
+                    @click="togglePopUpTribunal(id)"
+                    v-tooltip="'Editar audiencia'" />
+                </div>
               </div>
             </template>
+
 
 
             <!-- Contenido del AccordionTab -->
@@ -326,30 +334,15 @@
         <Button v-if="!estaCerrado" label="Nuevo Estado" icon="pi pi-cog" class="custom-home-btn"
           @click="mostrarDialogoOpciones = true" />
 
+        <!--  Redireccion: a poups de agregar Evidencias y comentarios -->
         <teleport to="body">
           <transition name="fade">
             <AgregarEvidencias v-if="popUpEvidencia" :id_Ltg="litigioactual" @close="togglePopUpEvidencia"
               @actualizar="obtenerComentariosConEvidencias" />
           </transition>
         </teleport>
-        <Dialog v-model:visible="mostrarDialogoOpciones" modal header="Selecciona una acción" class="w-4">
-          <div class="flex flex-column gap-3">
-            <Button label="Agregar Audiencia" icon="pi pi-plus-circle" class="custom-home-btn w-full"
-              @click="abrirAgregarAudiencia" />
-            <Button label="Actualizar Proceso" icon="pi pi-refresh" class="custom-home-btn w-full"
-              @click="abrirActualizarProceso" />
-          </div>
-        </Dialog>
-        <!-- Dialog: Actualizar Proceso -->
-        <Dialog v-model:visible="mostrarDialogoActualizar" modal header="Actualizar Proceso" class="w-6"
-          @after-hide="cerrarActualizarProceso">
-          <ActualizarProceso :id_Ltg="litigioactual" @close="cerrarActualizarProceso" @actualizar="obtenerTribunal" />
-        </Dialog>
-        <Dialog v-model:visible="mostrarDialogoAgregarAudiencia" modal header="Agregar Audiencia" class="w-6"
-          @after-hide="cerrarAgregarAudiencia">
-          <AgregarAudiencias :id_Ltg="litigioactual" @close="cerrarAgregarAudiencia" @actualizar="obtenerAudiencias" />
-        </Dialog>
 
+        <!--Redireccion: a poups de editar Audiencia -->
         <teleport to="body">
           <transition name="fade">
             <EditarAudiencias v-if="popUpTribunal" :id_Ltg="litigioactual" @close="togglePopUpTribunal"
@@ -357,13 +350,39 @@
           </transition>
         </teleport>
 
-        <Dialog v-model:visible="dialogoVisible" modal header="Comentario completo" class="w-6 comentario"
-          style="white-space: pre-wrap; word-break: break-word;">
-          <p style="white-space: pre-wrap;">{{ comentarioCompleto }}</p>
-        </Dialog>
+
       </div>
     </div>
   </div>
+
+  <!-- Dialog: Seleccionar accion del proceso  -->
+  <Dialog v-model:visible="mostrarDialogoOpciones" modal header="Selecciona una acción" class="w-4">
+    <div class="flex flex-column gap-3">
+      <Button label="Agregar Audiencia" icon="pi pi-plus-circle" class="custom-home-btn w-full"
+        @click="abrirAgregarAudiencia" />
+      <Button label="Actualizar Proceso" icon="pi pi-refresh" class="custom-home-btn w-full"
+        @click="abrirActualizarProceso" />
+    </div>
+  </Dialog>
+
+  <!-- Dialog: Actualizar Proceso -->
+  <Dialog v-model:visible="mostrarDialogoActualizar" modal header="Actualizar Proceso" class="w-6"
+    @after-hide="cerrarActualizarProceso">
+    <ActualizarProceso :id_Ltg="litigioactual" @close="cerrarActualizarProceso" @actualizar="obtenerTribunal" />
+  </Dialog>
+
+  <!-- Dialog: Agregar Audiencia -->
+  <Dialog v-model:visible="mostrarDialogoAgregarAudiencia" modal header="Agregar Audiencia" class="w-6"
+    @after-hide="cerrarAgregarAudiencia">
+    <AgregarAudiencias :id_Ltg="litigioactual" @close="cerrarAgregarAudiencia" @actualizar="obtenerAudiencias" />
+  </Dialog>
+
+
+  <!-- Dialog: Mostrar comentario completo  -->
+  <Dialog v-model:visible="dialogoVisible" modal header="Comentario completo" class="w-6 comentario"
+    style="white-space: pre-wrap; word-break: break-word;">
+    <p style="white-space: pre-wrap;">{{ comentarioCompleto }}</p>
+  </Dialog>
 </template>
 
 
@@ -377,6 +396,8 @@ import EditarAudiencias from '@/components/views/Popups/EditarAudiencias.vue';
 import ActualizarProceso from './Popups/ActualizarProceso.vue';
 import AgregarEvidencias from '@/components/views/Popups/AgregarEvidencias.vue';
 import dayjs from 'dayjs';
+
+
 
 const audiencias = ref([]);
 const tribunalFinal = ref([]);
@@ -396,6 +417,7 @@ const events = ref([]);
 const mostrarDialogoOpciones = ref(false)
 const mostrarDialogoActualizar = ref(false)
 const mostrarDialogoAgregarAudiencia = ref(false)
+const activeIndex = ref([])
 
 
 
@@ -679,13 +701,56 @@ onMounted(async () => {
   align-items: center;
   z-index: 9999;
 }
-
-:deep(.qalendar-header-custom) {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  width: 100% !important;
+/* Ocultar la flechita automática de PrimeVue */
+::v-deep(.accordion-sin-flecha .p-accordionheader-toggle-icon) {
+  display: none !important;
 }
+
+/* colores del acordion padre de las audiencias  */
+:deep(.fondo-header .p-accordionpanel-active > .p-accordionheader) {
+  --p-accordion-header-active-background: #ceddf8;
+  --p-accordion-header-active-color: #ffffff;
+}
+
+:deep(.fondo-header .p-accordionheader:hover) {
+  background-color: #d5e9ff !important;
+}
+
+/* colores de los acordeanes hijos de las audiencias  */
+:deep(.fondo-header .p-accordion .p-accordionpanel-active > .p-accordionheader) {
+  --p-accordion-header-active-background: #babbbd !important;
+  --p-accordion-header-active-color: black;
+}
+
+:deep(.fondo-header .p-accordion .p-accordionheader:hover) {
+  background-color: #dee1e4 !important;
+}
+
+
+/* Estilo completo del header personalizado */
+::v-deep(.qalendar-header-custom) {
+  color: #003870;
+  padding: 1rem;
+  border-radius: 6px;
+  width: 100%;
+  box-sizing: border-box;
+
+  /* Alineación horizontal correcta */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap; /* para que no rompa en pantallas chicas */
+}
+
+
+/* Contenedor de los botones (a la derecha) */
+::v-deep(.qalendar-header-custom .botones) {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
 
 .modal-overlay {
   position: fixed;
@@ -757,13 +822,14 @@ onMounted(async () => {
   cursor: pointer;
 }
 
-:deep(.custom-home-btn .pi-comment) {
-  font-size: 0.70rem;
+:deep(.custom-home-btn .pi-comment),
+:deep(.custom-home-btn .pi-pencil) {
+  font-size: 0.8rem;
   /* o usa 12px */
 }
 
 .btn-comentario {
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .custom-home-btn {

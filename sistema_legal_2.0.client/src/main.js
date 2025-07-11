@@ -23,9 +23,6 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
-
-
-
 import Column from 'primevue/column';
 import ColumnGroup from 'primevue/columngroup';   // optional
 import Row from 'primevue/row';
@@ -37,7 +34,6 @@ import './assets/main.css';
 //import 'notivue/animations.css'
 import 'primeflex/primeflex.css'
 import 'primeicons/primeicons.css'
-
 
 
 library.add(faEye, faUser,  faLock, faEyeSlash  );

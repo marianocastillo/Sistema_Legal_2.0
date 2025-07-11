@@ -170,26 +170,39 @@ const paginatedTribunales = computed(() => {
     </div>
   </Dialog>
 
-  <Dialog v-model:visible="mostrarFormulario" modal class="dialog-formulario" :closable="false"
-    header="Formulario Tribunal">
-    <div class="p-fluid">
-      <div class="field" v-for="campo in camposFormulario" :key="campo.label">
+  <Dialog v-model:visible="mostrarFormulario" modal class="dialog-formulario-form" :closable="false">
+
+    <!-- Header personalizado -->
+    <template #header>
+      <div class="flex justify-content-between align-items-center w-full">
+        <h2 class="text-lg font-bold m-0">Formulario Tribunal</h2>
+
+        <div class="flex gap-2">
+          <Button label="Cancelar" class="p-button-text" @click="cerrarFormulario" />
+          <Button label="Guardar" class="p-button" style="background-color: #003870; color: white"
+            @click="guardarTribunal" />
+        </div>
+      </div>
+    </template>
+
+    <!-- Contenido del formulario -->
+    <div class="p-fluid formgrid grid mt-2">
+      <div class="field col-12 md:col-6" v-for="campo in camposFormulario" :key="campo.label">
         <label>{{ campo.label }}</label>
         <InputText v-model="tribunalEditando[campo.model]" />
       </div>
 
-      <div class="field">
+      <div class="field col-12 md:col-6">
         <label>Estado</label>
-        <Dropdown v-model="tribunalEditando.estatus" :options="estadoOptions" optionLabel="label" optionValue="value" />
-      </div>
-
-      <div class="text-end mt-4">
-        <Button label="Cancelar" class="p-button-text me-2" @click="cerrarFormulario" />
-        <Button label="Guardar" class="p-button" style="background-color: #003870; color: white"
-          @click="guardarTribunal" />
+        <Dropdown v-model="tribunalEditando.estatus" :options="estadoOptions" optionLabel="label" optionValue="value"
+          class="w-full" />
       </div>
     </div>
+
   </Dialog>
+
+
+
 
 
   <DialogSalas v-if="tribunalSeleccionado" v-model:visible="mostrarDialogoSalas"
@@ -218,10 +231,6 @@ const paginatedTribunales = computed(() => {
 .tribunal-info {
   display: flex;
   flex-direction: column;
-}
-
-.dialog-formulario {
-  width: 35vw;
 }
 
 .p-dropdown.p-focus {
