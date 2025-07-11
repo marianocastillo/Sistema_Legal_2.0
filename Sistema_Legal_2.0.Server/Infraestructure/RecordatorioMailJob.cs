@@ -3,18 +3,29 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using webapi.Comun;
-using Microsoft.EntityFrameworkCore;
 using webapi.ViewModels;
+using System.Data;
+using System.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
+using webapi.Comun;
+using Sistema_Legal_2._0.Server.Models;
+using Sistema_Legal_2._0.Server.Repositories;
+using Sistema_Legal_2._0.Server.Infraestructure;
 using Sistema_Legal_2._0.Server.Entities;
+using Sistema_Legal_2._0.Server.Entities;
+using Microsoft.Data.SqlClient;
 
 public class RecordatorioJob : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider;
-    private readonly db_silegContext _db_silegContext;
-    public RecordatorioJob(IServiceProvider serviceProvider)
+    private readonly IConfiguration _configuration;
+    private readonly string _cadenaSQL;
+    public RecordatorioJob(IServiceProvider serviceProvider, IConfiguration configuration)
     {
         _serviceProvider = serviceProvider;
+        _configuration = configuration;
+        _cadenaSQL = configuration.GetConnectionString("Sistema_Legal");
+
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -25,52 +36,68 @@ public class RecordatorioJob : BackgroundService
             {
                 using (var scope = _serviceProvider.CreateScope())
                 {
-                    var db = scope.ServiceProvider.GetRequiredService<db_silegContext>();
+                    string connectionString = _configuration.GetConnectionString("Sistema_Legal");
 
-                    var hoy = DateTime.Today;
-                    var ahora = DateTime.Now;
-                    var en3dias = hoy.AddDays(3);
-
-                    // ✅ Audiencias que ocurren en 3 días
-                    var anticipadas = await db.Audiencias
-                        .Where(x => x.Fecha.HasValue && x.Fecha.Value.Date == en3dias)
-                        .ToListAsync();
-
-                    foreach (var audiencia in anticipadas)
+                    using (var connection = new SqlConnection(connectionString))
                     {
-                        var correo = new CorreoVM
+                        await connection.OpenAsync(stoppingToken);
+
+                        using (var cmd = new SqlCommand("sp_GetAudienciasParaCorreo", connection))
                         {
-                            recipients = new[] { "ronvargas@contraloria.gob.do" },
-                            subject = "Recordatorio: Audiencia próxima",
-                            servicio = "Sistema de Audiencias",
-                            messageHtml = $"<p>Te recordamos que tienes una audiencia programada para el <b>{audiencia.Fecha:dd/MM/yyyy hh:mm tt}</b>.</p>"
-                        };
+                            cmd.CommandType = CommandType.StoredProcedure;
 
-                        Console.WriteLine($"Enviando correo para audiencia: {audiencia.Id_audiencia} - {audiencia.Fecha}");
-                        await Mailing.SendMailAsync(correo);
-
-                        await Mailing.SendMailAsync(correo);
-                    }
-
-                    // ✅ Audiencias del mismo día (hoy), pero solo si es 8 AM o 3 PM
-                    if (true)
-                    {
-                        var hoyMismo = await db.Audiencias
-                            .Where(x => x.Fecha.HasValue && x.Fecha.Value.Date == hoy)
-                            .ToListAsync();
-
-                        foreach (var audiencia in hoyMismo)
-                        {
-                            var correo = new CorreoVM
+                            using (var reader = await cmd.ExecuteReaderAsync(stoppingToken))
                             {
-                                recipients = new[] { "ronvargas@contraloria.gob.do" },
-                                subject = "Recordatorio: Audiencia de hoy",
-                                servicio = "Sistema de Audiencias",
-                                messageHtml = $"<p>Te recordamos que hoy tienes una audiencia programada a las <b>{audiencia.Fecha:hh:mm tt}</b>.</p>"
-                            };
-                            Console.WriteLine($"Enviando correo para audiencia: {audiencia.Id_audiencia} - {audiencia.Fecha}");
+                                while (await reader.ReadAsync(stoppingToken))
+                                {
+                                    var body = $@"
+    <div style='border: 1px solid #dcdcdc; border-radius: 10px; padding: 25px; font-family: Arial, sans-serif; background-color: #ffffff; max-width: 700px; margin: auto; box-shadow: 0 2px 5px rgba(0,0,0,0.05);'>
 
-                            await Mailing.SendMailAsync(correo);
+        <!-- Encabezado con estado y acto -->
+        <div style='display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;'>
+            <div>
+                <p style='margin: 0 0 5px 0;color: #083d7a;  font-size: 16px;'><strong>Número de Acto:</strong> <span style='color: #888;'>( {reader["NumeroActo"]})</span></p>
+                <p style='margin: 0; font-size: 16px;color: #083d7a;'><strong>Fecha de Acto:</strong><span style='color: #888;'> ({((DateTime)reader["FechaActo"]):dd/MM/yyyy})</span></p>
+            </div>
+            <div style='text-align: right;'>
+                <p style='margin: 0; font-size: 16px;color: #083d7a;'><strong>Estado actual:</strong><br /> {reader["NombreSentencia"]} <span style='color: #888;'>({reader["NombreEstatus"]})</span></p>
+            </div>
+        </div>
+
+        <hr style='border: none; border-top: 1px solid #eee; margin: 20px 0;' />
+
+        <!-- Detalles de la audiencia -->
+        <div style='font-size: 15px; line-height: 1.6; color: #333;'>
+            <p><strong style='color: #083d7a;'>Título:</strong> {reader["Numero"]}</p>
+            <p><strong style='color: #083d7a;'>Modalidad:</strong> {reader["Tipo"]}</p>
+            <p><strong style='color: #083d7a;'>Tipo de Demanda:</strong> {reader["TipoDemanda"]}</p>
+            <p><strong style='color: #083d7a;'>Demandante:</strong> {reader["NombreDemandante"]}</p>
+            <p><strong style='color: #083d7a;'>Tipo de Demandante:</strong> {reader["TipoDemandante"]}</p>
+            <p><strong style='color: #083d7a;'>Representante:</strong> {reader["NombreRepresentante"]}</p>
+            <p><strong style='color: #083d7a;'>Fecha de Audiencia:</strong> {((DateTime)reader["FechaAudiencia"]):f}</p>
+        </div>
+
+        <!-- Nota -->
+        <div style='margin-top: 30px; font-size: 0.9em; color: #666; border-top: 1px dashed #ccc; padding-top: 15px;'>
+            <em>Este mensaje fue generado automáticamente por el Sistema Legal. Si tiene preguntas, contacte a su supervisor o la Dirección Legal.</em>
+        </div>
+    </div>";
+
+                                    var correos = reader["UsuariosEmails"].ToString()
+                                        .Split(';', StringSplitOptions.RemoveEmptyEntries);
+
+                                    var correo = new CorreoVM
+                                    {
+                                        recipients = correos,
+                                        subject = "Notificación de Audiencia",
+                                        servicio = "Sistema de Audiencias",
+                                        messageHtml = body
+                                    };
+
+                                    Console.WriteLine($"Enviando correo para audiencia: {reader["Id_audiencia"]} - {reader["FechaAudiencia"]}");
+                                    await Mailing.SendMailAsync(correo);
+                                }
+                            }
                         }
                     }
                 }
@@ -80,7 +107,7 @@ public class RecordatorioJob : BackgroundService
                 Console.WriteLine("Error en el job de recordatorio: " + ex.Message);
             }
 
-            await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
+            await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken);
         }
     }
 }

@@ -2,6 +2,7 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 
 namespace Sistema_Legal_2._0.Server.Entities;
 
@@ -20,6 +21,7 @@ public partial class Usuarios
     public bool Activo { get; set; }
 
     public string nombreUsuario { get; set; }
+    public string Email { get; set; }
 
     public int? idSupervisor { get; set; }
 

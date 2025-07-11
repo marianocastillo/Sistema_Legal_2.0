@@ -70,16 +70,26 @@ namespace webapi.Comun
                     body = body.Replace("$servicio", correo.servicio);
                     body = body.Replace("$systemUrl", configuration["EmailSettings:SystemUrl"]);
 
+                    if (logoRoute != null)
+                    {
+                        // Insertar imagen como <img src="cid:ContraloriaLogo" />
+                        body = body.Replace("$img", "<img src='cid:ContraloriaLogo' alt='Logo' style='width: 120px;' />");
+                    }
+                    else
+                    {
+                        body = body.Replace("$img", ""); // Elimina el placeholder si no hay logo
+                    }
+
                     AlternateView avHtml = AlternateView.CreateAlternateViewFromString(body, null, MediaTypeNames.Text.Html);
 
                     if (logoRoute != null)
                     {
                         LinkedResource linkedImage = new LinkedResource(logoRoute, MediaTypeNames.Image.Jpeg)
                         {
-                            ContentId = "ContraloriaLogo"
+                            ContentId = "ContraloriaLogo",
+                            TransferEncoding = TransferEncoding.Base64
                         };
                         avHtml.LinkedResources.Add(linkedImage);
-                        body = body.Replace("$img", "<img src='cid:ContraloriaLogo'>");
                     }
 
                     mail.AlternateViews.Add(avHtml);

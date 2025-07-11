@@ -11,7 +11,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\img\LogoContraloria.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="efpt.config.json.user" />
+    <None Include="wwwroot\img\LogoContraloria.png" />
+    <None Include="wwwroot\MailLayout.html" />
   </ItemGroup>
 
   <ItemGroup>

@@ -29,7 +29,7 @@ public partial class Audiencias
 
     public virtual Litigios Id_litigioNavigation { get; set; }
 
-    public virtual Salas Sala { get; set; }
+    public virtual Salas Salas { get; set; }
 
     public virtual Usuarios id_usuarioNavigation { get; set; }
 }

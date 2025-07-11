@@ -81,7 +81,9 @@ namespace Sistema_Legal_2._0.Server.Controller
                 Apellidos = adUser.lastName.ToString(),
                 NombreUsuario = nombreUsuario.ToLower(),
                 IdPerfil = perfilesRepo.GetPerfilDefault(),
-                Activo = true
+                Activo = true,
+                Email = adUser.EMail.ToString()
+                
             };
             return usuario;
         }

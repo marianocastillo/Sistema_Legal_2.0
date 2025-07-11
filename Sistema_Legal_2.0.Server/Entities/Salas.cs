@@ -14,6 +14,8 @@ public partial class Salas
     public int IdTribunal { get; set; }
 
     public virtual Tribunales IdTribunalNavigation { get; set; }
+    public virtual ICollection<Audiencias> Audiencias { get; set; } = new List<Audiencias>(); // <- ESTA LÍNEA
+
 }
 
 public class SalaDto

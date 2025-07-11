@@ -7,6 +7,7 @@ namespace Sistema_Legal_2._0.Server.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 
 public class UsuariosModel
 {
@@ -26,6 +27,7 @@ public class UsuariosModel
     [StringLength(100, ErrorMessage = "No puede exceder los 50 carácteres")]
     [Unicode(false)]
     public string Nombres { get; set; }
+    public String Email { get; set; }
 
 
     [Required(ErrorMessage = "Se debe especificar los apellidos")]
@@ -35,6 +37,7 @@ public class UsuariosModel
 
     [Column(TypeName = "datetime")]
     public DateTime FechaCreacion { get; set; }
+    
 
     public bool Activo { get; set; }
 

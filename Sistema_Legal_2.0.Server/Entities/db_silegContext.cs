@@ -74,7 +74,7 @@ public partial class db_silegContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Audiencias_Litigios");
 
-            entity.HasOne(d => d.Sala).WithMany(p => p.Audiencias)
+            entity.HasOne(d => d.Salas).WithMany(p => p.Audiencias)
                 .HasForeignKey(d => d.SalaId)
                 .HasConstraintName("FK_Audiencias_Salas");
 

@@ -17,7 +17,8 @@ public class UsuariosRepo : Repository<Usuarios, UsuariosModel>
                 Activo = u.Activo,
                 fechaCreacion = u.FechaCreacion,
                 idPerfil = u.IdPerfil,
-                idSupervisor= u.IdSupervisor
+                idSupervisor= u.IdSupervisor,
+                Email=u.Email
                 
       
               
@@ -34,7 +35,10 @@ public class UsuariosRepo : Repository<Usuarios, UsuariosModel>
                             Apellidos = u.apellidos,                            
                             FechaCreacion = (DateTime)u.fechaCreacion,                      
                             Activo = u.Activo,
-                            IdPerfil = (int)u.idPerfil
+                            IdPerfil = (int)u.idPerfil,
+                            Email=u.Email
+                          
+                            
                             
                         });
             }
