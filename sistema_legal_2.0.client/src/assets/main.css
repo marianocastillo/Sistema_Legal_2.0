@@ -71,3 +71,75 @@
 }
 
 
+
+/* ======================== */
+/* DIÁLOGO DE FORMULARIOS  */
+/* ======================== */
+
+/* Tamaño del modal */
+.dialog-formulario-form .p-dialog {
+  max-width: 95vw;
+  width: 100%;
+}
+@media (min-width: 768px) {
+  .dialog-formulario-form .p-dialog {
+    max-width: 960px;
+  }
+}
+
+/* Contenido interno del diálogo */
+.dialog-formulario-form .p-dialog-content {
+  padding: 2rem;
+  background-color: #f9f9f9;
+}
+
+/* GRID de 2 columnas en pantallas grandes */
+.dialog-formulario-form .formgrid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 768px) {
+  .dialog-formulario-form .formgrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Etiquetas */
+.dialog-formulario-form label {
+  font-weight: 600!important;
+  font-size: 0.9rem!important;
+  margin-bottom: 0.25rem!important;
+  color: #003870 !important;
+  display: block!important;
+}
+
+/* Campos y entradas */
+.dialog-formulario-form .field {
+  width: 100%;
+}
+
+.dialog-formulario-form .p-inputtext,
+.dialog-formulario-form .p-dropdown,
+.dialog-formulario-form input,
+.dialog-formulario-form textarea,
+.dialog-formulario-form .p-dropdown .p-inputtext,
+.dialog-formulario-form .p-dropdown .p-dropdown-label {
+  width: 100% !important;
+  display: block;
+}
+
+/* Asegura que dropdowns no se limiten */
+.dialog-formulario-form .p-dropdown {
+  display: block;
+}
+
+/* Botones */
+.dialog-formulario-form .p-button {
+  background-color: #003870;
+  border: none;
+  color: white;
+}
+.dialog-formulario-form .p-button-text {
+  color: #555;
+}

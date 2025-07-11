@@ -221,7 +221,7 @@ async function guardarSimple() {
   } catch (error) {
     console.error('Error:', error);
     const msg = error.response?.data?.error || 'Error al crear el estado';
-    push.error(msg);
+    notif.reject(msg);
   }
 }
 

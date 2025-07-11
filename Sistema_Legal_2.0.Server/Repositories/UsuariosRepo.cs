@@ -56,7 +56,8 @@ public class UsuariosRepo : Repository<Usuarios, UsuariosModel>
                     FechaCreacion = (DateTime)u.fechaCreacion,
                     Activo = u.Activo,
                     IdPerfil = (int)u.idPerfil,
-                    nombrePerfil = p.Nombre
+                    nombrePerfil = p.Nombre,
+               
                 }).ToList();
     }
 
