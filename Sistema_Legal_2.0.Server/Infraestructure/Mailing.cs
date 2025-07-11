@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Data;
 using System.IO;
 using System.Net;
 using System.Net.Mail;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using webapi.ViewModels;
 
-namespace webapi.Comun
+namespace Sistema_Legal_2._0.Server.Infraestructure
 {
     public static class Mailing
     {
@@ -39,7 +41,7 @@ namespace webapi.Comun
             }
         }
 
-       public static async Task SendMailAsync(CorreoVM correo)
+        public static async Task SendMailAsync(CorreoVM correo)
         {
             try
             {
@@ -110,6 +112,168 @@ namespace webapi.Comun
                 Console.WriteLine("Error al enviar correo: " + ex.Message);
             }
         }
-       
+        public static class CorreoHelper
+        {
+            public static async Task EnviarCorreoAudiencia(int idAudiencia, SqlConnection conn)
+            {
+                using var cmdCorreo = new SqlCommand("sp_GetInfoAudienciaCorreo", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                cmdCorreo.Parameters.AddWithValue("@IdAudiencia", idAudiencia);
+
+                using var reader = await cmdCorreo.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
+                {
+                    var body = $@"
+             <div style='border: 1px solid #dcdcdc; border-radius: 10px; padding: 25px; font-family: Arial, sans-serif; background-color: #ffffff; max-width: 700px; margin: auto; box-shadow: 0 2px 5px rgba(0,0,0,0.05);'>
+
+        <!-- Encabezado con estado y acto -->
+        <div style='display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;'>
+            <div>
+                <p style='margin: 0 0 5px 0;color: #083d7a;  font-size: 16px;'><strong>Número de Acto:</strong> <span style='color: #888;'>( {reader["NumeroActo"]})</span></p>
+                <p style='margin: 0; font-size: 16px;color: #083d7a;'><strong>Fecha de Acto:</strong><span style='color: #888;'> ({((DateTime)reader["FechaActo"]):dd/MM/yyyy})</span></p>
+            </div>
+            <div style='text-align: right;'>
+                <p style='margin: 0; font-size: 16px;color: #083d7a;'><strong>Estado actual:</strong><br /> {reader["NombreSentencia"]} <span style='color: #888;'>({reader["NombreEstatus"]})</span></p>
+            </div>
+        </div>
+                    
+                    </div>
+              <div style='font-size: 15px; line-height: 1.6; color: #333;'>
+            <p><strong style='color: #083d7a;'>Título:</strong> {reader["Numero"]}</p>
+            <p><strong style='color: #083d7a;'>Modalidad:</strong> {reader["Tipo"]}</p>
+            <p><strong style='color: #083d7a;'>Tipo de Demanda:</strong> {reader["TipoDemanda"]}</p>
+            <p><strong style='color: #083d7a;'>Demandante:</strong> {reader["NombreDemandante"]}</p>
+            <p><strong style='color: #083d7a;'>Tipo de Demandante:</strong> {reader["TipoDemandante"]}</p>
+            <p><strong style='color: #083d7a;'>Representante:</strong> {reader["NombreRepresentante"]}</p>
+            <p><strong style='color: #083d7a;'>Fecha de Audiencia:</strong> {((DateTime)reader["FechaAudiencia"]):f}</p>
+        </div>
+                </div>";
+
+                    var correos = reader["UsuariosEmails"].ToString()
+                        .Split(';', StringSplitOptions.RemoveEmptyEntries);
+
+                    await Mailing.SendMailAsync(new CorreoVM
+                    {
+                        recipients = correos,
+                        subject = "Nueva Actualizacion en el litigio",
+                        servicio = "Sistema de Audiencias",
+                        messageHtml = body
+                    });
+                }
+            }
+
+
+            public static async Task EnviarCorreoAudienciaActualizada(int idLitigio, SqlConnection conn)
+            {
+                using var cmd = new SqlCommand("sp_GetInfoUltimaAudienciaCorreo", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                cmd.Parameters.AddWithValue("@IdLitigio", idLitigio);
+
+                using var reader = await cmd.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
+                {
+                    var body = $@"
+                <div style='font-family: Arial; font-size: 15px; background-color: #fffbe6; padding: 20px; border-radius: 10px; border: 1px solid #ccc; max-width: 700px; margin: auto;'>
+                    <h3 style='color: #c27c0e;'>📝 Audiencia actualizada</h3>
+                    <div style='display: flex; justify-content: space-between; margin-bottom: 15px;'>
+                       <div>
+                <p style='margin: 0 0 5px 0;color: #083d7a;  font-size: 16px;'><strong>Número de Acto:</strong> <span style='color: #888;'>( {reader["NumeroActo"]})</span></p>
+                <p style='margin: 0; font-size: 16px;color: #083d7a;'><strong>Fecha de Acto:</strong><span style='color: #888;'> ({((DateTime)reader["FechaActo"]):dd/MM/yyyy})</span></p>
+            </div>
+            <div style='text-align: right;'>
+                <p style='margin: 0; font-size: 16px;color: #083d7a;'><strong>Estado actual:</strong><br /> {reader["NombreSentencia"]} <span style='color: #888;'>({reader["NombreEstatus"]})</span></p>
+            </div>
+        </div>
+                 <div style='font-size: 15px; line-height: 1.6; color: #333;'>
+            <p><strong style='color: #083d7a;'>Título:</strong> {reader["Numero"]}</p>
+            <p><strong style='color: #083d7a;'>Modalidad:</strong> {reader["Tipo"]}</p>
+            <p><strong style='color: #083d7a;'>Tipo de Demanda:</strong> {reader["TipoDemanda"]}</p>
+            <p><strong style='color: #083d7a;'>Demandante:</strong> {reader["NombreDemandante"]}</p>
+            <p><strong style='color: #083d7a;'>Tipo de Demandante:</strong> {reader["TipoDemandante"]}</p>
+            <p><strong style='color: #083d7a;'>Representante:</strong> {reader["NombreRepresentante"]}</p>
+            <p><strong style='color: #083d7a;'>Fecha de Audiencia:</strong> {((DateTime)reader["FechaAudiencia"]):f}</p>
+        </div>
+                </div>";
+
+                    var correos = reader["UsuariosEmails"].ToString()
+                        .Split(';', StringSplitOptions.RemoveEmptyEntries);
+
+                    await Mailing.SendMailAsync(new CorreoVM
+                    {
+                        recipients = correos,
+                        subject = "Audiencia actualizada",
+                        servicio = "Sistema de Audiencias",
+                        messageHtml = body
+                    });
+                }
+            }
+
+            public static async Task EnviarCorreoAsignacionAbogado(int idUsuario, int idLitigio, SqlConnection conn)
+            {
+                // Obtener email y nombre del caso
+                using var cmd = new SqlCommand(@"
+        SELECT u.Email, u.nombres, l.ltg_acto AS NombreCaso
+        FROM Usuarios u
+        INNER JOIN Asignaciones_Litigios al ON al.IdUsuario = u.idUsuario
+        INNER JOIN Litigios l ON l.id_Ltg = al.Id_Ltg
+        WHERE u.idUsuario = @idUsuario AND l.id_Ltg = @idLitigio", conn);
+
+                cmd.Parameters.AddWithValue("@idUsuario", idUsuario);
+                cmd.Parameters.AddWithValue("@idLitigio", idLitigio);
+
+                using var reader = await cmd.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
+                {
+                    string email = reader["Email"].ToString();
+                    string nombreCaso = reader["NombreCaso"].ToString();
+
+                    string body = $@"
+            <div style='font-family: Arial; font-size: 16px; background-color: #f0fff4; padding: 25px; border-radius: 10px; border: 1px solid #b2f5ea; max-width: 600px; margin: auto;'>
+                <h2 style='color: #2f855a;'>🎉 ¡Felicidades!</h2>
+                <p>Usted ha sido asignado como <strong>abogado litigante</strong> del caso:</p>
+                <p style='font-size: 18px; font-weight: bold; color: #2b6cb0;'>&ldquo;{nombreCaso}&rdquo;</p>
+                <p>Ingrese a <strong>SILEG 2.0</strong> para consultar más detalles del proceso.</p>
+                <p style='font-size: 22px;'>😄</p>
+            </div>";
+
+                    await Mailing.SendMailAsync(new CorreoVM
+                    {
+                        recipients = new[] { email },
+                        subject = "¡Has sido asignado a un nuevo caso!",
+                        servicio = "Asignación de Litigio",
+                        messageHtml = body
+                    });
+                }
+            }
+
+            public static async Task<bool> YaFueNotificada(SqlConnection conn, int idAudiencia, string tipo)
+            {
+                var checkCmd = new SqlCommand(
+                    "SELECT COUNT(*) FROM Notificaciones_Audiencias WHERE Id_audiencia = @id AND TipoNotificacion = @tipo", conn);
+                checkCmd.Parameters.AddWithValue("@id", idAudiencia);
+                checkCmd.Parameters.AddWithValue("@tipo", tipo);
+
+                var existe = (int)await checkCmd.ExecuteScalarAsync();
+                return existe > 0;
+            }
+
+            public static async Task RegistrarNotificacion(SqlConnection conn, int idAudiencia, string tipo)
+            {
+                var insertCmd = new SqlCommand(
+                    "INSERT INTO Notificaciones_Audiencias (Id_audiencia, TipoNotificacion) VALUES (@id, @tipo)", conn);
+                insertCmd.Parameters.AddWithValue("@id", idAudiencia);
+                insertCmd.Parameters.AddWithValue("@tipo", tipo);
+
+                await insertCmd.ExecuteNonQueryAsync();
+            }
+
+
+        }
+
     }
-}
+
+    }
