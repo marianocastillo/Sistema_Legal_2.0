@@ -7,6 +7,7 @@ using Sistema_Legal_2._0.Server.Models.Enums;
 using Sistema_Legal_2._0.Server.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
+using static Sistema_Legal_2._0.Server.Infraestructure.Mailing;
 
 namespace Sistema_Legal_2._0.Server.Controller
 {
@@ -190,45 +191,43 @@ namespace Sistema_Legal_2._0.Server.Controller
 
         [HttpPost("Asignar-Litigio")]
         [AllowAnonymous]
-        public IActionResult Asignar([FromBody] Asignaciones_Ltg model)
+        public async Task<IActionResult> Asignar([FromBody] Asignaciones_Ltg model)
         {
             if (model == null || model.IdUsuario <= 0 || model.IdLtg <= 0)
                 return BadRequest("Datos inválidos.");
 
             string connectionString = _configuration.GetConnectionString("Sistema_Legal");
-            using (SqlConnection conn = new SqlConnection(connectionString))
+
+            using var conn = new SqlConnection(connectionString);
+            await conn.OpenAsync();
+
+            // 🟡 Verificar si ya existe la asignación
+            string verificarQuery = "SELECT COUNT(*) FROM Asignaciones_Litigios WHERE IdUsuario = @idUsuario AND Id_Ltg = @id_Ltg";
+            using var verificarCmd = new SqlCommand(verificarQuery, conn);
+            verificarCmd.Parameters.AddWithValue("@idUsuario", model.IdUsuario);
+            verificarCmd.Parameters.AddWithValue("@id_Ltg", model.IdLtg);
+
+            int existe = (int)await verificarCmd.ExecuteScalarAsync();
+            if (existe > 0)
+                return Conflict("Este abogado ya está asignado a este litigio.");
+
+            // ✅ Insertar si no existía
+            string insertQuery = "INSERT INTO Asignaciones_Litigios (IdUsuario, Id_Ltg) VALUES (@idUsuario, @id_Ltg)";
+            using var insertCmd = new SqlCommand(insertQuery, conn);
+            insertCmd.Parameters.AddWithValue("@idUsuario", model.IdUsuario);
+            insertCmd.Parameters.AddWithValue("@id_Ltg", model.IdLtg);
+
+            int rows = await insertCmd.ExecuteNonQueryAsync();
+            if (rows > 0)
             {
-                conn.Open();
-
-                // 🟡 Verificar si ya existe la asignación
-                string verificarQuery = "SELECT COUNT(*) FROM Asignaciones_Litigios WHERE IdUsuario = @idUsuario AND Id_Ltg = @id_Ltg";
-                using (SqlCommand verificarCmd = new SqlCommand(verificarQuery, conn))
-                {
-                    verificarCmd.Parameters.AddWithValue("@idUsuario", model.IdUsuario);
-                    verificarCmd.Parameters.AddWithValue("@id_Ltg", model.IdLtg);
-
-                    int existe = (int)verificarCmd.ExecuteScalar();
-                    if (existe > 0)
-                    {
-                        return Conflict("Este abogado ya está asignado a este litigio.");
-                    }
-                }
-
-                // ✅ Insertar si no existía
-                string insertQuery = "INSERT INTO Asignaciones_Litigios (IdUsuario, Id_Ltg) VALUES (@idUsuario, @id_Ltg)";
-                using (SqlCommand insertCmd = new SqlCommand(insertQuery, conn))
-                {
-                    insertCmd.Parameters.AddWithValue("@idUsuario", model.IdUsuario);
-                    insertCmd.Parameters.AddWithValue("@id_Ltg", model.IdLtg);
-
-                    int rows = insertCmd.ExecuteNonQuery();
-                    if (rows > 0)
-                        return Ok("Asociación guardada correctamente.");
-                    else
-                        return StatusCode(500, "No se pudo guardar.");
-                }
+                // 🟢 Enviar correo de notificación
+                await CorreoHelper.EnviarCorreoAsignacionAbogado(model.IdUsuario, model.IdLtg, conn);
+                return Ok("Asociación guardada correctamente.");
             }
+
+            return StatusCode(500, "No se pudo guardar.");
         }
+
 
 
         [HttpGet("Asignados/{idLtg}")]

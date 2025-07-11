@@ -5,27 +5,22 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using webapi.ViewModels;
 using System.Data;
-using System.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
-using webapi.Comun;
-using Sistema_Legal_2._0.Server.Models;
-using Sistema_Legal_2._0.Server.Repositories;
-using Sistema_Legal_2._0.Server.Infraestructure;
-using Sistema_Legal_2._0.Server.Entities;
-using Sistema_Legal_2._0.Server.Entities;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
+using Sistema_Legal_2._0.Server.Infraestructure;
+using static Sistema_Legal_2._0.Server.Infraestructure.Mailing;
 
 public class RecordatorioJob : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly IConfiguration _configuration;
     private readonly string _cadenaSQL;
+
     public RecordatorioJob(IServiceProvider serviceProvider, IConfiguration configuration)
     {
         _serviceProvider = serviceProvider;
         _configuration = configuration;
         _cadenaSQL = configuration.GetConnectionString("Sistema_Legal");
-
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -35,25 +30,57 @@ public class RecordatorioJob : BackgroundService
             try
             {
                 using (var scope = _serviceProvider.CreateScope())
+                using (var connection = new SqlConnection(_cadenaSQL))
                 {
-                    string connectionString = _configuration.GetConnectionString("Sistema_Legal");
+                    await connection.OpenAsync(stoppingToken);
 
-                    using (var connection = new SqlConnection(connectionString))
+                    using var cmd = new SqlCommand("sp_GetAudienciasParaCorreo", connection);
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    using var reader = await cmd.ExecuteReaderAsync(stoppingToken);
+                    while (await reader.ReadAsync(stoppingToken))
                     {
-                        await connection.OpenAsync(stoppingToken);
+                        var idAudiencia = (int)reader["Id_audiencia"];
+                        var fechaAudiencia = (DateTime)reader["FechaAudiencia"];
+                        var ahora = DateTime.Now;
+                        var diferencia = fechaAudiencia - ahora;
 
-                        using (var cmd = new SqlCommand("sp_GetAudienciasParaCorreo", connection))
+                        // 🧠 Definir el tipo de notificación y asunto del correo
+                        string tipoNotificacion = null;
+                        string subject = null;
+
+                        if (diferencia.TotalMinutes <= 15 && diferencia.TotalMinutes > 0)
                         {
-                            cmd.CommandType = CommandType.StoredProcedure;
+                            tipoNotificacion = "15_min";
+                            subject = "⏰ Audiencia en 15 minutos";
+                        }
+                        else if (fechaAudiencia.Date == ahora.Date)
+                        {
+                            tipoNotificacion = "hoy";
+                            subject = "📅 Hoy tiene una audiencia";
+                        }
+                        else if (fechaAudiencia.Date == ahora.Date.AddDays(3))
+                        {
+                            tipoNotificacion = "3_dias";
+                            subject = "📌 Próxima audiencia dentro de 3 días";
+                        }
+                        else
+                        {
+                            continue; // ⚠️ Si no entra en ningún caso, no hacemos nada
+                        }
 
-                            using (var reader = await cmd.ExecuteReaderAsync(stoppingToken))
-                            {
-                                while (await reader.ReadAsync(stoppingToken))
-                                {
-                                    var body = $@"
+                        // ✅ Validar que tipoNotificacion no sea nulo
+                        if (string.IsNullOrWhiteSpace(tipoNotificacion))
+                            continue;
+
+                        // ✅ Verificar si ya fue notificada
+                        if (await CorreoHelper.YaFueNotificada(connection, idAudiencia, tipoNotificacion))
+                            continue;
+
+                        // 💌 Construir mensaje HTML del correo
+                        var body = $@"
     <div style='border: 1px solid #dcdcdc; border-radius: 10px; padding: 25px; font-family: Arial, sans-serif; background-color: #ffffff; max-width: 700px; margin: auto; box-shadow: 0 2px 5px rgba(0,0,0,0.05);'>
 
-        <!-- Encabezado con estado y acto -->
         <div style='display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;'>
             <div>
                 <p style='margin: 0 0 5px 0;color: #083d7a;  font-size: 16px;'><strong>Número de Acto:</strong> <span style='color: #888;'>( {reader["NumeroActo"]})</span></p>
@@ -66,7 +93,6 @@ public class RecordatorioJob : BackgroundService
 
         <hr style='border: none; border-top: 1px solid #eee; margin: 20px 0;' />
 
-        <!-- Detalles de la audiencia -->
         <div style='font-size: 15px; line-height: 1.6; color: #333;'>
             <p><strong style='color: #083d7a;'>Título:</strong> {reader["Numero"]}</p>
             <p><strong style='color: #083d7a;'>Modalidad:</strong> {reader["Tipo"]}</p>
@@ -77,37 +103,38 @@ public class RecordatorioJob : BackgroundService
             <p><strong style='color: #083d7a;'>Fecha de Audiencia:</strong> {((DateTime)reader["FechaAudiencia"]):f}</p>
         </div>
 
-        <!-- Nota -->
         <div style='margin-top: 30px; font-size: 0.9em; color: #666; border-top: 1px dashed #ccc; padding-top: 15px;'>
             <em>Este mensaje fue generado automáticamente por el Sistema Legal. Si tiene preguntas, contacte a su supervisor o la Dirección Legal.</em>
         </div>
     </div>";
 
-                                    var correos = reader["UsuariosEmails"].ToString()
-                                        .Split(';', StringSplitOptions.RemoveEmptyEntries);
+                        var correos = reader["UsuariosEmails"].ToString()
+                            .Split(';', StringSplitOptions.RemoveEmptyEntries);
 
-                                    var correo = new CorreoVM
-                                    {
-                                        recipients = correos,
-                                        subject = "Notificación de Audiencia",
-                                        servicio = "Sistema de Audiencias",
-                                        messageHtml = body
-                                    };
+                        var correo = new CorreoVM
+                        {
+                            recipients = correos,
+                            subject = subject,
+                            servicio = "Sistema de Audiencias",
+                            messageHtml = body
+                        };
 
-                                    Console.WriteLine($"Enviando correo para audiencia: {reader["Id_audiencia"]} - {reader["FechaAudiencia"]}");
-                                    await Mailing.SendMailAsync(correo);
-                                }
-                            }
-                        }
+                        Console.WriteLine($"📧 Enviando correo ({tipoNotificacion}) para audiencia: {idAudiencia} - {fechaAudiencia}");
+                        await Mailing.SendMailAsync(correo);
+
+                        // 📝 Registrar que ya fue notificada
+                        await CorreoHelper.RegistrarNotificacion(connection, idAudiencia, tipoNotificacion);
                     }
+
                 }
             }
+            
             catch (Exception ex)
             {
                 Console.WriteLine("Error en el job de recordatorio: " + ex.Message);
             }
 
-            await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken);
+            await Task.Delay(TimeSpan.FromMinutes(15), stoppingToken);
         }
     }
 }

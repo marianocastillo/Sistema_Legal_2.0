@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.CodeAnalysis;
 using System.Linq;
 using System.Security.Claims;
+using static Sistema_Legal_2._0.Server.Infraestructure.Mailing;
 
 namespace Sistema_Legal_2._0.Server.Controllers
 {
@@ -108,7 +109,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 using var conn = new SqlConnection(_cadenaSQL);
                 await conn.OpenAsync();
 
-                var result = await conn.QueryFirstAsync<int>(
+                var idAudiencia = await conn.QueryFirstAsync<int>(
                     "InsertarAudiencia",
                     new
                     {
@@ -123,11 +124,14 @@ namespace Sistema_Legal_2._0.Server.Controllers
                     commandType: CommandType.StoredProcedure
                 );
 
+                // ✅ Llama a tu nueva función
+                await CorreoHelper.EnviarCorreoAudiencia(idAudiencia, conn);
+
                 return Ok(new
                 {
                     success = true,
                     message = "Audiencia creada correctamente",
-                    idAudiencia = result
+                    idAudiencia
                 });
             }
             catch (Exception ex)
@@ -139,6 +143,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 });
             }
         }
+
 
         [HttpPost("CrearEstados")]
         public async Task<IActionResult> CrearEstados([FromBody] CrearEstados dto)
@@ -153,7 +158,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 using var conn = new SqlConnection(_cadenaSQL);
                 await conn.OpenAsync();
 
-                var result = await conn.QueryFirstAsync<int>(
+                var idAudiencia = await conn.QueryFirstAsync<int>(
                     "InsertarEstado",
                     new
                     {
@@ -169,11 +174,14 @@ namespace Sistema_Legal_2._0.Server.Controllers
                     commandType: CommandType.StoredProcedure
                 );
 
+                // ✅ Reutiliza la misma función del helper
+                await CorreoHelper.EnviarCorreoAudiencia(idAudiencia, conn);
+
                 return Ok(new
                 {
                     success = true,
-                    message = "Audiencia creada correctamente",
-                    idAudiencia = result
+                    message = "Estado registrado y audiencia creada con éxito.",
+                    idAudiencia
                 });
             }
             catch (Exception ex)
@@ -187,7 +195,6 @@ namespace Sistema_Legal_2._0.Server.Controllers
         }
 
 
-
         [HttpPut("actualizarAudiencias")]
         public async Task<IActionResult> EditarUltimaAudiencia([FromBody] AudienciaUpdateDto dto)
         {
@@ -198,8 +205,6 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 using var connection = new SqlConnection(_cadenaSQL);
                 await connection.OpenAsync();
 
-
-       
                 var parametros = new
                 {
                     IdLitigio = dto.IdLitigio,
@@ -212,10 +217,13 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
                 await connection.ExecuteAsync("ActualizarAudiencia", parametros, commandType: CommandType.StoredProcedure);
 
+                // ✅ Enviar correo de actualización
+                await CorreoHelper.EnviarCorreoAudienciaActualizada(dto.IdLitigio, connection);
+
                 return Ok(new
                 {
                     success = true,
-                    message = "Última audiencia actualizada correctamente"
+                    message = "Última audiencia actualizada correctamente y correo enviado"
                 });
             }
             catch (Exception ex)
