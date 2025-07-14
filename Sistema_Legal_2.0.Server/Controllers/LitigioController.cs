@@ -238,11 +238,9 @@ public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
                     : JsonConvert.DeserializeObject<List<EvidenciaDto>>(reader["evidenciasJSON"].ToString())
             };
 
-            // Si quieres guardar sala o tribunal en el DTO, deberías ampliar AudienciaDto
             result.Audiencias.Add(audiencia);
         }
 
-        // 2. Tribunal final (última audiencia)
         if (await reader.NextResultAsync() && await reader.ReadAsync())
         {
             result.TribunalFinal = new AudienciaFinalDto
@@ -497,7 +495,6 @@ public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
         {
             using var connection = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal"));
 
-            // 1. Buscar ID del litigio usando el valor (cédula o número de acto)
             var parametrosBusqueda = new DynamicParameters();
             parametrosBusqueda.Add("@valor", valor.Trim());
 
@@ -512,7 +509,6 @@ public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
 
             int id_Ltg = litigioBase.id_Ltg;
 
-            // 2. Obtener los datos completos usando el nuevo SP
             var parametrosDetalle = new DynamicParameters();
             parametrosDetalle.Add("@IdLitigio", id_Ltg);
 

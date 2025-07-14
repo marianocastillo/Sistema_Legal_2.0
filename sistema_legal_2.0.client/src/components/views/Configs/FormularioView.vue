@@ -242,7 +242,7 @@ export default {
 
 
     async LoadPerfiles() {
-      const response = await api.get('/api/Perfiles');
+      const response = await api.get('/api/Perfiles/GetPerfiles');
       if (response.data) {
         this.perfiles = response.data;
       }

@@ -1,7 +1,8 @@
 
+import LoginView from '../components/views/LoginView.vue';
+
 import { createRouter, createWebHistory } from 'vue-router';
 
-import LoginView from '../components/views/LoginView.vue';
 import Drawer from '../layouts/Drawer.vue';
 import RegistroLitigio from '../components/views/RegistrarLitigio.vue';
 import ListadoTribunales from '@/components/views/Tribunales/ListadoTribunales.vue';
@@ -14,9 +15,8 @@ import AdministradorLitigio from '@/components/views/AdministradorLitigio.vue';
 import VistaAbogado from '@/components/views/VistaAbogado.vue';
 import BandejaRegistrados from '@/components/views/BandejaRegistrados.vue';
 import BandejaSeguimiento from '@/components/views/BandejaSeguimiento.vue';
-// import EdicionSalas from '@/components/views/Salas/EdicionSalas.vue';
-// import ListadoSalas from '@/components/views/Salas/ListadoSalas.vue';
 import Qalendar from '@/components/views/Qalendar.vue';
+import PerfilesMantenimiento from '@/components/views/Perfiles/PerfilesMantenimiento.vue';
 const routes = [
   {
     path: '/',
@@ -41,20 +41,6 @@ const routes = [
         component:ListadoTribunales ,
         meta: { requiresAuth: true, roles: [1, 2] }
       },
-      //       { path: '', redirect: '/GestionSalas' },
-      // {
-      //   path: 'GestionSalas',
-      //   name: 'GestionSalas',
-      //   component:ListadoSalas ,
-      //   meta: { requiresAuth: true, roles: [1, 2, 3] }
-      // },
-      //  { path: '', redirect: '/Calendario' },
-      // {
-      //   path: 'Calendario',
-      //   name: 'Calendario',
-      //   component:Calendar ,
-      //   meta: { requiresAuth: true, roles: [1, 2,3,4] }
-      // },
       {
         path: 'abogado/inicio',
         name: 'VistaAbogado',
@@ -69,7 +55,7 @@ const routes = [
       },
             {
         path: 'Calendario',
-        name: 'Calendatio',
+        name: 'Calendario',
         component: Qalendar,
         meta: { requiresAuth: true, roles: [1, 2, 3] }
       },
@@ -109,6 +95,12 @@ const routes = [
         component: ListadoUsuariosView,
         meta: { requiresAuth: true, roles: [1] }
       },
+       {
+        path: 'Perfiles',
+        name: 'PerfilesMantenimiento',
+        component: PerfilesMantenimiento,
+        meta: { requiresAuth: true, roles: [1] }
+      },
       {
         path: 'formulario',
         name: 'nuevoUsuario',
@@ -128,19 +120,6 @@ const routes = [
         props: true,
         meta: { requiresAuth: true, roles: [1, 2, 3, 4] }
       },
-      //       {
-      //   path: 'EdicionSalas/:idSala',
-      //   name: 'EdicionSalas',
-      //   component: EdicionSalas,
-      //   meta: { requiresAuth: true, roles: [1, 2, 3, 4] }
-      // },
-
-    //  {
-    //     path: 'EdicionSalas',
-    //     name: 'NuevaSala',
-    //     component: EdicionSalas,
-    //     meta: { requiresAuth: true, roles: [1, 2, 3, 4] }
-    //   }
     ]
   },
   {
@@ -155,7 +134,6 @@ const router = createRouter({
   routes
 });
 
-// ✅ Protección por autenticación y perfil
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token');
   const rawUser = localStorage.getItem('usuario');

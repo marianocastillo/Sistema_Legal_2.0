@@ -32,7 +32,7 @@ namespace Sistema_Legal_2._0.Server.Controller
         /// Obtiene todos los perfiles de usuario.
         /// </summary>
         /// <returns>Lista de perfiles de usuario.</returns>
-        [HttpGet(Name = "GetPerfiles")]
+        [HttpGet("GetPerfiles")]
         //[Authorize]
         [AllowAnonymous]
         public List<PerfilesModel> Get()
@@ -60,66 +60,71 @@ namespace Sistema_Legal_2._0.Server.Controller
         /// </summary>
         /// <param name="perfilesModel">Datos del perfil de usuario.</param>
         /// <returns>Resultado de la operación.</returns>
-        //[HttpPost(Name = "SavePerfil")]
-        //[AuthorizeByPermission(PermisosEnum.Nuevo_Perfil)]
-        //public OperationResult Post(PerfilesModel perfilesModel)
-        //{
-        //    try
-        //    {
-        //        if (perfilesRepo.Any(x => x.Nombre == perfilesModel.Nombre)) return new OperationResult(false, "Ya existe un perfil con este nombre.");
-        //        var created = perfilesRepo.Add(perfilesModel);
-        //        _logger.LogHttpRequest(perfilesModel);
-        //        return new OperationResult(true, "Perfil creado exitosamente", created);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex);
-        //        throw;
-        //    }
-        //}
+        [HttpPost("SavePerfil")]
+
+        [AllowAnonymous]
+       // [AuthorizeByPermission(PermisosEnum.Nuevo_Perfil)]
+        public OperationResult Post([FromBody]PerfilesModel perfilesModel)
+        {
+            try
+            {
+                if (perfilesRepo.Any(x => x.Nombre == perfilesModel.Nombre)) return new OperationResult(false, "Ya existe un perfil con este nombre.");
+                var created = perfilesRepo.Add(perfilesModel);
+                _logger.LogHttpRequest(perfilesModel);
+             return new OperationResult(true, "Perfil creado exitosamente", created);
+           }
+          catch (Exception ex)
+          {
+               _logger.LogError(ex);
+              throw;
+         }
+       }
 
 
-        //[HttpPut(Name = "UpdatePerfil")]
+        [HttpPut("UpdatePerfil")]
+        [AllowAnonymous]
         //[AuthorizeByPermission(PermisosEnum.Editar_Perfil)]
-        //public OperationResult Put(PerfilesModel perfilModel)
-        //{
-        //    try
-        //    {
-        //        var perfil = perfilesRepo.Get(x => x.idPerfil == perfilModel.idPerfil).FirstOrDefault();
+        public OperationResult Put([FromBody] PerfilesModel perfilModel)
+        {
+            try
+            {
+                var perfil = perfilesRepo.Get(x => x.idPerfil == perfilModel.idPerfil).FirstOrDefault();
 
-        //        if (perfil == null) return new OperationResult(false, "Este perfil no se ha encontrado");
-        //        if (perfilesRepo.Any(x => x.Nombre == perfilModel.Nombre && x.idPerfil != perfilModel.idPerfil)) return new OperationResult(false, "Ya existe un perfil con este nombre.");
+                if (perfil == null) return new OperationResult(false, "Este perfil no se ha encontrado");
+                if (perfilesRepo.Any(x => x.Nombre == perfilModel.Nombre && x.idPerfil != perfilModel.idPerfil)) return new OperationResult(false, "Ya existe un perfil con este nombre.");
 
-        //        perfilesRepo.Edit(perfilModel);
-        //        _logger.LogHttpRequest(perfilModel);
-        //        return new OperationResult(true, "Perfil editado exitosamente", perfil);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex);
-        //        throw;
-        //    }
-        //}
-
-
+                perfilesRepo.Edit(perfilModel);
+                _logger.LogHttpRequest(perfilModel);
+                return new OperationResult(true, "Perfil editado exitosamente", perfil);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex);
+                throw;
+            }
+        }
 
 
-        //[HttpDelete("{idPerfil}", Name = "DeletePerfil")]
-        //[AuthorizeByPermission(PermisosEnum.Perfiles, PermisosEnum.Editar_Perfil)]
-        //public OperationResult Delete(int idPerfil)
-        //{
-        //    try
-        //    {
-        //        perfilesRepo.Delete(idPerfil);
-        //        _logger.LogHttpRequest(idPerfil);
-        //        return new OperationResult(true, "Perfil eliminado exitosamente", idPerfil);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex);
-        //        throw;
-        //    }
-        //}
+
+
+        [HttpDelete("DeletePerfil/{idPerfil}")]
+        [AllowAnonymous]
+        // [AuthorizeByPermission(PermisosEnum.Perfiles, PermisosEnum.Editar_Perfil)]
+        public OperationResult Delete(int idPerfil)
+        {
+            try
+            {
+                if (!perfilesRepo.CanDelete(idPerfil))
+                    return new OperationResult(false, "No puedes eliminar un perfil con usuarios asignados.");
+                _logger.LogHttpRequest(idPerfil);
+                return new OperationResult(true, "Perfil eliminado exitosamente", idPerfil);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex);
+                throw;
+            }
+        }
 
 
 
@@ -133,7 +138,7 @@ namespace Sistema_Legal_2._0.Server.Controller
         /// </summary>
         /// <param name="idPerfil">ID del perfil.</param>
         /// <returns>Lista de permisos.</returns>
-        [HttpGet("GetPermisos/{idPerfil?}", Name = "GetPermisos")]
+        [HttpGet("GetPermisos/{idPerfil?}")]
         //[Authorize]
         [AllowAnonymous]
         public List<VistasModel> GetPermisos(int? idPerfil)
@@ -147,7 +152,7 @@ namespace Sistema_Legal_2._0.Server.Controller
         /// </summary>
         /// <param name="idPerfil">ID del perfil.</param>
         /// <returns>Lista de usuarios.</returns>
-        [HttpGet("GetUsuarios/{idPerfil}", Name = "GetUsuariosPerfil")]
+        [HttpGet("GetUsuariosPerfiles/{idPerfil}")]
         //[Authorize]
         [AllowAnonymous]
         public List<UsuariosModel> GetUsuarios(int idPerfil)
@@ -155,5 +160,17 @@ namespace Sistema_Legal_2._0.Server.Controller
             List<UsuariosModel> usuarios = perfilesRepo.GetUsuarios(idPerfil).ToList();
             return usuarios;
         }
+
+        /// <summary>
+        /// Obtiene todas las vistas disponibles del sistema.
+        /// </summary>
+        /// <returns>Lista de vistas.</returns>
+        [HttpGet("GetVistas")]
+        [AllowAnonymous] // o [Authorize] si lo prefieres
+        public List<VistasModel> GetVistas()
+        {
+            return perfilesRepo.GetVistas().ToList();
+        }
+
     }
 }

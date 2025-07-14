@@ -42,6 +42,13 @@
               </a>
             </li>
                <li v-if="['Supervisor', 'Administrador'].includes(usuario.rol)">
+              <router-link to="/Perfiles" class="sidebar-link" exact-active-class="active">
+                <i class="pi pi-sitemap" />
+                <span>Perfiles</span>
+              </router-link>
+            </li>
+
+               <li v-if="['Supervisor', 'Administrador'].includes(usuario.rol)">
               <router-link to="/Calendario" class="sidebar-link" exact-active-class="active">
                 <i class="pi pi-calendar" />
                 <span>Calendario</span>

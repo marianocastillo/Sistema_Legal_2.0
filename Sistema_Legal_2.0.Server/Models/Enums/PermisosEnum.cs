@@ -6,6 +6,8 @@
         Usuarios = 2,        
         Nuevo_Usuario = 3,
         Editar_Usuario = 4,
-        Editar_Perfil = 5
+        Editar_Perfil = 5,
+        Nuevo_Perfil = 6,
+        Perfiles = 7
     }
 }

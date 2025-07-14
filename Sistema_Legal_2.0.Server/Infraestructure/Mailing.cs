@@ -74,12 +74,11 @@ namespace Sistema_Legal_2._0.Server.Infraestructure
 
                     if (logoRoute != null)
                     {
-                        // Insertar imagen como <img src="cid:ContraloriaLogo" />
                         body = body.Replace("$img", "<img src='cid:ContraloriaLogo' alt='Logo' style='width: 120px;' />");
                     }
                     else
                     {
-                        body = body.Replace("$img", ""); // Elimina el placeholder si no hay logo
+                        body = body.Replace("$img", ""); 
                     }
 
                     AlternateView avHtml = AlternateView.CreateAlternateViewFromString(body, null, MediaTypeNames.Text.Html);
@@ -214,7 +213,7 @@ namespace Sistema_Legal_2._0.Server.Infraestructure
 
             public static async Task EnviarCorreoAsignacionAbogado(int idUsuario, int idLitigio, SqlConnection conn)
             {
-                // Obtener email y nombre del caso
+               
                 using var cmd = new SqlCommand(@"
         SELECT u.Email, u.nombres, l.ltg_acto AS NombreCaso
         FROM Usuarios u

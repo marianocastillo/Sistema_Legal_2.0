@@ -45,39 +45,37 @@ public class RecordatorioJob : BackgroundService
                         var ahora = DateTime.Now;
                         var diferencia = fechaAudiencia - ahora;
 
-                        // 🧠 Definir el tipo de notificación y asunto del correo
                         string tipoNotificacion = null;
                         string subject = null;
 
                         if (diferencia.TotalMinutes <= 15 && diferencia.TotalMinutes > 0)
                         {
-                            tipoNotificacion = "15_min";
+                            tipoNotificacion = "15 minutos antes";
                             subject = "⏰ Audiencia en 15 minutos";
                         }
                         else if (fechaAudiencia.Date == ahora.Date)
                         {
-                            tipoNotificacion = "hoy";
+                            tipoNotificacion = "Diario";
                             subject = "📅 Hoy tiene una audiencia";
                         }
                         else if (fechaAudiencia.Date == ahora.Date.AddDays(3))
                         {
-                            tipoNotificacion = "3_dias";
+                            tipoNotificacion = "3 dias Antes";
                             subject = "📌 Próxima audiencia dentro de 3 días";
                         }
                         else
                         {
-                            continue; // ⚠️ Si no entra en ningún caso, no hacemos nada
+                            continue;
                         }
 
-                        // ✅ Validar que tipoNotificacion no sea nulo
+                     
                         if (string.IsNullOrWhiteSpace(tipoNotificacion))
                             continue;
 
-                        // ✅ Verificar si ya fue notificada
                         if (await CorreoHelper.YaFueNotificada(connection, idAudiencia, tipoNotificacion))
                             continue;
 
-                        // 💌 Construir mensaje HTML del correo
+                    
                         var body = $@"
     <div style='border: 1px solid #dcdcdc; border-radius: 10px; padding: 25px; font-family: Arial, sans-serif; background-color: #ffffff; max-width: 700px; margin: auto; box-shadow: 0 2px 5px rgba(0,0,0,0.05);'>
 
@@ -122,7 +120,6 @@ public class RecordatorioJob : BackgroundService
                         Console.WriteLine($"📧 Enviando correo ({tipoNotificacion}) para audiencia: {idAudiencia} - {fechaAudiencia}");
                         await Mailing.SendMailAsync(correo);
 
-                        // 📝 Registrar que ya fue notificada
                         await CorreoHelper.RegistrarNotificacion(connection, idAudiencia, tipoNotificacion);
                     }
 
