@@ -17,3 +17,9 @@ public class VistasModel
 
 
 }
+public class VistaAsignadaModel
+{
+    public int idVista { get; set; }
+    public bool Permiso { get; set; }
+}
+

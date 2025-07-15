@@ -61,41 +61,29 @@ namespace Sistema_Legal_2._0.Server.Controller
         /// <param name="perfilesModel">Datos del perfil de usuario.</param>
         /// <returns>Resultado de la operación.</returns>
         [HttpPost("SavePerfil")]
-
         [AllowAnonymous]
-       // [AuthorizeByPermission(PermisosEnum.Nuevo_Perfil)]
-        public OperationResult Post([FromBody]PerfilesModel perfilesModel)
+        // [AuthorizeByPermission(PermisosEnum.Nuevo_Perfil)]
+        public OperationResult Post([FromBody] PerfilesModel perfilesModel)
         {
             try
             {
-                if (perfilesRepo.Any(x => x.Nombre == perfilesModel.Nombre)) return new OperationResult(false, "Ya existe un perfil con este nombre.");
+                if (perfilesRepo.Any(x => x.Nombre == perfilesModel.Nombre))
+                    return new OperationResult(false, "Ya existe un perfil con este nombre.");
+
                 var created = perfilesRepo.Add(perfilesModel);
+
+                // DTO limpio para evitar ciclos de referencia en la serialización
+                var dto = new
+                {
+                    idPerfil = created.idPerfil,
+                    nombre = created.Nombre,
+                    descripcion = created.Descripcion,
+                    porDefecto = created.porDefecto ?? false,
+                    cantPermisos = created.perfilesVistas?.Count ?? 0
+                };
+
                 _logger.LogHttpRequest(perfilesModel);
-             return new OperationResult(true, "Perfil creado exitosamente", created);
-           }
-          catch (Exception ex)
-          {
-               _logger.LogError(ex);
-              throw;
-         }
-       }
-
-
-        [HttpPut("UpdatePerfil")]
-        [AllowAnonymous]
-        //[AuthorizeByPermission(PermisosEnum.Editar_Perfil)]
-        public OperationResult Put([FromBody] PerfilesModel perfilModel)
-        {
-            try
-            {
-                var perfil = perfilesRepo.Get(x => x.idPerfil == perfilModel.idPerfil).FirstOrDefault();
-
-                if (perfil == null) return new OperationResult(false, "Este perfil no se ha encontrado");
-                if (perfilesRepo.Any(x => x.Nombre == perfilModel.Nombre && x.idPerfil != perfilModel.idPerfil)) return new OperationResult(false, "Ya existe un perfil con este nombre.");
-
-                perfilesRepo.Edit(perfilModel);
-                _logger.LogHttpRequest(perfilModel);
-                return new OperationResult(true, "Perfil editado exitosamente", perfil);
+                return new OperationResult(true, "Perfil creado exitosamente", dto);
             }
             catch (Exception ex)
             {
@@ -103,6 +91,52 @@ namespace Sistema_Legal_2._0.Server.Controller
                 throw;
             }
         }
+
+
+[HttpPut("UpdatePerfil")]
+[AllowAnonymous]
+//[AuthorizeByPermission(PermisosEnum.Editar_Perfil)]
+public OperationResult Put([FromBody] PerfilesModel perfilModel)
+{
+    try
+    {
+        var perfil = perfilesRepo.Get(x => x.idPerfil == perfilModel.idPerfil).FirstOrDefault();
+
+        if (perfil == null)
+            return new OperationResult(false, "Este perfil no se ha encontrado");
+
+        if (perfilesRepo.Any(x => x.Nombre == perfilModel.Nombre && x.idPerfil != perfilModel.idPerfil))
+            return new OperationResult(false, "Ya existe un perfil con este nombre.");
+
+        perfilesRepo.Edit(perfilModel);
+        _logger.LogHttpRequest(perfilModel);
+
+                var perfilActualizado = perfilesRepo.Get(x => x.idPerfil == perfilModel.idPerfil).FirstOrDefault();
+
+                var vistasIds = perfilModel.Vistas?
+                    .Where(v => v.Permiso)
+                    .Select(v => v.idVista)
+                    .ToList() ?? new List<int>();
+
+                var dto = new PerfilDto
+                {
+                    IdPerfil = perfilActualizado.idPerfil,
+                    Nombre = perfilActualizado.Nombre,
+                    Descripcion = perfilActualizado.Descripcion,
+                    PorDefecto = perfilActualizado.porDefecto ?? false,
+                    CantPermisos = vistasIds.Count,
+                    Vistas = vistasIds
+                };
+
+                return new OperationResult(true, "Perfil editado exitosamente", dto);
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex);
+        throw;
+    }
+}
+
 
 
 
