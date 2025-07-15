@@ -14,7 +14,7 @@ const calendarConfig = {
   locale: 'es',
   week: { startsOn: 'monday' },
 
-  // ✅ Mostrar solo desde las 9 AM hasta medianoche
+  //Mostrar solo desde las 8 AM hasta medianoche
   dayBoundaries: {
     start: 8,
     end: 24
