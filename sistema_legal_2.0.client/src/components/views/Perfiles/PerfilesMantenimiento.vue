@@ -105,9 +105,6 @@ export default {
 
 async guardarPerfil() {
   try {
-
-       console.log("Vistas disponibles (raw):", this.vistasDisponibles);
-
     const vistasAsignadas = this.vistasDisponibles[1].map(v => ({
       idVista: v.idVista,
       nombre: v.nombre,
@@ -119,63 +116,59 @@ async guardarPerfil() {
       iconClass: v.iconClass,
       orden: v.orden
     }));
- console.log("Vistas asignadas procesadas:", vistasAsignadas);
-    // Preparar el objeto perfil según lo que espera la API
+
     const perfilModel = {
-      idPerfil: this.perfilSeleccionado.idPerfil || 0, // Usar || en lugar de ??
+      idPerfil: this.perfilSeleccionado.idPerfil || 0,
       nombre: this.perfilSeleccionado.nombre,
       descripcion: this.perfilSeleccionado.descripcion,
       porDefecto: this.perfilSeleccionado.porDefecto || false,
       vistas: vistasAsignadas,
-      usuarios: [], // Siempre enviar array vacío si no hay usuarios
+      usuarios: [],
       cantPermisos: vistasAsignadas.length
     };
- console.log("Modelo a enviar a la API:", JSON.stringify(perfilModel, null, 2));
+
+    console.log("Modelo a enviar:", JSON.stringify(perfilModel, null, 2));
+
     const isNuevo = this.modoNuevo;
     const url = isNuevo ? '/api/Perfiles/SavePerfil' : '/api/Perfiles/UpdatePerfil';
-console.log(`Enviando petición ${method.toUpperCase()} a: ${url}`);
+    const method = isNuevo ? 'post' : 'put'; // Definimos la variable method
+
     const response = await axios({
-      method: isNuevo ? 'post' : 'put',
+      method: method, // Usamos la variable definida
       url: url,
       data: perfilModel,
       headers: {
         'Content-Type': 'application/json'
       }
     });
-console.log("Respuesta de la API:", response);
+
+    console.log("Respuesta:", response.data);
+
     if (response.data.success) {
-      // Asumo que tienes un sistema de notificaciones (toast)
       this.$toast.add({
         severity: 'success',
         summary: 'Éxito',
-        detail: response.data.message || 'Operación realizada con éxito',
+        detail: response.data.message || 'Operación exitosa',
         life: 3000
       });
       this.mostrarDialogo = false;
-      await this.cargarDatos(); // Recargar los datos
+      await this.cargarDatos();
     } else {
       this.$toast.add({
         severity: 'warn',
         summary: 'Advertencia',
-        detail: response.data.message || 'La operación no se completó',
+        detail: response.data.message || 'Operación no completada',
         life: 3000
       });
     }
   } catch (error) {
-    // 6. Mostrar error completo
     console.error("Error completo:", error);
-    console.log("Configuración de la petición:", error.config);
 
+    let errorMessage = 'Error en la conexión';
     if (error.response) {
-      console.log("Datos de respuesta del error:", error.response.data);
-      console.log("Estado del error:", error.response.status);
-      console.log("Cabeceras del error:", error.response.headers);
-    }
-
-    let errorMessage = 'Error al conectar con el servidor';
-    if (error.response) {
+      console.log("Datos del error:", error.response.data);
       errorMessage = error.response.data?.message ||
-                     `Error ${error.response.status}: ${error.response.statusText}`;
+                    `Error ${error.response.status}`;
     }
 
     this.$toast.add({
@@ -186,7 +179,6 @@ console.log("Respuesta de la API:", response);
     });
   }
 }
-
 
   },
   mounted() {
