@@ -6,8 +6,8 @@ import InputText from 'primevue/inputtext'
 import Dropdown from 'primevue/dropdown'
 import Button from 'primevue/button'
 import { useConfirm } from 'primevue/useconfirm'
-import { push } from 'notivue'
 import api from '@/utilities/api.js'
+import { push } from 'notivue'
 import DialogSalas from '../Salas/DialogSalas.vue'
 
 
@@ -15,6 +15,7 @@ const props = defineProps(['visible'])
 const emit = defineEmits(['update:visible', 'close'])
 const mostrarDialogoSalas = ref(false)
 const tribunalSeleccionado = ref(null)
+const errores = ref({})
 
 const dialogVisible = computed({
   get: () => props.visible,
@@ -62,6 +63,7 @@ async function cargarTribunales() {
 }
 
 function abrirFormularioNuevo() {
+  errores.value = {}
   tribunalEditando.value = {
     nombre_Tribunal: '', descripcion: '', telefono: '', direccion: '', distrito: '', estatus: true
   }
@@ -78,25 +80,33 @@ function cerrarFormulario() {
 }
 
 async function guardarTribunal() {
-  try {
-    const body = tribunalEditando.value
-    if (!body.nombre_Tribunal?.trim()) return push.warning('El nombre es obligatorio')
+  errores.value = {} // limpiar antes de validar
+  const body = tribunalEditando.value
 
+  // Validaciones manuales
+  if (!body.nombre_Tribunal?.trim()) errores.value.nombre_Tribunal = 'Este campo es obligatorio'
+  if (!body.descripcion?.trim()) errores.value.descripcion = 'Este campo es obligatorio'
+  if (!body.telefono?.trim()) errores.value.telefono = 'Este campo es obligatorio'
+  if (!body.direccion?.trim()) errores.value.direccion = 'Este campo es obligatorio'
+  if (!body.distrito?.trim()) errores.value.distrito = 'Este campo es obligatorio'
+
+  // Si hay errores, detener el guardado
+  if (Object.keys(errores.value).length) return
+
+  try {
     if (body.id_Tribunal) {
-      // Corrección aquí: ID se pasa por la URL
       await api.put(`/api/Tribunales/ActualizarTribunal/${body.id_Tribunal}`, body)
-      push.success('Tribunal actualizado correctamente')
     } else {
       await api.post('/api/Tribunales/CrearTribunal', body)
-      push.success('Tribunal creado correctamente')
     }
 
     cerrarFormulario()
     await cargarTribunales()
   } catch (err) {
-    push.error('Error al guardar el tribunal')
+    // Puedes mostrar un error general aquí si quieres
   }
 }
+
 
 function confirmarEliminacion(id) {
   console.log(id);
@@ -131,26 +141,48 @@ const paginatedTribunales = computed(() => {
   const start = (page.value - 1) * perPage
   return filteredTribunales.value.slice(start, start + perPage)
 })
+
+function validarCampo(model) {
+  const valor = tribunalEditando.value[model]
+  if (!valor || !valor.trim()) {
+    errores.value[model] = 'Este campo es obligatorio'
+  } else {
+    delete errores.value[model]
+  }
+}
+
+
 </script>
 
 <template>
   <Dialog v-model:visible="dialogVisible" modal class="dialog-tribunales" :closable="false" :draggable="false">
     <template #header>
-      <div class="d-flex justify-content-between align-items-center w-100">
-        <h5 class="mb-0">Mantenimiento de Tribunales</h5>
+      <div class="flex justify-content-between align-items-center m-2 flex-wrap gap-2 pt-3 w-100">
+        <!-- Columna izquierda: solo el título -->
+        <div class="flex-grow">
+          <h2 class="text-2xl font-bold m-0">Mantenimiento de Tribunales</h2>
+        </div>
+
+        <!-- Columna derecha: botones + buscador -->
+        <div class="flex items-center gap-2 filtro-busqueda-bar">
+          <button class="btn-filtro" @click="abrirFormularioNuevo">
+            <i class="fas fa-plus me-2"></i> Nuevo Tribunal
+          </button>
+
+          <button class="btn-filtro" @click="dialogVisible = false">
+            <i class="pi pi-times me-2"></i> Cerrar
+          </button>
+
+          <div class="search-container">
+            <span class="p-input-icon-left search-input-wrapper">
+              <i class="pi pi-search search-icon" />
+              <input type="text" class="search-input" placeholder="Buscar..." v-model="search" />
+            </span>
+          </div>
+        </div>
       </div>
     </template>
 
-    <div class="d-flex justify-content-end align-items-center gap-2 mb-3">
-      <Button class="p-button-md" @click="abrirFormularioNuevo">
-        <i class="fas fa-plus me-2"></i> Nuevo Tribunal
-      </Button>
-
-      <Button label="Cerrar" icon="pi pi-times" class="p-button-md" @click="dialogVisible = false" />
-
-      <input type="text" class="form-control form-control-md bg-white text-dark" placeholder="Buscar..."
-        v-model="search" style="max-width: 250px;" />
-    </div>
 
 
 
@@ -181,23 +213,32 @@ const paginatedTribunales = computed(() => {
 
     <!-- Header personalizado -->
     <template #header>
-      <div class="flex justify-content-between align-items-center w-full">
-        <h2 class="text-lg font-bold m-0">Formulario Tribunal</h2>
-
-        <div class="flex gap-2">
-          <Button label="Cancelar" class="p-button-text" @click="cerrarFormulario" />
-          <Button label="Guardar" class="p-button" style="background-color: #003870; color: white"
-            @click="guardarTribunal" />
-        </div>
+      <div class="flex justify-content-center align-items-center w-full">
+        <h2 class="text-2xl font-bold m-0">Formulario Tribunal</h2>
       </div>
     </template>
 
+
     <!-- Contenido del formulario -->
+
+
     <div class="p-fluid formgrid grid mt-2">
-      <div class="field col-12 md:col-6" v-for="campo in camposFormulario" :key="campo.label">
-        <label>{{ campo.label }}</label>
-        <InputText v-model="tribunalEditando[campo.model]" />
+      <!-- <div class="field col-12 md:col-6" v-for="campo in camposFormulario" :key="campo.label">
+        <label>{{ campo.label }} <span class="text-red-500">*</span></label>
+        <InputText v-model="tribunalEditando[campo.model]"/>
+      </div> -->
+
+      <div class="field col-12 md:col-6" v-for="campo in camposFormulario" :key="campo.model">
+        <label>{{ campo.label }} <span class="text-red-500">*</span></label>
+
+        <InputText v-model="tribunalEditando[campo.model]" @input="validarCampo(campo.model)"
+          :class="{ 'input-error': errores[campo.model] }" />
+
+        <small class="text-red-500" v-if="errores[campo.model]">
+          {{ errores[campo.model] }}
+        </small>
       </div>
+
 
       <div class="field col-12 md:col-6">
         <label>Estado</label>
@@ -205,6 +246,14 @@ const paginatedTribunales = computed(() => {
           class="w-full" />
       </div>
     </div>
+
+    <template #footer>
+      <div class="flex gap-2 w-full justify-content-center mt-4">
+        <Button label="Cancelar" class="btn-filtro" @click="cerrarFormulario" />
+        <Button label="Guardar" class="btn-filtro" style="background-color: #003870; color: white"
+          @click="guardarTribunal" />
+      </div>
+    </template>
 
   </Dialog>
 
@@ -243,5 +292,68 @@ const paginatedTribunales = computed(() => {
 .p-dropdown.p-focus {
   border-color: #003870 !important;
   box-shadow: 0 0 0 0.2rem rgba(0, 56, 112, 0.25);
+}
+
+.btn-filtro {
+  padding: 0.35rem 1.2rem;
+  height: 38px;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  background-color: #003870;
+  border-color: #003870;
+  color: #f0f0f0;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+
+.btn-filtro:hover,
+.btn-filtro.active {
+  background-color: #c00606 !important;
+  border-color: #c00606 !important;
+  box-shadow: 0 6px 16px rgba(121, 1, 51, 0.3) !important;
+  transform: translateY(-1px) !important;
+  transition: background-color 0.2s !important;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  height: 38px;
+}
+
+.search-input-wrapper {
+  position: relative;
+}
+
+.search-input-wrapper .search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+}
+
+.search-input {
+  padding-left: 2rem;
+  padding-right: 0.75rem;
+  height: 38px;
+  border-radius: 6px;
+  border: 1px solid #ced4da;
+  font-size: 0.88rem;
+  background-color: #fff;
+  color: #212529;
+}
+
+.input-error {
+  border: 1px solid #dc2626 !important; /* rojo */
+  box-shadow: 0 0 0 0.15rem rgba(220, 38, 38, 0.25); /* opcional */
 }
 </style>
