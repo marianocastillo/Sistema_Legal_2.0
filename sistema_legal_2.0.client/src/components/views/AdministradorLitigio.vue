@@ -76,19 +76,19 @@
           <div class="btn-group">
             <!-- Ver -->
             <router-link :to="`/litigio/detalle/${data.id_Ltg}`" class="btn btn-sm"
-              style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;" title="Ver litigio">
+              style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;" v-tooltip="'Ver litigio'">
               <i class="pi pi-eye white-icon"></i>
             </router-link>
 
             <!-- Modificar -->
             <button class="btn btn-sm" @click="modificarLitigio(data)"
-              style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;" title="Modificar litigio">
+              style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;" v-tooltip="'Modificar litigio'">
               <i class="pi pi-pencil white-icon"></i>
             </button>
 
             <!-- Asignar -->
             <button v-if="mostrarAsignar" class="btn btn-sm" @click="togglePopUp(data)"
-              style="background-color: #003870; border-color: #003870;" title="Asignar o cambiar abogado">
+              style="background-color: #003870; border-color: #003870;" v-tooltip="'Asignar abogado'">
               <i class="pi pi-user-edit white-icon"></i>
             </button>
 
