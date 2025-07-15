@@ -11,11 +11,15 @@ import { push } from 'notivue'
 import DialogSalas from '../Salas/DialogSalas.vue'
 
 
+
 const props = defineProps(['visible'])
 const emit = defineEmits(['update:visible', 'close'])
 const mostrarDialogoSalas = ref(false)
 const tribunalSeleccionado = ref(null)
 const errores = ref({})
+const mostrarMensajeExito = ref(false)
+const mostrarMensajeError = ref(false)
+const mensajeError = ref('')
 
 const dialogVisible = computed({
   get: () => props.visible,
@@ -44,6 +48,41 @@ const camposFormulario = [
   { label: 'Provincia', model: 'distrito' }
 ]
 
+const provincias = [
+  { label: 'Azua', value: 'Azua' },
+  { label: 'Bahoruco', value: 'Bahoruco' },
+  { label: 'Barahona', value: 'Barahona' },
+  { label: 'Dajabón', value: 'Dajabón' },
+  { label: 'Distrito Nacional', value: 'Distrito Nacional' },
+  { label: 'Duarte', value: 'Duarte' },
+  { label: 'El Seibo', value: 'El Seibo' },
+  { label: 'Elías Piña', value: 'Elías Piña' },
+  { label: 'Espaillat', value: 'Espaillat' },
+  { label: 'Hato Mayor', value: 'Hato Mayor' },
+  { label: 'Hermanas Mirabal', value: 'Hermanas Mirabal' },
+  { label: 'Independencia', value: 'Independencia' },
+  { label: 'La Altagracia', value: 'La Altagracia' },
+  { label: 'La Romana', value: 'La Romana' },
+  { label: 'La Vega', value: 'La Vega' },
+  { label: 'María Trinidad Sánchez', value: 'María Trinidad Sánchez' },
+  { label: 'Monseñor Nouel', value: 'Monseñor Nouel' },
+  { label: 'Monte Plata', value: 'Monte Plata' },
+  { label: 'Montecristi', value: 'Montecristi' },
+  { label: 'Pedernales', value: 'Pedernales' },
+  { label: 'Peravia', value: 'Peravia' },
+  { label: 'Puerto Plata', value: 'Puerto Plata' },
+  { label: 'Samaná', value: 'Samaná' },
+  { label: 'San Cristóbal', value: 'San Cristóbal' },
+  { label: 'San José de Ocoa', value: 'San José de Ocoa' },
+  { label: 'San Juan', value: 'San Juan' },
+  { label: 'San Pedro de Macorís', value: 'San Pedro de Macorís' },
+  { label: 'Sánchez Ramírez', value: 'Sánchez Ramírez' },
+  { label: 'Santiago', value: 'Santiago' },
+  { label: 'Santiago Rodríguez', value: 'Santiago Rodríguez' },
+  { label: 'Santo Domingo', value: 'Santo Domingo' },
+  { label: 'Valverde', value: 'Valverde' }
+]
+
 function abrirDialogoSalas(tribunal) {
 
   console.log(tribunal.nombre_Tribunal)
@@ -68,15 +107,25 @@ function abrirFormularioNuevo() {
     nombre_Tribunal: '', descripcion: '', telefono: '', direccion: '', distrito: '', estatus: true
   }
   mostrarFormulario.value = true
+  dialogVisible.value = false
 }
 
 function abrirFormularioEditar(tribunal) {
   tribunalEditando.value = { ...tribunal }
+  dialogVisible.value = false
   mostrarFormulario.value = true
 }
 
 function cerrarFormulario() {
+
   mostrarFormulario.value = false
+  dialogVisible.value = true
+}
+
+function cerrarFormularioexito() {
+  mostrarMensajeExito.value = false
+  mostrarFormulario.value = false
+  dialogVisible.value = true
 }
 
 async function guardarTribunal() {
@@ -100,10 +149,17 @@ async function guardarTribunal() {
       await api.post('/api/Tribunales/CrearTribunal', body)
     }
 
-    cerrarFormulario()
+
     await cargarTribunales()
+
+    // Mostrar mensaje de éxito
+    mostrarMensajeExito.value = true
+    setTimeout(() => {
+      cerrarFormularioexito()
+    }, 3000)
   } catch (err) {
-    // Puedes mostrar un error general aquí si quieres
+    mensajeError.value = 'Ocurrió un error al guardar el tribunal. Intenta nuevamente.'
+    mostrarMensajeError.value = true
   }
 }
 
@@ -144,17 +200,39 @@ const paginatedTribunales = computed(() => {
 
 function validarCampo(model) {
   const valor = tribunalEditando.value[model]
+
   if (!valor || !valor.trim()) {
     errores.value[model] = 'Este campo es obligatorio'
-  } else {
-    delete errores.value[model]
+    return
   }
+
+  // Validación específica para teléfono
+  if (model === 'telefono') {
+    if (!/^\d+$/.test(valor)) {
+      errores.value.telefono = 'Solo se permiten números'
+    } else if (valor.length < 10) {
+      errores.value.telefono = 'Debe tener al menos 10 dígitos'
+    } else {
+      delete errores.value.telefono
+    }
+    return
+  }
+
+  // Limpiar error si el campo es válido
+  delete errores.value[model]
 }
 
-
+function soloNumeros(event) {
+  const key = event.key
+  if (!/^\d$/.test(key)) {
+    event.preventDefault()
+  }
+}
 </script>
 
 <template>
+
+  <!-- dialogo principal del Mantenimiento de tribunales  -->
   <Dialog v-model:visible="dialogVisible" modal class="dialog-tribunales" :closable="false" :draggable="false">
     <template #header>
       <div class="flex justify-content-between align-items-center m-2 flex-wrap gap-2 pt-3 w-100">
@@ -182,10 +260,6 @@ function validarCampo(model) {
         </div>
       </div>
     </template>
-
-
-
-
     <div v-for="tribunal in paginatedTribunales" :key="tribunal.id_Tribunal" class="tribunal-card">
       <div class="tribunal-info">
         <div><strong>{{ tribunal.nombre_Tribunal }}</strong></div>
@@ -209,6 +283,8 @@ function validarCampo(model) {
     <div v-if="filteredTribunales.length === 0" class="text-center text-muted mt-2">No hay tribunales registrados.</div>
   </Dialog>
 
+
+  <!-- dialogo de formulario de agregar tribunal  -->
   <Dialog v-model:visible="mostrarFormulario" modal class="dialog-formulario-form" :closable="false">
 
     <!-- Header personalizado -->
@@ -220,32 +296,45 @@ function validarCampo(model) {
 
 
     <!-- Contenido del formulario -->
-
-
     <div class="p-fluid formgrid grid mt-2">
-      <!-- <div class="field col-12 md:col-6" v-for="campo in camposFormulario" :key="campo.label">
-        <label>{{ campo.label }} <span class="text-red-500">*</span></label>
-        <InputText v-model="tribunalEditando[campo.model]"/>
-      </div> -->
-
-      <div class="field col-12 md:col-6" v-for="campo in camposFormulario" :key="campo.model">
+      <!-- Campos de texto comunes -->
+      <div class="field col-12 md:col-6" v-for="campo in camposFormulario.filter(c => c.model !== 'distrito')"
+        :key="campo.model">
         <label>{{ campo.label }} <span class="text-red-500">*</span></label>
 
-        <InputText v-model="tribunalEditando[campo.model]" @input="validarCampo(campo.model)"
-          :class="{ 'input-error': errores[campo.model] }" />
+        <!-- Validar solo números en teléfono -->
+        <InputText v-if="campo.model === 'telefono'" v-model="tribunalEditando.telefono" @keypress="soloNumeros"
+          @input="validarCampo('telefono')" placeholder="Ingrese teléfono"
+          :class="{ 'input-error': errores.telefono }" />
 
-        <small class="text-red-500" v-if="errores[campo.model]">
-          {{ errores[campo.model] }}
+        <!-- Resto de campos normales -->
+        <InputText v-else v-model="tribunalEditando[campo.model]" @input="validarCampo(campo.model)"
+          :placeholder="`Ingrese ${campo.label.toLowerCase()}`" :class="{ 'input-error': errores[campo.model] }" />
+
+        <small class="text-red-500" v-if="campo.model === 'telefono' ? errores.telefono : errores[campo.model]">
+          {{ campo.model === 'telefono' ? errores.telefono : errores[campo.model] }}
         </small>
       </div>
 
+      <!-- Dropdown para Provincia -->
+      <div class="field col-12 md:col-6">
+        <label>Provincia <span class="text-red-500">*</span></label>
+        <Dropdown v-model="tribunalEditando.distrito" :options="provincias" optionLabel="label" optionValue="value"
+          placeholder="Seleccione una provincia" class="w-full fix-dropdown-width" @change="validarCampo('distrito')"
+          :class="{ 'input-error': errores.distrito }" filter />
+        <small class="text-red-500" v-if="errores.distrito">
+          {{ errores.distrito }}
+        </small>
+      </div>
 
+      <!-- Dropdown para Estado -->
       <div class="field col-12 md:col-6">
         <label>Estado</label>
         <Dropdown v-model="tribunalEditando.estatus" :options="estadoOptions" optionLabel="label" optionValue="value"
           class="w-full" />
       </div>
     </div>
+
 
     <template #footer>
       <div class="flex gap-2 w-full justify-content-center mt-4">
@@ -257,7 +346,29 @@ function validarCampo(model) {
 
   </Dialog>
 
+  <!-- dialogo de mensaje de exito al agregar tribunal -->
+  <Dialog v-model:visible="mostrarMensajeExito" modal :closable="false" class="w-96">
+    <div class="text-center p-4">
+      <i class="pi pi-check-circle text-green-500 text-4xl mb-3"></i>
+      <p>El tribunal fue guardado exitosamente.</p>
 
+      <div class="flex justify-content-center mt-4">
+        <Button label="Aceptar" class="btn-filtro" @click="cerrarFormularioexito" />
+      </div>
+    </div>
+  </Dialog>
+
+  <!-- dialogo de mensaje de erro si no se puede agregar tribunal -->
+  <Dialog v-model:visible="mostrarMensajeError" modal :closable="false" class="w-96">
+    <div class="text-center p-4">
+      <i class="pi pi-times-circle text-red-500 text-4xl mb-3"></i>
+      <p>{{ mensajeError }}</p>
+
+      <div class="flex justify-center mt-4">
+        <Button label="Cerrar" class="btn-filtro" @click="mostrarMensajeError = false" />
+      </div>
+    </div>
+  </Dialog>
 
 
 
@@ -268,9 +379,12 @@ function validarCampo(model) {
 </template>
 
 <style scoped>
-.dialog-tribunales {
-  width: 38vw;
+.fix-dropdown-width {
+  min-width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
+
 
 .tribunal-card {
   border: 1px solid #ddd;
@@ -353,7 +467,7 @@ function validarCampo(model) {
 }
 
 .input-error {
-  border: 1px solid #dc2626 !important; /* rojo */
-  box-shadow: 0 0 0 0.15rem rgba(220, 38, 38, 0.25); /* opcional */
+  border: 1px solid #dc2626 !important;
+  box-shadow: 0 0 0 0.15rem rgba(220, 38, 38, 0.25);
 }
 </style>
