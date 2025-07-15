@@ -11,9 +11,19 @@ public class PerfilesModel
     public string Nombre { get; set; }
     public string Descripcion { get; set; }
     public bool? porDefecto { get; set; }
-    public IEnumerable<VistasModel> Vistas { get; set; }
+    public IEnumerable<VistaAsignadaModel> Vistas { get; set; }
     public IEnumerable<UsuariosModel> Usuarios { get; set; }
     public int CantPermisos { get; set; }
 
 
+}
+
+public class PerfilDto
+{
+    public int IdPerfil { get; set; }
+    public string Nombre { get; set; }
+    public string Descripcion { get; set; }
+    public bool PorDefecto { get; set; }
+    public int CantPermisos { get; set; }
+    public List<int> Vistas { get; set; }
 }

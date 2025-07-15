@@ -110,7 +110,15 @@ public class PerfilesRepo : Repository<Perfiles, PerfilesModel>
                 SaveChanges();
             }
 
-            base.Edit(model, model.idPerfil);
+           
+            var perfilExistente = dbContext.Set<Perfiles>().FirstOrDefault(p => p.idPerfil == model.idPerfil);
+            if (perfilExistente != null)
+            {
+                perfilExistente.Nombre = model.Nombre;
+                perfilExistente.Descripcion = model.Descripcion;
+                perfilExistente.porDefecto = model.porDefecto ?? false;
+                SaveChanges();
+            }
 
             var permisosSet = dbContext.Set<perfilesVistas>();
             permisosSet.RemoveRange(permisosSet.Where(p => p.idPerfil == model.idPerfil));
@@ -118,7 +126,7 @@ public class PerfilesRepo : Repository<Perfiles, PerfilesModel>
             if (model.Vistas != null)
             {
                 var newPermisos = model.Vistas.Where(v => v.Permiso);
-                permisosSet.AddRange(newPermisos.Select(p => new perfilesVistas()
+                permisosSet.AddRange(newPermisos.Select(p => new perfilesVistas
                 {
                     idPerfil = model.idPerfil,
                     idVista = p.idVista
@@ -126,6 +134,7 @@ public class PerfilesRepo : Repository<Perfiles, PerfilesModel>
                 SaveChanges();
             }
 
+        
             if (model.Usuarios != null)
             {
                 var usuariosIds = model.Usuarios.Select(u => u.IdUsuario);
@@ -142,6 +151,7 @@ public class PerfilesRepo : Repository<Perfiles, PerfilesModel>
             throw;
         }
     }
+
 
     public override void Delete(int id)
     {

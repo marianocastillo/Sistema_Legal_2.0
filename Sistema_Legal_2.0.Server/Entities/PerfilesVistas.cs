@@ -17,3 +17,4 @@ public partial class perfilesVistas
 
     public virtual vistas idVistaNavigation { get; set; }
 }
+
