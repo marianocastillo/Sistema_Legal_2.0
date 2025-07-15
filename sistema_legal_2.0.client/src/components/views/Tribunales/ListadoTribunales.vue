@@ -113,7 +113,7 @@ function confirmarEliminacion(id) {
         await cargarTribunales()
         push.success('Tribunal eliminado correctamente')
       } catch (err) {
-        push.error('No se pudo eliminar el tribunal')
+        push.error('No se pudo eliminar el tribunal, tiene casos agregados')
       }
     }
   })
@@ -134,14 +134,25 @@ const paginatedTribunales = computed(() => {
 </script>
 
 <template>
-  <Dialog v-model:visible="dialogVisible" modal class="dialog-tribunales" :closable="false" :draggable="false"
-    header="Mantenimiento de Tribunales">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <Button class="text-white" style="background-color: #003870;" @click="abrirFormularioNuevo">
+  <Dialog v-model:visible="dialogVisible" modal class="dialog-tribunales" :closable="false" :draggable="false">
+    <template #header>
+      <div class="d-flex justify-content-between align-items-center w-100">
+        <h5 class="mb-0">Mantenimiento de Tribunales</h5>
+      </div>
+    </template>
+
+    <div class="d-flex justify-content-end align-items-center gap-2 mb-3">
+      <Button class="p-button-md" @click="abrirFormularioNuevo">
         <i class="fas fa-plus me-2"></i> Nuevo Tribunal
       </Button>
-      <input type="text" class="form-control-sm bg-white text-dark" placeholder="Buscar..." v-model="search" />
+
+      <Button label="Cerrar" icon="pi pi-times" class="p-button-md" @click="dialogVisible = false" />
+
+      <input type="text" class="form-control form-control-md bg-white text-dark" placeholder="Buscar..."
+        v-model="search" style="max-width: 250px;" />
     </div>
+
+
 
     <div v-for="tribunal in paginatedTribunales" :key="tribunal.id_Tribunal" class="tribunal-card">
       <div class="tribunal-info">
@@ -154,20 +165,16 @@ const paginatedTribunales = computed(() => {
         <span :class="['badge', tribunal.estatus ? 'bg-success' : 'bg-danger']">
           {{ tribunal.estatus ? 'Activo' : 'Inactivo' }}
         </span>
-        <Button icon="pi pi-pencil" class="p-button-text p-button-sm text-dark"
-          @click="abrirFormularioEditar(tribunal)" />
+        <Button icon="pi pi-pencil" class="p-button-text p-button-sm text-dark" @click="abrirFormularioEditar(tribunal)"
+          v-tooltip="'Modificar tribunal'" />
         <Button icon="pi pi-trash" class="p-button-text p-button-sm text-danger"
-          @click="confirmarEliminacion(tribunal.id_Tribunal)" />
+          @click="confirmarEliminacion(tribunal.id_Tribunal)" v-tooltip="'Eliminar tribunal'" />
         <Button icon="pi pi-eye white-icon" class="p-button-text p-button-sm text-danger"
-          @click="abrirDialogoSalas(tribunal)" />
+          @click="abrirDialogoSalas(tribunal)" v-tooltip="'Ver salas tribunal'" />
       </div>
     </div>
 
     <div v-if="filteredTribunales.length === 0" class="text-center text-muted mt-2">No hay tribunales registrados.</div>
-
-    <div class="text-end mt-3">
-      <Button label="Cerrar" icon="pi pi-times" class="p-button-sm" @click="dialogVisible = false" />
-    </div>
   </Dialog>
 
   <Dialog v-model:visible="mostrarFormulario" modal class="dialog-formulario-form" :closable="false">
