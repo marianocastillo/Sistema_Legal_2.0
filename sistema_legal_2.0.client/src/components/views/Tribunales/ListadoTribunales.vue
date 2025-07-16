@@ -20,26 +20,23 @@ const errores = ref({})
 const mostrarMensajeExito = ref(false)
 const mostrarMensajeError = ref(false)
 const mensajeError = ref('')
-
-const dialogVisible = computed({
-  get: () => props.visible,
-  set: (val) => emit('update:visible', val)
-})
-
 const mostrarFormulario = ref(false)
 const tribunalEditando = ref({})
 const confirm = useConfirm()
-
 const tribunales = ref([])
 const search = ref('')
 const page = ref(1)
-const perPage = 10
+const perPage = 20
+const guardando = ref(false)
 
 const estadoOptions = [
   { label: 'Activo', value: true },
   { label: 'Inactivo', value: false }
 ]
-
+const dialogVisible = computed({
+  get: () => props.visible,
+  set: (val) => emit('update:visible', val)
+})
 const camposFormulario = [
   { label: 'Nombre', model: 'nombre_Tribunal' },
   { label: 'Descripción', model: 'descripcion' },
@@ -47,7 +44,6 @@ const camposFormulario = [
   { label: 'Dirección', model: 'direccion' },
   { label: 'Provincia', model: 'distrito' }
 ]
-
 const provincias = [
   { label: 'Azua', value: 'Azua' },
   { label: 'Bahoruco', value: 'Bahoruco' },
@@ -83,12 +79,19 @@ const provincias = [
   { label: 'Valverde', value: 'Valverde' }
 ]
 
-function abrirDialogoSalas(tribunal) {
+const filteredTribunales = computed(() => {
+  if (!search.value) return tribunales.value
+  const term = search.value.toLowerCase()
+  return tribunales.value.filter(t =>
+    Object.values(t).some(val => String(val).toLowerCase().includes(term))
+  )
+})
 
-  console.log(tribunal.nombre_Tribunal)
-  tribunalSeleccionado.value = tribunal
-  mostrarDialogoSalas.value = true
-}
+const paginatedTribunales = computed(() => {
+  const start = (page.value - 1) * perPage
+  return filteredTribunales.value.slice(start, start + perPage)
+})
+
 
 onMounted(() => cargarTribunales())
 
@@ -99,6 +102,51 @@ async function cargarTribunales() {
   } catch (err) {
     push.error('No se pudieron cargar los tribunales')
   }
+}
+
+async function guardarTribunal() {
+  errores.value = {} // limpiar antes de validar
+  guardando.value = true
+  const body = tribunalEditando.value
+
+  // Validaciones manuales
+  if (!body.nombre_Tribunal?.trim()) errores.value.nombre_Tribunal = 'Este campo es obligatorio'
+  if (!body.descripcion?.trim()) errores.value.descripcion = 'Este campo es obligatorio'
+  if (!body.direccion?.trim()) errores.value.direccion = 'Este campo es obligatorio'
+  if (!body.distrito?.trim()) errores.value.distrito = 'Este campo es obligatorio'
+
+  validarCampo('telefono')
+  // Si hay errores, detener el guardado
+  if (Object.keys(errores.value).length) return
+
+  try {
+    if (body.id_Tribunal) {
+      await api.put(`/api/Tribunales/ActualizarTribunal/${body.id_Tribunal}`, body)
+    } else {
+      await api.post('/api/Tribunales/CrearTribunal', body)
+    }
+
+
+    await cargarTribunales()
+
+    // Mostrar mensaje de éxito
+    mostrarMensajeExito.value = true
+    setTimeout(() => {
+      cerrarFormularioexito()
+    }, 3000)
+  } catch (err) {
+    mensajeError.value = 'Ocurrió un error al guardar el tribunal. Intenta nuevamente.'
+    mostrarMensajeError.value = true
+  } finally {
+    guardando.value = false
+  }
+}
+
+function abrirDialogoSalas(tribunal) {
+
+  console.log(tribunal.nombre_Tribunal)
+  tribunalSeleccionado.value = tribunal
+  mostrarDialogoSalas.value = true
 }
 
 function abrirFormularioNuevo() {
@@ -128,42 +176,6 @@ function cerrarFormularioexito() {
   dialogVisible.value = true
 }
 
-async function guardarTribunal() {
-  errores.value = {} // limpiar antes de validar
-  const body = tribunalEditando.value
-
-  // Validaciones manuales
-  if (!body.nombre_Tribunal?.trim()) errores.value.nombre_Tribunal = 'Este campo es obligatorio'
-  if (!body.descripcion?.trim()) errores.value.descripcion = 'Este campo es obligatorio'
-  if (!body.telefono?.trim()) errores.value.telefono = 'Este campo es obligatorio'
-  if (!body.direccion?.trim()) errores.value.direccion = 'Este campo es obligatorio'
-  if (!body.distrito?.trim()) errores.value.distrito = 'Este campo es obligatorio'
-
-  // Si hay errores, detener el guardado
-  if (Object.keys(errores.value).length) return
-
-  try {
-    if (body.id_Tribunal) {
-      await api.put(`/api/Tribunales/ActualizarTribunal/${body.id_Tribunal}`, body)
-    } else {
-      await api.post('/api/Tribunales/CrearTribunal', body)
-    }
-
-
-    await cargarTribunales()
-
-    // Mostrar mensaje de éxito
-    mostrarMensajeExito.value = true
-    setTimeout(() => {
-      cerrarFormularioexito()
-    }, 3000)
-  } catch (err) {
-    mensajeError.value = 'Ocurrió un error al guardar el tribunal. Intenta nuevamente.'
-    mostrarMensajeError.value = true
-  }
-}
-
-
 function confirmarEliminacion(id) {
   console.log(id);
   confirm.require({
@@ -184,19 +196,6 @@ function confirmarEliminacion(id) {
     }
   })
 }
-
-const filteredTribunales = computed(() => {
-  if (!search.value) return tribunales.value
-  const term = search.value.toLowerCase()
-  return tribunales.value.filter(t =>
-    Object.values(t).some(val => String(val).toLowerCase().includes(term))
-  )
-})
-
-const paginatedTribunales = computed(() => {
-  const start = (page.value - 1) * perPage
-  return filteredTribunales.value.slice(start, start + perPage)
-})
 
 function validarCampo(model) {
   const valor = tribunalEditando.value[model]
@@ -290,7 +289,7 @@ function soloNumeros(event) {
     <!-- Header personalizado -->
     <template #header>
       <div class="flex justify-content-center align-items-center w-full">
-        <h2 class="text-2xl font-bold m-0">Formulario Tribunal</h2>
+        <h2 class="text-2xl font-bold m-0">Registro Tribunal</h2>
       </div>
     </template>
 
@@ -304,8 +303,8 @@ function soloNumeros(event) {
 
         <!-- Validar solo números en teléfono -->
         <InputText v-if="campo.model === 'telefono'" v-model="tribunalEditando.telefono" @keypress="soloNumeros"
-          @input="validarCampo('telefono')" placeholder="Ingrese teléfono"
-          :class="{ 'input-error': errores.telefono }" />
+          @input="validarCampo('telefono')" placeholder="Ingrese teléfono" :class="{ 'input-error': errores.telefono }"
+          maxlength="10" />
 
         <!-- Resto de campos normales -->
         <InputText v-else v-model="tribunalEditando[campo.model]" @input="validarCampo(campo.model)"
@@ -339,7 +338,7 @@ function soloNumeros(event) {
     <template #footer>
       <div class="flex gap-2 w-full justify-content-center mt-4">
         <Button label="Cancelar" class="btn-filtro" @click="cerrarFormulario" />
-        <Button label="Guardar" class="btn-filtro" style="background-color: #003870; color: white"
+        <Button label="Guardar" class="btn-filtro" :loading="guardando" :disabled="guardando"
           @click="guardarTribunal" />
       </div>
     </template>
@@ -364,7 +363,7 @@ function soloNumeros(event) {
       <i class="pi pi-times-circle text-red-500 text-4xl mb-3"></i>
       <p>{{ mensajeError }}</p>
 
-      <div class="flex justify-center mt-4">
+      <div class="flex justify-content-center mt-4">
         <Button label="Cerrar" class="btn-filtro" @click="mostrarMensajeError = false" />
       </div>
     </div>
