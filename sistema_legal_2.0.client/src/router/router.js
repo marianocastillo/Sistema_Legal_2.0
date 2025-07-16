@@ -1,8 +1,6 @@
-
-import LoginView from '../components/views/LoginView.vue';
-
 import { createRouter, createWebHistory } from 'vue-router';
 
+import LoginView from '../components/views/LoginView.vue';
 import Drawer from '../layouts/Drawer.vue';
 import RegistroLitigio from '../components/views/RegistrarLitigio.vue';
 import ListadoTribunales from '@/components/views/Tribunales/ListadoTribunales.vue';
@@ -17,6 +15,9 @@ import BandejaRegistrados from '@/components/views/BandejaRegistrados.vue';
 import BandejaSeguimiento from '@/components/views/BandejaSeguimiento.vue';
 import Qalendar from '@/components/views/Qalendar.vue';
 import PerfilesMantenimiento from '@/components/views/Perfiles/PerfilesMantenimiento.vue';
+import Unauthorized from '@/components/views/Unauthorized.vue';
+import LitigioDetalle from '@/components/views/LitigioMostrar.vue';
+
 const routes = [
   {
     path: '/',
@@ -32,100 +33,100 @@ const routes = [
         path: 'GestionLitigios',
         name: 'GestionLitigios',
         component: AdministradorLitigio,
-        meta: { requiresAuth: true, roles: [1, 2] }
+        meta: { requiresAuth: true }
       },
-      { path: '', redirect: '/GestionTribunales' },
       {
         path: 'GestionTribunales',
         name: 'GestionTribunales',
-        component:ListadoTribunales ,
-        meta: { requiresAuth: true, roles: [1, 2] }
+        component: ListadoTribunales,
+        meta: { requiresAuth: true }
       },
       {
         path: 'abogado/inicio',
         name: 'VistaAbogado',
         component: VistaAbogado,
-        meta: { requiresAuth: true, roles: [4] }
+        meta: { requiresAuth: true }
       },
       {
         path: 'registrar',
         name: 'RegistroLitigio',
         component: RegistroLitigio,
-        meta: { requiresAuth: true, roles: [1, 2, 3] }
+        meta: { requiresAuth: true }
       },
-            {
+      {
         path: 'Calendario',
         name: 'Calendario',
         component: Qalendar,
-        meta: { requiresAuth: true, roles: [1, 2, 3] }
+        meta: { requiresAuth: true }
       },
       {
-        path: '/Seguimiento',
+        path: 'Seguimiento',
         name: 'BandejaSeguimiento',
         component: BandejaSeguimiento,
-        meta: { requiresAuth: true, roles: [1] }
+        meta: { requiresAuth: true }
       },
       {
         path: 'LitigiosRegistrados',
         name: 'BandejaRegistrados',
         component: BandejaRegistrados,
-        meta: { requiresAuth: true, roles: [1, 2, 3] }
+        meta: { requiresAuth: true }
       },
       {
         path: 'buscarlitigio',
         name: 'BuscarLitigio',
         component: BuscarLitigio,
-        meta: { requiresAuth: true, roles: [1, 2, 4] }
+        meta: { requiresAuth: true }
       },
       {
         path: 'edit',
         name: 'TableView',
         component: TableView,
-        meta: { requiresAuth: true, roles: [1] }
+        meta: { requiresAuth: true }
       },
       {
         path: 'modificarregistro',
         name: 'ModificarRegistro',
         component: ModificarRegistro,
-        meta: { requiresAuth: true, roles: [1, 2, 3, 4] }
+        meta: { requiresAuth: true }
       },
       {
-        path: 'listadodeusuario',
-        name: 'ListadoUsuariosVie',
+        path: 'Usuarios',
+        name: 'Usuarios',
         component: ListadoUsuariosView,
-        meta: { requiresAuth: true, roles: [1] }
+        meta: { requiresAuth: true }
       },
-       {
+      {
         path: 'Perfiles',
-        name: 'PerfilesMantenimiento',
+        name: 'Perfiles',
         component: PerfilesMantenimiento,
-        meta: { requiresAuth: true, roles: [1] }
+        meta: { requiresAuth: true }
       },
       {
-        path: 'formulario',
-        name: 'nuevoUsuario',
+        path: '/ConfiguracionUsuarios',
+        name: '/ConfiguracionUsuarios',
         component: FormularioView,
-        meta: { requiresAuth: true, roles: [1] }
+        meta: { requiresAuth: true }
       },
       {
-        path: 'formulario/:idUsuario',
-        name: 'formulario',
+        path: 'ConfiguracionUsuarios/:idUsuario',
+        name: 'ConfiguracionUsuarios',
         component: FormularioView,
-        meta: { requiresAuth: true, roles: [1] }
-      },
-      {
-        path: 'litigio/detalle/:id',
-        name: 'LitigioDetalle',
-        component: () => import('../components/views/LitigioMostrar.vue'),
         props: true,
-        meta: { requiresAuth: true, roles: [1, 2, 3, 4] }
+        meta: { requiresAuth: true }
       },
+      {
+        path: 'Detalles/:id',
+        name: 'LitigioDetalle',
+        component: LitigioDetalle,
+        props: true,
+        meta: { requiresAuth: true }
+      }
     ]
   },
   {
     path: '/unauthorized',
     name: 'Unauthorized',
-    component: () => import('@/components/views/Unauthorized.vue')
+    component: Unauthorized
   }
 ];
 
@@ -145,12 +146,19 @@ router.beforeEach((to, from, next) => {
 
   if (!to.meta.requiresAuth) return next();
 
-  const perfilId = parseInt(user.perfil);
-  if (to.meta.roles && !to.meta.roles.includes(perfilId)) {
+  const vistasPermitidas = JSON.parse(localStorage.getItem('vistasPermitidas') || '[]');
+
+  const rutaActual = to.path.toLowerCase();
+
+  const autorizada = vistasPermitidas.some(v =>
+    rutaActual.startsWith(v.toLowerCase())
+  );
+
+  if (!autorizada && to.name !== 'Unauthorized') {
     return next({ name: 'Unauthorized' });
   }
+
   next();
 });
-
 
 export default router;

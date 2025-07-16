@@ -100,7 +100,6 @@ public class PerfilesRepo : Repository<Perfiles, PerfilesModel>
     using var trx = dbContext.Database.BeginTransaction();
     try
     {
-        // Asegurarse que solo un perfil sea marcado como porDefecto
         if (model.porDefecto ?? false)
         {
             var todos = dbContext.Set<Perfiles>().ToList();
@@ -115,21 +114,19 @@ public class PerfilesRepo : Repository<Perfiles, PerfilesModel>
             if (perfilEntity == null)
                 throw new Exception("Perfil no encontrado.");
 
-            // Aplicar los cambios del modelo a la entidad del contexto
+      
             perfilEntity.Nombre = model.Nombre?.Trim();
             perfilEntity.Descripcion = model.Descripcion?.Trim();
             perfilEntity.porDefecto = model.porDefecto ?? false;
 
-            // Guardar
+       
             SaveChanges();
 
-            // Eliminar permisos anteriores
             var permisosSet = dbContext.Set<perfilesVistas>();
         var anteriores = permisosSet.Where(p => p.idPerfil == model.idPerfil).ToList();
         dbContext.RemoveRange(anteriores);
         SaveChanges();
 
-        // Agregar nuevos permisos
         if (model.Vistas != null)
         {
             var nuevos = model.Vistas
@@ -143,7 +140,6 @@ public class PerfilesRepo : Repository<Perfiles, PerfilesModel>
             SaveChanges();
         }
 
-        // Asignar usuarios si vinieran
         if (model.Usuarios != null)
         {
             var idsUsuarios = model.Usuarios.Select(u => u.IdUsuario).ToList();

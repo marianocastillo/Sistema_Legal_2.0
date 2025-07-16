@@ -54,7 +54,7 @@ export default {
       loading: false,
       invalid: { userName: false, password: false },
       mockUsers: [
-        { userName: 'admin', password: '1234', nombreUsuario: 'Ana Sánchez', rol: 'Administrador', idPerfil : 1 },
+        { userName: 'admin', password: '1234', nombreUsuario: 'Ana Sánchez', rol: 'Administrador', idPerfil: 1 },
         { userName: 'juan', password: 'abcd', nombreUsuario: 'Juan Pérez', rol: 'Abogado' },
         { userName: 'carla', password: '5678', nombreUsuario: 'Carla Ruiz', rol: 'Administrador' }
       ]
@@ -127,16 +127,20 @@ export default {
             rol: nombrePerfil(usuario.idPerfil),
             perfil: usuario.idPerfil
           }))
-
+          const res = await api.get(`/api/Perfiles/GetPermisos/${usuario.idPerfil}`);
+          const rutasPermitidas = res.data
+            .filter(v => v.permiso)
+            .map(v => v.url);
+          localStorage.setItem('vistasPermitidas', JSON.stringify(rutasPermitidas));
           this.$store.commit('setUser', usuario)
           push.success(response.data.message)
           if (usuario.idPerfil == 4) {
             this.$router.push('/abogado/inicio')
-          }else if (usuario.idPerfil == 2  ) {
+          } else if (usuario.idPerfil == 2) {
             this.$router.push('GestionLitigios')
-          } else if (usuario.idPerfil == 1 ) {
+          } else if (usuario.idPerfil == 1) {
             this.$router.push('Seguimiento')
-          }  else {
+          } else {
             console.log(jwtDecode(token));
             this.$router.push('/LitigiosRegistrados')
           }

@@ -20,40 +20,37 @@
               </router-link>
             </li>
 
-            <!-- Registrar: Supervisor, Digitador -->
-            <li v-if="['Supervisor', 'Digitador'].includes(usuario.rol)">
+
               <router-link to="/registrar" class="sidebar-link" exact-active-class="active">
                 <i class="pi pi-file-edit" />
                 <span>Registrar</span>
               </router-link>
-            </li>
 
-            <!-- Modificar: Supervisor, Abogado Litigante -->
-            <li v-if="['Supervisor'].includes(usuario.rol)">
+
+
               <router-link to="/buscarlitigio" class="sidebar-link" exact-active-class="active">
                 <i class="pi pi-pencil" />
                 <span>Modificar</span>
               </router-link>
-            </li>
-            <li v-if="['Supervisor', 'Digitador'].includes(usuario.rol)">
+
               <a href="#" class="sidebar-link" @click.prevent="mostrarDialogoTribunales = true">
                 <i class="pi pi-building" />
                 <span>Tribunales</span>
               </a>
-            </li>
-            <li v-if="['Supervisor', 'Administrador'].includes(usuario.rol)">
+
+
               <router-link to="/Perfiles" class="sidebar-link" exact-active-class="active">
                 <i class="pi pi-sitemap" />
                 <span>Perfiles</span>
               </router-link>
-            </li>
 
-            <li v-if="['Supervisor', 'Administrador'].includes(usuario.rol)">
+
+
               <router-link to="/Calendario" class="sidebar-link" exact-active-class="active">
                 <i class="pi pi-calendar" />
                 <span>Calendario</span>
               </router-link>
-            </li>
+
 
             <!-- Configuración: visible para todos -->
             <!-- <li ref="submenuRef">
@@ -162,7 +159,7 @@ const items = computed(() => {
       label: 'Manejo de usuarios',
       icon: 'pi pi-user-edit',
       command: () => {
-        router.push('/listadodeusuario')
+        router.push('/Usuarios')
       }
     })
   }
@@ -210,7 +207,7 @@ onMounted(() => {
 
     const perfilId = parseInt(usuario.value.perfil);
     const rutasPorPerfil = {
-      1: '/Seguimiento',
+      1: '/GestionLitigios',
       2: '/GestionLitigios',
       3: '/LitigiosRegistrados',
       4: '/abogado/inicio'

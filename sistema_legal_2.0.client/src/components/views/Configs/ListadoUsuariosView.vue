@@ -78,7 +78,7 @@
       <h2 class="text-2xl font-bold">Listado de Usuarios</h2>
 
       <div class="flex items-center gap-2 filtro-busqueda-bar">
-        <router-link to="/formulario" class="btn-filtro">
+        <router-link to="/ConfiguracionUsuarios" class="btn-filtro">
           <i class="fas fa-plus me-2"></i> Nuevo
         </router-link>
 
@@ -124,7 +124,7 @@
           <td>
             <div class="btn-group">
               <button class="btn btn-sm" style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;"
-                @click="$router.push({ name: 'formulario', params: { idUsuario: usuario.idUsuario } })">
+               @click="$router.push({ path: `/ConfiguracionUsuarios/${usuario.idUsuario}` })">
                 <i class="fas fa-edit white-icon"></i>
               </button>
               <button class="btn btn-sm" style="background-color: #003870; border-color: #003870;"

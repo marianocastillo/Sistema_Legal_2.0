@@ -21,8 +21,8 @@ onMounted(() => {
   if (user) {
     const perfilId = parseInt(user.perfil);
     const rutasPorPerfil = {
-      1: '/home',
-      2: '/supervisor/litigios',
+      1: '/GestionLitigios',
+      2: '/GestionLitigios',
       3: '/digitador/inicio',
       4: '/abogado/inicio'
     };

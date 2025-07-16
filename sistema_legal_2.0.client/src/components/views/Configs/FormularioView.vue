@@ -285,7 +285,7 @@ export default {
 
     GetFormMode() {
       if (this.$route.name == "Nuevo Usuario") return this.FormModes.Nuevo;
-      if (this.$route.name == "formulario") return this.FormModes.Editar;
+      if (this.$route.name == "Configuracion Usuarios") return this.FormModes.Editar;
     },
   }
 }

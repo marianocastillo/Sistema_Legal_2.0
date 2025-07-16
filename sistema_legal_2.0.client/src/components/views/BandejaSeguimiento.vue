@@ -17,12 +17,13 @@
     </div>
 
     <!-- Tabla -->
-    <DataTable :value="litigiosFiltrados" :paginator="true" :rowHover="true" :rows="rows" :filters="filters" :globalFilterFields="[
-      'ltg_acto',
-      'ltg_Cedula_Demandante',
-      'ltg_Nombre_Demandante',
-      'estatus_Descripcion'
-    ]" class="p-datatable-sm" responsiveLayout="scroll">
+    <DataTable :value="litigiosFiltrados" :paginator="true" :rowHover="true" :rows="rows" :filters="filters"
+      :globalFilterFields="[
+        'ltg_acto',
+        'ltg_Cedula_Demandante',
+        'ltg_Nombre_Demandante',
+        'estatus_Descripcion'
+      ]" class="p-datatable-sm" responsiveLayout="scroll">
       <Column field="ltg_acto" header="N⁰ Acto" />
       <Column field="ltg_Fecha_Acto" header="Fecha Acto" style="min-width: 110px;">
         <template #body="{ data }">
@@ -53,10 +54,10 @@
 
       <Column header="Acciones">
         <template #body="{ data }">
-          <router-link :to="`/litigio/detalle/${data.id_Ltg}`" class="btn btn-sm"
-            style="background-color: #003870; border-color: #003870" title="Ver litigio">
+          <button class="btn btn-sm" style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;"
+            v-tooltip="'Ver litigio'" @click="$router.push({ path: `/Detalles/${data.id_Ltg}` })">
             <i class="pi pi-eye white-icon"></i>
-          </router-link>
+          </button>
         </template>
       </Column>
     </DataTable>
@@ -120,7 +121,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-
 .white-icon {
   color: white !important;
 }
