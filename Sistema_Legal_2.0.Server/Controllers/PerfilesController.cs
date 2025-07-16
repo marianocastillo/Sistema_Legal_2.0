@@ -5,6 +5,7 @@ using Sistema_Legal_2._0.Server.Repositories;
 using Sistema_Legal_2._0.Server.Infraestructure;
 using Sistema_Legal_2._0.Server.Models.Enums;
 using Sistema_Legal_2._0.Server.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Sistema_Legal_2._0.Server.Controller
 {
@@ -92,50 +93,34 @@ namespace Sistema_Legal_2._0.Server.Controller
             }
         }
 
+        [HttpPut("UpdatePerfil")]
+        [AllowAnonymous]
+        public OperationResult Put([FromBody] PerfilesModel perfilModel)
+        {
+            try
+            {
+                if (perfilModel == null)
+                    return new OperationResult(false, "Datos no recibidos.");
 
-[HttpPut("UpdatePerfil")]
-[AllowAnonymous]
-//[AuthorizeByPermission(PermisosEnum.Editar_Perfil)]
-public OperationResult Put([FromBody] PerfilesModel perfilModel)
-{
-    try
-    {
-        var perfil = perfilesRepo.Get(x => x.idPerfil == perfilModel.idPerfil).FirstOrDefault();
+                var perfil = perfilesRepo.Get(x => x.idPerfil == perfilModel.idPerfil).FirstOrDefault();
+                if (perfil == null)
+                    return new OperationResult(false, "Este perfil no se ha encontrado.");
 
-        if (perfil == null)
-            return new OperationResult(false, "Este perfil no se ha encontrado");
+                if (perfilesRepo.Any(x => x.Nombre == perfilModel.Nombre && x.idPerfil != perfilModel.idPerfil))
+                    return new OperationResult(false, "Ya existe un perfil con este nombre.");
 
-        if (perfilesRepo.Any(x => x.Nombre == perfilModel.Nombre && x.idPerfil != perfilModel.idPerfil))
-            return new OperationResult(false, "Ya existe un perfil con este nombre.");
+                perfilesRepo.Edit(perfilModel);
+                _logger.LogHttpRequest(perfilModel);
 
-        perfilesRepo.Edit(perfilModel);
-        _logger.LogHttpRequest(perfilModel);
 
-                var perfilActualizado = perfilesRepo.Get(x => x.idPerfil == perfilModel.idPerfil).FirstOrDefault();
-
-                var vistasIds = perfilModel.Vistas?
-                    .Where(v => v.Permiso)
-                    .Select(v => v.idVista)
-                    .ToList() ?? new List<int>();
-
-                var dto = new PerfilDto
-                {
-                    IdPerfil = perfilActualizado.idPerfil,
-                    Nombre = perfilActualizado.Nombre,
-                    Descripcion = perfilActualizado.Descripcion,
-                    PorDefecto = perfilActualizado.porDefecto ?? false,
-                    CantPermisos = vistasIds.Count,
-                    Vistas = vistasIds
-                };
-
-                return new OperationResult(true, "Perfil editado exitosamente", dto);
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex);
-        throw;
-    }
-}
+                return new OperationResult(true, "Perfil editado exitosamente", perfilModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex);
+                throw;
+            }
+        }
 
 
 
@@ -150,6 +135,7 @@ public OperationResult Put([FromBody] PerfilesModel perfilModel)
             {
                 if (!perfilesRepo.CanDelete(idPerfil))
                     return new OperationResult(false, "No puedes eliminar un perfil con usuarios asignados.");
+                perfilesRepo.Delete(idPerfil);
                 _logger.LogHttpRequest(idPerfil);
                 return new OperationResult(true, "Perfil eliminado exitosamente", idPerfil);
             }
