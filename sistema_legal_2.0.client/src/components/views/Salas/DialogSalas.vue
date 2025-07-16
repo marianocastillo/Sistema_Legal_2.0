@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model:visible="dialogVisible" modal :header="`Salas del Tribunal: ${props.nombreTribunal}`"
+  <Dialog v-model:visible="dialogVisibleSala" modal :header="`Salas del Tribunal: ${props.nombreTribunal}`"
     class="dialog-salas" :style="{ width: '70%', height: '85vh' }">
 
     <div class="card p-4">
@@ -7,7 +7,7 @@
         <h2 class="text-xl font-bold m-0">Salas registradas</h2>
 
         <div class="flex items-center gap-2 filtro-busqueda-bar">
-          <Button label="Cerrar" icon="pi pi-times" class="p-button-sm btn-litigio" @click="dialogVisible = false" />
+          <Button label="Cerrar" icon="pi pi-times" class="p-button-sm btn-litigio" @click="cerrarSala" />
           <Button label="Nueva Sala" icon="pi pi-plus" class="p-button-sm btn-litigio"
             @click="abrirFormularioNuevaSala" />
           <div class="search-container">
@@ -23,13 +23,13 @@
         <thead class="table-light">
           <tr>
             <th>Sala</th>
-            <th>Acciones</th>
+            <th class="text-end pe-2">Acciones</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="sala in paginatedSalas" :key="sala.idSala">
             <td>{{ sala.nombre }}</td>
-            <td>
+            <td class="text-end">
               <div class="btn-group">
                 <button class="btn btn-sm btn-hover" style="background-color: #003870;" @click="editarSala(sala)">
                   <i class="pi pi-pencil white-icon"></i>
@@ -77,6 +77,9 @@
       </div>
     </Dialog>
   </Dialog>
+
+
+  <ListadoTribunales v-model:visible="mostrarDialogoTribunales" />
 </template>
 
 
@@ -87,7 +90,9 @@ import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import api from '@/utilities/api'
 import { push } from 'notivue'
+import ListadoTribunales from '../Tribunales/ListadoTribunales.vue'
 
+const mostrarDialogoTribunales = ref(false)
 const page = ref(1)
 const perPage = 10
 
@@ -103,14 +108,14 @@ const props = defineProps({
 })
 
 onMounted(async () => {
-  if (dialogVisible.value && props.tribunalId) {
+  if (dialogVisibleSala.value && props.tribunalId) {
     await cargarSalas()
   }
 })
 const emit = defineEmits(['update:visible'])
 
 //Computed para manejar el v-model correctamente
-const dialogVisible = computed({
+const dialogVisibleSala = computed({
   get: () => props.visible,
   set: val => emit('update:visible', val)
 })
@@ -126,6 +131,7 @@ const filteredSalas = computed(() =>
     s.nombre.toLowerCase().includes(search.value.toLowerCase())
   )
 )
+
 
 const paginatedSalas = computed(() => {
   const start = (page.value - 1) * perPage
@@ -158,6 +164,10 @@ async function cargarSalas() {
   }
 }
 
+function cerrarSala(){
+  dialogVisibleSala.value = false
+  mostrarDialogoTribunales.value = true
+}
 function abrirFormularioNuevaSala() {
   form.value = { idSala: 0, nombre: '' }
   editing.value = false

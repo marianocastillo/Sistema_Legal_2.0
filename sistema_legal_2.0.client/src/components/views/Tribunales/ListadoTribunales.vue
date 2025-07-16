@@ -127,7 +127,7 @@ async function guardarTribunal() {
 
   try {
     // Esperamos 2 segundos simulando "guardado"
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    await new Promise(resolve => setTimeout(resolve, 1000))
 
     if (body.id_Tribunal) {
       await api.put(`/api/Tribunales/ActualizarTribunal/${body.id_Tribunal}`, body)
@@ -140,7 +140,7 @@ async function guardarTribunal() {
     mostrarMensajeExito.value = true
     setTimeout(() => {
       cerrarFormularioexito()
-    }, 3000)
+    }, 10000)
   } catch (err) {
     mensajeError.value = 'Ocurrió un error al guardar el tribunal. Intenta nuevamente.'
     mostrarMensajeError.value = true
@@ -152,7 +152,6 @@ async function guardarTribunal() {
 
 function abrirDialogoSalas(tribunal) {
 
-  console.log(tribunal.nombre_Tribunal)
   tribunalSeleccionado.value = tribunal
   dialogVisible.value = false
   mostrarDialogoSalas.value = true
@@ -298,7 +297,7 @@ function soloNumeros(event) {
           <th>Dirección</th>
           <th>Provincia</th>
           <th>Estado</th>
-          <th>Acciones</th>
+          <th class="text-center">Acciones</th>
         </tr>
       </thead>
       <tbody>
@@ -313,7 +312,7 @@ function soloNumeros(event) {
               {{ tribunal.estatus ? 'Activo' : 'Inactivo' }}
             </span>
           </td>
-          <td>
+          <td class="text-center">
             <div class="btn-group">
               <button class="btn btn-sm btn-hover" style="background-color: #003870;"
                 @click="abrirFormularioEditar(tribunal)">
