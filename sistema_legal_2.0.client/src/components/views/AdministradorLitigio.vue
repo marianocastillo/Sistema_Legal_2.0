@@ -75,19 +75,19 @@
         <template #body="{ data }">
           <div class="btn-group">
             <!-- Ver -->
-            <router-link :to="`/litigio/detalle/${data.id_Ltg}`" class="btn btn-sm"
+            <router-link :to="`/litigio/detalle/${data.id_Ltg}`" class="btn btn-sm btn-hover"
               style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;" v-tooltip="'Ver litigio'">
               <i class="pi pi-eye white-icon"></i>
             </router-link>
 
             <!-- Modificar -->
-            <button class="btn btn-sm" @click="modificarLitigio(data)"
+            <button class="btn btn-sm btn-hover" @click="modificarLitigio(data)"
               style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;" v-tooltip="'Modificar litigio'">
               <i class="pi pi-pencil white-icon"></i>
             </button>
 
             <!-- Asignar -->
-            <button v-if="mostrarAsignar" class="btn btn-sm" @click="togglePopUp(data)"
+            <button v-if="mostrarAsignar" class="btn btn-sm btn-hover" @click="togglePopUp(data)"
               style="background-color: #003870; border-color: #003870;" v-tooltip="'Asignar abogado'">
               <i class="pi pi-user-edit white-icon"></i>
             </button>
@@ -201,7 +201,6 @@ function mostrarAsignados() {
   data.value = filtrados;
   totalAsignados.value = filtrados.length; // NUEVO
 }
-
 
 function actualizarTotales() {
   totalSinAsignar.value = todosLosLitigios.value.filter(

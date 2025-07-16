@@ -157,6 +157,45 @@
 }
 
 
+/* estilos para mis botones de modo general  */
+.btn-litigio {
+  padding: 0.35rem 1.2rem;
+  height: 38px;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  background-color: #003870;
+  border-color: #003870;
+  color: white;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+
+.btn-litigio:hover,
+.btn-litigio.active {
+  background-color: #c00606 !important;
+  border-color: #c00606 !important;
+  box-shadow: 0 6px 16px rgba(121, 1, 51, 0.3) !important;
+  transform: translateY(-1px) !important;
+  transition: background-color 0.2s !important;
+}
+
+.btn-hover:hover,
+.btn-hover:active{
+   background-color: #c00606 !important;
+  border-color: #c00606 !important;
+  box-shadow: 0 6px 16px rgba(121, 1, 51, 0.3) !important;
+  transform: translateY(-1px) !important;
+  transition: background-color 0.2s !important;
+}
+
 @media (min-width: 1400px) {
   .dialog-formulario-form label {
     font-size: 1rem !important;

@@ -53,7 +53,7 @@
 
       <Column header="Acciones">
         <template #body="{ data }">
-          <router-link :to="`/litigio/detalle/${data.id_Ltg}`" class="btn btn-sm"
+          <router-link :to="`/litigio/detalle/${data.id_Ltg}`" class="btn btn-sm btn-hover"
             style="background-color: #003870; border-color: #003870" title="Ver litigio">
             <i class="pi pi-eye white-icon"></i>
           </router-link>

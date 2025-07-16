@@ -11,7 +11,6 @@ import { push } from 'notivue'
 import DialogSalas from '../Salas/DialogSalas.vue'
 
 
-
 const props = defineProps(['visible'])
 const emit = defineEmits(['update:visible', 'close'])
 const mostrarDialogoSalas = ref(false)
@@ -26,8 +25,15 @@ const confirm = useConfirm()
 const tribunales = ref([])
 const search = ref('')
 const page = ref(1)
-const perPage = 20
+const perPage = 10
 const guardando = ref(false)
+
+const totalPages = computed(() => Math.ceil(filteredTribunales.value.length / perPage))
+
+const paginatedTribunales = computed(() => {
+  const start = (page.value - 1) * perPage
+  return filteredTribunales.value.slice(start, start + perPage)
+})
 
 const estadoOptions = [
   { label: 'Activo', value: true },
@@ -87,10 +93,7 @@ const filteredTribunales = computed(() => {
   )
 })
 
-const paginatedTribunales = computed(() => {
-  const start = (page.value - 1) * perPage
-  return filteredTribunales.value.slice(start, start + perPage)
-})
+
 
 
 onMounted(() => cargarTribunales())
@@ -105,8 +108,7 @@ async function cargarTribunales() {
 }
 
 async function guardarTribunal() {
-  errores.value = {} // limpiar antes de validar
-  guardando.value = true
+  errores.value = {} // limpiar errores
   const body = tribunalEditando.value
 
   // Validaciones manuales
@@ -116,20 +118,25 @@ async function guardarTribunal() {
   if (!body.distrito?.trim()) errores.value.distrito = 'Este campo es obligatorio'
 
   validarCampo('telefono')
-  // Si hay errores, detener el guardado
+
+  // Si hay errores en los inputs, salimos antes de mostrar loading
   if (Object.keys(errores.value).length) return
 
+  // activamos loading DESPUÉS de validar
+  guardando.value = true
+
   try {
+    // Esperamos 2 segundos simulando "guardado"
+    await new Promise(resolve => setTimeout(resolve, 2000))
+
     if (body.id_Tribunal) {
       await api.put(`/api/Tribunales/ActualizarTribunal/${body.id_Tribunal}`, body)
     } else {
       await api.post('/api/Tribunales/CrearTribunal', body)
     }
 
-
     await cargarTribunales()
 
-    // Mostrar mensaje de éxito
     mostrarMensajeExito.value = true
     setTimeout(() => {
       cerrarFormularioexito()
@@ -142,10 +149,12 @@ async function guardarTribunal() {
   }
 }
 
+
 function abrirDialogoSalas(tribunal) {
 
   console.log(tribunal.nombre_Tribunal)
   tribunalSeleccionado.value = tribunal
+  dialogVisible.value = false
   mostrarDialogoSalas.value = true
 }
 
@@ -232,7 +241,8 @@ function soloNumeros(event) {
 <template>
 
   <!-- dialogo principal del Mantenimiento de tribunales  -->
-  <Dialog v-model:visible="dialogVisible" modal class="dialog-tribunales" :closable="false" :draggable="false">
+  <Dialog v-model:visible="dialogVisible" modal class="dialog-tribunales" :closable="false" :draggable="false"
+    :style="{ width: '80%', height: '85vh' }">
     <template #header>
       <div class="flex justify-content-between align-items-center m-2 flex-wrap gap-2 pt-3 w-100">
         <!-- Columna izquierda: solo el título -->
@@ -242,14 +252,12 @@ function soloNumeros(event) {
 
         <!-- Columna derecha: botones + buscador -->
         <div class="flex items-center gap-2 filtro-busqueda-bar">
-          <button class="btn-filtro" @click="abrirFormularioNuevo">
-            <i class="fas fa-plus me-2"></i> Nuevo Tribunal
-          </button>
-
-          <button class="btn-filtro" @click="dialogVisible = false">
+          <button class="btn-litigio" @click="dialogVisible = false">
             <i class="pi pi-times me-2"></i> Cerrar
           </button>
-
+          <button class="btn-litigio" @click="abrirFormularioNuevo">
+            <i class="fas fa-plus me-2"></i> Nuevo Tribunal
+          </button>
           <div class="search-container">
             <span class="p-input-icon-left search-input-wrapper">
               <i class="pi pi-search search-icon" />
@@ -259,7 +267,9 @@ function soloNumeros(event) {
         </div>
       </div>
     </template>
-    <div v-for="tribunal in paginatedTribunales" :key="tribunal.id_Tribunal" class="tribunal-card">
+
+
+    <!-- <div v-for="tribunal in paginatedTribunales" :key="tribunal.id_Tribunal" class="tribunal-card">
       <div class="tribunal-info">
         <div><strong>{{ tribunal.nombre_Tribunal }}</strong></div>
         <div class="small text-muted">{{ tribunal.descripcion }} - {{ tribunal.telefono }} - {{ tribunal.direccion }}
@@ -270,14 +280,76 @@ function soloNumeros(event) {
         <span :class="['badge', tribunal.estatus ? 'bg-success' : 'bg-danger']">
           {{ tribunal.estatus ? 'Activo' : 'Inactivo' }}
         </span>
-        <Button icon="pi pi-pencil" class="p-button-text p-button-sm text-dark" @click="abrirFormularioEditar(tribunal)"
+        <Button icon="pi pi-pencil" class="btn-sm btn-hover" @click="abrirFormularioEditar(tribunal)"
           v-tooltip="'Modificar tribunal'" />
-        <Button icon="pi pi-trash" class="p-button-text p-button-sm text-danger"
+        <Button icon="pi pi-trash" class="btn-sm btn-hover"
           @click="confirmarEliminacion(tribunal.id_Tribunal)" v-tooltip="'Eliminar tribunal'" />
-        <Button icon="pi pi-eye white-icon" class="p-button-text p-button-sm text-danger"
+        <Button icon="pi pi-eye white-icon" class="btn-sm btn-hover"
           @click="abrirDialogoSalas(tribunal)" v-tooltip="'Ver salas tribunal'" />
       </div>
-    </div>
+    </div> -->
+
+    <table class="table table-sm table-bordered table-hover mt-3">
+      <thead class="table-light">
+        <tr>
+          <th>Nombre</th>
+          <th>Descripción</th>
+          <th>Teléfono</th>
+          <th>Dirección</th>
+          <th>Provincia</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="tribunal in paginatedTribunales" :key="tribunal.id_Tribunal">
+          <td>{{ tribunal.nombre_Tribunal }}</td>
+          <td>{{ tribunal.descripcion }}</td>
+          <td>{{ tribunal.telefono }}</td>
+          <td>{{ tribunal.direccion }}</td>
+          <td>{{ tribunal.distrito }}</td>
+          <td>
+            <span class="tag" :class="tribunal.estatus ? 'status-sentencia' : 'status-casacion'">
+              {{ tribunal.estatus ? 'Activo' : 'Inactivo' }}
+            </span>
+          </td>
+          <td>
+            <div class="btn-group">
+              <button class="btn btn-sm btn-hover" style="background-color: #003870;"
+                @click="abrirFormularioEditar(tribunal)">
+                <i class="pi pi-pencil white-icon"></i>
+              </button>
+              <button class="btn btn-sm btn-hover" style="background-color: #003870;"
+                @click="confirmarEliminacion(tribunal.id_Tribunal)">
+                <i class="pi pi-trash white-icon"></i>
+              </button>
+              <button class="btn btn-sm btn-hover" style="background-color: #003870;"
+                @click="abrirDialogoSalas(tribunal)">
+                <i class="pi pi-eye white-icon"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr v-if="filteredTribunales.length === 0">
+          <td colspan="7" class="text-center text-muted">No hay tribunales registrados.</td>
+        </tr>
+      </tbody>
+    </table>
+    <nav class="mt-4">
+      <ul class="pagination justify-content-end">
+        <li class="page-item" :class="{ disabled: page === 1 }">
+          <button class="page-link" @click="page--">Anterior</button>
+        </li>
+        <li class="page-item" v-for="p in totalPages" :key="p" :class="{ active: page === p }">
+          <button class="page-link" @click="page = p">{{ p }}</button>
+        </li>
+        <li class="page-item" :class="{ disabled: page === totalPages }">
+          <button class="page-link" @click="page++">Siguiente</button>
+        </li>
+      </ul>
+    </nav>
+
+
 
     <div v-if="filteredTribunales.length === 0" class="text-center text-muted mt-2">No hay tribunales registrados.</div>
   </Dialog>
@@ -326,8 +398,8 @@ function soloNumeros(event) {
         </small>
       </div>
 
-      <!-- Dropdown para Estado -->
-      <div class="field col-12 md:col-6">
+      <!-- Dropdown para Estado (solo visible al editar) -->
+      <div class="field col-12 md:col-6" v-if="tribunalEditando.id_Tribunal">
         <label>Estado</label>
         <Dropdown v-model="tribunalEditando.estatus" :options="estadoOptions" optionLabel="label" optionValue="value"
           class="w-full" />
@@ -337,8 +409,8 @@ function soloNumeros(event) {
 
     <template #footer>
       <div class="flex gap-2 w-full justify-content-center mt-4">
-        <Button label="Cancelar" class="btn-filtro" @click="cerrarFormulario" />
-        <Button label="Guardar" class="btn-filtro" :loading="guardando" :disabled="guardando"
+        <Button label="Cancelar" class="btn-litigio" @click="cerrarFormulario" />
+        <Button label="Guardar" class="btn-litigio" :loading="guardando" :disabled="guardando"
           @click="guardarTribunal" />
       </div>
     </template>
@@ -352,7 +424,7 @@ function soloNumeros(event) {
       <p>El tribunal fue guardado exitosamente.</p>
 
       <div class="flex justify-content-center mt-4">
-        <Button label="Aceptar" class="btn-filtro" @click="cerrarFormularioexito" />
+        <Button label="Aceptar" class="btn-litigio" @click="cerrarFormularioexito" />
       </div>
     </div>
   </Dialog>
@@ -364,7 +436,7 @@ function soloNumeros(event) {
       <p>{{ mensajeError }}</p>
 
       <div class="flex justify-content-center mt-4">
-        <Button label="Cerrar" class="btn-filtro" @click="mostrarMensajeError = false" />
+        <Button label="Cerrar" class="btn-litigio" @click="mostrarMensajeError = false" />
       </div>
     </div>
   </Dialog>
@@ -407,34 +479,6 @@ function soloNumeros(event) {
   box-shadow: 0 0 0 0.2rem rgba(0, 56, 112, 0.25);
 }
 
-.btn-filtro {
-  padding: 0.35rem 1.2rem;
-  height: 38px;
-  border-radius: 6px;
-  font-size: 0.88rem;
-  font-weight: 500;
-  background-color: #003870;
-  border-color: #003870;
-  color: #f0f0f0;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  white-space: nowrap;
-  text-decoration: none;
-  border: 1px solid transparent;
-}
-
-.btn-filtro:hover,
-.btn-filtro.active {
-  background-color: #c00606 !important;
-  border-color: #c00606 !important;
-  box-shadow: 0 6px 16px rgba(121, 1, 51, 0.3) !important;
-  transform: translateY(-1px) !important;
-  transition: background-color 0.2s !important;
-}
 
 .search-container {
   display: flex;
@@ -469,4 +513,59 @@ function soloNumeros(event) {
   border: 1px solid #dc2626 !important;
   box-shadow: 0 0 0 0.15rem rgba(220, 38, 38, 0.25);
 }
+
+.white-icon {
+  color: white !important;
+}
+
+.btn-group .btn {
+  margin: 0 2px;
+}
+
+thead th {
+  background-color: rgb(241, 242, 250);
+  font-weight: 600;
+  color: #2e3842;
+  font-size: 0.95rem;
+  border: none !important;
+}
+
+.tag {
+  padding: 0.4rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-block;
+  text-align: center;
+  min-width: 100px;
+}
+
+.status-sentencia {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-casacion {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.pagination .page-link {
+  color: #003870;
+  border: 1px solid #ccc;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.pagination .page-item.active .page-link {
+  background-color: #003870;
+  border-color: #003870;
+  color: white;
+}
+
+.pagination .page-item.disabled .page-link {
+  color: #aaa;
+  pointer-events: none;
+}
+
 </style>

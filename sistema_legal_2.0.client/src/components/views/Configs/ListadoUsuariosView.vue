@@ -1,75 +1,3 @@
-<!-- <template>
-  <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h4 class="text-dark">Listado de usuarios</h4>
-      <div class="d-flex gap-2">
-        <router-link to="/formulario" class="btn text-white" style="background-color: #003870;">
-          <i class="fas fa-plus me-2"></i> Nuevo
-        </router-link>
-
-        <input type="text" class="form-control-sm bg-white text-dark" placeholder="Buscar..." v-model="search" />
-        <router-link to="/Seguimiento" class="btn text-white" style="background-color: #003870;">
-          <i class="fa-solid fa-home me-2"></i> Inicio
-        </router-link>
-      </div>
-    </div>
-
-    <table class="table table-bordered table-hover table-sm">
-      <thead class="table-light">
-        <tr>
-          <th @click="sort('nombreUsuario')">Nombre de Usuario</th>
-          <th @click="sort('nombres')">Nombres</th>
-          <th @click="sort('apellidos')">Apellidos</th>
-          <th @click="sort('idPerfil')">Perfil</th>
-          <th @click="sort('fechaCrea')">Fecha de Creación</th>
-          <th @click="sort('activo')">Estado</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="usuario in paginatedUsuarios" :key="usuario.idUsuario">
-          <td>{{ usuario.nombreUsuario }}</td>
-          <td>{{ usuario.nombres }}</td>
-          <td>{{ usuario.apellidos }}</td>
-          <td>{{ usuario.nombrePerfil}}</td>
-          <td>{{ new Date(usuario.fechaCreacion).toLocaleDateString() }}</td>
-          <td>
-            <span :class="['badge', usuario.activo ? 'bg-success' : 'bg-warning']">
-              {{ usuario.activo ? 'Activo' : 'Inactivo' }}
-            </span>
-          </td>
-          <td>
-            <button class="btn btn-sm  me-2" style="background-color: #003870;"
-              @click="$router.push({ name: 'formulario', params: { idUsuario: usuario.idUsuario } })">
-              <i class="fas fa-edit" style="color: white;"></i>
-            </button>
-            <button class="btn btn-sm " style="background-color: #003870;" @click="ConfirmDelete(usuario.idUsuario)">
-              <i class="fas fa-trash-alt" style="color: white;"></i>
-            </button>
-          </td>
-        </tr>
-        <tr v-if="filteredUsuarios.length === 0">
-          <td colspan="7" class="text-center">No se han encontrado usuarios.</td>
-        </tr>
-      </tbody>
-    </table>
-
-
-    <nav>
-      <ul class="pagination justify-content-end">
-        <li class="page-item" :class="{ disabled: page === 1 }">
-          <button class="page-link" @click="page--">Anterior</button>
-        </li>
-        <li class="page-item" v-for="p in totalPages" :key="p" :class="{ active: page === p }">
-          <button class="page-link" @click="page = p">{{ p }}</button>
-        </li>
-        <li class="page-item" :class="{ disabled: page === totalPages }">
-          <button class="page-link" @click="page++">Siguiente</button>
-        </li>
-      </ul>
-    </nav>
-  </div>
-</template> -->
 
 
 <template>
@@ -78,12 +6,12 @@
       <h2 class="text-2xl font-bold">Listado de Usuarios</h2>
 
       <div class="flex items-center gap-2 filtro-busqueda-bar">
-        <router-link to="/formulario" class="btn-filtro">
-          <i class="fas fa-plus me-2"></i> Nuevo
+         <router-link to="/Seguimiento" class="p-button-sm btn-litigio">
+          <i class="fa-solid fa-home me-2"></i> Inicio
         </router-link>
 
-        <router-link to="/Seguimiento" class="btn-filtro">
-          <i class="fa-solid fa-home me-2"></i> Inicio
+        <router-link to="/formulario" class="p-button-sm btn-litigio">
+          <i class="fas fa-plus me-2"></i> Nuevo
         </router-link>
 
         <div class="search-container">
@@ -123,11 +51,11 @@
           </td>
           <td>
             <div class="btn-group">
-              <button class="btn btn-sm" style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;"
+              <button class="btn btn-sm btn-hover" style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;"
                 @click="$router.push({ name: 'formulario', params: { idUsuario: usuario.idUsuario } })">
                 <i class="fas fa-edit white-icon"></i>
               </button>
-              <button class="btn btn-sm" style="background-color: #003870; border-color: #003870;"
+              <button class="btn btn-sm btn-hover" style="background-color: #003870; border-color: #003870;"
                 @click="ConfirmDelete(usuario.idUsuario)">
                 <i class="fas fa-trash-alt white-icon"></i>
               </button>
@@ -301,40 +229,6 @@ export default {
   margin: 0 2px;
 }
 
-.btn-filtro {
-  padding: 0.35rem 1.2rem;
-  height: 38px;
-  border-radius: 6px;
-  font-size: 0.88rem;
-  font-weight: 500;
-  background-color: #003870;
-  border-color: #003870;
-  color: #f0f0f0;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  white-space: nowrap;
-  text-decoration: none;
-}
-
-.btn-filtro:hover {
-  background-color: #c00606;
-  border-color: #c00606;
-  box-shadow: 0 6px 16px rgba(121, 1, 51, 0.3) !important;
-  transform: translateY(-1px);
-  transition: background-color 0.2s;
-}
-
-.btn-filtro.active {
-  background-color: #c00606;
-  border-color: #c00606;
-  box-shadow: 0 6px 16px rgba(121, 1, 51, 0.3) !important;
-  transform: translateY(-1px);
-  transition: background-color 0.2s;
-}
 
 /* === Encabezado de tabla === */
 thead th {
