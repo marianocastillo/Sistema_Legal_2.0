@@ -281,7 +281,8 @@ public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
 
         public IActionResult BuscarDocumento(string documento)
         {
-            if (string.IsNullOrWhiteSpace(documento)) return BadRequest("Documento vacío");
+            if (string.IsNullOrWhiteSpace(documento))
+                return BadRequest("Documento vacío");
 
             var resultado = new
             {
@@ -289,43 +290,67 @@ public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
                 Nacionalidad = ""
             };
 
-            using (SqlConnection conn = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal")))
+            try
             {
-                using (SqlCommand cmd = new SqlCommand("sp_Consulta_Documento", conn))
+                using (SqlConnection conn = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal")))
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@Documento", documento);
-
-                    conn.Open();
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlCommand cmd = new SqlCommand("sp_Consulta_Documento", conn))
                     {
-                        if (reader.Read())
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@Documento", documento);
+
+                        conn.Open();
+                        using (SqlDataReader reader = cmd.ExecuteReader())
                         {
-                            // Si es persona
-                            if (reader.FieldCount == 3)
+                            if (reader.Read())
                             {
-                                resultado = new
+                                // Si es persona
+                                if (reader.FieldCount == 3)
                                 {
-                                    Nombre = reader["Nombre_Completo"].ToString(),
-                                    Nacionalidad = reader["Nacionalidad"].ToString()
-                                };
-                            }
-                            // Si es empresa
-                            else if (reader.FieldCount == 2)
-                            {
-                                resultado = new
+                                    resultado = new
+                                    {
+                                        Nombre = reader["Nombre_Completo"].ToString(),
+                                        Nacionalidad = reader["Nacionalidad"].ToString()
+                                    };
+                                }
+                                // Si es empresa
+                                else if (reader.FieldCount == 2)
                                 {
-                                    Nombre = reader["Empresa"].ToString(),
-                                    Nacionalidad = "DOMINICANA"
-                                };
+                                    resultado = new
+                                    {
+                                        Nombre = reader["Empresa"].ToString(),
+                                        Nacionalidad = "DOMINICANA"
+                                    };
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            return Ok(resultado);
+                return Ok(resultado);
+            }
+            catch (SqlException ex)
+            {
+                // Puedes loguear el error si usas logging
+                Console.WriteLine("Error de SQL Server: " + ex.Message);
+
+                return StatusCode(500, new
+                {
+                    Mensaje = "No se pudo conectar con la base de datos.",
+                    Detalles = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                // Captura errores inesperados
+                return StatusCode(500, new
+                {
+                    Mensaje = "Error inesperado al procesar la solicitud.",
+                    Detalles = ex.Message
+                });
+            }
         }
+
 
         [HttpGet("datos-litigio")]
         public async Task<IActionResult> ObtenerDatosLitigio()

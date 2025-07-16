@@ -3,7 +3,7 @@
   position: fixed;
   bottom: 20px;
   right: 20px;
-  display:none;
+  display: none;
 }
 
 .p-inputtext.p-component:focus {
@@ -61,11 +61,11 @@
   cursor: pointer;
 }
 
-.p-select-label{
+/* .p-select-label {
   width: 320px !important;
 }
-
-.p-button-icon-only{
+ */
+.p-button-icon-only {
   width: 1.5rem !important;
   height: 1.5rem !important;
 }
@@ -100,6 +100,7 @@
 /* Contenido interno del diálogo */
 .dialog-formulario-form .p-dialog-content {
   padding: 2rem;
+  height: 80%;
   background-color: #f9f9f9;
 }
 
@@ -109,19 +110,16 @@
   gap: 1rem;
   grid-template-columns: 1fr;
 }
-@media (min-width: 768px) {
-  .dialog-formulario-form .formgrid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
+
+
 
 /* Etiquetas */
 .dialog-formulario-form label {
-  font-weight: 600!important;
-  font-size: 0.9rem!important;
-  margin-bottom: 0.25rem!important;
+  font-weight: 600 !important;
+  font-size: 0.8rem !important;
+  margin-bottom: 0.25rem !important;
   color: #003870 !important;
-  display: block!important;
+  display: block !important;
 }
 
 /* Campos y entradas */
@@ -137,8 +135,9 @@
 .dialog-formulario-form textarea,
 .dialog-formulario-form .p-dropdown .p-inputtext,
 .dialog-formulario-form .p-dropdown .p-dropdown-label {
-  width: 100% !important;
+  width: 400px !important;
   display: block;
+  margin-bottom: 5px;
 }
 
 /* Asegura que dropdowns no se limiten */
@@ -152,6 +151,21 @@
   border: none;
   color: white;
 }
+
 .dialog-formulario-form .p-button-text {
   color: #555;
+}
+
+
+@media (min-width: 1400px) {
+  .dialog-formulario-form label {
+    font-size: 1rem !important;
+  }
+}
+
+@media (min-width: 790px) {
+  .dialog-formulario-form .formgrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
 }

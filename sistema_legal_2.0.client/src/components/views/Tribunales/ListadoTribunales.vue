@@ -6,35 +6,37 @@ import InputText from 'primevue/inputtext'
 import Dropdown from 'primevue/dropdown'
 import Button from 'primevue/button'
 import { useConfirm } from 'primevue/useconfirm'
-import { push } from 'notivue'
 import api from '@/utilities/api.js'
+import { push } from 'notivue'
 import DialogSalas from '../Salas/DialogSalas.vue'
+
 
 
 const props = defineProps(['visible'])
 const emit = defineEmits(['update:visible', 'close'])
 const mostrarDialogoSalas = ref(false)
 const tribunalSeleccionado = ref(null)
-
-const dialogVisible = computed({
-  get: () => props.visible,
-  set: (val) => emit('update:visible', val)
-})
-
+const errores = ref({})
+const mostrarMensajeExito = ref(false)
+const mostrarMensajeError = ref(false)
+const mensajeError = ref('')
 const mostrarFormulario = ref(false)
 const tribunalEditando = ref({})
 const confirm = useConfirm()
-
 const tribunales = ref([])
 const search = ref('')
 const page = ref(1)
-const perPage = 10
+const perPage = 20
+const guardando = ref(false)
 
 const estadoOptions = [
   { label: 'Activo', value: true },
   { label: 'Inactivo', value: false }
 ]
-
+const dialogVisible = computed({
+  get: () => props.visible,
+  set: (val) => emit('update:visible', val)
+})
 const camposFormulario = [
   { label: 'Nombre', model: 'nombre_Tribunal' },
   { label: 'Descripción', model: 'descripcion' },
@@ -42,13 +44,54 @@ const camposFormulario = [
   { label: 'Dirección', model: 'direccion' },
   { label: 'Provincia', model: 'distrito' }
 ]
+const provincias = [
+  { label: 'Azua', value: 'Azua' },
+  { label: 'Bahoruco', value: 'Bahoruco' },
+  { label: 'Barahona', value: 'Barahona' },
+  { label: 'Dajabón', value: 'Dajabón' },
+  { label: 'Distrito Nacional', value: 'Distrito Nacional' },
+  { label: 'Duarte', value: 'Duarte' },
+  { label: 'El Seibo', value: 'El Seibo' },
+  { label: 'Elías Piña', value: 'Elías Piña' },
+  { label: 'Espaillat', value: 'Espaillat' },
+  { label: 'Hato Mayor', value: 'Hato Mayor' },
+  { label: 'Hermanas Mirabal', value: 'Hermanas Mirabal' },
+  { label: 'Independencia', value: 'Independencia' },
+  { label: 'La Altagracia', value: 'La Altagracia' },
+  { label: 'La Romana', value: 'La Romana' },
+  { label: 'La Vega', value: 'La Vega' },
+  { label: 'María Trinidad Sánchez', value: 'María Trinidad Sánchez' },
+  { label: 'Monseñor Nouel', value: 'Monseñor Nouel' },
+  { label: 'Monte Plata', value: 'Monte Plata' },
+  { label: 'Montecristi', value: 'Montecristi' },
+  { label: 'Pedernales', value: 'Pedernales' },
+  { label: 'Peravia', value: 'Peravia' },
+  { label: 'Puerto Plata', value: 'Puerto Plata' },
+  { label: 'Samaná', value: 'Samaná' },
+  { label: 'San Cristóbal', value: 'San Cristóbal' },
+  { label: 'San José de Ocoa', value: 'San José de Ocoa' },
+  { label: 'San Juan', value: 'San Juan' },
+  { label: 'San Pedro de Macorís', value: 'San Pedro de Macorís' },
+  { label: 'Sánchez Ramírez', value: 'Sánchez Ramírez' },
+  { label: 'Santiago', value: 'Santiago' },
+  { label: 'Santiago Rodríguez', value: 'Santiago Rodríguez' },
+  { label: 'Santo Domingo', value: 'Santo Domingo' },
+  { label: 'Valverde', value: 'Valverde' }
+]
 
-function abrirDialogoSalas(tribunal) {
+const filteredTribunales = computed(() => {
+  if (!search.value) return tribunales.value
+  const term = search.value.toLowerCase()
+  return tribunales.value.filter(t =>
+    Object.values(t).some(val => String(val).toLowerCase().includes(term))
+  )
+})
 
-  console.log(tribunal.nombre_Tribunal)
-  tribunalSeleccionado.value = tribunal
-  mostrarDialogoSalas.value = true
-}
+const paginatedTribunales = computed(() => {
+  const start = (page.value - 1) * perPage
+  return filteredTribunales.value.slice(start, start + perPage)
+})
+
 
 onMounted(() => cargarTribunales())
 
@@ -61,41 +104,76 @@ async function cargarTribunales() {
   }
 }
 
+async function guardarTribunal() {
+  errores.value = {} // limpiar antes de validar
+  guardando.value = true
+  const body = tribunalEditando.value
+
+  // Validaciones manuales
+  if (!body.nombre_Tribunal?.trim()) errores.value.nombre_Tribunal = 'Este campo es obligatorio'
+  if (!body.descripcion?.trim()) errores.value.descripcion = 'Este campo es obligatorio'
+  if (!body.direccion?.trim()) errores.value.direccion = 'Este campo es obligatorio'
+  if (!body.distrito?.trim()) errores.value.distrito = 'Este campo es obligatorio'
+
+  validarCampo('telefono')
+  // Si hay errores, detener el guardado
+  if (Object.keys(errores.value).length) return
+
+  try {
+    if (body.id_Tribunal) {
+      await api.put(`/api/Tribunales/ActualizarTribunal/${body.id_Tribunal}`, body)
+    } else {
+      await api.post('/api/Tribunales/CrearTribunal', body)
+    }
+
+
+    await cargarTribunales()
+
+    // Mostrar mensaje de éxito
+    mostrarMensajeExito.value = true
+    setTimeout(() => {
+      cerrarFormularioexito()
+    }, 3000)
+  } catch (err) {
+    mensajeError.value = 'Ocurrió un error al guardar el tribunal. Intenta nuevamente.'
+    mostrarMensajeError.value = true
+  } finally {
+    guardando.value = false
+  }
+}
+
+function abrirDialogoSalas(tribunal) {
+
+  console.log(tribunal.nombre_Tribunal)
+  tribunalSeleccionado.value = tribunal
+  mostrarDialogoSalas.value = true
+}
+
 function abrirFormularioNuevo() {
+  errores.value = {}
   tribunalEditando.value = {
     nombre_Tribunal: '', descripcion: '', telefono: '', direccion: '', distrito: '', estatus: true
   }
   mostrarFormulario.value = true
+  dialogVisible.value = false
 }
 
 function abrirFormularioEditar(tribunal) {
   tribunalEditando.value = { ...tribunal }
+  dialogVisible.value = false
   mostrarFormulario.value = true
 }
 
 function cerrarFormulario() {
+
   mostrarFormulario.value = false
+  dialogVisible.value = true
 }
 
-async function guardarTribunal() {
-  try {
-    const body = tribunalEditando.value
-    if (!body.nombre_Tribunal?.trim()) return push.warning('El nombre es obligatorio')
-
-    if (body.id_Tribunal) {
-      // Corrección aquí: ID se pasa por la URL
-      await api.put(`/api/Tribunales/ActualizarTribunal/${body.id_Tribunal}`, body)
-      push.success('Tribunal actualizado correctamente')
-    } else {
-      await api.post('/api/Tribunales/CrearTribunal', body)
-      push.success('Tribunal creado correctamente')
-    }
-
-    cerrarFormulario()
-    await cargarTribunales()
-  } catch (err) {
-    push.error('Error al guardar el tribunal')
-  }
+function cerrarFormularioexito() {
+  mostrarMensajeExito.value = false
+  mostrarFormulario.value = false
+  dialogVisible.value = true
 }
 
 function confirmarEliminacion(id) {
@@ -119,41 +197,68 @@ function confirmarEliminacion(id) {
   })
 }
 
-const filteredTribunales = computed(() => {
-  if (!search.value) return tribunales.value
-  const term = search.value.toLowerCase()
-  return tribunales.value.filter(t =>
-    Object.values(t).some(val => String(val).toLowerCase().includes(term))
-  )
-})
+function validarCampo(model) {
+  const valor = tribunalEditando.value[model]
 
-const paginatedTribunales = computed(() => {
-  const start = (page.value - 1) * perPage
-  return filteredTribunales.value.slice(start, start + perPage)
-})
+  if (!valor || !valor.trim()) {
+    errores.value[model] = 'Este campo es obligatorio'
+    return
+  }
+
+  // Validación específica para teléfono
+  if (model === 'telefono') {
+    if (!/^\d+$/.test(valor)) {
+      errores.value.telefono = 'Solo se permiten números'
+    } else if (valor.length < 10) {
+      errores.value.telefono = 'Debe tener al menos 10 dígitos'
+    } else {
+      delete errores.value.telefono
+    }
+    return
+  }
+
+  // Limpiar error si el campo es válido
+  delete errores.value[model]
+}
+
+function soloNumeros(event) {
+  const key = event.key
+  if (!/^\d$/.test(key)) {
+    event.preventDefault()
+  }
+}
 </script>
 
 <template>
+
+  <!-- dialogo principal del Mantenimiento de tribunales  -->
   <Dialog v-model:visible="dialogVisible" modal class="dialog-tribunales" :closable="false" :draggable="false">
     <template #header>
-      <div class="d-flex justify-content-between align-items-center w-100">
-        <h5 class="mb-0">Mantenimiento de Tribunales</h5>
+      <div class="flex justify-content-between align-items-center m-2 flex-wrap gap-2 pt-3 w-100">
+        <!-- Columna izquierda: solo el título -->
+        <div class="flex-grow">
+          <h2 class="text-2xl font-bold m-0">Mantenimiento de Tribunales</h2>
+        </div>
+
+        <!-- Columna derecha: botones + buscador -->
+        <div class="flex items-center gap-2 filtro-busqueda-bar">
+          <button class="btn-filtro" @click="abrirFormularioNuevo">
+            <i class="fas fa-plus me-2"></i> Nuevo Tribunal
+          </button>
+
+          <button class="btn-filtro" @click="dialogVisible = false">
+            <i class="pi pi-times me-2"></i> Cerrar
+          </button>
+
+          <div class="search-container">
+            <span class="p-input-icon-left search-input-wrapper">
+              <i class="pi pi-search search-icon" />
+              <input type="text" class="search-input" placeholder="Buscar..." v-model="search" />
+            </span>
+          </div>
+        </div>
       </div>
     </template>
-
-    <div class="d-flex justify-content-end align-items-center gap-2 mb-3">
-      <Button class="p-button-md" @click="abrirFormularioNuevo">
-        <i class="fas fa-plus me-2"></i> Nuevo Tribunal
-      </Button>
-
-      <Button label="Cerrar" icon="pi pi-times" class="p-button-md" @click="dialogVisible = false" />
-
-      <input type="text" class="form-control form-control-md bg-white text-dark" placeholder="Buscar..."
-        v-model="search" style="max-width: 250px;" />
-    </div>
-
-
-
     <div v-for="tribunal in paginatedTribunales" :key="tribunal.id_Tribunal" class="tribunal-card">
       <div class="tribunal-info">
         <div><strong>{{ tribunal.nombre_Tribunal }}</strong></div>
@@ -177,28 +282,51 @@ const paginatedTribunales = computed(() => {
     <div v-if="filteredTribunales.length === 0" class="text-center text-muted mt-2">No hay tribunales registrados.</div>
   </Dialog>
 
+
+  <!-- dialogo de formulario de agregar tribunal  -->
   <Dialog v-model:visible="mostrarFormulario" modal class="dialog-formulario-form" :closable="false">
 
     <!-- Header personalizado -->
     <template #header>
-      <div class="flex justify-content-between align-items-center w-full">
-        <h2 class="text-lg font-bold m-0">Formulario Tribunal</h2>
-
-        <div class="flex gap-2">
-          <Button label="Cancelar" class="p-button-text" @click="cerrarFormulario" />
-          <Button label="Guardar" class="p-button" style="background-color: #003870; color: white"
-            @click="guardarTribunal" />
-        </div>
+      <div class="flex justify-content-center align-items-center w-full">
+        <h2 class="text-2xl font-bold m-0">Registro Tribunal</h2>
       </div>
     </template>
 
+
     <!-- Contenido del formulario -->
     <div class="p-fluid formgrid grid mt-2">
-      <div class="field col-12 md:col-6" v-for="campo in camposFormulario" :key="campo.label">
-        <label>{{ campo.label }}</label>
-        <InputText v-model="tribunalEditando[campo.model]" />
+      <!-- Campos de texto comunes -->
+      <div class="field col-12 md:col-6" v-for="campo in camposFormulario.filter(c => c.model !== 'distrito')"
+        :key="campo.model">
+        <label>{{ campo.label }} <span class="text-red-500">*</span></label>
+
+        <!-- Validar solo números en teléfono -->
+        <InputText v-if="campo.model === 'telefono'" v-model="tribunalEditando.telefono" @keypress="soloNumeros"
+          @input="validarCampo('telefono')" placeholder="Ingrese teléfono" :class="{ 'input-error': errores.telefono }"
+          maxlength="10" />
+
+        <!-- Resto de campos normales -->
+        <InputText v-else v-model="tribunalEditando[campo.model]" @input="validarCampo(campo.model)"
+          :placeholder="`Ingrese ${campo.label.toLowerCase()}`" :class="{ 'input-error': errores[campo.model] }" />
+
+        <small class="text-red-500" v-if="campo.model === 'telefono' ? errores.telefono : errores[campo.model]">
+          {{ campo.model === 'telefono' ? errores.telefono : errores[campo.model] }}
+        </small>
       </div>
 
+      <!-- Dropdown para Provincia -->
+      <div class="field col-12 md:col-6">
+        <label>Provincia <span class="text-red-500">*</span></label>
+        <Dropdown v-model="tribunalEditando.distrito" :options="provincias" optionLabel="label" optionValue="value"
+          placeholder="Seleccione una provincia" class="w-full fix-dropdown-width" @change="validarCampo('distrito')"
+          :class="{ 'input-error': errores.distrito }" filter />
+        <small class="text-red-500" v-if="errores.distrito">
+          {{ errores.distrito }}
+        </small>
+      </div>
+
+      <!-- Dropdown para Estado -->
       <div class="field col-12 md:col-6">
         <label>Estado</label>
         <Dropdown v-model="tribunalEditando.estatus" :options="estadoOptions" optionLabel="label" optionValue="value"
@@ -206,9 +334,40 @@ const paginatedTribunales = computed(() => {
       </div>
     </div>
 
+
+    <template #footer>
+      <div class="flex gap-2 w-full justify-content-center mt-4">
+        <Button label="Cancelar" class="btn-filtro" @click="cerrarFormulario" />
+        <Button label="Guardar" class="btn-filtro" :loading="guardando" :disabled="guardando"
+          @click="guardarTribunal" />
+      </div>
+    </template>
+
   </Dialog>
 
+  <!-- dialogo de mensaje de exito al agregar tribunal -->
+  <Dialog v-model:visible="mostrarMensajeExito" modal :closable="false" class="w-96">
+    <div class="text-center p-4">
+      <i class="pi pi-check-circle text-green-500 text-4xl mb-3"></i>
+      <p>El tribunal fue guardado exitosamente.</p>
 
+      <div class="flex justify-content-center mt-4">
+        <Button label="Aceptar" class="btn-filtro" @click="cerrarFormularioexito" />
+      </div>
+    </div>
+  </Dialog>
+
+  <!-- dialogo de mensaje de erro si no se puede agregar tribunal -->
+  <Dialog v-model:visible="mostrarMensajeError" modal :closable="false" class="w-96">
+    <div class="text-center p-4">
+      <i class="pi pi-times-circle text-red-500 text-4xl mb-3"></i>
+      <p>{{ mensajeError }}</p>
+
+      <div class="flex justify-content-center mt-4">
+        <Button label="Cerrar" class="btn-filtro" @click="mostrarMensajeError = false" />
+      </div>
+    </div>
+  </Dialog>
 
 
 
@@ -219,9 +378,12 @@ const paginatedTribunales = computed(() => {
 </template>
 
 <style scoped>
-.dialog-tribunales {
-  width: 38vw;
+.fix-dropdown-width {
+  min-width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
+
 
 .tribunal-card {
   border: 1px solid #ddd;
@@ -243,5 +405,68 @@ const paginatedTribunales = computed(() => {
 .p-dropdown.p-focus {
   border-color: #003870 !important;
   box-shadow: 0 0 0 0.2rem rgba(0, 56, 112, 0.25);
+}
+
+.btn-filtro {
+  padding: 0.35rem 1.2rem;
+  height: 38px;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  background-color: #003870;
+  border-color: #003870;
+  color: #f0f0f0;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+
+.btn-filtro:hover,
+.btn-filtro.active {
+  background-color: #c00606 !important;
+  border-color: #c00606 !important;
+  box-shadow: 0 6px 16px rgba(121, 1, 51, 0.3) !important;
+  transform: translateY(-1px) !important;
+  transition: background-color 0.2s !important;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  height: 38px;
+}
+
+.search-input-wrapper {
+  position: relative;
+}
+
+.search-input-wrapper .search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+}
+
+.search-input {
+  padding-left: 2rem;
+  padding-right: 0.75rem;
+  height: 38px;
+  border-radius: 6px;
+  border: 1px solid #ced4da;
+  font-size: 0.88rem;
+  background-color: #fff;
+  color: #212529;
+}
+
+.input-error {
+  border: 1px solid #dc2626 !important;
+  box-shadow: 0 0 0 0.15rem rgba(220, 38, 38, 0.25);
 }
 </style>
