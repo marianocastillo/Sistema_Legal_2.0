@@ -31,7 +31,6 @@ public class PerfilesRepo : Repository<Perfiles, PerfilesModel>
     {
         return base.Get(p => p.idPerfil == Id).FirstOrDefault();
     }
-
     public IEnumerable<VistasModel> GetPermisos(int? idPerfil)
     {
         int id = idPerfil ?? 0;
@@ -51,13 +50,11 @@ public class PerfilesRepo : Repository<Perfiles, PerfilesModel>
                    Orden = v.Orden
                };
     }
-
     public IEnumerable<UsuariosModel> GetUsuarios(int idPerfil)
     {
         UsuariosRepo usuariosRepo = new UsuariosRepo(dbContext);
         return usuariosRepo.Get(x => x.idPerfil == idPerfil);
     }
-
     public override Perfiles Add(PerfilesModel model)
     {
         using var trx = dbContext.Database.BeginTransaction();
@@ -98,70 +95,85 @@ public class PerfilesRepo : Repository<Perfiles, PerfilesModel>
             throw;
         }
     }
-
     public override void Edit(PerfilesModel model)
+{
+    using var trx = dbContext.Database.BeginTransaction();
+    try
     {
-        using var trx = dbContext.Database.BeginTransaction();
-        try
+        // Asegurarse que solo un perfil sea marcado como porDefecto
+        if (model.porDefecto ?? false)
         {
-            if (model.porDefecto ?? false)
-            {
-                dbContext.Set<Perfiles>().ToList().ForEach(p => p.porDefecto = false);
-                SaveChanges();
-            }
+            var todos = dbContext.Set<Perfiles>().ToList();
+            todos.ForEach(p => p.porDefecto = false);
+            SaveChanges();
+        }
 
-           
-            var perfilExistente = dbContext.Set<Perfiles>().FirstOrDefault(p => p.idPerfil == model.idPerfil);
-            if (perfilExistente != null)
-            {
-                perfilExistente.Nombre = model.Nombre;
-                perfilExistente.Descripcion = model.Descripcion;
-                perfilExistente.porDefecto = model.porDefecto ?? false;
-                SaveChanges();
-            }
+            // Obtener entidad original desde el contexto
+            var perfilEntity = dbContext.Set<Perfiles>()
+         .FirstOrDefault(p => p.idPerfil == model.idPerfil);
 
+            if (perfilEntity == null)
+                throw new Exception("Perfil no encontrado.");
+
+            // Aplicar los cambios del modelo a la entidad del contexto
+            perfilEntity.Nombre = model.Nombre?.Trim();
+            perfilEntity.Descripcion = model.Descripcion?.Trim();
+            perfilEntity.porDefecto = model.porDefecto ?? false;
+
+            // Guardar
+            SaveChanges();
+
+            // Eliminar permisos anteriores
             var permisosSet = dbContext.Set<perfilesVistas>();
-            permisosSet.RemoveRange(permisosSet.Where(p => p.idPerfil == model.idPerfil));
+        var anteriores = permisosSet.Where(p => p.idPerfil == model.idPerfil).ToList();
+        dbContext.RemoveRange(anteriores);
+        SaveChanges();
 
-            if (model.Vistas != null)
-            {
-                var newPermisos = model.Vistas.Where(v => v.Permiso);
-                permisosSet.AddRange(newPermisos.Select(p => new perfilesVistas
+        // Agregar nuevos permisos
+        if (model.Vistas != null)
+        {
+            var nuevos = model.Vistas
+                .Where(v => v.Permiso)
+                .Select(v => new perfilesVistas
                 {
                     idPerfil = model.idPerfil,
-                    idVista = p.idVista
-                }));
-                SaveChanges();
-            }
-
-        
-            if (model.Usuarios != null)
-            {
-                var usuariosIds = model.Usuarios.Select(u => u.IdUsuario);
-                var usuarios = dbContext.Set<Usuarios>().Where(u => usuariosIds.Contains(u.idUsuario)).ToList();
-                usuarios.ForEach(u => u.idPerfil = model.idPerfil);
-                SaveChanges();
-            }
-
-            trx.Commit();
+                    idVista = v.idVista
+                });
+            dbContext.AddRange(nuevos);
+            SaveChanges();
         }
-        catch
+
+        // Asignar usuarios si vinieran
+        if (model.Usuarios != null)
         {
-            trx.Rollback();
-            throw;
+            var idsUsuarios = model.Usuarios.Select(u => u.IdUsuario).ToList();
+            var usuarios = dbContext.Set<Usuarios>()
+                .Where(u => idsUsuarios.Contains(u.idUsuario)).ToList();
+
+            usuarios.ForEach(u => u.idPerfil = model.idPerfil);
+            SaveChanges();
         }
+
+        trx.Commit();
     }
-
-
+    catch
+    {
+        trx.Rollback();
+        throw;
+    }
+}
     public override void Delete(int id)
     {
         using var trx = dbContext.Database.BeginTransaction();
         try
         {
-            base.Delete(id);
-
+            // Primero borra las relaciones
             var permisos = dbContext.Set<perfilesVistas>().Where(a => a.idPerfil == id);
             dbContext.RemoveRange(permisos);
+            SaveChanges();
+
+            // Luego borra el perfil
+            base.Delete(id);
             SaveChanges();
 
             trx.Commit();
@@ -172,7 +184,13 @@ public class PerfilesRepo : Repository<Perfiles, PerfilesModel>
             throw;
         }
     }
-
+    //public int?[]? VistasIdsCanAccess(int idUsuario)
+    //{
+    //    var vistasPermitidas = (from u in dbContext.Set<Usuarios>().Where(u1 => u1.idUsuario == idUsuario)
+    //                            join pv in dbContext.Set<perfilesVistas>() on u.UIdPerfil equals pv.IdPerfil
+    //                            select pv.IdVista).ToArray();
+    //    return vistasPermitidas;
+    //}
     public bool CanAccess(int idUsuario, int[] idVistas)
     {
         var query = from u in dbContext.Set<Usuarios>().Where(u => u.idUsuario == idUsuario && u.Activo)
@@ -181,12 +199,18 @@ public class PerfilesRepo : Repository<Perfiles, PerfilesModel>
 
         return query.Any();
     }
+    //public bool CanAccess(int idUsuario, List<int> idVistas)
+    //{
+    //    var PVSet = from u in dbContext.Set<Usuario>().Where(u => u.IdUsuario == idUsuario && u.UActivo == true)
+    //                join pv in dbContext.Set<PerfilVistum>().Where(a => idVistas.Contains(a.IdVista ?? 0)) on u.UIdPerfil equals pv.IdPerfil
+    //                select pv;
 
+    //    return PVSet.Any();
+    //}
     public int GetPerfilDefault()
     {
         return base.Get(x => x.porDefecto == true).First().idPerfil;
     }
-
     public IEnumerable<VistasModel> GetVistas()
     {
         return from v in dbContext.Set<vistas>()
@@ -202,9 +226,9 @@ public class PerfilesRepo : Repository<Perfiles, PerfilesModel>
                    Orden = v.Orden
                };
     }
-
     public bool CanDelete(int id)
     {
         return !dbContext.Set<Usuarios>().Any(u => u.idPerfil == id);
     }
+  
 }
