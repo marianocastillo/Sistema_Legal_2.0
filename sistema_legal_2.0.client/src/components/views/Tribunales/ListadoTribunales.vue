@@ -297,7 +297,7 @@ function soloNumeros(event) {
           <th>Dirección</th>
           <th>Provincia</th>
           <th>Estado</th>
-          <th class="text-center">Acciones</th>
+          <th class="text-center" :style="{ width: '120px' }">Acciones</th>
         </tr>
       </thead>
       <tbody>
@@ -312,7 +312,7 @@ function soloNumeros(event) {
               {{ tribunal.estatus ? 'Activo' : 'Inactivo' }}
             </span>
           </td>
-          <td class="text-center">
+          <td class="text-end ">
             <div class="btn-group">
               <button class="btn btn-sm btn-hover" style="background-color: #003870;"
                 @click="abrirFormularioEditar(tribunal)">
@@ -566,5 +566,4 @@ thead th {
   color: #aaa;
   pointer-events: none;
 }
-
 </style>
