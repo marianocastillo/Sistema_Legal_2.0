@@ -1,6 +1,6 @@
 <template>
   <Dialog v-model:visible="dialogVisibleSala" modal :header="`Salas del Tribunal: ${props.nombreTribunal}`"
-    class="dialog-salas" :style="{ width: '70%', height: '85vh' }">
+    class="dialog-salas" :style="{ width: '50%', height: '85vh' }">
 
     <div class="card p-4">
       <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
@@ -23,15 +23,15 @@
         <thead class="table-light">
           <tr>
             <th>Sala</th>
-            <th class="text-end pe-2">Acciones</th>
+            <th class="text-center" :style="{ width: '80px' }">Acciones</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="sala in paginatedSalas" :key="sala.idSala">
             <td>{{ sala.nombre }}</td>
-            <td class="text-end">
+            <td class="text-end pe-2 ps-2">
               <div class="btn-group">
-                <button class="btn btn-sm btn-hover" style="background-color: #003870;" @click="editarSala(sala)">
+                <button class="btn btn-sm btn-hover me-1" style="background-color: #003870;" @click="editarSala(sala)">
                   <i class="pi pi-pencil white-icon"></i>
                 </button>
                 <button class="btn btn-sm btn-hover" style="background-color: #003870;"
