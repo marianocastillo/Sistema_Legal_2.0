@@ -206,7 +206,7 @@ export default {
           activo: false,
           IdSupervisor: usuarioLogueado?.idUsuario || 0
         };
-        this.$router.push('/listadodeusuario');
+        this.$router.push('/Usuarios');
       }
       else {
         if (response.data.errors) this.errors = response.data.errors;

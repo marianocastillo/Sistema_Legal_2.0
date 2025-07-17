@@ -9,6 +9,7 @@ public class VistasModel
     public string Nombre { get; set; }
     public string Descripcion { get; set; }
     public string Url { get; set; }
+    public int? idPadre { get; set; }
     public int? idModulo { get; set; }
     public bool Permiso { get; set; }  // Indica si el perfil tiene acceso a esta vista
     public int? Principal { get; set; }  // ID del perfil para el que esta vista es principal

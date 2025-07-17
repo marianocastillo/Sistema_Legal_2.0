@@ -43,6 +43,7 @@ public class PerfilesRepo : Repository<Perfiles, PerfilesModel>
                    Nombre = v.nombre,
                    Descripcion = v.descripcion,
                    Url = v.url,
+                   idPadre = v.idPadre,
                    Permiso = permisosSet.Any(p => p.idVista == v.idVista),
                    idModulo = v.idModulo,
                    Principal = v.Principal,

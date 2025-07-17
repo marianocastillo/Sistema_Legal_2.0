@@ -31,7 +31,7 @@ const calendarConfig = {
 
 onMounted(async () => {
   window.__goToDetalle = (id) => {
-    router.push(`/litigio/detalle/${id}`)
+    router.push(`/Detalles/${id}`)
   }
 
   try {
@@ -56,10 +56,11 @@ onMounted(async () => {
             icon: 'pi pi-eye',
             label: 'Ver Detalle',
             onClick: () => {
-              router.push(`/litigio/detalle/${a.id_Ltg}`)
+              router.push(`/Detalles/${a.id_Ltg}`)
             }
           }
         ]
+
       }
     })
 

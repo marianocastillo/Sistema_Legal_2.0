@@ -12,7 +12,7 @@
         <br />
         <nav class="sidebar-menu">
           <ul class="contenedor-menu">
-            <!-- Inicio: Todos los roles -->
+            <!-- Inicio -->
             <li>
               <router-link :to="rutaInicio" class="sidebar-link" exact-active-class="active">
                 <i class="pi pi-home" />
@@ -20,74 +20,19 @@
               </router-link>
             </li>
 
-
-              <router-link to="/registrar" class="sidebar-link" exact-active-class="active">
-                <i class="pi pi-file-edit" />
-                <span>Registrar</span>
+            <!-- Vistas dinámicas con principal === true -->
+            <li v-for="vista in vistasPrincipales" :key="vista.idVista">
+              <router-link :to="vista.url" class="sidebar-link" exact-active-class="active">
+                <i :class="vista.iconClass || 'pi pi-home'" />
+                <span>{{ vista.nombre }}</span>
               </router-link>
-
-
-
-              <router-link to="/buscarlitigio" class="sidebar-link" exact-active-class="active">
-                <i class="pi pi-pencil" />
-                <span>Modificar</span>
-              </router-link>
-
-              <a href="#" class="sidebar-link" @click.prevent="mostrarDialogoTribunales = true">
-                <i class="pi pi-building" />
-                <span>Tribunales</span>
-              </a>
-
-
-              <router-link to="/Perfiles" class="sidebar-link" exact-active-class="active">
-                <i class="pi pi-sitemap" />
-                <span>Perfiles</span>
-              </router-link>
-
-
-
-              <router-link to="/Calendario" class="sidebar-link" exact-active-class="active">
-                <i class="pi pi-calendar" />
-                <span>Calendario</span>
-              </router-link>
-
-
-            <!-- Configuración: visible para todos -->
-            <!-- <li ref="submenuRef">
-              <div class="sidebar-link" @click="toggleSubmenu" style="cursor: pointer;">
-                <i class="pi pi-cog" />
-                <span>Configuración</span>
-                <i class="pi pi-chevron-down ml-auto" :class="{ 'rotate-180': mostrarSubmenu }" />
-              </div>
-
-              <ul v-if="mostrarSubmenu" class="submenu">
-
-                <li v-if="usuario.rol === 'Administrador'">
-                  <router-link to="/listadodeusuario">
-                    <Button label="Lista de Usuario" icon="pi pi-user" class="p-button-text p-button-sm w-full" />
-                  </router-link>
-                </li>
->
-                <li v-if="usuario.rol === 'Administrador'">
-                  <router-link to="/formulario">
-                    <Button label="Añadir Usuario" icon="pi pi-user" class="p-button-text p-button-sm w-full" />
-                  </router-link>
-                </li>
-
-                <li>
-                  <Button label="Cerrar sesión" icon="pi pi-sign-out" class="p-button-text p-button-sm w-full"
-                    @click="cerrarSesion" />
-                </li>
-              </ul>
-            </li> -->
+            </li>
           </ul>
-
         </nav>
       </div>
 
       <teleport to="body">
         <ListadoTribunales v-model:visible="mostrarDialogoTribunales" />
-
       </teleport>
 
       <footer class="sidebar-footer">
@@ -117,7 +62,6 @@
         </div>
       </header>
 
-
       <main class="main-content">
         <router-view />
       </main>
@@ -125,32 +69,48 @@
   </div>
 </template>
 
-
 <script setup>
-import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { cerrarSesion } from '@/utilities/auth';
-import Button from 'primevue/button';
-import Menu from 'primevue/menu';
-import Avatar from 'primevue/avatar';
-import { push } from 'notivue';
-import ListadoTribunales from '@/components/views/Tribunales/ListadoTribunales.vue';
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import axios from 'axios'
+import { cerrarSesion } from '@/utilities/auth'
+import Button from 'primevue/button'
+import Menu from 'primevue/menu'
+import Avatar from 'primevue/avatar'
+import { push } from 'notivue'
+import ListadoTribunales from '@/components/views/Tribunales/ListadoTribunales.vue'
 
-
-const router = useRouter();
+const router = useRouter()
 
 const mostrarDialogoTribunales = ref(false)
+const mostrarSubmenu = ref(false)
+const submenuRef = ref(null)
+const isSidebarVisible = ref(true)
+const menu = ref()
 
-const rutaInicio = ref('');
-const mostrarSubmenu = ref(false);
-const submenuRef = ref(null);
-const isSidebarVisible = ref(true);
-const menu = ref(); // Ref para el dropdown Menu
+const usuario = ref({ nombre: '', rol: '', perfil: null })
+const rutaInicio = ref('')
+const vistasPrincipales = ref([])
 
-const usuario = ref({ nombre: '', rol: '', perfil: null });
-const isMobile = computed(() => window.innerWidth <= 768);
+const isMobile = computed(() => window.innerWidth <= 768)
 
-// Dropdown items del usuario
+const toggleSubmenu = () => {
+  mostrarSubmenu.value = !mostrarSubmenu.value
+}
+
+const toggleSidebar = () => {
+  isSidebarVisible.value = !isSidebarVisible.value
+}
+
+const toggleMenu = (event) => {
+  menu.value.toggle(event)
+}
+
+const getInitials = (name) => {
+  if (!name) return ''
+  return name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase()
+}
+
 const items = computed(() => {
   const opciones = []
 
@@ -158,73 +118,50 @@ const items = computed(() => {
     opciones.push({
       label: 'Manejo de usuarios',
       icon: 'pi pi-user-edit',
-      command: () => {
-        router.push('/Usuarios')
-      }
+      command: () => router.push('/Usuarios')
     })
   }
 
-  // Cerrar sesión siempre disponible
   opciones.push({
     label: 'Cerrar sesión',
     icon: 'pi pi-sign-out',
-    command: () => {
-      cerrarSesion()
-    }
+    command: cerrarSesion
   })
 
   return opciones
 })
 
-
-const toggleSubmenu = () => {
-  mostrarSubmenu.value = !mostrarSubmenu.value;
-};
-
-const toggleSidebar = () => {
-  isSidebarVisible.value = !isSidebarVisible.value;
-};
-
-const toggleMenu = (event) => {
-  menu.value.toggle(event);
-};
-
 const handleClickOutside = (e) => {
   if (submenuRef.value && !submenuRef.value.contains(e.target)) {
-    mostrarSubmenu.value = false;
+    mostrarSubmenu.value = false
   }
-};
+}
 
-const getInitials = (name) => {
-  if (!name) return '';
-  return name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
-};
-
-onMounted(() => {
-  const stored = localStorage.getItem('usuario');
+onMounted(async () => {
+  const stored = localStorage.getItem('usuario')
   if (stored) {
-    usuario.value = JSON.parse(stored);
+    usuario.value = JSON.parse(stored)
+    const idPerfil = usuario.value.perfil
 
-    const perfilId = parseInt(usuario.value.perfil);
-    const rutasPorPerfil = {
-      1: '/GestionLitigios',
-      2: '/GestionLitigios',
-      3: '/LitigiosRegistrados',
-      4: '/abogado/inicio'
-    };
+    try {
+      const res = await axios.get(`https://localhost:7177/api/Perfiles/GetPermisos/${idPerfil}`)
+      const vistas = res.data
 
-    rutaInicio.value = rutasPorPerfil[perfilId] || '/Seguimiento';
-
+      vistasPrincipales.value = vistas.filter(v => v.permiso && v.principal)
+      rutaInicio.value = vistasPrincipales.value[0]?.url || '/unauthorized'
+    } catch (error) {
+      console.error('Error cargando vistas del perfil:', error)
+      rutaInicio.value = '/unauthorized'
+    }
   }
 
-  document.addEventListener('click', handleClickOutside);
-});
+  document.addEventListener('click', handleClickOutside)
+})
 
 onBeforeUnmount(() => {
-  document.removeEventListener('click', handleClickOutside);
-});
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>
-
 
 <style scoped>
 *,
