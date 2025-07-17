@@ -1,3 +1,69 @@
+<script setup>
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { cerrarSesion } from '@/utilities/auth';
+import Button from 'primevue/button';
+import Menu from 'primevue/menu';
+import Avatar from 'primevue/avatar';
+import ListadoTribunales from '@/components/views/Tribunales/ListadoTribunales.vue';
+
+const router = useRouter();
+
+const mostrarDialogoTribunales = ref(false);
+const isSidebarVisible = ref(true);
+const menu = ref();
+
+const usuario = ref({ nombre: '', rol: '', perfil: null });
+const rutaInicio = ref('/');
+const vistasPermitidas = ref([]);
+
+const isMobile = computed(() => window.innerWidth <= 768);
+
+const toggleSidebar = () => {
+  isSidebarVisible.value = !isSidebarVisible.value;
+};
+
+const toggleMenu = (event) => {
+  menu.value.toggle(event);
+};
+
+const getInitials = (name) => {
+  if (!name) return '';
+  return name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
+};
+
+const items = computed(() => {
+  const opciones = [];
+
+  if (usuario.value.rol === 'Administrador') {
+    opciones.push({
+      label: 'Manejo de usuarios',
+      icon: 'pi pi-user-edit',
+      command: () => router.push('/Usuarios')
+    });
+  }
+
+  opciones.push({
+    label: 'Cerrar sesión',
+    icon: 'pi pi-sign-out',
+    command: cerrarSesion
+  });
+
+  return opciones;
+});
+
+onMounted(() => {
+  const stored = localStorage.getItem('usuario');
+  const storedInicio = localStorage.getItem('rutaInicio');
+  const storedVistas = localStorage.getItem('vistasPermitidas');
+
+  if (stored) usuario.value = JSON.parse(stored);
+  if (storedInicio) rutaInicio.value = storedInicio;
+  if (storedVistas) vistasPermitidas.value = JSON.parse(storedVistas);
+});
+
+</script>
+
 <template>
   <div class="layout">
     <!-- Sidebar -->
@@ -12,7 +78,7 @@
         <br />
         <nav class="sidebar-menu">
           <ul class="contenedor-menu">
-            <!-- Inicio -->
+            <!-- Botón Inicio -->
             <li>
               <router-link :to="rutaInicio" class="sidebar-link" exact-active-class="active">
                 <i class="pi pi-home" />
@@ -20,26 +86,24 @@
               </router-link>
             </li>
 
-            <!-- Vistas dinámicas con principal === true -->
-            <li v-for="vista in vistasPrincipales" :key="vista.idVista">
-              <router-link :to="vista.url" class="sidebar-link" exact-active-class="active">
+            <!-- Vistas dinámicas -->
+            <li v-for="vista in vistasPermitidas.filter(v => v.permiso && v.ruta && v.principal)" :key="vista.ruta">
+              <router-link :to="vista.ruta" class="sidebar-link" exact-active-class="active">
                 <i :class="vista.iconClass || 'pi pi-home'" />
-                <span>{{ vista.nombre }}</span>
+                <span>{{ vista.nombreVista }}</span>
               </router-link>
             </li>
+
+            <!-- Botón Tribunales (siempre accesible) -->
             <li>
               <a href="#" class="sidebar-link" @click.prevent="mostrarDialogoTribunales = true">
                 <i class="pi pi-building" />
                 <span>Tribunales</span>
               </a>
             </li>
-
-
           </ul>
         </nav>
       </div>
-
-
 
       <footer class="sidebar-footer">
         © 2025 Sistema Sileg 2.0
@@ -55,7 +119,6 @@
           </button>
         </div>
 
-        <!-- Bloque de usuario con dropdown -->
         <div v-if="usuario.nombre" class="user-dropdown">
           <button @click="toggleMenu" class="user-dropdown-btn">
             <Avatar :label="getInitials(usuario.nombre)" shape="circle" class="user-avatar" />
@@ -72,15 +135,15 @@
         <router-view />
       </main>
     </div>
+
+    <!-- Diálogo de Tribunales -->
+    <teleport to="body">
+      <ListadoTribunales v-model:visible="mostrarDialogoTribunales" />
+    </teleport>
   </div>
-
-<teleport to="body">
-  <ListadoTribunales v-model:visible="mostrarDialogoTribunales" />
-</teleport>
-
 </template>
+<script>
 
-<script setup>
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
@@ -150,25 +213,24 @@ const handleClickOutside = (e) => {
 }
 
 onMounted(async () => {
-  const stored = localStorage.getItem('usuario')
+  const stored = localStorage.getItem('usuario');
   if (stored) {
-    usuario.value = JSON.parse(stored)
-    const idPerfil = usuario.value.perfil
+    usuario.value = JSON.parse(stored);
+    const idPerfil = usuario.value.perfil;
 
     try {
-      const res = await axios.get(`https://localhost:7177/api/Perfiles/GetPermisos/${idPerfil}`)
-      const vistas = res.data
+      const res = await axios.get(`/api/Perfiles/GetVistasYInicio/${idPerfil}`);
+      const { rutaInicio, vistas } = res.data;
 
-      vistasPrincipales.value = vistas.filter(v => v.permiso && v.principal)
-      rutaInicio.value = vistasPrincipales.value[0]?.url || '/unauthorized'
+      rutaInicio.value = rutaInicio;
+      vistasPrincipales.value = vistas.filter(v => v.permiso && v.principal);
     } catch (error) {
-      console.error('Error cargando vistas del perfil:', error)
-      rutaInicio.value = '/unauthorized'
+      console.error('Error cargando vistas:', error);
+      rutaInicio.value = '/unauthorized';
     }
   }
+});
 
-  document.addEventListener('click', handleClickOutside)
-})
 
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)

@@ -444,6 +444,34 @@ public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
         }
 
 
+        [HttpGet("Litigio_detalladoSupervisor")]
+        public async Task<ActionResult<IEnumerable<LitigioDetalladoS>>> ObtenerLitigiosDetalladosSupervisor()
+        {
+            using var connection = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal"));
+
+            var resultado = await connection.QueryAsync<LitigioDetalladoS>(
+                "sp_ObtenerLitigiosDetalladosSupervisor",
+                commandType: CommandType.StoredProcedure
+            );
+
+            return Ok(resultado);
+        }
+
+
+        [HttpGet("Litigio_detalladoDigitador")]
+        public async Task<ActionResult<IEnumerable<LitigioDetallado>>> ObtenerLitigiosDetalladosDigitadores()
+        {
+            using var connection = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal"));
+
+            var resultado = await connection.QueryAsync<LitigioDetallado>(
+                "ObtenerLitigiosDigitadores",
+                commandType: CommandType.StoredProcedure
+            );
+
+            return Ok(resultado);
+        }
+
+
 
         [HttpGet("Litigio_Asignaciones")]
         public async Task<ActionResult<IEnumerable<LitigiosAsignadosAbogados>>> GetLitigiosAsignados([FromQuery] int idUsuario)

@@ -149,9 +149,11 @@ router.beforeEach((to, from, next) => {
 
   const rutaActual = to.path.toLowerCase();
 
-  const autorizada = vistasPermitidas.some(v =>
-    rutaActual.startsWith(v.toLowerCase())
-  );
+const autorizada = vistasPermitidas.some(v =>
+  v.permiso && typeof v.ruta === 'string' && rutaActual.startsWith(v.ruta.toLowerCase())
+);
+
+
 
   if (!autorizada && to.name !== 'Unauthorized') {
     return next({ name: 'Unauthorized' });

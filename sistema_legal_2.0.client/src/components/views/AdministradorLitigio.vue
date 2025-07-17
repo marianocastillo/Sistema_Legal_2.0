@@ -80,13 +80,13 @@
                 <i class="pi pi-eye white-icon"></i>
               </button>
             <!-- Modificar -->
-            <button class="btn btn-sm" @click="modificarLitigio(data)"
+            <button class="btn btn-sm btn-hover" @click="modificarLitigio(data)"
               style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;" v-tooltip="'Modificar litigio'">
               <i class="pi pi-pencil white-icon"></i>
             </button>
 
             <!-- Asignar -->
-            <button v-if="mostrarAsignar" class="btn btn-sm" @click="togglePopUp(data)"
+            <button v-if="mostrarAsignar" class="btn btn-sm btn-hover" @click="togglePopUp(data)"
               style="background-color: #003870; border-color: #003870;" v-tooltip="'Asignar abogado'">
               <i class="pi pi-user-edit white-icon"></i>
             </button>
@@ -179,53 +179,33 @@ function calculateRows() {
   const estimatedRowHeight = 50;
   rows.value = Math.max(Math.floor(tableHeight / estimatedRowHeight) - 1, 1);
 }
-
-// Botones de filtro
 function mostrarSinAsignar() {
   filtroActivo.value = 'sinAsignar';
-  const filtrados = todosLosLitigios.value.filter(
-    l => l.estatus_Descripcion?.toLowerCase().trim() === 'recibido'
-  );
+  const filtrados = todosLosLitigios.value.filter(l => l.asignado === false);
   data.value = filtrados;
-  console.log(data.value);
   totalSinAsignar.value = filtrados.length;
 }
 
+
 function mostrarAsignados() {
   filtroActivo.value = 'asignado';
-  const filtrados = todosLosLitigios.value.filter(
-    l => l.estatus_Descripcion?.toLowerCase().trim() !== 'recibido' &&
-      l.estatus_Descripcion?.toLowerCase().trim() !== 'cierre del caso'
-  );
+  const filtrados = todosLosLitigios.value.filter(l => l.asignado === true);
   data.value = filtrados;
-  totalAsignados.value = filtrados.length; // NUEVO
+  totalAsignados.value = filtrados.length;
 }
 
 
 function actualizarTotales() {
-  totalSinAsignar.value = todosLosLitigios.value.filter(
-    l => l.estatus_Descripcion?.toLowerCase().trim() === 'recibido'
-  ).length;
-
-  totalAsignados.value = todosLosLitigios.value.filter(
-    l => l.estatus_Descripcion?.toLowerCase().trim() !== 'recibido' &&
-      l.estatus_Descripcion?.toLowerCase().trim() !== 'cierre del caso'
-  ).length;
+  totalSinAsignar.value = todosLosLitigios.value.filter(l => l.asignado === false).length;
+  totalAsignados.value = todosLosLitigios.value.filter(l => l.asignado === true).length;
 }
 
 function handleAsignacionExitosa() {
-  // Recargar todos los litigios desde el backend
-  api.get('/api/Litigio/Litigio_detallado')
+  api.get('/api/Litigio/Litigio_detalladoSupervisor') // NUEVO ENDPOINT
     .then(response => {
       todosLosLitigios.value = response.data;
       actualizarTotales();
-      // Dependiendo del filtro actual, muestra la tabla correcta
-      if (filtroActivo.value === 'sinAsignar') {
-        mostrarSinAsignar();
-      } else {
-        mostrarAsignados();
-      }
-
+      filtroActivo.value === 'sinAsignar' ? mostrarSinAsignar() : mostrarAsignados();
     })
     .catch(error => {
       console.error("Error al actualizar tabla:", error);
@@ -237,13 +217,15 @@ onMounted(async () => {
   window.addEventListener('resize', calculateRows);
 
   try {
-    const response = await api.get('/api/Litigio/Litigio_detallado');
+    const response = await api.get('/api/Litigio/Litigio_detalladoSupervisor');
     todosLosLitigios.value = response.data;
-    // Calcula todos los totales correctamente
+
     actualizarTotales();
     mostrarAsignados();
+    console.log('✅ Datos recibidos:', response.data);
+// O mostrarSinAsignar()
   } catch (error) {
-    console.error('Error al cargar litigios:', error);
+    console.error('❌ Error al cargar litigios:', error);
   }
 });
 

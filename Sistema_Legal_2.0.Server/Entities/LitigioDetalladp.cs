@@ -1,4 +1,6 @@
-﻿namespace Sistema_Legal_2._0.Server.Entities
+﻿using Sistema_Legal_2._0.Server.Models;
+
+namespace Sistema_Legal_2._0.Server.Entities
 {
     public class LitigioDetallado
     {
@@ -29,6 +31,22 @@
         public string? desc_Sentencia { get; set; }
 
   
+        public int? ltg_estatus { get; set; }
+        public string? Estatus_Descripcion { get; set; }
+    }
+
+    public class LitigioDetalladoS
+    {
+        public int id_Ltg { get; set; }
+        public string ltg_acto { get; set; }
+        public DateTime? ltg_Fecha_Acto { get; set; }
+        public string? TipoDemanda_Nombre { get; set; }
+        public string? ltg_Cedula_Demandante { get; set; }
+        public string? ltg_Nombre_Demandante { get; set; }
+
+        public DateTime? ltg_Fecha_Audiencia { get; set; }
+        public string? desc_Sentencia { get; set; }
+        public bool Asignado {  get; set; }
         public int? ltg_estatus { get; set; }
         public string? Estatus_Descripcion { get; set; }
     }

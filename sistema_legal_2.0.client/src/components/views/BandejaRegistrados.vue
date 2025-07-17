@@ -109,7 +109,6 @@ import AsignarAbogado from '@/components/views/AsignarAbogado.vue';
 // Variables de estado para la gestión de litigios
 const router = useRouter()
 const data = ref([]);
-const todosLosLitigios = ref([]);
 const registrar = ref('/registrar');
 const rows = ref(10);
 const popUp = ref(false);
@@ -164,9 +163,9 @@ function calculateRows() {
 
 function handleAsignacionExitosa() {
   // Recargar todos los litigios desde el backend
-  api.get('/api/Litigio/Litigio_detallado')
+  api.get('/api/Litigio/Litigio_detalladoDigitador')
     .then(response => {
-      todosLosLitigios.value = response.data;
+    data.value = response.data;
 
     })
     .catch(error => {
@@ -179,13 +178,8 @@ onMounted(async () => {
   window.addEventListener('resize', calculateRows);
 
   try {
-    const response = await api.get('/api/Litigio/Litigio_detallado');
-    todosLosLitigios.value = response.data;
-
-    // ✅ Filtrar litigios con estatus "Recibido"
-    data.value = todosLosLitigios.value.filter(
-      l => l.estatus_Descripcion?.toLowerCase().trim() === 'recibido'
-    );
+    const response = await api.get('/api/Litigio/Litigio_detalladoDigitador');
+    data.value = response.data;
 
   } catch (error) {
     console.error('Error al cargar litigios:', error);
