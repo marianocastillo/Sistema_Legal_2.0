@@ -1,3 +1,9 @@
+¡Buena idea! Aquí tienes una versión divertida de la página de Unauthorized (403) con un pequeño "juego estilo Dino de Google", usando solo Vue y JavaScript sin dependencias externas. Es un mini juego de salto para esquivar obstáculos 👇
+
+✅ CÓDIGO COMPLETO
+vue
+Copiar
+Editar
 <template>
   <div class="unauthorized-page">
     <h1>403 - Acceso no autorizado</h1>
@@ -6,31 +12,89 @@
     <router-link :to="rutaInicio">
       <button class="back-btn">Volver al inicio</button>
     </router-link>
+
+    <!-- Mini juego -->
+    <div class="game-container">
+      <div class="player" :class="{ jump: isJumping }"></div>
+      <div class="obstacle" :style="{ left: obstacleLeft + 'px' }"></div>
+    </div>
+    <p v-if="gameOver" class="game-over-text">¡Perdiste! Presiona espacio para volver a intentarlo.</p>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 
-const rutaInicio = ref('/home');
+const rutaInicio = ref('/');
+const isJumping = ref(false);
+const obstacleLeft = ref(600);
+const gameOver = ref(false);
+let jumpTimeout = null;
+let obstacleInterval = null;
 
 onMounted(() => {
-  const rawUser = localStorage.getItem('usuario');
-  const user = rawUser ? JSON.parse(rawUser) : null;
+  const storedRuta = localStorage.getItem('rutaInicio');
+  rutaInicio.value = storedRuta || '/';
 
-  if (user) {
-    const perfilId = parseInt(user.perfil);
-    const rutasPorPerfil = {
-      1: '/GestionLitigios',
-      2: '/GestionLitigios',
-      3: '/digitador/inicio',
-      4: '/abogado/inicio'
-    };
+  // Movimiento del obstáculo
+  obstacleInterval = setInterval(() => {
+    if (obstacleLeft.value > -20) {
+      obstacleLeft.value -= 10;
+    } else {
+      obstacleLeft.value = 600;
+    }
 
-    rutaInicio.value = rutasPorPerfil[perfilId] || '/home';
-  }
+    // Colisión simple
+    if (obstacleLeft.value < 50 && obstacleLeft.value > 0 && !isJumping.value) {
+      gameOver.value = true;
+      clearInterval(obstacleInterval);
+    }
+  }, 50);
 
+  window.addEventListener('keydown', handleKeyDown);
 });
+
+onUnmounted(() => {
+  clearInterval(obstacleInterval);
+  window.removeEventListener('keydown', handleKeyDown);
+});
+
+function handleKeyDown(e) {
+  if (e.code === 'Space') {
+    if (gameOver.value) {
+      restartGame();
+    } else {
+      jump();
+    }
+  }
+}
+
+function jump() {
+  if (isJumping.value) return;
+  isJumping.value = true;
+  jumpTimeout = setTimeout(() => {
+    isJumping.value = false;
+  }, 500);
+}
+
+function restartGame() {
+  obstacleLeft.value = 600;
+  gameOver.value = false;
+  isJumping.value = false;
+
+  obstacleInterval = setInterval(() => {
+    if (obstacleLeft.value > -20) {
+      obstacleLeft.value -= 10;
+    } else {
+      obstacleLeft.value = 600;
+    }
+
+    if (obstacleLeft.value < 50 && obstacleLeft.value > 0 && !isJumping.value) {
+      gameOver.value = true;
+      clearInterval(obstacleInterval);
+    }
+  }, 50);
+}
 </script>
 
 <style scoped>
