@@ -27,13 +27,19 @@
                 <span>{{ vista.nombre }}</span>
               </router-link>
             </li>
+            <li>
+              <a href="#" class="sidebar-link" @click.prevent="mostrarDialogoTribunales = true">
+                <i class="pi pi-building" />
+                <span>Tribunales</span>
+              </a>
+            </li>
+
+
           </ul>
         </nav>
       </div>
 
-      <teleport to="body">
-        <ListadoTribunales v-model:visible="mostrarDialogoTribunales" />
-      </teleport>
+
 
       <footer class="sidebar-footer">
         © 2025 Sistema Sileg 2.0
@@ -67,6 +73,11 @@
       </main>
     </div>
   </div>
+
+<teleport to="body">
+  <ListadoTribunales v-model:visible="mostrarDialogoTribunales" />
+</teleport>
+
 </template>
 
 <script setup>
@@ -87,6 +98,7 @@ const mostrarSubmenu = ref(false)
 const submenuRef = ref(null)
 const isSidebarVisible = ref(true)
 const menu = ref()
+
 
 const usuario = ref({ nombre: '', rol: '', perfil: null })
 const rutaInicio = ref('')

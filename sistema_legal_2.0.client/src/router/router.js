@@ -17,7 +17,6 @@ import Qalendar from '@/components/views/Qalendar.vue';
 import PerfilesMantenimiento from '@/components/views/Perfiles/PerfilesMantenimiento.vue';
 import Unauthorized from '@/components/views/Unauthorized.vue';
 import LitigioDetalle from '@/components/views/LitigioMostrar.vue';
-
 const routes = [
   {
     path: '/',

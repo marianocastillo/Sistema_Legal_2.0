@@ -1,5 +1,3 @@
-
-
 <template>
   <div class="card p-6 shadow-2" style="max-height: 80vh; overflow-y: auto;">
     <div class="flex justify-content-between items-center mb-6 flex-wrap gap-2">
@@ -15,8 +13,8 @@
           @click="usuario.activo = false" :disabled="!usuario.withData">
           <i class="fa-solid fa-user-lock me-1"></i> Inactivar
         </button>
-        <button v-else class="btn btn-sm text-white" style="background-color: #003870;"
-          @click="usuario.activo = true" :disabled="!usuario.withData">
+        <button v-else class="btn btn-sm text-white" style="background-color: #003870;" @click="usuario.activo = true"
+          :disabled="!usuario.withData">
           <i class="fa-solid fa-user-check me-1"></i> Activar
         </button>
 
@@ -33,63 +31,40 @@
       <h3 class="text-lg font-semibold mb-4">Datos del Usuario</h3>
 
       <div class="grid p-fluid">
-  <div class="field col-12 md:col-3">
-    <label class="form-label">Usuario <span class="text-danger" v-if="errors.NombreUsuario">*</span></label>
-    <input
-      type="text"
-      class="form-control w-full"
-      :disabled="FormMode == FormModes.Editar"
-      v-model="usuario.nombreUsuario"
-      placeholder="Digite el usuario de AD"
-      @keyup.enter="LoadUsuarioByAD"
-      @blur="LoadUsuarioByAD"
-      :class="{ 'is-invalid': errors.NombreUsuario }"
-    />
-    <div class="invalid-feedback" v-if="errors.NombreUsuario">{{ errors.NombreUsuario }}</div>
-  </div>
+        <div class="field col-12 md:col-3">
+          <label class="form-label">Usuario <span class="text-danger" v-if="errors.NombreUsuario">*</span></label>
+          <input type="text" class="form-control w-full" :disabled="FormMode == FormModes.Editar"
+            v-model="usuario.nombreUsuario" placeholder="Digite el usuario de AD" @keyup.enter="LoadUsuarioByAD"
+            @blur="LoadUsuarioByAD" :class="{ 'is-invalid': errors.NombreUsuario }" />
+          <div class="invalid-feedback" v-if="errors.NombreUsuario">{{ errors.NombreUsuario }}</div>
+        </div>
 
-  <div class="field col-12 md:col-3">
-    <label class="form-label">Nombres <span class="text-danger" v-if="errors.Nombres">*</span></label>
-    <input
-      type="text"
-      class="form-control w-full"
-      disabled
-      v-model="usuario.nombres"
-      placeholder="Nombres del usuario"
-      :class="{ 'is-invalid': errors.Nombres }"
-    />
-    <div class="invalid-feedback" v-if="errors.Nombres">{{ errors.Nombres }}</div>
-  </div>
+        <div class="field col-12 md:col-3">
+          <label class="form-label">Nombres <span class="text-danger" v-if="errors.Nombres">*</span></label>
+          <input type="text" class="form-control w-full" disabled v-model="usuario.nombres"
+            placeholder="Nombres del usuario" :class="{ 'is-invalid': errors.Nombres }" />
+          <div class="invalid-feedback" v-if="errors.Nombres">{{ errors.Nombres }}</div>
+        </div>
 
-  <div class="field col-12 md:col-3">
-    <label class="form-label">Apellidos <span class="text-danger" v-if="errors.Apellidos">*</span></label>
-    <input
-      type="text"
-      class="form-control w-full"
-      disabled
-      v-model="usuario.apellidos"
-      placeholder="Apellidos del usuario"
-      :class="{ 'is-invalid': errors.Apellidos }"
-    />
-    <div class="invalid-feedback" v-if="errors.Apellidos">{{ errors.Apellidos }}</div>
-  </div>
+        <div class="field col-12 md:col-3">
+          <label class="form-label">Apellidos <span class="text-danger" v-if="errors.Apellidos">*</span></label>
+          <input type="text" class="form-control w-full" disabled v-model="usuario.apellidos"
+            placeholder="Apellidos del usuario" :class="{ 'is-invalid': errors.Apellidos }" />
+          <div class="invalid-feedback" v-if="errors.Apellidos">{{ errors.Apellidos }}</div>
+        </div>
 
-  <div class="field col-12 md:col-3">
-    <label class="form-label">Perfil <span class="text-danger" v-if="errors.IdPerfil">*</span></label>
-    <select
-      class="form-select w-full"
-      v-model="usuario.idPerfil"
-      :disabled="!usuario.withData"
-      :class="{ 'is-invalid': errors.IdPerfil }"
-    >
-      <option value="">Seleccionar...</option>
-      <option v-for="perfil in perfiles" :key="perfil.idPerfil" :value="perfil.idPerfil">
-        {{ perfil.nombre }}
-      </option>
-    </select>
-    <div class="invalid-feedback" v-if="errors.IdPerfil">{{ errors.IdPerfil }}</div>
-  </div>
-</div>
+        <div class="field col-12 md:col-3">
+          <label class="form-label">Perfil <span class="text-danger" v-if="errors.IdPerfil">*</span></label>
+          <select class="form-select w-full" v-model="usuario.idPerfil" :disabled="!usuario.withData"
+            :class="{ 'is-invalid': errors.IdPerfil }">
+            <option value="">Seleccionar...</option>
+            <option v-for="perfil in perfiles" :key="perfil.idPerfil" :value="perfil.idPerfil">
+              {{ perfil.nombre }}
+            </option>
+          </select>
+          <div class="invalid-feedback" v-if="errors.IdPerfil">{{ errors.IdPerfil }}</div>
+        </div>
+      </div>
 
     </div>
   </div>
@@ -190,6 +165,8 @@ export default {
     async Guardar() {
       const usuarioLogueado = JSON.parse(localStorage.getItem('usuario'))
       this.usuario.IdSupervisor = usuarioLogueado?.idUsuario || 0
+      console.log('FormMode:', this.FormMode);
+      console.log('FormModes.Editar:', this.FormModes.Editar);
 
 
       const response = await api[this.FormMode == this.FormModes.Editar ? 'put' : 'post']('/api/Usuarios', this.usuario);
@@ -217,11 +194,10 @@ export default {
 
 
 
+GetFormMode() {
+  return this.idUsuario ? this.FormModes.Editar : this.FormModes.Nuevo;
+}
 
-    GetFormMode() {
-      if (this.$route.name == "Nuevo Usuario") return this.FormModes.Nuevo;
-      if (this.$route.name == "Configuracion Usuarios") return this.FormModes.Editar;
-    },
   }
 }
 </script>
@@ -284,4 +260,3 @@ export default {
   }
 }
 </style>
-
