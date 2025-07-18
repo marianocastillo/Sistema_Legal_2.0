@@ -1,7 +1,15 @@
 <template>
   <div class="layout">
+
     <!-- Sidebar -->
-    <aside class="sidebar" :class="{ hidden: !isSidebarVisible && isMobile }">
+    <aside class="sidebar" :class="{
+      collapsed: isSidebarCollapsed && isResponsive,
+      expanded: !isSidebarCollapsed && isResponsive,
+      hidden: isMobile && !isSidebarVisible
+    }" @mouseenter="isResponsive ? isSidebarCollapsed = false : null"
+      @mouseleave="isResponsive ? isSidebarCollapsed = true : null">
+
+
       <div class="sidebar-top">
         <div class="sidebar-header">
           <div class="sidebar-brand">
@@ -47,7 +55,7 @@
     </aside>
 
     <!-- Main Content -->
-    <div class="main-wrapper">
+    <div class="main-wrapper" :style="{ marginLeft: isSidebarCollapsed ? '60px' : '250px' }">
       <header class="navbar">
         <div class="menu-placeholder">
           <button class="menu-button" @click="toggleSidebar" aria-label="Abrir menú">
@@ -74,9 +82,9 @@
     </div>
   </div>
 
-<teleport to="body">
-  <ListadoTribunales v-model:visible="mostrarDialogoTribunales" />
-</teleport>
+  <teleport to="body">
+    <ListadoTribunales v-model:visible="mostrarDialogoTribunales" />
+  </teleport>
 
 </template>
 
@@ -86,6 +94,7 @@ import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { cerrarSesion } from '@/utilities/auth'
 import Button from 'primevue/button'
+
 import Menu from 'primevue/menu'
 import Avatar from 'primevue/avatar'
 import { push } from 'notivue'
@@ -98,13 +107,17 @@ const mostrarSubmenu = ref(false)
 const submenuRef = ref(null)
 const isSidebarVisible = ref(true)
 const menu = ref()
+const isSidebarCollapsed = ref(true)
+const isMobile = computed(() => window.innerWidth <= 768)
+
 
 
 const usuario = ref({ nombre: '', rol: '', perfil: null })
 const rutaInicio = ref('')
 const vistasPrincipales = ref([])
 
-const isMobile = computed(() => window.innerWidth <= 768)
+const isResponsive = computed(() => window.innerWidth < 1200)
+
 
 const toggleSubmenu = () => {
   mostrarSubmenu.value = !mostrarSubmenu.value
@@ -149,7 +162,16 @@ const handleClickOutside = (e) => {
   }
 }
 
+const updateSidebarState = () => {
+  if (!isResponsive.value) {
+    isSidebarCollapsed.value = false
+  } else {
+    isSidebarCollapsed.value = true
+  }
+}
+
 onMounted(async () => {
+  // Carga de usuario y vistas
   const stored = localStorage.getItem('usuario')
   if (stored) {
     usuario.value = JSON.parse(stored)
@@ -167,13 +189,29 @@ onMounted(async () => {
     }
   }
 
+  // Cierre del menú de usuario
   document.addEventListener('click', handleClickOutside)
+
+  // Detectar tamaño inicial de pantalla
+  updateSidebarState()
+
+  // Escuchar cambios de tamaño de pantalla
+  window.addEventListener('resize', updateSidebarState)
 })
 
+
 onBeforeUnmount(() => {
+  // Limpia el listener para cerrar el menú de usuario
   document.removeEventListener('click', handleClickOutside)
+
+  // Limpia el listener del resize que controla el colapso del sidebar
+  window.removeEventListener('resize', updateSidebarState)
 })
+
 </script>
+
+
+
 
 <style scoped>
 *,
@@ -204,9 +242,12 @@ body {
   background-color: #f8f9fa;
 }
 
+.main-expanded {
+  margin-left: 0 !important;
+}
+
 /* Sidebar */
 .sidebar {
-  width: 250px;
   background-color: #003870;
   border-right: 1px solid #ddd;
   display: flex;
@@ -218,20 +259,61 @@ body {
   position: fixed;
   top: 0;
   left: 0;
+  width: 250px;
+  transition: width 0.3s ease;
+  overflow-x: hidden;
 }
 
-.sidebar.hidden {
+/* Cuando está colapsado */
+.sidebar.collapsed {
+  width: 60px;
+}
+
+/* Oculta el texto de los enlaces */
+.sidebar.collapsed .sidebar-title,
+.sidebar.collapsed span {
   display: none;
-
 }
+
+/* Ajusta el ícono si deseas */
+.sidebar.collapsed i {
+  margin-left: 0.25rem;
+  font-size: 1.2rem;
+}
+
+/* Cuando se expande */
+.sidebar.expanded .sidebar-title,
+.sidebar.expanded span {
+  display: inline;
+}
+
 
 .contenedor-menu {
   list-style: none;
   padding-left: 0;
-  margin-left: 0;
   margin-left: 0.4rem;
 }
 
+
+/* Centrado visual de íconos cuando colapsado */
+.sidebar.collapsed .sidebar-link {
+  justify-content: center;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.sidebar.collapsed .sidebar-link i {
+  margin: 0;
+}
+
+.sidebar.expanded .sidebar-link {
+  justify-content: flex-start;
+}
+
+/* Opcional: logo centrado cuando colapsado */
+.sidebar.collapsed .sidebar-brand {
+  justify-content: center;
+}
 
 .sidebar-link {
   display: flex;
@@ -253,13 +335,18 @@ body {
   font-size: 1rem;
 }
 
+.sidebar-link.active {
+  background-color: #c00606;
+  font-weight: 600;
+}
+
 /* Main wrapper */
 .main-wrapper {
-  margin-left: 250px;
   flex: 1;
   display: flex;
   flex-direction: column;
   height: 100%;
+  transition: margin-left 0.3s ease;
   overflow: hidden;
 }
 
