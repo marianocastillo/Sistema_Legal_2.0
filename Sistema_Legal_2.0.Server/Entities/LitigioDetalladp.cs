@@ -50,4 +50,13 @@ namespace Sistema_Legal_2._0.Server.Entities
         public int? ltg_estatus { get; set; }
         public string? Estatus_Descripcion { get; set; }
     }
+
+    public class LitigiosResponse
+    {
+        public int TotalAsignados { get; set; }
+        public int TotalSinAsignar { get; set; }
+        public List<LitigioDetalladoS> Asignados { get; set; } = new();
+        public List<LitigioDetalladoS> SinAsignar { get; set; } = new();
+    }
+
 }

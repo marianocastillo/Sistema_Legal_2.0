@@ -1,5 +1,10 @@
 <template>
   <div class="card">
+  <!-- 🌀 Loading spinner -->
+    <div v-if="loading" class="loading-container">
+      <ProgressSpinner strokeWidth="4" />
+    </div v-else>
+
     <h2>Gestión de Perfiles</h2>
 
     <Button label="Nuevo Perfil" icon="pi pi-plus" class="mb-3" @click="nuevoPerfil" />
@@ -51,12 +56,19 @@
       </template>
     </Dialog>
   </div>
+
 </template>
 
 
 <script>
 import axios from 'axios';
 import api from '@/utilities/api';
+import { ref, onMounted } from 'vue';
+const loading = ref(true);
+const datos = ref(null);
+import ProgressSpinner from 'primevue/progressspinner';
+
+
 
 export default {
   data() {
@@ -66,11 +78,18 @@ export default {
       vistasDisponibles: [[], []],
       mostrarDialogo: false,
       modoNuevo: false,
-      perfilSeleccionado: {}
+      perfilSeleccionado: {},
+      loading: true
     };
   },
+  components: {
+  ProgressSpinner
+},
+
   methods: {
     async cargarDatos() {
+        this.loading = true; // 🟡 comienza carga
+
       try {
         const [resPerfiles, resVistas] = await Promise.all([
           api.get('/api/Perfiles/GetPerfiles'),
@@ -98,6 +117,8 @@ export default {
         this.vistas = resVistas.data;
       } catch (error) {
         // ya se maneja por interceptor
+      }finally{
+        this.loading = false;
       }
     }
     ,
@@ -264,11 +285,18 @@ export default {
     this.cargarDatos();
   }
 };
+
 </script>
 
 <style scoped>
 .card {
   padding: 4rem;
+}
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
 }
 
 .mt-3 {

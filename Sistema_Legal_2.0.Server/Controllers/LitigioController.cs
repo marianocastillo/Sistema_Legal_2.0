@@ -1,22 +1,23 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Dapper;
 using ExcelDataReader;
-using System.Data;
-using System.Reflection;
-using System.Numerics;
-using Dapper;
-using Sistema_Legal_2._0.Server.Models;
-using Sistema_Legal_2._0.Server.Repositories;
-using Sistema_Legal_2._0.Server.Infraestructure;
-using Sistema_Legal_2._0.Server.Entities;
-using System.Configuration;
-using Microsoft.Data.SqlClient;
-using MimeMapping;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.CodeAnalysis;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using MimeMapping;
 using Newtonsoft.Json;
+using Sistema_Legal_2._0.Server.Entities;
+using Sistema_Legal_2._0.Server.Infraestructure;
+using Sistema_Legal_2._0.Server.Models;
+using Sistema_Legal_2._0.Server.Repositories;
+using System.Configuration;
+using System.Data;
 using System.Globalization;
+using System.Numerics;
+using System.Reflection;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Sistema_Legal_2._0.Server.Controllers
 {
@@ -456,6 +457,71 @@ public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
 
             return Ok(resultado);
         }
+
+        [HttpGet("litigios-paginados")]
+        public async Task<IActionResult> ObtenerLitigiosPaginados(
+       int pageAsignado = 1,
+       int pageNoAsignado = 1,
+       int pageSize = 5)
+        {
+            var result = new LitigiosResponse();
+
+            using var connection = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal"));
+            using var command = new SqlCommand("sp_ObtenerLitigiosDetalladosSupervisorPaginado", connection);
+            command.CommandType = CommandType.StoredProcedure;
+
+            command.Parameters.AddWithValue("@PageAsignado", pageAsignado);
+            command.Parameters.AddWithValue("@PageNoAsignado", pageNoAsignado);
+            command.Parameters.AddWithValue("@PageSize", pageSize);
+
+            await connection.OpenAsync();
+            using var reader = await command.ExecuteReaderAsync();
+
+            // Primer resultado: totales
+            if (await reader.ReadAsync())
+            {
+                result.TotalAsignados = reader.GetInt32(reader.GetOrdinal("TotalAsignados"));
+                result.TotalSinAsignar = reader.GetInt32(reader.GetOrdinal("TotalSinAsignar"));
+            }
+
+            // Segundo resultado: asignados
+            if (await reader.NextResultAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    result.Asignados.Add(LeerLitigioDesdeReader(reader));
+                }
+            }
+
+            // Tercer resultado: sin asignar
+            if (await reader.NextResultAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    result.SinAsignar.Add(LeerLitigioDesdeReader(reader));
+                }
+            }
+
+            return Ok(result);
+        }
+
+        private LitigioDetalladoS LeerLitigioDesdeReader(SqlDataReader reader)
+        {
+            return new LitigioDetalladoS
+            {
+                id_Ltg = reader.GetInt32(reader.GetOrdinal("id_Ltg")),
+                ltg_acto = reader["ltg_acto"]?.ToString(),
+                ltg_Fecha_Acto = reader["ltg_Fecha_Acto"] as DateTime?,
+                ltg_Cedula_Demandante = reader["ltg_Cedula_Demandante"]?.ToString(),
+                ltg_Nombre_Demandante = reader["ltg_Nombre_Demandante"]?.ToString(),
+                TipoDemanda_Nombre = reader["TipoDemanda_Nombre"]?.ToString(),
+                Estatus_Descripcion = reader["Estatus_Descripcion"]?.ToString(),
+                ltg_Fecha_Audiencia = reader["ltg_Fecha_Audiencia"] as DateTime?,
+                Asignado = Convert.ToBoolean(reader["Asignado"])
+            };
+        }
+
+
 
 
         [HttpGet("Litigio_detalladoDigitador")]

@@ -41,8 +41,14 @@ const items = computed(() => {
       icon: 'pi pi-user-edit',
       command: () => router.push('/Usuarios')
     });
-  }
 
+
+    opciones.push({
+      label: 'Manejo de Perfiles',
+      icon: 'pi pi-sitemap',
+      command: () => router.push('/Perfiles')
+    })
+  }
   opciones.push({
     label: 'Cerrar sesión',
     icon: 'pi pi-sign-out',
@@ -87,7 +93,8 @@ onMounted(() => {
             </li>
 
             <!-- Vistas dinámicas -->
-            <li v-for="vista in vistasPermitidas.filter(v => v.permiso && v.ruta && v.principal)" :key="vista.ruta">
+            <li v-for="vista in vistasPermitidas.filter(v => v.permiso && v.ruta && v.principal && v.ruta !== rutaInicio)
+" :key="vista.ruta">
               <router-link :to="vista.ruta" class="sidebar-link" exact-active-class="active">
                 <i :class="vista.iconClass || 'pi pi-home'" />
                 <span>{{ vista.nombreVista }}</span>
@@ -186,16 +193,28 @@ const getInitials = (name) => {
   return name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase()
 }
 
-const items = computed(() => {
+/* const items = computed(() => {
   const opciones = []
 
   if (usuario.value.rol === 'Administrador') {
     opciones.push({
-      label: 'Manejo de usuarios',
+      label: 'Manejo de usuddddarios',
       icon: 'pi pi-user-edit',
       command: () => router.push('/Usuarios')
     })
-  }
+
+     opciones.push({
+      label: 'Manejo de Perfiles',
+      icon: 'pi pi-sitemap',
+      command: () => router.push('/Perfiles')
+    })
+
+    opciones.push({
+      label: 'Manejo de Perfiles',
+      icon: 'pi pi-sitemap',
+      command: () => router.push('/Perfiles')
+    })
+
 
   opciones.push({
     label: 'Cerrar sesión',
@@ -204,7 +223,7 @@ const items = computed(() => {
   })
 
   return opciones
-})
+}}) */
 
 const handleClickOutside = (e) => {
   if (submenuRef.value && !submenuRef.value.contains(e.target)) {

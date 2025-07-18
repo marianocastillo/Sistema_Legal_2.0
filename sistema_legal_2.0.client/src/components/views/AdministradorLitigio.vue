@@ -33,14 +33,16 @@
       </div>
     </div>
 
+    <DataTable :value="data" :lazy="true" :paginator="true" :rows="rows" :totalRecords="totalRegistros"
+      :first="paginaActual * rows" :filters="filters" :globalFilterFields="[
+        'ltg_acto',
+        'ltg_Cedula_Demandante',
+        'ltg_Fecha_Acto',
+        'ltg_Nombre_Demandante',
+        'estatus_Descripcion'
+      ]" @page="onPageChange" class="p-datatable-sm" responsiveLayout="scroll">
 
-    <DataTable :value="data" :row-hover="true" :paginator="true" :rows="rows" :filters="filters" :globalFilterFields="[
-      'ltg_acto',
-      'ltg_Cedula_Demandante',
-      'ltg_Fecha_Acto',
-      'ltg_Nombre_Demandante',
-      'estatus_Descripcion'
-    ]" class="p-datatable-sm" responsiveLayout="scroll">
+
       <Column field="ltg_acto" header="N⁰ Acto" style="min-width: 75px;" />
       <Column field="ltg_Fecha_Acto" header="Fecha acto" style="min-width: 110px;">
         <template #body="{ data }">
@@ -53,7 +55,7 @@
       <Column field="ltg_Fecha_Audiencia" header="Fecha audiencia">
         <template #body="{ data }">
           {{ data.ltg_Fecha_Audiencia ? new Date(data.ltg_Fecha_Audiencia).toLocaleString('es-ES', { hour12: false }) :
-          'Sin fecha' }}
+            'Sin fecha' }}
 
           <!-- {{ new Date(data.ltg_Fecha_Audiencia).toLocaleString('es-ES', { hour12: false }) }} -->
         </template>
@@ -75,13 +77,14 @@
         <template #body="{ data }">
           <div class="btn-group">
             <!-- Ver -->
-             <button class="btn btn-sm"  style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;" v-tooltip="'Ver litigio'"
-               @click="$router.push({ path: `/Detalles/${data.id_Ltg}` })">
-                <i class="pi pi-eye white-icon"></i>
-              </button>
+            <button class="btn btn-sm" style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;"
+              v-tooltip="'Ver litigio'" @click="$router.push({ path: `/Detalles/${data.id_Ltg}` })">
+              <i class="pi pi-eye white-icon"></i>
+            </button>
             <!-- Modificar -->
             <button class="btn btn-sm btn-hover" @click="modificarLitigio(data)"
-              style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;" v-tooltip="'Modificar litigio'">
+              style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;"
+              v-tooltip="'Modificar litigio'">
               <i class="pi pi-pencil white-icon"></i>
             </button>
 
@@ -103,6 +106,9 @@
         </transition>
       </teleport>
     </DataTable>
+    <div class="flex justify-end items-center gap-3 mt-4">
+    </div>
+
   </div>
 </template>
 
@@ -120,13 +126,22 @@ import AsignarAbogado from '@/components/views/AsignarAbogado.vue';
 const router = useRouter()
 const data = ref([]);
 const filtroActivo = ref('Asignados');
-const totalSinAsignar = ref(0);
-const totalAsignados = ref(0);
 const todosLosLitigios = ref([]);
-const rows = ref(10);
+const rows = ref(5);
 const popUp = ref(false);
 const litigioActual = ref({});
 const mostrarAsignar = ref(true);
+const paginaAsignado = ref(1);
+const paginaSinAsignar = ref(1);
+const paginaActual = ref(0); // índice 0
+const totalAsignados = ref(0);
+const totalSinAsignar = ref(0);
+const totalRegistros = computed(() =>
+  filtroActivo.value === 'asignado' ? totalAsignados.value : totalSinAsignar.value
+);
+
+
+
 
 const tituloLitigio = computed(() => {
   if (filtroActivo.value === 'sinAsignar') return 'Litigios Sin Asignar';
@@ -156,6 +171,33 @@ function getStatusClass(status) {
     default: return '';
   }
 }
+async function cargarDatosPaginados(page = 0) {
+  try {
+    const response = await api.get('/api/Litigio/litigios-paginados', {
+      params: {
+        pageAsignado: filtroActivo.value === 'asignado' ? page + 1 : 1,
+        pageNoAsignado: filtroActivo.value === 'sinAsignar' ? page + 1 : 1,
+        pageSize: rows.value
+      }
+    });
+
+    // Totales para los botones
+    totalAsignados.value = response.data.totalAsignados;
+    totalSinAsignar.value = response.data.totalSinAsignar;
+
+    // Datos según filtro
+    data.value = filtroActivo.value === 'asignado'
+      ? response.data.asignados
+      : response.data.sinAsignar;
+
+    paginaActual.value = page;
+  } catch (err) {
+    console.error('❌ Error al cargar litigios:', err);
+  }
+}
+
+
+
 
 async function modificarLitigio(litigio) {
   try {
@@ -179,20 +221,35 @@ function calculateRows() {
   const estimatedRowHeight = 50;
   rows.value = Math.max(Math.floor(tableHeight / estimatedRowHeight) - 1, 1);
 }
-function mostrarSinAsignar() {
-  filtroActivo.value = 'sinAsignar';
-  const filtrados = todosLosLitigios.value.filter(l => l.asignado === false);
-  data.value = filtrados;
-  totalSinAsignar.value = filtrados.length;
-}
-
-
 function mostrarAsignados() {
   filtroActivo.value = 'asignado';
-  const filtrados = todosLosLitigios.value.filter(l => l.asignado === true);
-  data.value = filtrados;
-  totalAsignados.value = filtrados.length;
+  cargarDatosPaginados(0);
 }
+
+function mostrarSinAsignar() {
+  filtroActivo.value = 'sinAsignar';
+  cargarDatosPaginados(0);
+}
+
+
+function siguientePagina() {
+  if (filtroActivo.value === 'asignado') {
+    paginaAsignado.value++;
+  } else {
+    paginaSinAsignar.value++;
+  }
+  cargarLitigiosPaginados();
+}
+
+function anteriorPagina() {
+  if (filtroActivo.value === 'asignado' && paginaAsignado.value > 1) {
+    paginaAsignado.value--;
+  } else if (filtroActivo.value === 'sinAsignar' && paginaSinAsignar.value > 1) {
+    paginaSinAsignar.value--;
+  }
+  cargarLitigiosPaginados();
+}
+
 
 
 function actualizarTotales() {
@@ -212,22 +269,13 @@ function handleAsignacionExitosa() {
     });
 }
 
-onMounted(async () => {
+onMounted(() => {
   calculateRows();
   window.addEventListener('resize', calculateRows);
-
-  try {
-    const response = await api.get('/api/Litigio/Litigio_detalladoSupervisor');
-    todosLosLitigios.value = response.data;
-
-    actualizarTotales();
-    mostrarAsignados();
-    console.log('✅ Datos recibidos:', response.data);
-// O mostrarSinAsignar()
-  } catch (error) {
-    console.error('❌ Error al cargar litigios:', error);
-  }
+  cargarDatosPaginados(0);
 });
+
+
 
 
 onUnmounted(() => {
