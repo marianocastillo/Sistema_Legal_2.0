@@ -49,10 +49,10 @@
         <template #body="{ data }">
           <div class="btn-group">
             <!-- Ver -->
-            <router-link :to="`/litigio/detalle/${data.id_Ltg}`" class="btn btn-sm"
-              style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;" title="Ver litigio">
-              <i class="pi pi-eye white-icon"></i>
-            </router-link>
+            <button class="btn btn-sm" style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;"
+            v-tooltip="'Ver litigio'" @click="$router.push({ path: `/Detalles/${data.id_Ltg}` })">
+            <i class="pi pi-eye white-icon"></i>
+          </button>
 
             <!-- Modificar -->
             <button class="btn btn-sm" @click="modificarLitigio(data)"

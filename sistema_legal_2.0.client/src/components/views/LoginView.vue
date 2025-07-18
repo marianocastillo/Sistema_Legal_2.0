@@ -39,7 +39,21 @@ import Password from 'primevue/password'
 import { jwtDecode } from 'jwt-decode';
 import PrimeButton from 'primevue/button'
 import api from '@/utilities/api.js'
-
+import BandejaSeguimiento from './BandejaSeguimiento.vue';
+const nombrePerfil = (idPerfil) => {
+  switch (idPerfil) {
+    case 1:
+      return 'Administrador';
+    case 2:
+      return 'Supervisor';
+    case 3:
+      return 'Digitador';
+    case 4:
+      return 'Abogado Litigante';
+    default:
+      return 'Perfil desconocido';
+  }
+};
 
 export default {
   name: 'LoginView',
@@ -109,69 +123,58 @@ export default {
       }
     },
 
-    async handleRealLogin() {
-      try {
-        const response = await api.post('https://localhost:7177/api/Auth', this.credentials)
-        if (response.data.success) {
-          const token = response.data.token
-          const { usuario } = response.data.data
+ async handleRealLogin() {
+  try {
+    const response = await api.post('https://localhost:7177/api/Auth', this.credentials)
+    if (response.data.success) {
+      const token = response.data.token
+      const { usuario } = response.data.data
 
-          localStorage.setItem('token', token)
-          localStorage.setItem('user', usuario.nombreUsuario)
-          localStorage.setItem('idUsuario', usuario.idUsuario)
-          localStorage.setItem('idPerfil', usuario.idPerfil)
-          localStorage.setItem('sessionExpireTime', new Date().getTime() + 30 * 60 * 1000)
-          localStorage.setItem('usuario', JSON.stringify({
-            idUsuario: usuario.idUsuario,
-            nombre: usuario.nombreUsuario,
-            rol: nombrePerfil(usuario.idPerfil),
-            perfil: usuario.idPerfil
-          }))
-          const res = await api.get(`/api/Perfiles/GetPermisos/${usuario.idPerfil}`);
-          const rutasPermitidas = res.data
-            .filter(v => v.permiso)
-            .map(v => v.url);
-          localStorage.setItem('vistasPermitidas', JSON.stringify(rutasPermitidas));
-          this.$store.commit('setUser', usuario)
-          push.success(response.data.message)
-          if (usuario.idPerfil == 4) {
-            this.$router.push('/abogado/inicio')
-          } else if (usuario.idPerfil == 2) {
-            this.$router.push('GestionLitigios')
-          } else if (usuario.idPerfil == 1) {
-            this.$router.push('Seguimiento')
-          } else {
-            console.log(jwtDecode(token));
-            this.$router.push('/LitigiosRegistrados')
-          }
-        } else {
-          push.warning(response.data.message)
-        }
-      } catch (error) {
-        console.error('Error en login:', error)
-        push.warning('Hubo un error al intentar iniciar sesión. Intenta nuevamente.')
-      }
+      // Guardar datos básicos del usuario
+      localStorage.setItem('token', token)
+      localStorage.setItem('user', usuario.nombreUsuario)
+      localStorage.setItem('idUsuario', usuario.idUsuario)
+      localStorage.setItem('idPerfil', usuario.idPerfil)
+      localStorage.setItem('sessionExpireTime', new Date().getTime() + 30 * 60 * 1000)
+      localStorage.setItem('usuario', JSON.stringify({
+        idUsuario: usuario.idUsuario,
+        nombre: usuario.nombreUsuario,
+        rol: nombrePerfil(usuario.idPerfil),
+        perfil: usuario.idPerfil
+      }))
+
+      // Obtener ruta de inicio y vistas permitidas
+      const res = await api.get(`/api/Perfiles/GetVistasYInicio/${usuario.idPerfil}`)
+      const datos = res.data
+
+      console.log('Ruta desde backend:', datos.rutaInicio)
+      console.log('Vistas con permiso:', datos.vistas)
+
+      // Guardar en localStorage como objetos (NO solo strings)
+      localStorage.setItem('rutaInicio', datos.rutaInicio || '/unauthorized')
+      localStorage.setItem('vistasPermitidas', JSON.stringify(datos.vistas || []))
+
+      // Redireccionar a la ruta de inicio
+      this.$router.push(datos.rutaInicio || '/unauthorized')
+    } else {
+      push.warning(response.data.message)
     }
-
+  } catch (error) {
+    console.error('Error en login:', error)
+    push.warning('Hubo un error al intentar iniciar sesión. Intenta nuevamente.')
   }
+
 }
 
 
 
-const nombrePerfil = (idPerfil) => {
-  switch (idPerfil) {
-    case 1:
-      return 'Administrador';
-    case 2:
-      return 'Supervisor';
-    case 3:
-      return 'Digitador';
-    case 4:
-      return 'Abogado Litigante';
-    default:
-      return 'Perfil desconocido';
-  }
-};
+
+}}
+
+
+
+
+
 
 
 </script>

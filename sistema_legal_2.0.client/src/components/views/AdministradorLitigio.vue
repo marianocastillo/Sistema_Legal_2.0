@@ -33,14 +33,16 @@
       </div>
     </div>
 
+    <DataTable :value="data" :lazy="true" :paginator="true" :rows="rows" :totalRecords="totalRegistros"
+      :first="paginaActual * rows" :filters="filters" :globalFilterFields="[
+        'ltg_acto',
+        'ltg_Cedula_Demandante',
+        'ltg_Fecha_Acto',
+        'ltg_Nombre_Demandante',
+        'estatus_Descripcion'
+      ]" @page="onPageChange" class="p-datatable-sm" responsiveLayout="scroll">
 
-    <DataTable :value="data" :row-hover="true" :paginator="true" :rows="rows" :filters="filters" :globalFilterFields="[
-      'ltg_acto',
-      'ltg_Cedula_Demandante',
-      'ltg_Fecha_Acto',
-      'ltg_Nombre_Demandante',
-      'estatus_Descripcion'
-    ]" class="p-datatable-sm" responsiveLayout="scroll">
+
       <Column field="ltg_acto" header="N⁰ Acto" style="min-width: 75px;" />
       <Column field="ltg_Fecha_Acto" header="Fecha acto" style="min-width: 110px;">
         <template #body="{ data }">
@@ -53,7 +55,7 @@
       <Column field="ltg_Fecha_Audiencia" header="Fecha audiencia">
         <template #body="{ data }">
           {{ data.ltg_Fecha_Audiencia ? new Date(data.ltg_Fecha_Audiencia).toLocaleString('es-ES', { hour12: false }) :
-          'Sin fecha' }}
+            'Sin fecha' }}
 
           <!-- {{ new Date(data.ltg_Fecha_Audiencia).toLocaleString('es-ES', { hour12: false }) }} -->
         </template>
@@ -75,18 +77,19 @@
         <template #body="{ data }">
           <div class="btn-group">
             <!-- Ver -->
-             <button class="btn btn-sm"  style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;" v-tooltip="'Ver litigio'"
-               @click="$router.push({ path: `/Detalles/${data.id_Ltg}` })">
-                <i class="pi pi-eye white-icon"></i>
-              </button>
+            <button class="btn btn-sm" style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;"
+              v-tooltip="'Ver litigio'" @click="$router.push({ path: `/Detalles/${data.id_Ltg}` })">
+              <i class="pi pi-eye white-icon"></i>
+            </button>
             <!-- Modificar -->
-            <button class="btn btn-sm" @click="modificarLitigio(data)"
-              style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;" v-tooltip="'Modificar litigio'">
+            <button class="btn btn-sm btn-hover" @click="modificarLitigio(data)"
+              style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;"
+              v-tooltip="'Modificar litigio'">
               <i class="pi pi-pencil white-icon"></i>
             </button>
 
             <!-- Asignar -->
-            <button v-if="mostrarAsignar" class="btn btn-sm" @click="togglePopUp(data)"
+            <button v-if="mostrarAsignar" class="btn btn-sm btn-hover" @click="togglePopUp(data)"
               style="background-color: #003870; border-color: #003870;" v-tooltip="'Asignar abogado'">
               <i class="pi pi-user-edit white-icon"></i>
             </button>
@@ -103,6 +106,9 @@
         </transition>
       </teleport>
     </DataTable>
+    <div class="flex justify-end items-center gap-3 mt-4">
+    </div>
+
   </div>
 </template>
 
@@ -120,13 +126,22 @@ import AsignarAbogado from '@/components/views/AsignarAbogado.vue';
 const router = useRouter()
 const data = ref([]);
 const filtroActivo = ref('Asignados');
-const totalSinAsignar = ref(0);
-const totalAsignados = ref(0);
 const todosLosLitigios = ref([]);
-const rows = ref(10);
+const rows = ref(5);
 const popUp = ref(false);
 const litigioActual = ref({});
 const mostrarAsignar = ref(true);
+const paginaAsignado = ref(1);
+const paginaSinAsignar = ref(1);
+const paginaActual = ref(0); // índice 0
+const totalAsignados = ref(0);
+const totalSinAsignar = ref(0);
+const totalRegistros = computed(() =>
+  filtroActivo.value === 'asignado' ? totalAsignados.value : totalSinAsignar.value
+);
+
+
+
 
 const tituloLitigio = computed(() => {
   if (filtroActivo.value === 'sinAsignar') return 'Litigios Sin Asignar';
@@ -156,6 +171,33 @@ function getStatusClass(status) {
     default: return '';
   }
 }
+async function cargarDatosPaginados(page = 0) {
+  try {
+    const response = await api.get('/api/Litigio/litigios-paginados', {
+      params: {
+        pageAsignado: filtroActivo.value === 'asignado' ? page + 1 : 1,
+        pageNoAsignado: filtroActivo.value === 'sinAsignar' ? page + 1 : 1,
+        pageSize: rows.value
+      }
+    });
+
+    // Totales para los botones
+    totalAsignados.value = response.data.totalAsignados;
+    totalSinAsignar.value = response.data.totalSinAsignar;
+
+    // Datos según filtro
+    data.value = filtroActivo.value === 'asignado'
+      ? response.data.asignados
+      : response.data.sinAsignar;
+
+    paginaActual.value = page;
+  } catch (err) {
+    console.error('❌ Error al cargar litigios:', err);
+  }
+}
+
+
+
 
 async function modificarLitigio(litigio) {
   try {
@@ -179,73 +221,61 @@ function calculateRows() {
   const estimatedRowHeight = 50;
   rows.value = Math.max(Math.floor(tableHeight / estimatedRowHeight) - 1, 1);
 }
-
-// Botones de filtro
-function mostrarSinAsignar() {
-  filtroActivo.value = 'sinAsignar';
-  const filtrados = todosLosLitigios.value.filter(
-    l => l.estatus_Descripcion?.toLowerCase().trim() === 'recibido'
-  );
-  data.value = filtrados;
-  console.log(data.value);
-  totalSinAsignar.value = filtrados.length;
-}
-
 function mostrarAsignados() {
   filtroActivo.value = 'asignado';
-  const filtrados = todosLosLitigios.value.filter(
-    l => l.estatus_Descripcion?.toLowerCase().trim() !== 'recibido' &&
-      l.estatus_Descripcion?.toLowerCase().trim() !== 'cierre del caso'
-  );
-  data.value = filtrados;
-  totalAsignados.value = filtrados.length; // NUEVO
+  cargarDatosPaginados(0);
 }
+
+function mostrarSinAsignar() {
+  filtroActivo.value = 'sinAsignar';
+  cargarDatosPaginados(0);
+}
+
+
+function siguientePagina() {
+  if (filtroActivo.value === 'asignado') {
+    paginaAsignado.value++;
+  } else {
+    paginaSinAsignar.value++;
+  }
+  cargarLitigiosPaginados();
+}
+
+function anteriorPagina() {
+  if (filtroActivo.value === 'asignado' && paginaAsignado.value > 1) {
+    paginaAsignado.value--;
+  } else if (filtroActivo.value === 'sinAsignar' && paginaSinAsignar.value > 1) {
+    paginaSinAsignar.value--;
+  }
+  cargarLitigiosPaginados();
+}
+
 
 
 function actualizarTotales() {
-  totalSinAsignar.value = todosLosLitigios.value.filter(
-    l => l.estatus_Descripcion?.toLowerCase().trim() === 'recibido'
-  ).length;
-
-  totalAsignados.value = todosLosLitigios.value.filter(
-    l => l.estatus_Descripcion?.toLowerCase().trim() !== 'recibido' &&
-      l.estatus_Descripcion?.toLowerCase().trim() !== 'cierre del caso'
-  ).length;
+  totalSinAsignar.value = todosLosLitigios.value.filter(l => l.asignado === false).length;
+  totalAsignados.value = todosLosLitigios.value.filter(l => l.asignado === true).length;
 }
 
 function handleAsignacionExitosa() {
-  // Recargar todos los litigios desde el backend
-  api.get('/api/Litigio/Litigio_detallado')
+  api.get('/api/Litigio/Litigio_detalladoSupervisor') // NUEVO ENDPOINT
     .then(response => {
       todosLosLitigios.value = response.data;
       actualizarTotales();
-      // Dependiendo del filtro actual, muestra la tabla correcta
-      if (filtroActivo.value === 'sinAsignar') {
-        mostrarSinAsignar();
-      } else {
-        mostrarAsignados();
-      }
-
+      filtroActivo.value === 'sinAsignar' ? mostrarSinAsignar() : mostrarAsignados();
     })
     .catch(error => {
       console.error("Error al actualizar tabla:", error);
     });
 }
 
-onMounted(async () => {
+onMounted(() => {
   calculateRows();
   window.addEventListener('resize', calculateRows);
-
-  try {
-    const response = await api.get('/api/Litigio/Litigio_detallado');
-    todosLosLitigios.value = response.data;
-    // Calcula todos los totales correctamente
-    actualizarTotales();
-    mostrarAsignados();
-  } catch (error) {
-    console.error('Error al cargar litigios:', error);
-  }
+  cargarDatosPaginados(0);
 });
+
+
 
 
 onUnmounted(() => {

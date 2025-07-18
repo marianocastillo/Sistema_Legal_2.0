@@ -145,13 +145,19 @@ router.beforeEach((to, from, next) => {
 
   if (!to.meta.requiresAuth) return next();
 
-  const vistasPermitidas = JSON.parse(localStorage.getItem('vistasPermitidas') || '[]');
-
+  const vistasPermitidasRaw = JSON.parse(localStorage.getItem('vistasPermitidas') || '[]');
   const rutaActual = to.path.toLowerCase();
 
-  const autorizada = vistasPermitidas.some(v =>
-    rutaActual.startsWith(v.toLowerCase())
-  );
+  // Rutas explícitas con permiso
+  const rutasConPermiso = vistasPermitidasRaw
+    .filter(v => v.permiso && v.ruta)
+    .map(v => v.ruta.toLowerCase());
+
+  // Permitir acceso si alguna ruta con permiso es igual o es prefijo (para rutas dinámicas)
+  const autorizada = rutasConPermiso.some(ruta => {
+    // Permite coincidencia exacta o prefijo con "/"
+    return rutaActual === ruta || rutaActual.startsWith(`${ruta}/`);
+  });
 
   if (!autorizada && to.name !== 'Unauthorized') {
     return next({ name: 'Unauthorized' });
@@ -159,5 +165,6 @@ router.beforeEach((to, from, next) => {
 
   next();
 });
+
 
 export default router;

@@ -24,3 +24,12 @@ public class VistaAsignadaModel
     public bool Permiso { get; set; }
 }
 
+public class VistasYInicioDto
+{
+    public string Ruta { get; set; }
+    public string NombreVista { get; set; }
+    public bool Permiso { get; set; }
+    public bool EsInicio { get; set; }
+    public bool Principal { get; set; }
+    public string IconClass { get; set; }
+}

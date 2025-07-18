@@ -1,11 +1,14 @@
+using Dapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Sistema_Legal_2._0.Server.Models;
-using Sistema_Legal_2._0.Server.Repositories;
-using Sistema_Legal_2._0.Server.Infraestructure;
-using Sistema_Legal_2._0.Server.Models.Enums;
-using Sistema_Legal_2._0.Server.Entities;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Sistema_Legal_2._0.Server.Entities;
+using Sistema_Legal_2._0.Server.Infraestructure;
+using Sistema_Legal_2._0.Server.Models;
+using Sistema_Legal_2._0.Server.Models.Enums;
+using Sistema_Legal_2._0.Server.Repositories;
+using System.Data;
 
 namespace Sistema_Legal_2._0.Server.Controller
 {
@@ -16,17 +19,21 @@ namespace Sistema_Legal_2._0.Server.Controller
         private readonly PerfilesRepo perfilesRepo;
         private readonly db_silegContext db_silegContext;
         private readonly Logger _logger;
+        private IConfiguration _configuration;
+        private readonly string _cadenaSQL;
 
         /// <summary>
         /// Constructor de la clase PerfilesController.
         /// </summary>
         /// <param name=" db_silegContext">Contexto de la base de datos.</param>
         /// <param name="logger">Instancia del logger.</param>
-        public PerfilesController(db_silegContext db_silegContext, Logger logger)
+        public PerfilesController(db_silegContext db_silegContext, Logger logger,IConfiguration config)
         {
             db_silegContext = db_silegContext;
             perfilesRepo = new PerfilesRepo(db_silegContext);
             _logger = logger;
+            _configuration = config;
+            _cadenaSQL = config.GetConnectionString("Sistema_Legal");
         }
 
         /// <summary>
@@ -166,6 +173,31 @@ namespace Sistema_Legal_2._0.Server.Controller
             List<VistasModel> permisos = perfilesRepo.GetPermisos(idPerfil).ToList();
             return permisos;
         }
+
+
+
+        [HttpGet("GetVistasYInicio/{idPerfil}")]
+        public async Task<IActionResult> GetVistasYInicio(int idPerfil)
+        {
+            using var connection = new SqlConnection(_cadenaSQL);
+
+            var vistas = (await connection.QueryAsync<VistasYInicioDto>(
+                "sp_ObtenerVistasYInicio",
+                new { idPerfil },
+                commandType: CommandType.StoredProcedure
+            )).ToList();
+
+            var rutaInicio = vistas.FirstOrDefault(v => v.EsInicio)?.Ruta ?? "/unauthorized";
+
+            return Ok(new
+            {
+                rutaInicio,
+                vistas
+            });
+        }
+
+
+
 
         /// <summary>
         /// Obtiene los usuarios asociados a un perfil de usuario.
