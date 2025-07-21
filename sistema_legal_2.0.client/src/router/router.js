@@ -17,6 +17,7 @@ import Qalendar from '@/components/views/Qalendar.vue';
 import PerfilesMantenimiento from '@/components/views/Perfiles/PerfilesMantenimiento.vue';
 import Unauthorized from '@/components/views/Unauthorized.vue';
 import LitigioDetalle from '@/components/views/LitigioMostrar.vue';
+import QalendarAbogados from '@/components/views/QalendarAbogados.vue';
 const routes = [
   {
     path: '/',
@@ -56,6 +57,12 @@ const routes = [
         path: 'Calendario',
         name: 'Calendario',
         component: Qalendar,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'CalendarioAbogados',
+        name: 'CalendarioAbogados',
+        component: QalendarAbogados,
         meta: { requiresAuth: true }
       },
       {
