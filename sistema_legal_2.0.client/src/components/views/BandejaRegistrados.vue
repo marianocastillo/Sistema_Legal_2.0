@@ -3,7 +3,12 @@
 
     <!-- Contenido de los botones -->
     <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
-      <h2 class="text-2xl font-bold">Litigios Registrados{{ tituloLitigio }}</h2>
+      <h2 class="text-2xl font-bold relative">
+        Litigios Registrados
+        <span class="text-yellow-500 text-sm absolute -top-3 ml-2">
+          ({{ totalRecords }})
+        </span>
+      </h2>
 
       <div class="flex items-center gap-2 filtro-busqueda-bar">
         <div>
@@ -24,13 +29,15 @@
     </div>
 
 
-    <DataTable :value="data" :paginator="true" :row-hover="true" :rows="rows" :filters="filters" :globalFilterFields="[
-      'ltg_acto',
-      'ltg_Cedula_Demandante',
-      'ltg_Fecha_Acto',
-      'ltg_Nombre_Demandante',
-      'estatus_Descripcion'
-    ]" class="p-datatable-sm" responsiveLayout="scroll">
+    <DataTable :value="data" :paginator="true" :lazy="true" :rows="rows" :totalRecords="totalRecords"
+      :first="(currentPage - 1) * rows" :filters="filters" :globalFilterFields="[
+        'ltg_acto',
+        'ltg_Cedula_Demandante',
+        'ltg_Fecha_Acto',
+        'ltg_Nombre_Demandante',
+        'estatus_Descripcion'
+      ]" @page="onPageChange" class="p-datatable-sm" responsiveLayout="scroll">
+
       <Column field="ltg_acto" header="N⁰ Acto" style="min-width: 75px;" />
       <Column field="ltg_Fecha_Acto" header="Fecha acto" style="min-width: 110px;">
         <template #body="{ data }">
@@ -96,6 +103,7 @@
   </div>
 </template>
 
+
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { FilterMatchMode } from '@primevue/core/api';
@@ -113,6 +121,8 @@ const registrar = ref('/registrar');
 const rows = ref(10);
 const popUp = ref(false);
 const litigioActual = ref({});
+const currentPage = ref(1);
+const totalRecords = ref(0);
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS }
@@ -155,17 +165,12 @@ async function modificarLitigio(litigio) {
   }
 }
 
-function calculateRows() {
-  const tableHeight = window.innerHeight - 300;
-  const estimatedRowHeight = 50;
-  rows.value = Math.max(Math.floor(tableHeight / estimatedRowHeight) - 1, 1);
-}
 
 function handleAsignacionExitosa() {
   // Recargar todos los litigios desde el backend
   api.get('/api/Litigio/Litigio_detalladoDigitador')
     .then(response => {
-    data.value = response.data;
+      data.value = response.data;
 
     })
     .catch(error => {
@@ -173,24 +178,39 @@ function handleAsignacionExitosa() {
     });
 }
 
-onMounted(async () => {
-  calculateRows();
-  window.addEventListener('resize', calculateRows);
+function onPageChange(event) {
+  currentPage.value = Math.floor(event.first / event.rows) + 1;
+  rows.value = event.rows;
+  cargarLitigios();
+}
 
+async function cargarLitigios() {
   try {
-    const response = await api.get('/api/Litigio/Litigio_detalladoDigitador');
-    data.value = response.data;
+    const { data: response } = await api.get('/api/Litigio/Litigio_detalladoDigitadorPaginado', {
+      params: {
+        page: currentPage.value,
+        pageSize: rows.value
+      }
+    });
 
+    data.value = response.litigios;
+    totalRecords.value = response.total;
   } catch (error) {
-    console.error('Error al cargar litigios:', error);
+    console.error('Error al cargar litigios paginados:', error);
   }
+}
+
+
+onMounted(async () => {
+  await cargarLitigios();
 });
 
 
-onUnmounted(() => {
-  window.removeEventListener('resize', calculateRows);
-});
+
 </script>
+
+
+
 
 <style scoped>
 .white-icon {

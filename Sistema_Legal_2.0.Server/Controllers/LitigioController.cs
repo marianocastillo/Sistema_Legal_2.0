@@ -444,7 +444,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
         }
 
 
-        //Api para paginar los litigios de 10 en 10 en la vista de gestion 
+        //Api para paginar los litigios de 10 en 10 en la bandeja de gestion de litigios
         [HttpGet("litigios-paginados")]
         public async Task<IActionResult> ObtenerLitigiosPaginados(
         string tipo = "asignado",
@@ -489,19 +489,112 @@ namespace Sistema_Legal_2._0.Server.Controllers
         }
 
 
-
-        [HttpGet("Litigio_detalladoDigitador")]
-        public async Task<ActionResult<IEnumerable<LitigioDetallado>>> ObtenerLitigiosDetalladosDigitadores()
+        //Api para paginar los litigios de 10 en 10 en la bandeja de los abogados 
+        [HttpGet("Litigio_AsignacionesPaginado")]
+        public async Task<IActionResult> ObtenerLitigiosAsignadosPaginado(int idUsuario, int page = 1, int pageSize = 10)
         {
+            var result = new LitigiosAsignadosPaginadoResponse();
+
             using var connection = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal"));
+            using var command = new SqlCommand("sp_ObtenerLitigiosAsignadosPaginado", connection);
+            command.CommandType = CommandType.StoredProcedure;
 
-            var resultado = await connection.QueryAsync<LitigioDetallado>(
-                "ObtenerLitigiosDigitadores",
-                commandType: CommandType.StoredProcedure
-            );
+            command.Parameters.AddWithValue("@idUsuario", idUsuario);
+            command.Parameters.AddWithValue("@Page", page);
+            command.Parameters.AddWithValue("@PageSize", pageSize);
 
-            return Ok(resultado);
+            await connection.OpenAsync();
+            using var reader = await command.ExecuteReaderAsync();
+
+            if (await reader.ReadAsync())
+                result.Total = reader.GetInt32(reader.GetOrdinal("Total"));
+
+            if (await reader.NextResultAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    result.Litigios.Add(new LitigiosAsignadosAbogados
+                    {
+                        id_Ltg = reader.GetInt32(reader.GetOrdinal("id_Ltg")),
+                        ltg_acto = reader["ltg_acto"]?.ToString(),
+                        ltg_Fecha_Acto = reader["ltg_Fecha_Acto"] as DateTime?,
+                        ltg_Cedula_Demandante = reader["ltg_Cedula_Demandante"]?.ToString(),
+                        ltg_Nombre_Demandante = reader["ltg_Nombre_Demandante"]?.ToString(),
+                        Nombre_Tipo_Demanda = reader["nombre_Tipo_Demanda"]?.ToString(),
+                        ltg_Fecha_Audiencia = reader["ltg_Fecha_Audiencia"] as DateTime?,
+                        ltg_description = reader["ltg_description"]?.ToString()
+                    });
+                }
+            }
+
+            return Ok(result);
         }
+
+        public class LitigiosAsignadosPaginadoResponse
+        {
+            public int Total { get; set; }
+            public List<LitigiosAsignadosAbogados> Litigios { get; set; } = new();
+        }
+
+
+
+
+        [HttpGet("Litigio_detalladoDigitadorPaginado")]
+        public async Task<IActionResult> ObtenerLitigiosDigitadoresPaginado(int page = 1, int pageSize = 10)
+        {
+            var result = new LitigiosDigitadoresPaginadoResponse();
+
+            using var connection = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal"));
+            using var command = new SqlCommand("ObtenerLitigiosDigitadoresPaginado", connection)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            command.Parameters.AddWithValue("@Page", page);
+            command.Parameters.AddWithValue("@PageSize", pageSize);
+
+            await connection.OpenAsync();
+            using var reader = await command.ExecuteReaderAsync();
+
+            // Leer total
+            if (await reader.ReadAsync())
+            {
+                result.Total = reader["Total"] != DBNull.Value ? Convert.ToInt32(reader["Total"]) : 0;
+            }
+
+            // Leer resultados de litigios
+            if (await reader.NextResultAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    var litigio = new LitigioDetallado
+                    {
+                        id_Ltg = reader["id_Ltg"] != DBNull.Value ? Convert.ToInt32(reader["id_Ltg"]) : 0,
+                        ltg_acto = reader["ltg_acto"]?.ToString(),
+                        ltg_Fecha_Acto = reader["ltg_Fecha_Acto"] as DateTime?,
+                        ltg_Cedula_Demandante = reader["ltg_Cedula_Demandante"]?.ToString(),
+                        ltg_Nombre_Demandante = reader["ltg_Nombre_Demandante"]?.ToString(),
+                        TipoDemanda_Nombre = reader["TipoDemanda_Nombre"]?.ToString(),
+                        ltg_Fecha_Audiencia = reader["ltg_Fecha_Audiencia"] as DateTime?,
+                        Estatus_Descripcion = reader["Estatus_Descripcion"]?.ToString()
+                    };
+
+                    result.Litigios.Add(litigio);
+                }
+            }
+
+            return Ok(result);
+        }
+
+
+        public class LitigiosDigitadoresPaginadoResponse
+        {
+            public int Total { get; set; }
+            public List<LitigioDetallado> Litigios { get; set; } = new();
+        }
+
+
+
 
         private LitigioDetalladoS LeerLitigioDesdeReader(SqlDataReader reader)
         {
@@ -564,51 +657,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
             }
         }
 
-        [HttpGet("Litigio_AsignacionesPaginado")]
-        public async Task<IActionResult> ObtenerLitigiosAsignadosPaginado(int idUsuario, int page = 1, int pageSize = 10)
-        {
-            var result = new LitigiosAsignadosPaginadoResponse();
-
-            using var connection = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal"));
-            using var command = new SqlCommand("sp_ObtenerLitigiosAsignadosPaginado", connection);
-            command.CommandType = CommandType.StoredProcedure;
-
-            command.Parameters.AddWithValue("@idUsuario", idUsuario);
-            command.Parameters.AddWithValue("@Page", page);
-            command.Parameters.AddWithValue("@PageSize", pageSize);
-
-            await connection.OpenAsync();
-            using var reader = await command.ExecuteReaderAsync();
-
-            if (await reader.ReadAsync())
-                result.Total = reader.GetInt32(reader.GetOrdinal("Total"));
-
-            if (await reader.NextResultAsync())
-            {
-                while (await reader.ReadAsync())
-                {
-                    result.Litigios.Add(new LitigiosAsignadosAbogados
-                    {
-                        id_Ltg = reader.GetInt32(reader.GetOrdinal("id_Ltg")),
-                        ltg_acto = reader["ltg_acto"]?.ToString(),
-                        ltg_Fecha_Acto = reader["ltg_Fecha_Acto"] as DateTime?,
-                        ltg_Cedula_Demandante = reader["ltg_Cedula_Demandante"]?.ToString(),
-                        ltg_Nombre_Demandante = reader["ltg_Nombre_Demandante"]?.ToString(),
-                        Nombre_Tipo_Demanda = reader["nombre_Tipo_Demanda"]?.ToString(),
-                        ltg_Fecha_Audiencia = reader["ltg_Fecha_Audiencia"] as DateTime?,
-                        ltg_description = reader["ltg_description"]?.ToString()
-                    });
-                }
-            }
-
-            return Ok(result);
-        }
-
-        public class LitigiosAsignadosPaginadoResponse
-        {
-            public int Total { get; set; }
-            public List<LitigiosAsignadosAbogados> Litigios { get; set; } = new();
-        }
+       
 
 
         [HttpGet("detallados/{id}")]
