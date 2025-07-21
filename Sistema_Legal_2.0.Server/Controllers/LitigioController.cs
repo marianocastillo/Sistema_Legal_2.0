@@ -562,6 +562,51 @@ namespace Sistema_Legal_2._0.Server.Controllers
             }
         }
 
+        [HttpGet("Litigio_AsignacionesPaginado")]
+        public async Task<IActionResult> ObtenerLitigiosAsignadosPaginado(int idUsuario, int page = 1, int pageSize = 10)
+        {
+            var result = new LitigiosAsignadosPaginadoResponse();
+
+            using var connection = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal"));
+            using var command = new SqlCommand("sp_ObtenerLitigiosAsignadosPaginado", connection);
+            command.CommandType = CommandType.StoredProcedure;
+
+            command.Parameters.AddWithValue("@idUsuario", idUsuario);
+            command.Parameters.AddWithValue("@Page", page);
+            command.Parameters.AddWithValue("@PageSize", pageSize);
+
+            await connection.OpenAsync();
+            using var reader = await command.ExecuteReaderAsync();
+
+            if (await reader.ReadAsync())
+                result.Total = reader.GetInt32(reader.GetOrdinal("Total"));
+
+            if (await reader.NextResultAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    result.Litigios.Add(new LitigiosAsignadosAbogados
+                    {
+                        id_Ltg = reader.GetInt32(reader.GetOrdinal("id_Ltg")),
+                        ltg_acto = reader["ltg_acto"]?.ToString(),
+                        ltg_Fecha_Acto = reader["ltg_Fecha_Acto"] as DateTime?,
+                        ltg_Cedula_Demandante = reader["ltg_Cedula_Demandante"]?.ToString(),
+                        ltg_Nombre_Demandante = reader["ltg_Nombre_Demandante"]?.ToString(),
+                        Nombre_Tipo_Demanda = reader["nombre_Tipo_Demanda"]?.ToString(),
+                        ltg_Fecha_Audiencia = reader["ltg_Fecha_Audiencia"] as DateTime?,
+                        ltg_description = reader["ltg_description"]?.ToString()
+                    });
+                }
+            }
+
+            return Ok(result);
+        }
+
+        public class LitigiosAsignadosPaginadoResponse
+        {
+            public int Total { get; set; }
+            public List<LitigiosAsignadosAbogados> Litigios { get; set; } = new();
+        }
 
 
         [HttpGet("detallados/{id}")]
@@ -624,8 +669,8 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
 
 
-            [HttpGet("historial/{id}")]
-            [AllowAnonymous]
+        [HttpGet("historial/{id}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetHistorialLitigio(int id)
             {
                 var result = new List<LineaTiempoItemDto>();

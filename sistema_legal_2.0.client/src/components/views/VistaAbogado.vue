@@ -1,7 +1,17 @@
 <template>
   <div class="card p-6 shadow-2">
     <div class="flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-      <h2 class="text-2xl font-semibold">Litigios Asignados</h2>
+      <div class="flex items-end gap-2">
+        <h2 class="text-2xl font-semibold">Litigios Asignados</h2>
+        <span class="text-yellow-500 font-semibold text-sm mb-1">
+          ({{ totalRecords }})
+        </span>
+      </div>
+
+
+
+
+
 
       <div class="search-container">
         <span class="p-input-icon-left search-input-wrapper">
@@ -12,13 +22,16 @@
       </div>
     </div>
 
-    <DataTable :value="data" :paginator="true" :rowHover="true" :rows="rows" :filters="filters" :globalFilterFields="[
-      'ltg_acto',
-      'ltg_Cedula_Demandante',
-      'ltg_Fecha_Acto',
-      'ltg_Nombre_Demandante',
-      'estatus_Descripcion'
-    ]" class="p-datatable-sm" responsiveLayout="scroll">
+    <DataTable :lazy="true" :value="data" :paginator="true" :rows="rows" :totalRecords="totalRecords"
+      :first="(currentPage - 1) * rows" :filters="filters" @page="onPageChange" :globalFilterFields="[
+        'ltg_acto',
+        'ltg_Cedula_Demandante',
+        'ltg_Fecha_Acto',
+        'ltg_Nombre_Demandante',
+        'ltg_description'
+      ]" class="p-datatable-sm" responsiveLayout="scroll">
+
+      <!-- 👇 TODAS LAS COLUMNAS VAN DENTRO -->
       <Column field="ltg_acto" header="No.Acto" />
       <Column field="ltg_Fecha_Acto" header="Fecha acto" style="min-width: 110px;">
         <template #body="{ data }">
@@ -27,7 +40,7 @@
       </Column>
       <Column field="ltg_Cedula_Demandante" header="Cédula demandante" />
       <Column field="ltg_Nombre_Demandante" header="Nombre demandante" />
-      <Column field="nombre_Tipo_Demanda" header="Tipo de Demanda" />
+      <Column field="Nombre_Tipo_Demanda" header="Tipo de Demanda" />
       <Column field="ltg_Fecha_Audiencia" header="Fecha audiencia">
         <template #body="{ data }">
           {{ data.ltg_Fecha_Audiencia?.split('T')[0] || 'Sin fecha' }}
@@ -45,16 +58,14 @@
           </div>
         </template>
       </Column>
-      <Column header="Acciones" >
+      <Column header="Acciones">
         <template #body="{ data }">
           <div class="btn-group">
-            <!-- Ver -->
             <button class="btn btn-sm" style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;"
-            v-tooltip="'Ver litigio'" @click="$router.push({ path: `/Detalles/${data.id_Ltg}` })">
-            <i class="pi pi-eye white-icon"></i>
-          </button>
+              v-tooltip="'Ver litigio'" @click="$router.push({ path: `/Detalles/${data.id_Ltg}` })">
+              <i class="pi pi-eye white-icon"></i>
+            </button>
 
-            <!-- Modificar -->
             <button class="btn btn-sm" @click="modificarLitigio(data)"
               style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;" title="Modificar litigio">
               <i class="pi pi-pencil white-icon"></i>
@@ -63,13 +74,16 @@
         </template>
       </Column>
 
+      <!-- Pop-up -->
       <teleport to="body">
         <transition name="fade">
           <AsignarAbogado v-if="popUp" :id_Ltg="litigioActual.id_Ltg" :ltg_acto="litigioActual.ltg_acto"
             @close="togglePopUp" />
         </transition>
       </teleport>
-    </DataTable>
+
+    </DataTable> <!-- ✅ AQUÍ se debe cerrar -->
+
   </div>
 </template>
 
@@ -77,7 +91,7 @@
 import { FilterMatchMode } from '@primevue/core/api';
 import AsignarAbogado from '@/components/views/AsignarAbogado.vue';
 import router from '@/router/router';
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import api from '@/utilities/api.js';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
@@ -86,10 +100,13 @@ import InputText from 'primevue/inputtext';
 const popUp = ref(false);
 const litigioActual = ref({});
 const data = ref([]);
+const totalRecords = ref(0);
+const currentPage = ref(1);
+const rows = ref(10); // Fijo
+
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
-const rows = ref(10); // Número de filas a mostrar
 
 function togglePopUp(litigio = null) {
   popUp.value = !popUp.value;
@@ -109,13 +126,36 @@ function getStatusClass(status) {
   }
 }
 
-function calculateRows() {
-  const tableHeight = window.innerHeight - 300; // Ajusta según tu layout
-  const estimatedRowHeight = 50;
-  rows.value = Math.max(Math.floor(tableHeight / estimatedRowHeight) - 1, 1);
+async function cargarLitigios() {
+
+
+
+  const idUsuario = localStorage.getItem('idUsuario');
+  if (!idUsuario) return router.push('/login');
+
+  try {
+    const { data: response } = await api.get(`/api/Litigio/Litigio_AsignacionesPaginado`, {
+      params: {
+        idUsuario,
+        page: currentPage.value,
+        pageSize: rows.value
+      }
+    });
+    console.log("Litigios response:", response);
+    data.value = response.litigios;
+    totalRecords.value = response.total;
+
+
+  } catch (error) {
+    console.error('Error al cargar litigios paginados:', error);
+  }
 }
 
-
+function onPageChange(event) {
+  currentPage.value = Math.floor(event.first / event.rows) + 1;
+  rows.value = event.rows;
+  cargarLitigios();
+}
 
 async function modificarLitigio(litigio) {
   try {
@@ -134,43 +174,11 @@ async function modificarLitigio(litigio) {
   }
 }
 
-// async function modificarLitigio(litigio) {
-//   try {
-//     const response = await api.get(`/api/Litigio/Litigio_detallado`);
-//     const litigioCompleto = response.data.find(l => l.id_Ltg === litigio.id_Ltg);
-
-//     if (!litigioCompleto) {
-//       throw new Error('Litigio no encontrado en el listado completo');
-//     }
-
-//     localStorage.setItem('litigioModificacion', JSON.stringify(litigioCompleto));
-//     router.push('/modificarregistro');
-//   } catch (error) {
-//     console.error('Error al obtener litigio completo:', error);
-//   }
-// }
-
-
-
-onMounted(async () => {
-  calculateRows();
-  window.addEventListener('resize', calculateRows);
-
-  const idUsuario = localStorage.getItem('idUsuario');
-  if (!idUsuario) return router.push('/login');
-
-  try {
-    const response = await api.get(`/api/Litigio/Litigio_Asignaciones?idUsuario=${idUsuario}`);
-    data.value = response.data;
-  } catch (error) {
-    console.error('Error al cargar los litigios:', error);
-  }
-});
-
-onUnmounted(() => {
-  window.removeEventListener('resize', calculateRows);
+onMounted(() => {
+  cargarLitigios();
 });
 </script>
+
 
 
 <style scoped>
