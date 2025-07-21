@@ -74,7 +74,7 @@ namespace Sistema_Legal_2._0.Server.Infraestructure
 
                     if (logoRoute != null)
                     {
-                        body = body.Replace("$img", "<img src='cid:ContraloriaLogo' alt='Logo' style='width: 120px;' />");
+                        body = body.Replace("$img", "<img src='cid:ContraloriaLogo'  alt='Logo' style='max-width:150px;height:auto;display:block;margin:0 auto;' />");
                     }
                     else
                     {
@@ -127,7 +127,6 @@ namespace Sistema_Legal_2._0.Server.Infraestructure
                     var body = $@"
              <div style='border: 1px solid #dcdcdc; border-radius: 10px; padding: 25px; font-family: Arial, sans-serif; background-color: #ffffff; max-width: 700px; margin: auto; box-shadow: 0 2px 5px rgba(0,0,0,0.05);'>
 
-        <!-- Encabezado con estado y acto -->
         <div style='display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;'>
             <div>
                 <p style='margin: 0 0 5px 0;color: #083d7a;  font-size: 16px;'><strong>Número de Acto:</strong> <span style='color: #888;'>( {reader["NumeroActo"]})</span></p>
@@ -176,8 +175,7 @@ namespace Sistema_Legal_2._0.Server.Infraestructure
                 if (await reader.ReadAsync())
                 {
                     var body = $@"
-                <div style='font-family: Arial; font-size: 15px; background-color: #fffbe6; padding: 20px; border-radius: 10px; border: 1px solid #ccc; max-width: 700px; margin: auto;'>
-                    <h3 style='color: #c27c0e;'>📝 Audiencia actualizada</h3>
+                <div style='font-family: Arial; font-size: 15px; background-color: #fffbe6; padding: 20px; border-radius: 10px; border: 1px solid #ccc; max-width: 700px; margin: auto;'>           
                     <div style='display: flex; justify-content: space-between; margin-bottom: 15px;'>
                        <div>
                 <p style='margin: 0 0 5px 0;color: #083d7a;  font-size: 16px;'><strong>Número de Acto:</strong> <span style='color: #888;'>( {reader["NumeroActo"]})</span></p>
@@ -214,8 +212,9 @@ namespace Sistema_Legal_2._0.Server.Infraestructure
             public static async Task EnviarCorreoAsignacionAbogado(int idUsuario, int idLitigio, SqlConnection conn)
             {
                
+
                 using var cmd = new SqlCommand(@"
-        SELECT u.Email, u.nombres, l.ltg_acto AS NombreCaso,l.ltg_Nombre_Demandante,TD.Nombre,E.ltg_estatus
+        SELECT u.Email, u.nombres,u.apellidos, l.ltg_acto AS NombreCaso,l.ltg_Nombre_Demandante,TD.Nombre
         FROM Usuarios u
         INNER JOIN Asignaciones_Litigios al ON al.IdUsuario = u.idUsuario
         INNER JOIN Litigios l ON l.id_Ltg = al.Id_Ltg
@@ -232,27 +231,29 @@ namespace Sistema_Legal_2._0.Server.Infraestructure
                     string email = reader["Email"].ToString();
                     string nombreCaso = reader["NombreCaso"].ToString();
                     string NombreDemandante = reader["ltg_Nombre_Demandante"].ToString();
-                    string Estatus = reader["ltg_estatus"].ToString();
+                    string NombreDemanda = reader["Nombre"].ToString();
+                    string nombres = reader["nombres"].ToString();
+                    string apellidos = reader["apellidos"].ToString();
+                    string urlDetalle = $"https://localhost:5173/Detalles/{idLitigio}";
 
                     string body = $@"
-    <div style='font-family: Arial, sans-serif; font-size: 16px; background-color: #f0fff4; padding: 25px; border-radius: 10px; border: 1px solid #b2f5ea; max-width: 600px; margin: auto;'>
-        <h2 style='color: #2f855a;'>📌 Notificación de Asignación</h2>
-        <p>Estimado(a) profesional,</p>
-        <p>Por medio de la presente se le informa que ha sido asignado(a) como <strong>abogado litigante</strong> en el siguiente caso:</p>
+    <div style='font-family: Arial, sans-serif; font-size: 16px; padding: 25px; border-radius: 10px; border: 1px solid #b2f5ea; max-width: 600px; margin: auto;'>
+        <p>Estimado(a) Abogado,{nombres} {apellidos} </p>
+        <p>Por medio de la presente, se le informa que ha sido asignado(a) como abogado litigante al caso:</p>
         <ul style='list-style-type: none; padding-left: 0; margin-top: 20px; margin-bottom: 20px;'>
-            <li><strong>Nombre del caso:</strong> <span style='color: #2b6cb0;'>&ldquo;{nombreCaso}&rdquo;</span></li>
-            <li><strong>Demandante:</strong> <span style='color: #2b6cb0;'>{NombreDemandante}</span></li>
-            <li><strong>Sentencia asociada:</strong> <span style='color: #2b6cb0;'>{Estatus}</span></li>
+            <li><strong>Nombre del caso: </strong> {nombreCaso}</li>
+            <li><strong>Demandante: </strong>{NombreDemandante}</li>
+            <li><strong>Tipo de demanda: </strong> {NombreDemanda}</li>
         </ul>
-        <p>Para más detalles, le invitamos a acceder a la plataforma <strong>SILEG 2.0</strong>.</p>
-        <p style='margin-top: 30px;'>Atentamente,<br><strong>Equipo SILEG</strong></p>
+       <p>Para más detalles, le invitamos a consultar el caso directamente en <a href='{urlDetalle}' style='color: #2b6cb0; text-decoration: none;'><strong>SILEG 2.0 HAGA CLICK AQUI PARA ACCEDER</strong></a>.</p>
+
     </div>";
 
 
                     await Mailing.SendMailAsync(new CorreoVM
                     {
                         recipients = new[] { email },
-                        subject = $"Has sido asignado al caso: ${nombreCaso} , {NombreDemandante}",
+                        subject = $"Asignación de caso no.: {nombreCaso}",
                         servicio = "Asignación de Litigio",
                         messageHtml = body
                     });

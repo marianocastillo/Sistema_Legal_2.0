@@ -11,12 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="wwwroot\img\LogoContraloria.png" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="efpt.config.json.user" />
-    <None Include="wwwroot\img\LogoContraloria.png" />
     <None Include="wwwroot\MailLayout.html" />
   </ItemGroup>
 
@@ -48,6 +43,10 @@
     <ProjectReference Include="..\sistema_legal_2.0.client\sistema_legal_2.0.client.esproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\img\" />
   </ItemGroup>
 
 </Project>

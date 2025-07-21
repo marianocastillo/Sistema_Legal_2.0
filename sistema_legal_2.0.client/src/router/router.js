@@ -148,7 +148,13 @@ router.beforeEach((to, from, next) => {
 
   if (to.name === 'Login') return next();
 
-  if (!token || !user) return next({ name: 'Login' });
+  if (!token || !user) {
+    return next({
+      name: 'Login',
+      query: { redirect: to.fullPath }  // guarda la ruta deseada como query param
+    });
+  }
+
 
   if (!to.meta.requiresAuth) return next();
 
