@@ -123,53 +123,54 @@ export default {
       }
     },
 
- async handleRealLogin() {
-  try {
-    const response = await api.post('https://localhost:7177/api/Auth', this.credentials)
-    if (response.data.success) {
-      const token = response.data.token
-      const { usuario } = response.data.data
+    async handleRealLogin() {
+      try {
+        const response = await api.post('https://localhost:7177/api/Auth', this.credentials)
+        if (response.data.success) {
+          const token = response.data.token
+          const { usuario } = response.data.data
 
-      // Guardar datos básicos del usuario
-      localStorage.setItem('token', token)
-      localStorage.setItem('user', usuario.nombreUsuario)
-      localStorage.setItem('idUsuario', usuario.idUsuario)
-      localStorage.setItem('idPerfil', usuario.idPerfil)
-      localStorage.setItem('sessionExpireTime', new Date().getTime() + 30 * 60 * 1000)
-      localStorage.setItem('usuario', JSON.stringify({
-        idUsuario: usuario.idUsuario,
-        nombre: usuario.nombreUsuario,
-        rol: nombrePerfil(usuario.idPerfil),
-        perfil: usuario.idPerfil
-      }))
+          // Guardar datos básicos del usuario
+          localStorage.setItem('token', token)
+          localStorage.setItem('user', usuario.nombreUsuario)
+          localStorage.setItem('idUsuario', usuario.idUsuario)
+          localStorage.setItem('idPerfil', usuario.idPerfil)
+          localStorage.setItem('sessionExpireTime', new Date().getTime() + 30 * 60 * 1000)
+          localStorage.setItem('usuario', JSON.stringify({
+            idUsuario: usuario.idUsuario,
+            nombre: usuario.nombreUsuario,
+            rol: nombrePerfil(usuario.idPerfil),
+            perfil: usuario.idPerfil
+          }))
 
-      // Obtener ruta de inicio y vistas permitidas
-      const res = await api.get(`/api/Perfiles/GetVistasYInicio/${usuario.idPerfil}`)
-      const datos = res.data
+          // Obtener ruta de inicio y vistas permitidas
+          const res = await api.get(`/api/Perfiles/GetVistasYInicio/${usuario.idPerfil}`)
+          const datos = res.data
 
-      console.log('Ruta desde backend:', datos.rutaInicio)
-      console.log('Vistas con permiso:', datos.vistas)
+          console.log('Ruta desde backend:', datos.rutaInicio)
+          console.log('Vistas con permiso:', datos.vistas)
 
-      // Guardar en localStorage como objetos (NO solo strings)
-      localStorage.setItem('rutaInicio', datos.rutaInicio || '/unauthorized')
-      localStorage.setItem('vistasPermitidas', JSON.stringify(datos.vistas || []))
+          // Guardar en localStorage como objetos (NO solo strings)
+          localStorage.setItem('rutaInicio', datos.rutaInicio || '/unauthorized')
+          localStorage.setItem('vistasPermitidas', JSON.stringify(datos.vistas || []))
 
-      // Redireccionar a la ruta de inicio
-      this.$router.push(datos.rutaInicio || '/unauthorized')
-    } else {
-      push.warning(response.data.message)
+          const redirectPath = this.$route.query.redirect || datos.rutaInicio || '/unauthorized';
+          this.$router.replace(redirectPath);
+        } else {
+          push.warning(response.data.message)
+        }
+      } catch (error) {
+        console.error('Error en login:', error)
+        push.warning('Hubo un error al intentar iniciar sesión. Intenta nuevamente.')
+      }
+
     }
-  } catch (error) {
-    console.error('Error en login:', error)
-    push.warning('Hubo un error al intentar iniciar sesión. Intenta nuevamente.')
+
+
+
+
   }
-
 }
-
-
-
-
-}}
 
 
 
