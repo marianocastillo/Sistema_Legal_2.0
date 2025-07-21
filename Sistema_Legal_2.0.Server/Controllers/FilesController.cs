@@ -1,22 +1,24 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Dapper;
 using ExcelDataReader;
-using System.Data;
-using System.Reflection;
-using System.Numerics;
-using Dapper;
-using Sistema_Legal_2._0.Server.Models;
-using Sistema_Legal_2._0.Server.Repositories;
-using Sistema_Legal_2._0.Server.Infraestructure;
-using Sistema_Legal_2._0.Server.Entities;
-using System.Configuration;
-using Microsoft.Data.SqlClient;
-using MimeMapping;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.CodeAnalysis;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using MimeMapping;
+using Sistema_Legal_2._0.Server.Entities;
+using Sistema_Legal_2._0.Server.Infraestructure;
+using Sistema_Legal_2._0.Server.Models;
+using Sistema_Legal_2._0.Server.Repositories;
+using System.Configuration;
+using System.Data;
 using System.Linq;
+using System.Numerics;
+using System.Reflection;
 using System.Security.Claims;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using static Sistema_Legal_2._0.Server.Infraestructure.Mailing;
 
 namespace Sistema_Legal_2._0.Server.Controllers
@@ -28,7 +30,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
         private readonly string _filesServerPath;
         private readonly string _cadenaSQL;
-        private IConfiguration configuration;
+        private IConfiguration  configuration;
         private readonly IConfiguration _configuration;
         private readonly Logger _logger;
         private readonly db_silegContext _db_silegContext;
@@ -353,7 +355,53 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
             return Ok(result);
         }
-    }
+
+        [HttpGet("AudienciasCalendarios/{idUsuario}")]
+        public async Task<ActionResult<IEnumerable<AudienciaCalendarioDtoAbogados>>> GetAudienciasCalendarioParaAbogados(int idUsuario)
+        {
+            var result = new List<AudienciaCalendarioDtoAbogados>();
+
+            using (SqlConnection conn = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal")))
+            {
+
+
+                using (SqlCommand cmd = new SqlCommand("sp_GetAudienciasPorUsuario", conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.AddWithValue("@idUsuario", idUsuario);
+                   
+                    await conn.OpenAsync();
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            result.Add(new AudienciaCalendarioDtoAbogados
+                            {
+                                
+                                Id_audiencia = reader.GetInt32(reader.GetOrdinal("Id_audiencia")),
+                                NumeroAudiencia = reader["NumeroAudiencia"]?.ToString(),
+                                TipoAudiencia = reader["TipoAudiencia"]?.ToString(),
+                                FechaAudiencia = reader.GetDateTime(reader.GetOrdinal("FechaAudiencia")),
+                                IdSala = reader["IdSala"] as int?,
+                                NombreSala = reader["NombreSala"]?.ToString(),
+                                Id_Tribunal = reader["Id_Tribunal"] as int?,
+                                Nombre_Tribunal = reader["Nombre_Tribunal"]?.ToString(),
+                                id_Ltg = reader["id_Ltg"] as int?,
+                                ltg_acto = reader["ltg_acto"]?.ToString(),
+                                id_demanda = reader["id_demanda"] as int?,
+                                TipoDemanda = reader["TipoDemanda"]?.ToString()
+                            });
+
+
+
+                        }
+                    }
+                }
+            }
+            return Ok(result);
+        }
+   }
 }
 
 
