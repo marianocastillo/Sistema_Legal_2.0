@@ -151,11 +151,12 @@ async function guardarTribunal() {
 
 
 function abrirDialogoSalas(tribunal) {
-
+  confirm.close(); // fuerza el cierre de confirmDialog si estaba activo
   tribunalSeleccionado.value = tribunal
   dialogVisible.value = false
   mostrarDialogoSalas.value = true
 }
+
 
 function abrirFormularioNuevo() {
   errores.value = {}
@@ -266,28 +267,6 @@ function soloNumeros(event) {
         </div>
       </div>
     </template>
-
-
-    <!-- <div v-for="tribunal in paginatedTribunales" :key="tribunal.id_Tribunal" class="tribunal-card">
-      <div class="tribunal-info">
-        <div><strong>{{ tribunal.nombre_Tribunal }}</strong></div>
-        <div class="small text-muted">{{ tribunal.descripcion }} - {{ tribunal.telefono }} - {{ tribunal.direccion }}
-        </div>
-        <div class="small">Provincia: {{ tribunal.distrito }}</div>
-      </div>
-      <div class="d-flex align-items-center gap-2">
-        <span :class="['badge', tribunal.estatus ? 'bg-success' : 'bg-danger']">
-          {{ tribunal.estatus ? 'Activo' : 'Inactivo' }}
-        </span>
-        <Button icon="pi pi-pencil" class="btn-sm btn-hover" @click="abrirFormularioEditar(tribunal)"
-          v-tooltip="'Modificar tribunal'" />
-        <Button icon="pi pi-trash" class="btn-sm btn-hover"
-          @click="confirmarEliminacion(tribunal.id_Tribunal)" v-tooltip="'Eliminar tribunal'" />
-        <Button icon="pi pi-eye white-icon" class="btn-sm btn-hover"
-          @click="abrirDialogoSalas(tribunal)" v-tooltip="'Ver salas tribunal'" />
-      </div>
-    </div> -->
-
     <table class="table table-sm table-bordered table-hover mt-3">
       <thead class="table-light">
         <tr>
@@ -428,7 +407,7 @@ function soloNumeros(event) {
     </div>
   </Dialog>
 
-  <!-- dialogo de mensaje de erro si no se puede agregar tribunal -->
+  <!-- dialogo de mensaje de error si no se puede agregar tribunal -->
   <Dialog v-model:visible="mostrarMensajeError" modal :closable="false" class="w-96">
     <div class="text-center p-4">
       <i class="pi pi-times-circle text-red-500 text-4xl mb-3"></i>
@@ -445,7 +424,8 @@ function soloNumeros(event) {
   <DialogSalas v-if="tribunalSeleccionado" v-model:visible="mostrarDialogoSalas"
     :tribunal-id="tribunalSeleccionado.id_Tribunal" :nombre-tribunal="tribunalSeleccionado.nombre_Tribunal" />
 
-  <ConfirmDialog />
+  <ConfirmDialog v-if="dialogVisible" :key="dialogVisible" />
+
 </template>
 
 <style scoped>

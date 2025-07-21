@@ -192,7 +192,7 @@ async function cargarDatosPaginados(page = 0) {
 
     paginaActual.value = page;
   } catch (err) {
-    console.error('❌ Error al cargar litigios:', err);
+    console.error('Error al cargar litigios:', err);
   }
 }
 

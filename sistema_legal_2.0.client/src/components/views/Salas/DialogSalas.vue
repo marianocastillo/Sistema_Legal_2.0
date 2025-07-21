@@ -1,6 +1,6 @@
 <template>
   <Dialog v-model:visible="dialogVisibleSala" modal :header="`Salas del Tribunal: ${props.nombreTribunal}`"
-    class="dialog-salas" :style="{ width: '50%', height: '85vh' }">
+    class="dialog-salas" :style="{ width: '60%', height: '90vh' }">
 
     <div class="card p-4">
       <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
@@ -78,7 +78,7 @@
     </Dialog>
   </Dialog>
 
-
+  <ConfirmDialog v-if="dialogVisibleSala" />
   <ListadoTribunales v-model:visible="mostrarDialogoTribunales" />
 </template>
 
@@ -90,11 +90,14 @@ import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import api from '@/utilities/api'
 import { push } from 'notivue'
+import { useConfirm } from 'primevue/useconfirm'
+import ConfirmDialog from 'primevue/confirmdialog'
 import ListadoTribunales from '../Tribunales/ListadoTribunales.vue'
 
 const mostrarDialogoTribunales = ref(false)
 const page = ref(1)
 const perPage = 10
+const confirm = useConfirm()
 
 const totalPages = computed(() =>
   Math.ceil(filteredSalas.value.length / perPage)
@@ -164,7 +167,7 @@ async function cargarSalas() {
   }
 }
 
-function cerrarSala(){
+function cerrarSala() {
   dialogVisibleSala.value = false
   mostrarDialogoTribunales.value = true
 }
@@ -181,6 +184,10 @@ function editarSala(sala) {
 }
 
 async function guardarSala() {
+  if (!form.value.nombre.trim()) {
+    push.error('El nombre de la sala es obligatorio')
+    return
+  }
   try {
     const payload = {
       idSala: form.value.idSala,
@@ -196,21 +203,33 @@ async function guardarSala() {
     push.success('Sala guardada correctamente')
     formVisible.value = false
     await cargarSalas()
+    page.value = 1
   } catch (err) {
     push.error('Error al guardar sala')
   }
 }
 
-async function eliminarSala(id) {
-  if (!confirm('¿Deseas eliminar esta sala?')) return
-  try {
-    await api.delete(`/api/Tribunales/EliminarSalas/${id}`)
-    push.success('Sala eliminada')
-    await cargarSalas()
-  } catch (err) {
-    push.error('Error al eliminar sala')
-  }
+function eliminarSala(id) {
+  confirm.require({
+    message: '¿Deseas eliminar esta sala?',
+    header: 'Eliminar Sala',
+    icon: 'pi pi-exclamation-triangle',
+    acceptLabel: 'Sí',
+    rejectLabel: 'Cancelar',
+    acceptClass: 'p-button-danger',
+    accept: async () => {
+      try {
+        await api.delete(`/api/Tribunales/EliminarSalas/${id}`)
+        push.success('Sala eliminada')
+        await cargarSalas()
+        page.value = 1
+      } catch (err) {
+        push.error('Error al eliminar sala')
+      }
+    }
+  })
 }
+
 </script>
 
 <style scoped>
