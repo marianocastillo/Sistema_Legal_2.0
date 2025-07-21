@@ -25,8 +25,9 @@
       <Dropdown v-model="usuarioSeleccionado" :options="usuariosFiltrados" optionLabel="nombre" optionValue="id"
         placeholder="Selecciona un abogado" appendTo="body" style="min-width: 300px"
         emptyMessage="-- No hay más abogados --" />
-      <Button label="Asignar" icon="pi pi-user-plus" class="p-button-sm text-white border-0"
-        :style="{ backgroundColor: '#003870' }" :disabled="!usuarioSeleccionado" @click="asignarAbogado" />
+      <Button :label="isLoadingAsignar ? 'Asignando...' : 'Asignar'" icon="pi pi-user-plus"
+        class="p-button-sm text-white border-0" :style="{ backgroundColor: '#003870' }"
+        :disabled="!usuarioSeleccionado || isLoadingAsignar" @click="asignarAbogado" />
 
       <Button label="Cerrar" icon="pi pi-times" class="p-button-sm btn-aceptar" @click="emit('close')" />
     </div>
@@ -86,6 +87,7 @@ const usuariosFiltrados = ref([])
 const abogadosAsignados = ref([])
 const mostrarDialogoExito = ref(false)
 const mostrarDialogoEliminado = ref(false)
+const isLoadingAsignar = ref(false);
 
 const loadingUsuarios = ref(false)
 const loadingAsignados = ref(false)
@@ -140,6 +142,7 @@ async function cargarAsignados() {
 
 async function asignarAbogado() {
   if (!usuarioSeleccionado.value) return;
+  if (isLoadingAsignar.value) return;
 
   const yaAsignado = abogadosAsignados.value.some(a => a.idUsuario === usuarioSeleccionado.value);
   if (yaAsignado) {
@@ -147,19 +150,17 @@ async function asignarAbogado() {
     return;
   }
 
+  isLoadingAsignar.value = true;
+
   try {
-    // 1. Asignar abogado
     await axios.post('/api/Usuarios/Asignar-Litigio', {
       idUsuario: usuarioSeleccionado.value,
       idLtg: props.id_Ltg
     });
 
-    // 2. Si es el primer abogado, cambiar estatus a "Análisis"
     if (abogadosAsignados.value.length === 0) {
       const { data: litigio } = await axios.get(`/api/Litigio/detallados/${props.id_Ltg}`);
-
       const payload = construirPayloadDesdeLitigio(litigio);
-
       await axios.put('/api/Litigio/EditarLitigio', payload);
     }
 
@@ -170,8 +171,11 @@ async function asignarAbogado() {
   } catch (error) {
     console.error("Error al asignar abogado:", error);
     push.error(error.response?.data?.message || 'Error al asignar abogado');
+  } finally {
+    isLoadingAsignar.value = false;
   }
 }
+
 
 
 function confirmarEliminacion(idUsuario) {
@@ -276,6 +280,4 @@ function construirPayloadDesdeLitigio(litigio) {
   color: #fff;
   font-weight: 600 !important;
 }
-
-
 </style>
