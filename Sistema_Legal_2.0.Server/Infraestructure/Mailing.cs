@@ -215,10 +215,12 @@ namespace Sistema_Legal_2._0.Server.Infraestructure
             {
                
                 using var cmd = new SqlCommand(@"
-        SELECT u.Email, u.nombres, l.ltg_acto AS NombreCaso
+        SELECT u.Email, u.nombres, l.ltg_acto AS NombreCaso,l.ltg_Nombre_Demandante,TD.Nombre,E.ltg_estatus
         FROM Usuarios u
         INNER JOIN Asignaciones_Litigios al ON al.IdUsuario = u.idUsuario
         INNER JOIN Litigios l ON l.id_Ltg = al.Id_Ltg
+        LEFT JOIN Tipo_Demanda TD ON L.id_Tipo_Demanda = TD.id_demanda
+        LEFT JOIN Estatus_Litigios E ON L.id_Estatus = E.ltg_estatus
         WHERE u.idUsuario = @idUsuario AND l.id_Ltg = @idLitigio", conn);
 
                 cmd.Parameters.AddWithValue("@idUsuario", idUsuario);
@@ -229,20 +231,28 @@ namespace Sistema_Legal_2._0.Server.Infraestructure
                 {
                     string email = reader["Email"].ToString();
                     string nombreCaso = reader["NombreCaso"].ToString();
+                    string NombreDemandante = reader["ltg_Nombre_Demandante"].ToString();
+                    string Estatus = reader["ltg_estatus"].ToString();
 
                     string body = $@"
-            <div style='font-family: Arial; font-size: 16px; background-color: #f0fff4; padding: 25px; border-radius: 10px; border: 1px solid #b2f5ea; max-width: 600px; margin: auto;'>
-                <h2 style='color: #2f855a;'>🎉 ¡Felicidades!</h2>
-                <p>Usted ha sido asignado como <strong>abogado litigante</strong> del caso:</p>
-                <p style='font-size: 18px; font-weight: bold; color: #2b6cb0;'>&ldquo;{nombreCaso}&rdquo;</p>
-                <p>Ingrese a <strong>SILEG 2.0</strong> para consultar más detalles del proceso.</p>
-                <p style='font-size: 22px;'>😄</p>
-            </div>";
+    <div style='font-family: Arial, sans-serif; font-size: 16px; background-color: #f0fff4; padding: 25px; border-radius: 10px; border: 1px solid #b2f5ea; max-width: 600px; margin: auto;'>
+        <h2 style='color: #2f855a;'>📌 Notificación de Asignación</h2>
+        <p>Estimado(a) profesional,</p>
+        <p>Por medio de la presente se le informa que ha sido asignado(a) como <strong>abogado litigante</strong> en el siguiente caso:</p>
+        <ul style='list-style-type: none; padding-left: 0; margin-top: 20px; margin-bottom: 20px;'>
+            <li><strong>Nombre del caso:</strong> <span style='color: #2b6cb0;'>&ldquo;{nombreCaso}&rdquo;</span></li>
+            <li><strong>Demandante:</strong> <span style='color: #2b6cb0;'>{NombreDemandante}</span></li>
+            <li><strong>Sentencia asociada:</strong> <span style='color: #2b6cb0;'>{Estatus}</span></li>
+        </ul>
+        <p>Para más detalles, le invitamos a acceder a la plataforma <strong>SILEG 2.0</strong>.</p>
+        <p style='margin-top: 30px;'>Atentamente,<br><strong>Equipo SILEG</strong></p>
+    </div>";
+
 
                     await Mailing.SendMailAsync(new CorreoVM
                     {
                         recipients = new[] { email },
-                        subject = "¡Has sido asignado a un nuevo caso!",
+                        subject = $"Has sido asignado al caso: ${nombreCaso} , {NombreDemandante}",
                         servicio = "Asignación de Litigio",
                         messageHtml = body
                     });
