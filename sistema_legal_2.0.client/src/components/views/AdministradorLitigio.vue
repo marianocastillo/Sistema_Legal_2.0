@@ -125,17 +125,15 @@ import AsignarAbogado from '@/components/views/AsignarAbogado.vue';
 // Variables de estado para la gestión de litigios
 const router = useRouter()
 const data = ref([]);
-const filtroActivo = ref('Asignados');
-const todosLosLitigios = ref([]);
-const rows = ref(5);
+const filtroActivo = ref('asignado');
+const rows = ref(10);
 const popUp = ref(false);
 const litigioActual = ref({});
 const mostrarAsignar = ref(true);
-const paginaAsignado = ref(1);
-const paginaSinAsignar = ref(1);
 const paginaActual = ref(0); // índice 0
 const totalAsignados = ref(0);
 const totalSinAsignar = ref(0);
+
 const totalRegistros = computed(() =>
   filtroActivo.value === 'asignado' ? totalAsignados.value : totalSinAsignar.value
 );
@@ -171,21 +169,20 @@ function getStatusClass(status) {
     default: return '';
   }
 }
+
 async function cargarDatosPaginados(page = 0) {
   try {
     const response = await api.get('/api/Litigio/litigios-paginados', {
       params: {
-        pageAsignado: filtroActivo.value === 'asignado' ? page + 1 : 1,
-        pageNoAsignado: filtroActivo.value === 'sinAsignar' ? page + 1 : 1,
+        tipo: filtroActivo.value,        // "asignado" o "sinAsignar"
+        page: page + 1,                  // backend usa base 1
         pageSize: rows.value
       }
     });
 
-    // Totales para los botones
     totalAsignados.value = response.data.totalAsignados;
     totalSinAsignar.value = response.data.totalSinAsignar;
 
-    // Datos según filtro
     data.value = filtroActivo.value === 'asignado'
       ? response.data.asignados
       : response.data.sinAsignar;
@@ -195,7 +192,6 @@ async function cargarDatosPaginados(page = 0) {
     console.error('Error al cargar litigios:', err);
   }
 }
-
 
 
 
@@ -216,11 +212,12 @@ async function modificarLitigio(litigio) {
   }
 }
 
-function calculateRows() {
-  const tableHeight = window.innerHeight - 300;
-  const estimatedRowHeight = 50;
-  rows.value = Math.max(Math.floor(tableHeight / estimatedRowHeight) - 1, 1);
+function onPageChange(event) {
+  paginaActual.value = event.page;
+  cargarDatosPaginados(event.page);
 }
+
+
 function mostrarAsignados() {
   filtroActivo.value = 'asignado';
   cargarDatosPaginados(0);
@@ -231,56 +228,18 @@ function mostrarSinAsignar() {
   cargarDatosPaginados(0);
 }
 
-
-function siguientePagina() {
-  if (filtroActivo.value === 'asignado') {
-    paginaAsignado.value++;
-  } else {
-    paginaSinAsignar.value++;
-  }
-  cargarLitigiosPaginados();
-}
-
-function anteriorPagina() {
-  if (filtroActivo.value === 'asignado' && paginaAsignado.value > 1) {
-    paginaAsignado.value--;
-  } else if (filtroActivo.value === 'sinAsignar' && paginaSinAsignar.value > 1) {
-    paginaSinAsignar.value--;
-  }
-  cargarLitigiosPaginados();
-}
-
-
-
-function actualizarTotales() {
-  totalSinAsignar.value = todosLosLitigios.value.filter(l => l.asignado === false).length;
-  totalAsignados.value = todosLosLitigios.value.filter(l => l.asignado === true).length;
-}
-
 function handleAsignacionExitosa() {
-  api.get('/api/Litigio/Litigio_detalladoSupervisor') // NUEVO ENDPOINT
-    .then(response => {
-      todosLosLitigios.value = response.data;
-      actualizarTotales();
-      filtroActivo.value === 'sinAsignar' ? mostrarSinAsignar() : mostrarAsignados();
-    })
-    .catch(error => {
-      console.error("Error al actualizar tabla:", error);
-    });
+  cargarDatosPaginados(paginaActual.value);
 }
 
 onMounted(() => {
-  calculateRows();
-  window.addEventListener('resize', calculateRows);
-  cargarDatosPaginados(0);
+  // cargarDatosPaginados(0);
+  mostrarAsignados(); // carga inicial por defecto
 });
 
 
 
 
-onUnmounted(() => {
-  window.removeEventListener('resize', calculateRows);
-});
 </script>
 
 <style scoped>

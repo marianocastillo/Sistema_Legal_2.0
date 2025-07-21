@@ -206,7 +206,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
         }
 
        [HttpGet("audiencias-con-evidencias-y-tribunal/{id_litigio}")]
-public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
+        public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
 {
     var result = new LitigioDetalleDto();
 
@@ -279,7 +279,6 @@ public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
 
         [HttpGet("BuscarDocumento/{documento}")]
         [AllowAnonymous]
-
         public IActionResult BuscarDocumento(string documento)
         {
             if (string.IsNullOrWhiteSpace(documento))
@@ -444,25 +443,11 @@ public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
             return Ok(resultado);
         }
 
-
-        [HttpGet("Litigio_detalladoSupervisor")]
-        public async Task<ActionResult<IEnumerable<LitigioDetalladoS>>> ObtenerLitigiosDetalladosSupervisor()
-        {
-            using var connection = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal"));
-
-            var resultado = await connection.QueryAsync<LitigioDetalladoS>(
-                "sp_ObtenerLitigiosDetalladosSupervisor",
-                commandType: CommandType.StoredProcedure
-            );
-
-            return Ok(resultado);
-        }
-
         [HttpGet("litigios-paginados")]
         public async Task<IActionResult> ObtenerLitigiosPaginados(
-       int pageAsignado = 1,
-       int pageNoAsignado = 1,
-       int pageSize = 5)
+        string tipo = "asignado",
+        int page = 1,
+        int pageSize = 10)
         {
             var result = new LitigiosResponse();
 
@@ -470,9 +455,9 @@ public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
             using var command = new SqlCommand("sp_ObtenerLitigiosDetalladosSupervisorPaginado", connection);
             command.CommandType = CommandType.StoredProcedure;
 
-            command.Parameters.AddWithValue("@PageAsignado", pageAsignado);
-            command.Parameters.AddWithValue("@PageNoAsignado", pageNoAsignado);
+            command.Parameters.AddWithValue("@Page", page);
             command.Parameters.AddWithValue("@PageSize", pageSize);
+            command.Parameters.AddWithValue("@Tipo", tipo);
 
             await connection.OpenAsync();
             using var reader = await command.ExecuteReaderAsync();
@@ -484,25 +469,36 @@ public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
                 result.TotalSinAsignar = reader.GetInt32(reader.GetOrdinal("TotalSinAsignar"));
             }
 
-            // Segundo resultado: asignados
+            // Segundo resultado: solo la lista correspondiente al tipo
             if (await reader.NextResultAsync())
             {
                 while (await reader.ReadAsync())
                 {
-                    result.Asignados.Add(LeerLitigioDesdeReader(reader));
-                }
-            }
+                    var litigio = LeerLitigioDesdeReader(reader);
 
-            // Tercer resultado: sin asignar
-            if (await reader.NextResultAsync())
-            {
-                while (await reader.ReadAsync())
-                {
-                    result.SinAsignar.Add(LeerLitigioDesdeReader(reader));
+                    if (tipo == "asignado")
+                        result.Asignados.Add(litigio);
+                    else
+                        result.SinAsignar.Add(litigio);
                 }
             }
 
             return Ok(result);
+        }
+
+
+
+        [HttpGet("Litigio_detalladoDigitador")]
+        public async Task<ActionResult<IEnumerable<LitigioDetallado>>> ObtenerLitigiosDetalladosDigitadores()
+        {
+            using var connection = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal"));
+
+            var resultado = await connection.QueryAsync<LitigioDetallado>(
+                "ObtenerLitigiosDigitadores",
+                commandType: CommandType.StoredProcedure
+            );
+
+            return Ok(resultado);
         }
 
         private LitigioDetalladoS LeerLitigioDesdeReader(SqlDataReader reader)
@@ -520,24 +516,6 @@ public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
                 Asignado = Convert.ToBoolean(reader["Asignado"])
             };
         }
-
-
-
-
-        [HttpGet("Litigio_detalladoDigitador")]
-        public async Task<ActionResult<IEnumerable<LitigioDetallado>>> ObtenerLitigiosDetalladosDigitadores()
-        {
-            using var connection = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal"));
-
-            var resultado = await connection.QueryAsync<LitigioDetallado>(
-                "ObtenerLitigiosDigitadores",
-                commandType: CommandType.StoredProcedure
-            );
-
-            return Ok(resultado);
-        }
-
-
 
         [HttpGet("Litigio_Asignaciones")]
         public async Task<ActionResult<IEnumerable<LitigiosAsignadosAbogados>>> GetLitigiosAsignados([FromQuery] int idUsuario)
