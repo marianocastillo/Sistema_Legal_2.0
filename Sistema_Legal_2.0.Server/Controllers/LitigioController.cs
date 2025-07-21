@@ -443,6 +443,8 @@ namespace Sistema_Legal_2._0.Server.Controllers
             return Ok(resultado);
         }
 
+
+        //Api para paginar los litigios de 10 en 10 en la vista de gestion 
         [HttpGet("litigios-paginados")]
         public async Task<IActionResult> ObtenerLitigiosPaginados(
         string tipo = "asignado",

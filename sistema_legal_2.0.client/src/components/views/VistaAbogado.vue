@@ -8,11 +8,6 @@
         </span>
       </div>
 
-
-
-
-
-
       <div class="search-container">
         <span class="p-input-icon-left search-input-wrapper">
           <i class="pi pi-search search-icon" />
