@@ -139,8 +139,6 @@ const totalRegistros = computed(() =>
 );
 
 
-
-
 const tituloLitigio = computed(() => {
   if (filtroActivo.value === 'sinAsignar') return 'Litigios Sin Asignar';
   return 'Litigios Asignados';
@@ -193,8 +191,6 @@ async function cargarDatosPaginados(page = 0) {
   }
 }
 
-
-
 async function modificarLitigio(litigio) {
   try {
     const response = await api.get(`/api/Litigio/detallados/${litigio.id_Ltg}`);
@@ -217,7 +213,6 @@ function onPageChange(event) {
   cargarDatosPaginados(event.page);
 }
 
-
 function mostrarAsignados() {
   filtroActivo.value = 'asignado';
   cargarDatosPaginados(0);
@@ -236,9 +231,6 @@ onMounted(() => {
   // cargarDatosPaginados(0);
   mostrarAsignados(); // carga inicial por defecto
 });
-
-
-
 
 </script>
 

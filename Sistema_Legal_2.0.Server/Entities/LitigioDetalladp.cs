@@ -16,7 +16,7 @@ namespace Sistema_Legal_2._0.Server.Entities
         public string? ltg_Cedula_Demandante { get; set; }
         public string? ltg_Nombre_Demandante { get; set; }
         public string ltg_Tipo_Demandante { get; set; }
-
+        
         public string ltg_Nacionalidad { get; set; }
 
         public string ltg_Nombre_Representante { get; set; }
