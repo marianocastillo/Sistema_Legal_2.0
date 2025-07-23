@@ -115,7 +115,11 @@ app.UseStaticFiles();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
+
+    });
     app.UseDeveloperExceptionPage();
 }
 

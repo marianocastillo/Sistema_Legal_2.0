@@ -33,21 +33,7 @@ public partial class Audiencias
 
     public virtual Usuarios id_usuarioNavigation { get; set; }
 }
-public partial class Audienciasltg
-{
 
-    public int Id_audiencia { get; set; }
-    public int Id_litigio { get; set; }
-
-    public string Numero { get; set; }
-
-    public string Tipo { get; set; }
-    public DateTime? Fecha { get; set; }
-
-    public virtual ICollection<Evidencias> Evidencias { get; set; } = new List<Evidencias>();
-
-
-}
 
 
 public class AudienciaCalendarioDto

@@ -118,12 +118,16 @@ namespace Sistema_Legal_2._0.Server.Infraestructure
                 using var cmdCorreo = new SqlCommand("sp_GetInfoAudienciaCorreo", conn)
                 {
                     CommandType = CommandType.StoredProcedure
+                    
                 };
                 cmdCorreo.Parameters.AddWithValue("@IdAudiencia", idAudiencia);
-
+                
                 using var reader = await cmdCorreo.ExecuteReaderAsync();
                 if (await reader.ReadAsync())
                 {
+
+                    int id_Ltg = reader.GetInt32(reader.GetOrdinal("id_Ltg"));
+                    string urlDetalle = $"https://localhost:5173/Detalles/{id_Ltg}";
                     var body = $@"
              <div style='border: 1px solid #dcdcdc; border-radius: 10px; padding: 25px; font-family: Arial, sans-serif; background-color: #ffffff; max-width: 700px; margin: auto; box-shadow: 0 2px 5px rgba(0,0,0,0.05);'>
 
@@ -147,6 +151,8 @@ namespace Sistema_Legal_2._0.Server.Infraestructure
             <p><strong style='color: #083d7a;'>Representante:</strong> {reader["NombreRepresentante"]}</p>
             <p><strong style='color: #083d7a;'>Fecha de Audiencia:</strong> {((DateTime)reader["FechaAudiencia"]):f}</p>
         </div>
+       <p>Para más detalles, le invitamos a consultar el caso directamente en <a href='{urlDetalle}' style='color: #2b6cb0; text-decoration: none;'><strong>SILEG 2.0 HAGA CLICK AQUI PARA ACCEDER</strong></a>.</p>
+
                 </div>";
 
                     var correos = reader["UsuariosEmails"].ToString()
@@ -170,7 +176,7 @@ namespace Sistema_Legal_2._0.Server.Infraestructure
                     CommandType = CommandType.StoredProcedure
                 };
                 cmd.Parameters.AddWithValue("@IdLitigio", idLitigio);
-
+                string urlDetalle = $"https://localhost:5173/Detalles/{idLitigio}";
                 using var reader = await cmd.ExecuteReaderAsync();
                 if (await reader.ReadAsync())
                 {
@@ -194,6 +200,9 @@ namespace Sistema_Legal_2._0.Server.Infraestructure
             <p><strong style='color: #083d7a;'>Representante:</strong> {reader["NombreRepresentante"]}</p>
             <p><strong style='color: #083d7a;'>Fecha de Audiencia:</strong> {((DateTime)reader["FechaAudiencia"]):f}</p>
         </div>
+
+       <p>Para más detalles, le invitamos a consultar el caso directamente en <a href='{urlDetalle}' style='color: #2b6cb0; text-decoration: none;'><strong>SILEG 2.0 HAGA CLICK AQUI PARA ACCEDER</strong></a>.</p>
+
                 </div>";
 
                     var correos = reader["UsuariosEmails"].ToString()
