@@ -126,7 +126,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                     commandType: CommandType.StoredProcedure
                 );
 
-                await CorreoHelper.EnviarCorreoAudiencia(idAudiencia, conn);
+                 CorreoHelper.EnviarCorreoAudiencia(idAudiencia, conn);
 
                 return Ok(new
                 {
@@ -175,7 +175,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                     commandType: CommandType.StoredProcedure
                 );
 
-                await CorreoHelper.EnviarCorreoAudiencia(idAudiencia, conn);
+                CorreoHelper.EnviarCorreoAudiencia(idAudiencia, conn);
 
                 return Ok(new
                 {
@@ -217,7 +217,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
                 await connection.ExecuteAsync("ActualizarAudiencia", parametros, commandType: CommandType.StoredProcedure);
 
-                await CorreoHelper.EnviarCorreoAudienciaActualizada(dto.IdLitigio, connection);
+                CorreoHelper.EnviarCorreoAudienciaActualizada(dto.IdLitigio, connection);
 
                 return Ok(new
                 {

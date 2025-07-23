@@ -221,7 +221,7 @@ namespace Sistema_Legal_2._0.Server.Controller
             if (rows > 0)
             {
                 // 🟢 Enviar correo de notificación
-                await CorreoHelper.EnviarCorreoAsignacionAbogado(model.IdUsuario, model.IdLtg, conn);
+             CorreoHelper.EnviarCorreoAsignacionAbogado(model.IdUsuario, model.IdLtg, conn);
                 return Ok("Asociación guardada correctamente.");
             }
 

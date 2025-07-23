@@ -51,17 +51,17 @@ public class RecordatorioJob : BackgroundService
                         if (diferencia.TotalMinutes <= 15 && diferencia.TotalMinutes > 0)
                         {
                             tipoNotificacion = "15 minutos antes";
-                            subject = "⏰ Audiencia en 15 minutos";
+                            subject = $"⏰ Audiencia en menos de 15 minutoses la No.{reader["Numero Acto"]}";
                         }
                         else if (fechaAudiencia.Date == ahora.Date)
                         {
                             tipoNotificacion = "Diario";
-                            subject = "📅 Hoy tiene una audiencia";
+                            subject = $"📅 Hoy tiene una audiencia  es la No.{reader["Numero Acto"]}";
                         }
                         else if (fechaAudiencia.Date == ahora.Date.AddDays(3))
                         {
                             tipoNotificacion = "3 dias Antes";
-                            subject = "📌 Próxima audiencia dentro de 3 días";
+                            subject = $"📌 Próxima audiencia dentro de 3 días es la No.{reader["Numero Acto"]}";
                         }
                         else
                         {
@@ -120,7 +120,7 @@ public class RecordatorioJob : BackgroundService
                         Console.WriteLine($"📧 Enviando correo ({tipoNotificacion}) para audiencia: {idAudiencia} - {fechaAudiencia}");
                         await Mailing.SendMailAsync(correo);
 
-                        await CorreoHelper.RegistrarNotificacion(connection, idAudiencia, tipoNotificacion);
+                      CorreoHelper.RegistrarNotificacion(connection, idAudiencia, tipoNotificacion);
                     }
 
                 }
