@@ -1,10 +1,18 @@
 <template>
   <div class="pop-up">
     <div class="pop-up-inner">
-      <span class="pop-up-close" @click="$emit('close')">&times;</span>
 
-      <h2>Agregar evidencia y comentario</h2>
-      <br>
+      <div class="flex justify-content-between align-items-center m-2 flex-wrap gap-2 pt-3 w-100 custom-header">
+        <!-- Columna izquierda: solo el título -->
+        <div class="flex-grow">
+          <h2 class="text-2xl font-bold m-0">Agregar evidencia y comentario</h2>
+        </div>
+
+        <!-- Columna derecha: botones + buscador -->
+        <div class="flex items-center gap-2">
+         <button class="close-btn" @click="$emit('close')">&times;</button>
+        </div>
+      </div>
       <div class=" ms-3 file-container">
         <FileUpload name="Archivo" customUpload @select="handleExpedienteUpload" mode="basic"
           chooseLabel="Elegir archivo" class="w-full md:w-19rem" style="background-color: #003870;" />
@@ -130,19 +138,15 @@ async function guardar() {
   border-radius: 8px;
 }
 
-.pop-up-close {
-  position: absolute;
-  top: 8px;
-  right: 12px;
-  font-size: 3rem;
-  color: #333;
-  cursor: pointer;
+.custom-header {
+  border-bottom: 1px solid #ddd;
 }
+
 
 .pop-up-inner {
   background: white;
   color: black;
-  padding: 30px;
+  padding: 0 30px 30px 30px;
   border-radius: 10px;
   width: 90%;
   max-width: 600px;

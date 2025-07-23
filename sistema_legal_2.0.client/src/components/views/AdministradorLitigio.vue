@@ -82,11 +82,11 @@
               <i class="pi pi-eye white-icon"></i>
             </button>
             <!-- Modificar -->
-            <button class="btn btn-sm btn-hover" @click="modificarLitigio(data)"
+            <!-- <button class="btn btn-sm btn-hover" @click="modificarLitigio(data)"
               style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;"
               v-tooltip="'Modificar litigio'">
               <i class="pi pi-pencil white-icon"></i>
-            </button>
+            </button> -->
 
             <!-- Asignar -->
             <button v-if="mostrarAsignar" class="btn btn-sm btn-hover" @click="togglePopUp(data)"
@@ -191,22 +191,23 @@ async function cargarDatosPaginados(page = 0) {
   }
 }
 
-async function modificarLitigio(litigio) {
-  try {
-    const response = await api.get(`/api/Litigio/detallados/${litigio.id_Ltg}`);
-    const litigioCompleto = response.data;
+// esta funcion es para modificar litigio, por el momento estara comentada
+// async function modificarLitigio(litigio) {
+//   try {
+//     const response = await api.get(`/api/Litigio/detallados/${litigio.id_Ltg}`);
+//     const litigioCompleto = response.data;
 
-    if (!litigioCompleto) {
-      throw new Error('No se encontró información del litigio.');
-    }
+//     if (!litigioCompleto) {
+//       throw new Error('No se encontró información del litigio.');
+//     }
 
-    localStorage.setItem('litigioModificacion', JSON.stringify(litigioCompleto));
-    router.push('/modificarregistro');
-  } catch (error) {
-    console.error('Error al cargar litigio desde el backend:', error);
-    push.error('No se pudo cargar la información del litigio.');
-  }
-}
+//     localStorage.setItem('litigioModificacion', JSON.stringify(litigioCompleto));
+//     router.push('/modificarregistro');
+//   } catch (error) {
+//     console.error('Error al cargar litigio desde el backend:', error);
+//     push.error('No se pudo cargar la información del litigio.');
+//   }
+// }
 
 function onPageChange(event) {
   paginaActual.value = event.page;

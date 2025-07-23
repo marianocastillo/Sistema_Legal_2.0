@@ -196,6 +196,18 @@
   transition: background-color 0.2s !important;
 }
 
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: #888;
+  transition: color 0.2s;
+}
+
+.close-btn:hover {
+  color: #e53935;
+}
 @media (min-width: 1400px) {
   .dialog-formulario-form label {
     font-size: 1rem !important;

@@ -1,6 +1,6 @@
 <template>
   <Dialog v-model:visible="visible" modal class="dialog-asignacion" :closable="false" :draggable="false"
-    :header="`Abogados asignados - Acto No. ${props.ltg_acto}`">
+    :header="`Abogados asignados - Acto No. ${props.ltg_acto}`" :style="{ width: '40%' }">
     <!-- Lista de abogados asignados como tarjetas -->
     <div class="abogados-lista mt-3">
       <div v-for="abogado in abogadosAsignados" :key="abogado.idUsuario" class="abogado-card">
@@ -10,9 +10,9 @@
             casos)
           </span>
         </div>
-        <Button icon="pi pi-trash thicker-icon" class="p-button-rounded p-button-text p-button-sm text-danger"
-          v-tooltip.top="'Eliminar abogado'" aria-label="Eliminar" @click="confirmarEliminacion(abogado.idUsuario)"
-          style="background-color: #003870;" />
+        <Button v-if="!esLitigante" icon="pi pi-trash thicker-icon"
+          class="p-button-rounded p-button-text p-button-sm text-danger" v-tooltip.top="'Eliminar abogado'"
+          aria-label="Eliminar" @click="confirmarEliminacion(abogado.idUsuario)" style="background-color: #003870;" />
       </div>
 
       <div v-if="abogadosAsignados.length === 0" class="text-center text-muted mt-2">
@@ -21,16 +21,16 @@
     </div>
 
     <!-- Dropdown + botones -->
-    <div class="dropdown-section mt-4 d-flex align-items-center gap-2 flex-wrap">
-      <Dropdown v-model="usuarioSeleccionado" :options="usuariosFiltrados" optionLabel="nombre" optionValue="id"
-        placeholder="Selecciona un abogado" appendTo="body" style="min-width: 300px"
+    <div class="dropdown-section mt-4 d-flex align-items-center justify-content-end gap-2 flex-wrap">
+      <Dropdown v-if="!esLitigante" v-model="usuarioSeleccionado" :options="usuariosFiltrados" optionLabel="nombre"
+        optionValue="id" placeholder="Selecciona un abogado" appendTo="body" style="min-width: 300px"
         emptyMessage="-- No hay más abogados --" />
       <Button :label="isLoadingAsignar ? 'Asignando...' : 'Asignar'" icon="pi pi-user-plus"
         class="p-button-sm text-white border-0" :style="{ backgroundColor: '#003870' }"
         :disabled="!usuarioSeleccionado || isLoadingAsignar" @click="asignarAbogado" />
-
       <Button label="Cerrar" icon="pi pi-times" class="p-button-sm btn-aceptar" @click="emit('close')" />
     </div>
+
   </Dialog>
 
 
@@ -65,7 +65,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import Dropdown from 'primevue/dropdown'
 import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
@@ -78,6 +78,8 @@ const props = defineProps({
   id_Ltg: Number,
   ltg_acto: [String, Number]
 })
+
+
 
 const emit = defineEmits(['close'])
 
@@ -93,6 +95,11 @@ const loadingUsuarios = ref(false)
 const loadingAsignados = ref(false)
 
 const confirm = useConfirm()
+
+// verificamos si es un abogado que esta logueado
+const usuarioActual = ref(JSON.parse(localStorage.getItem('usuario')))
+const esLitigante = computed(() => usuarioActual.value?.rol === 'Abogado Litigante')
+
 
 onMounted(() => {
   recargarDatos()

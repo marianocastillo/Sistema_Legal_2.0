@@ -1,61 +1,3 @@
-<template>
- <Dialog v-model:visible="visible" modal  :closable="false" :draggable="false" @hide="emit('close')">
-  <!-- Header personalizado -->
-  <template #header>
-    <div class="flex justify-content-between align-items-center w-full">
-      <h2 class="text-lg font-bold m-0">Editar Audiencia</h2>
-
-      <div class="flex gap-2">
-        <Button label="Cancelar" class="p-button-text" @click="visible = false" />
-        <Button label="Actualizar" icon="pi pi-calendar-plus" class="p-button"
-          :loading="uploading" @click="guardar" style="background-color: #003870; color: white" />
-      </div>
-    </div>
-  </template>
-
-  <!-- Contenido del formulario -->
-  <div class="p-fluid formgrid grid mt-2">
-    <div class="field col-12 md:col-3">
-      <label>Nombre de la Audiencia *</label>
-      <InputText v-model="numero" />
-    </div>
-
-    <div class="field col-12 md:col-3">
-      <label>Modalidad *</label>
-      <Dropdown v-model="tipo" :options="tiposAudiencia" optionLabel="label" optionValue="value" placeholder="Seleccione un tipo" />
-    </div>
-
-    <div class="field col-12 md:col-3">
-      <label>Fecha de Audiencia *</label>
-      <Calendar v-model="Fecha" dateFormat="yy-mm-dd" showIcon :minDate="hoy" :placeholder="placeholderFecha"  class="w-full"/>
-    </div>
-
-    <div class="field col-12 md:col-3">
-      <label>Hora Audiencia *</label>
-      <Calendar v-model="horaSeleccionada" showIcon timeOnly hourFormat="12" placeholder="09:00am" class="w-full"/>
-    </div>
-
-    <div class="field col-12 md:col-3">
-      <label>Tribunal *</label>
-      <Dropdown v-model="tribunalSeleccionado" :options="tribunales" optionLabel="nombre_Tribunal"
-        optionValue="id_Tribunal" placeholder="Seleccione un tribunal" filter />
-    </div>
-
-    <div class="field col-12 md:col-3">
-      <label>Sala *</label>
-      <Dropdown v-model="salaId" :options="salasFiltradas" :disabled="!tribunalSeleccionado" optionLabel="nombre"
-        optionValue="idSala" placeholder="Seleccione una sala" filter />
-    </div>
-  </div>
-
-  <!-- Notificaciones -->
-  <Notivue v-slot="item">
-    <Notifications :item="item" />
-  </Notivue>
-</Dialog>
-
-</template>
-
 <script setup>
 import { ref, onMounted, computed, watch, nextTick } from 'vue';
 
@@ -165,11 +107,12 @@ async function guardar() {
     await axios.put('/api/Files/actualizarAudiencias', body);
     emit('actualizar');
     emit('close');
-  notif.resolve('Audiencia creada correctamente');
+    notif.resolve('Audiencia creada correctamente');
   } catch (error) {
-  const msg = error.response?.data?.error || 'Error al crear la audiencia';
-  notif.reject(msg);
-}}
+    const msg = error.response?.data?.error || 'Error al crear la audiencia';
+    notif.reject(msg);
+  }
+}
 
 onMounted(async () => {
   await cargarDatosDropdowns();
@@ -178,9 +121,96 @@ onMounted(async () => {
 
 </script>
 
-<style scoped>
+<template>
+  <Dialog :style="{ width: '40%' }" v-model:visible="visible" modal :closable="false" :draggable="false" @hide="emit('close')"
+    class="dialog-editar-audiencia">
+      <template #header>
+      <div class="flex justify-content-between align-items-center m-2 flex-wrap gap-2 pt-3 w-100 custom-header">
+        <!-- Columna izquierda: solo el título -->
+        <div class="flex-grow">
+          <h2 class="text-2xl font-bold m-0">Editar Audiencia</h2>
+        </div>
 
-/* Estilo para el diálogo de edición de audiencia */
+        <!-- Columna derecha: botones + buscador -->
+        <div class="flex items-center gap-2">
+         <button class="close-btn" @click="visible = false">&times;</button>
+
+        </div>
+      </div>
+    </template>
+    <!-- Formulario vertical -->
+    <div class="form-content">
+      <div class="field">
+        <label class="block mb-2 text-sm font-medium">Nombre de la Audiencia *</label>
+        <InputText v-model="numero" class="w-full" placeholder="Nombre de la audiencia" />
+      </div>
+
+      <div class="field">
+        <label class="block mb-2 text-sm font-medium">Modalidad *</label>
+        <Dropdown v-model="tipo" :options="tiposAudiencia" optionLabel="label" optionValue="value" class="w-full"
+          placeholder="Seleccione un tipo" />
+      </div>
+
+      <div class="field">
+        <label class="block mb-2 text-sm font-medium">Fecha de Audiencia *</label>
+        <Calendar v-model="Fecha" dateFormat="yy-mm-dd" showIcon :minDate="hoy" class="w-full"
+          placeholder="Seleccione una fecha" />
+      </div>
+
+      <div class="field">
+        <label class="block mb-2 text-sm font-medium">Hora Audiencia *</label>
+        <Calendar v-model="horaSeleccionada" showIcon timeOnly hourFormat="12" placeholder="Ej: 8:00am"
+          class="w-full" />
+      </div>
+
+      <div class="field">
+        <label class="block mb-2 text-sm font-medium">Tribunal *</label>
+        <Dropdown v-model="tribunalSeleccionado" :options="tribunales" optionLabel="nombre_Tribunal"
+          optionValue="id_Tribunal" placeholder="Seleccione un tribunal" class="w-full" filter />
+      </div>
+
+      <div class="field">
+        <label class="block mb-2 text-sm font-medium">Sala *</label>
+        <Dropdown v-model="salaId" :options="salasFiltradas" :disabled="!tribunalSeleccionado" optionLabel="nombre"
+          optionValue="idSala" placeholder="Seleccione una sala" class="w-full" filter />
+      </div>
+
+      <div class="mt-4 text-center">
+        <Button label="Actualizar" icon="pi pi-calendar-plus" class="p-button text-white" @click="guardar"
+          :loading="uploading" style="background-color: #003870" />
+      </div>
+    </div>
+
+    <!-- Notificaciones -->
+    <Notivue v-slot="item">
+      <Notifications :item="item" />
+    </Notivue>
+  </Dialog>
+</template>
+
+<style scoped>
+.dialog-editar-audiencia {
+  width: 500px;
+  max-width: 95vw;
+}
+
+.form-content {
+  padding: 1rem 1.5rem;
+}
+
+.field {
+  margin-bottom: 1rem;
+}
+
+.custom-header {
+  border-bottom: 1px solid #ddd;
+}
+
+.dialog-title {
+  font-size: 1.2rem;
+  color: #003870;
+  font-weight: bold;
+}
 
 
 </style>

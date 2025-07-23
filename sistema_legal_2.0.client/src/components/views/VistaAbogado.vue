@@ -56,15 +56,21 @@
       <Column header="Acciones">
         <template #body="{ data }">
           <div class="btn-group">
-            <button class="btn btn-sm" style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;"
+            <button class="btn btn-sm btn-hover" style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;"
               v-tooltip="'Ver litigio'" @click="$router.push({ path: `/Detalles/${data.id_Ltg}` })">
               <i class="pi pi-eye white-icon"></i>
             </button>
 
-            <button class="btn btn-sm" @click="modificarLitigio(data)"
+            <!-- Asignar -->
+            <button v-if="mostrarAsignar" class="btn btn-sm btn-hover" @click="togglePopUp(data)"
+              style="background-color: #003870; border-color: #003870;" v-tooltip="'Ver abogados'">
+              <i class="pi pi-user-edit white-icon"></i>
+            </button>
+
+            <!-- <button class="btn btn-sm" @click="modificarLitigio(data)"
               style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;" title="Modificar litigio">
               <i class="pi pi-pencil white-icon"></i>
-            </button>
+            </button> -->
           </div>
         </template>
       </Column>
@@ -98,6 +104,7 @@ const data = ref([]);
 const totalRecords = ref(0);
 const currentPage = ref(1);
 const rows = ref(10); // Fijo
+const mostrarAsignar = ref(true);
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS }
@@ -152,22 +159,23 @@ function onPageChange(event) {
   cargarLitigios();
 }
 
-async function modificarLitigio(litigio) {
-  try {
-    const response = await api.get(`/api/Litigio/detallados/${litigio.id_Ltg}`);
-    const litigioCompleto = response.data;
+// esta funcion es de modificar litigio, por el momento estara comentada
+// async function modificarLitigio(litigio) {
+//   try {
+//     const response = await api.get(`/api/Litigio/detallados/${litigio.id_Ltg}`);
+//     const litigioCompleto = response.data;
 
-    if (!litigioCompleto) {
-      throw new Error('No se encontró información del litigio.');
-    }
+//     if (!litigioCompleto) {
+//       throw new Error('No se encontró información del litigio.');
+//     }
 
-    localStorage.setItem('litigioModificacion', JSON.stringify(litigioCompleto));
-    router.push('/modificarregistro');
-  } catch (error) {
-    console.error('Error al cargar litigio desde el backend:', error);
-    push.error('No se pudo cargar la información del litigio.');
-  }
-}
+//     localStorage.setItem('litigioModificacion', JSON.stringify(litigioCompleto));
+//     router.push('/modificarregistro');
+//   } catch (error) {
+//     console.error('Error al cargar litigio desde el backend:', error);
+//     push.error('No se pudo cargar la información del litigio.');
+//   }
+// }
 
 onMounted(() => {
   cargarLitigios();
