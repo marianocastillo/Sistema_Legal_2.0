@@ -430,22 +430,6 @@ namespace Sistema_Legal_2._0.Server.Controllers
         }
 
 
-        [HttpGet("Litigio_detallado")]
-        public async Task<ActionResult<IEnumerable<LitigioDetallado>>> ObtenerLitigiosDetallados()
-        {
-            using var connection = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal"));
-
-            var resultado = await connection.QueryAsync<LitigioDetallado>(
-                "sp_ObtenerLitigiosDetallados",
-                commandType: CommandType.StoredProcedure
-            );
-            
-            return Ok(resultado);
-        }
-
-
-
-
         [HttpGet("SeguimientoPaginado")]
         public async Task<IActionResult> ObtenerLitigiosDetalladosPaginado(
     int page = 1,
