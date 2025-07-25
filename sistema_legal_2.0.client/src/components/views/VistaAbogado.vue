@@ -17,7 +17,7 @@
       </div>
     </div>
 
-    <DataTable :lazy="true" :value="data" :paginator="true" :rows="rows" :loading="loading" :totalRecords="totalRecords"
+    <DataTable :lazy="true" :value="data" :paginator="true" :rows="rows" :rowHover="true" :loading="loading" :totalRecords="totalRecords"
       :first="(currentPage - 1) * rows" :filters="filters" @page="onPageChange" :globalFilterFields="[
         'ltg_acto',
         'ltg_Cedula_Demandante',
@@ -35,7 +35,7 @@
       </Column>
       <Column field="ltg_Cedula_Demandante" header="Cédula demandante" />
       <Column field="ltg_Nombre_Demandante" header="Nombre demandante" />
-      <Column field="Nombre_Tipo_Demanda" header="Tipo de Demanda" />
+      <Column field="nombre_Tipo_Demanda" header="Tipo de Demanda" />
       <Column field="ltg_Fecha_Audiencia" header="Fecha audiencia">
         <template #body="{ data }">
           {{ data.ltg_Fecha_Audiencia?.split('T')[0] || 'Sin fecha' }}

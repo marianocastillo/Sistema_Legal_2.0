@@ -105,13 +105,47 @@ namespace Sistema_Legal_2._0.Server.Controllers
         public async Task<IActionResult> Eliminar(int id)
         {
             using var connection = new SqlConnection(_cadenaSQL);
-            var filas = await connection.ExecuteAsync("DELETE FROM Tribunales WHERE Id_Tribunal = @id", new { id });
 
-            if (filas == 0)
-                return NotFound(new { mensaje = "Tribunal no encontrado para eliminar" });
+            try
+            {
+                var filas = await connection.ExecuteAsync(
+                    "DELETE FROM Tribunales WHERE Id_Tribunal = @id",
+                    new { id }
+                );
 
-            return Ok(new { mensaje = "Tribunal eliminado correctamente" });
+                if (filas == 0)
+                {
+                    return NotFound(new
+                    {
+                        mensaje = "Tribunal no encontrado para eliminar."
+                    });
+                }
+
+                return Ok(new
+                {
+                    mensaje = "Tribunal eliminado correctamente."
+                });
+            }
+            catch (SqlException ex) when (ex.Number == 547) // Clave foránea violada
+            {
+                return Conflict(new
+                {
+                    mensaje = "No se puede eliminar el tribunal porque está relacionado con uno o más casos existentes.",
+                    codigo = 4091 // opcional: código interno si quieres más control desde el frontend
+                });
+            }
+            catch (Exception ex)
+            {
+                // Error inesperado
+                return StatusCode(500, new
+                {
+                    mensaje = "Error inesperado al intentar eliminar el tribunal.",
+                    detalle = ex.Message
+                });
+            }
         }
+
+
         //
         //
         //
@@ -231,10 +265,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                   FROM Salas
                   WHERE IdTribunal = @idTribunal";
 
-            var salas = await connection.QueryAsync<SalaDto>(query, new { idTribunal });
-
-            if (!salas.Any())
-                return NotFound(new { mensaje = "No se encontraron salas para el tribunal especificado." });
+            var salas = (await connection.QueryAsync<SalaDto>(query, new { idTribunal })).ToList();
 
             return Ok(salas);
         }

@@ -52,6 +52,8 @@ api.interceptors.response.use(
     else if (error.response.status == 403) {
       push.error("No tienes permisos para realizar esta acción");
     }
+    else if (error.response.status == 409) {
+    }
     else {
       push.error(error);
     }

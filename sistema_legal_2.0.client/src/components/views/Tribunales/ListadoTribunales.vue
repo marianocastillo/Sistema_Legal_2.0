@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import Dialog from 'primevue/dialog'
 import ConfirmDialog from 'primevue/confirmdialog'
 import InputText from 'primevue/inputtext'
@@ -27,6 +27,8 @@ const search = ref('')
 const page = ref(1)
 const perPage = 10
 const guardando = ref(false)
+const mostrarErrorEliminacion = ref(false)
+const mensajeErrorEliminacion = ref('')
 
 const totalPages = computed(() => Math.ceil(filteredTribunales.value.length / perPage))
 
@@ -86,11 +88,16 @@ const provincias = [
 ]
 
 const filteredTribunales = computed(() => {
-  if (!search.value) return tribunales.value
-  const term = search.value.toLowerCase()
-  return tribunales.value.filter(t =>
-    Object.values(t).some(val => String(val).toLowerCase().includes(term))
-  )
+  let lista = tribunales.value
+
+  if (search.value) {
+    const term = search.value.toLowerCase()
+    lista = lista.filter(t =>
+      Object.values(t).some(val => String(val).toLowerCase().includes(term))
+    )
+  }
+
+  return lista.sort((a, b) => b.id_Tribunal - a.id_Tribunal)
 })
 
 
@@ -98,6 +105,11 @@ const filteredTribunales = computed(() => {
 
 onMounted(() => cargarTribunales())
 
+watch(dialogVisible, (val) => {
+  if (val) {
+    page.value = 1 // Resetea la página al abrir el diálogo
+  }
+})
 async function cargarTribunales() {
   try {
     const { data } = await api.get('/api/Tribunales/Tribunales')
@@ -197,7 +209,12 @@ function confirmarEliminacion(id) {
         await cargarTribunales()
         push.success('Tribunal eliminado correctamente')
       } catch (err) {
-        push.error('No se pudo eliminar el tribunal, tiene casos agregados')
+        if (err.response?.status === 409) {
+          mensajeErrorEliminacion.value = err.response.data.mensaje
+        } else {
+          mensajeErrorEliminacion.value = 'Ocurrió un error inesperado al eliminar el tribunal.'
+        }
+        mostrarErrorEliminacion.value = true
       }
     }
   })
@@ -416,7 +433,17 @@ function soloNumeros(event) {
     </div>
   </Dialog>
 
+  <!-- dialogo de mensaje de error si no se puede eliminar  tribunal -->
+  <Dialog v-model:visible="mostrarErrorEliminacion" modal :closable="false" class="w-96">
+    <div class="text-center p-4">
+      <i class="pi pi-times-circle text-red-500 text-4xl mb-3"></i>
+      <p>{{ mensajeErrorEliminacion }}</p>
 
+      <div class="flex justify-content-center mt-4">
+        <Button label="Cerrar" class="btn-litigio" @click="mostrarErrorEliminacion = false" />
+      </div>
+    </div>
+  </Dialog>
 
   <DialogSalas v-if="tribunalSeleccionado" v-model:visible="mostrarDialogoSalas"
     :tribunal-id="tribunalSeleccionado.id_Tribunal" :nombre-tribunal="tribunalSeleccionado.nombre_Tribunal" />

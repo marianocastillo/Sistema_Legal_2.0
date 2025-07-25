@@ -38,7 +38,7 @@
 
         <Button
           label="Ver litigio"
-          icon="pi pi-pencil"
+          icon="pi pi-eye"
           class="mt-3 p-button-warning"
           @click="$router.push({ path: `/Detalles/${resultado.id_Ltg}` })" style="background-color: #003870;"
         />

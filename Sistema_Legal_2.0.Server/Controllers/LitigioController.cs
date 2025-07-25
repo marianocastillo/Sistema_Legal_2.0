@@ -444,6 +444,61 @@ namespace Sistema_Legal_2._0.Server.Controllers
         }
 
 
+
+
+        [HttpGet("SeguimientoPaginado")]
+        public async Task<IActionResult> ObtenerLitigiosDetalladosPaginado(
+    int page = 1,
+    int pageSize = 10,
+    string? search = null,
+    string? estatus = null 
+)
+        {
+            var result = new LitigiosDigitadoresPaginadoResponse();
+
+            using var connection = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal"));
+            using var command = new SqlCommand("sp_ObtenerLitigiosDetalladosSeguimiento", connection)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            command.Parameters.AddWithValue("@Page", page);
+            command.Parameters.AddWithValue("@PageSize", pageSize);
+            command.Parameters.AddWithValue("@Search", string.IsNullOrWhiteSpace(search) ? DBNull.Value : search);
+            command.Parameters.AddWithValue("@EstatusFiltro", string.IsNullOrWhiteSpace(estatus) ? DBNull.Value : estatus); // 👈 Esto faltaba
+
+            await connection.OpenAsync();
+            using var reader = await command.ExecuteReaderAsync();
+
+            if (await reader.ReadAsync())
+                result.Total = reader["Total"] != DBNull.Value ? Convert.ToInt32(reader["Total"]) : 0;
+
+            if (await reader.NextResultAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    var litigio = new LitigioDetallado
+                    {
+                        id_Ltg = Convert.ToInt32(reader["id_Ltg"]),
+                        ltg_acto = reader["ltg_acto"]?.ToString(),
+                        ltg_Fecha_Acto = reader["ltg_Fecha_Acto"] as DateTime?,
+                        ltg_Cedula_Demandante = reader["ltg_Cedula_Demandante"]?.ToString(),
+                        ltg_Nombre_Demandante = reader["ltg_Nombre_Demandante"]?.ToString(),
+                        TipoDemanda_Nombre = reader["TipoDemanda_Nombre"]?.ToString(),
+                        Estatus_Descripcion = reader["Estatus_Descripcion"]?.ToString(),
+                        ltg_Fecha_Audiencia = reader["ltg_Fecha_Audiencia"] as DateTime?
+                    };
+
+                    result.Litigios.Add(litigio);
+                }
+            }
+
+            return Ok(result);
+        }
+
+
+
+
         //Api para paginar los litigios de 10 en 10 en la bandeja de gestion de litigios
         [HttpGet("litigios-paginados")]
         public async Task<IActionResult> ObtenerLitigiosPaginados(
