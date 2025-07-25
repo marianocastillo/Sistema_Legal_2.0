@@ -171,6 +171,9 @@ function cerrarSala() {
   dialogVisibleSala.value = false
   mostrarDialogoTribunales.value = true
 }
+
+
+
 function abrirFormularioNuevaSala() {
   form.value = { idSala: 0, nombre: '' }
   editing.value = false
@@ -201,8 +204,9 @@ async function guardarSala() {
 
     await api[metodo](url, payload)
     push.success('Sala guardada correctamente')
-    formVisible.value = false
+
     await cargarSalas()
+    formVisible.value = false
     page.value = 1
   } catch (err) {
     push.error('Error al guardar sala')

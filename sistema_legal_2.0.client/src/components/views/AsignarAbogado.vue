@@ -11,7 +11,7 @@
           </span>
         </div>
         <Button v-if="!esLitigante" icon="pi pi-trash thicker-icon"
-          class="p-button-rounded p-button-text p-button-sm text-danger" v-tooltip.top="'Eliminar abogado'"
+          class="p-button-rounded p-button-text p-button-sm text-danger btn-hover" v-tooltip.top="'Eliminar abogado'"
           aria-label="Eliminar" @click="confirmarEliminacion(abogado.idUsuario)" style="background-color: #003870;" />
       </div>
 
@@ -21,15 +21,20 @@
     </div>
 
     <!-- Dropdown + botones -->
-    <div class="dropdown-section mt-4 d-flex align-items-center justify-content-end gap-2 flex-wrap">
-      <Dropdown v-if="!esLitigante" v-model="usuarioSeleccionado" :options="usuariosFiltrados" optionLabel="nombre"
-        optionValue="id" placeholder="Selecciona un abogado" appendTo="body" style="min-width: 300px"
-        emptyMessage="-- No hay más abogados --" />
-      <Button :label="isLoadingAsignar ? 'Asignando...' : 'Asignar'" icon="pi pi-user-plus"
-        class="p-button-sm text-white border-0" :style="{ backgroundColor: '#003870' }"
-        :disabled="!usuarioSeleccionado || isLoadingAsignar" @click="asignarAbogado" />
-      <Button label="Cerrar" icon="pi pi-times" class="p-button-sm btn-aceptar" @click="emit('close')" />
+    <div class="dropdown-section mt-4">
+      <div class="dropdown-flex">
+        <Dropdown v-if="!esLitigante" v-model="usuarioSeleccionado" :options="usuariosFiltrados" optionLabel="nombre"
+          optionValue="id" placeholder="Selecciona un abogado" appendTo="body" emptyMessage="-- No hay más abogados --"
+          class="dropdown-grow" />
+        <div class="btn-group">
+          <Button v-if="!esLitigante" :label="isLoadingAsignar ? 'Asignando...' : 'Asignar'" icon="pi pi-user-plus"
+            class="p-button-sm text-white border-0 btn-litigio me-2" :style="{ backgroundColor: '#003870' }"
+            :disabled="!usuarioSeleccionado || isLoadingAsignar" @click="asignarAbogado" />
+          <Button label="Cerrar" icon="pi pi-times" class="p-button-sm btn-aceptar btn-litigio" @click="emit('close')" />
+        </div>
+      </div>
     </div>
+
 
   </Dialog>
 
@@ -287,4 +292,18 @@ function construirPayloadDesdeLitigio(litigio) {
   color: #fff;
   font-weight: 600 !important;
 }
+
+.dropdown-flex {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+}
+
+.dropdown-grow {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+
 </style>

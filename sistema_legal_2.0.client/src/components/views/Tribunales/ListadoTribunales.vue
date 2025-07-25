@@ -138,9 +138,6 @@ async function guardarTribunal() {
     await cargarTribunales()
 
     mostrarMensajeExito.value = true
-    setTimeout(() => {
-      cerrarFormularioexito()
-    }, 10000)
   } catch (err) {
     mensajeError.value = 'Ocurrió un error al guardar el tribunal. Intenta nuevamente.'
     mostrarMensajeError.value = true
@@ -242,7 +239,7 @@ function soloNumeros(event) {
 
   <!-- dialogo principal del Mantenimiento de tribunales  -->
   <Dialog v-model:visible="dialogVisible" modal class="dialog-tribunales" :closable="false" :draggable="false"
-    :style="{ width: '80%', height: '85vh' }">
+    :style="{ width: '75%', height: '85vh' }">
     <template #header>
       <div class="flex justify-content-between align-items-center m-2 flex-wrap gap-2 pt-3 w-100">
         <!-- Columna izquierda: solo el título -->
@@ -294,15 +291,15 @@ function soloNumeros(event) {
           <td class="text-end ">
             <div class="btn-group">
               <button class="btn btn-sm btn-hover" style="background-color: #003870;"
-                @click="abrirFormularioEditar(tribunal)">
+                @click="abrirFormularioEditar(tribunal)" v-tooltip="'Editar Tribunal'">
                 <i class="pi pi-pencil white-icon"></i>
               </button>
               <button class="btn btn-sm btn-hover" style="background-color: #003870;"
-                @click="confirmarEliminacion(tribunal.id_Tribunal)">
+                @click="confirmarEliminacion(tribunal.id_Tribunal)" v-tooltip="'Eliminar Tribunal'">
                 <i class="pi pi-trash white-icon"></i>
               </button>
               <button class="btn btn-sm btn-hover" style="background-color: #003870;"
-                @click="abrirDialogoSalas(tribunal)">
+                @click="abrirDialogoSalas(tribunal)" v-tooltip="'Ver salas'">
                 <i class="pi pi-eye white-icon"></i>
               </button>
             </div>

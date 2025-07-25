@@ -79,6 +79,7 @@ onMounted(() => {
           <div class="sidebar-brand">
             <img src="../assets/LogoBlanco.png" alt="Logo" class="img-fluid" style="max-width: 50px;" />
             <h4 class="sidebar-title">Sistema Sileg 2.0</h4>
+
           </div>
         </div>
         <br />
@@ -149,6 +150,9 @@ onMounted(() => {
     </teleport>
   </div>
 </template>
+
+
+
 <script>
 
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
@@ -255,6 +259,8 @@ onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
 })
 </script>
+
+
 
 <style scoped>
 *,
@@ -391,7 +397,7 @@ body {
   font-size: 0.75rem;
   text-align: center;
   color: #999;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #f34141;
   padding-top: 1rem;
 }
 
@@ -461,7 +467,8 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  border-bottom: 1px solid #9c9c9c;
+  border-bottom: 1px solid #f34141;
+  padding-bottom: 0.2rem;
 }
 
 .sidebar-title {

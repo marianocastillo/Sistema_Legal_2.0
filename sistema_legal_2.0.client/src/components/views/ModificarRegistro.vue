@@ -3,9 +3,9 @@
     <div class="flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
       <h2 class="text-2xl font-semibold" style="color: #003870;">Modificar Litigio</h2>
       <router-link :to="rutaInicio" class="btn btn-sm text-white d-flex align-items-center custom-home-btn">
-          <i class="pi pi-home me-2"></i>
-          Inicio
-        </router-link>
+        <i class="pi pi-home me-2"></i>
+        Inicio
+      </router-link>
     </div>
 
     <!-- Formulario de registro  -->
@@ -17,18 +17,18 @@
           <legend class="font-bold text-lg">Información del Litigio</legend>
           <div class="grid">
 
-            <div class="field col-12 md:col-3">
+            <div class="field col-12 md:col-4">
               <label class="block mb-2">No. Acto Alguacil *</label>
               <InputText v-model="form.noActo" class="w-full" placeholder="No. Acto Alguacil" />
             </div>
 
-            <div class="field col-12 md:col-3">
+            <div class="field col-12 md:col-4">
               <label class="block mb-2">Fecha del Acto</label>
               <Calendar v-model="form.fechaActo" dateFormat="yy-mm-dd" showIcon placeholder="Fecha del acto"
                 class="w-full" />
             </div>
 
-            <div class="field col-12 md:col-3">
+            <div class="field col-12 md:col-4">
               <label class="block mb-2">Tipo de Demanda</label>
               <Dropdown v-model="form.tipoDemanda" :options="tiposDemanda" optionLabel="nombre" optionValue="id_demanda"
                 placeholder="Tipo de Demanda" class="w-full" />
@@ -46,11 +46,13 @@
                 optionValue="id_Tribunal" placeholder="--Seleccione Tribunal--" class="w-full" />
             </div> -->
 
-            <div class="field col-12 md:col-3">
+
+            <!-- modificado por el momento -->
+            <!-- <div class="field col-12 md:col-3">
               <label class="block mb-2">Estatus</label>
               <Dropdown v-model="form.estatus" :options="estatusList" optionLabel="ltg_description"
                 optionValue="ltg_estatus" placeholder="--Seleccione Estatus--" class="w-full" />
-            </div>
+            </div> -->
 
           </div>
         </fieldset>
@@ -61,29 +63,56 @@
             <div class="field col-12 md:col-3">
               <label class="block mb-2">Tipo de Demandante</label>
               <Dropdown v-model="form.tiposDemandante" :options="tiposDemandante" optionLabel="label"
-                optionValue="value" class="w-full" placeholder="Tipo de Demandante" />
+                optionValue="value" class="w-full" placeholder="Tipo de Demandante" @change="onTipoDemandanteChange" />
+
+
             </div>
 
             <div class="field col-12 md:col-3">
-              <label class="block mb-2">Cédula/RNC</label>
-              <InputText v-model="form.cedulaDemandante" class="w-full" :class="{ 'p-invalid': cedulaInvalida }"
-                :maxlength="form.tiposDemandante === 'Empresa' ? 9 : 11" @input="handleCedulaInput"
-                :placeholder="form.tiposDemandante === 'Empresa' ? 'RNC de la empresa' : 'Cédula del demandante'" />
-              <small v-if="cedulaInvalida" class="p-error">
-                {{ form.tiposDemandante === 'Empresa' ? 'Debe tener 9 dígitos numéricos (RNC).' : 'Debe tener 11 dígitos numéricos(cédula).' }}
+
+
+
+
+
+              <label for="cedulaDemandante" class="block mb-2" v-html="form.tiposDemandante === 'Persona Jurídica' ? 'RNC de la Empresa <span class=\'text-red-500\'>*</span>'
+                : 'Cédula del Demandante <span class=\'text-red-500\'>*</span>'">
+              </label>
+              <InputText id="cedulaDemandante" v-model="form.cedulaDemandante" :class="{ 'p-invalid': cedulaInvalida }"
+                :maxlength="form.tiposDemandante === 'Persona Jurídica' ? 9 : 11" @input="handleCedulaInput"
+                @blur="() => buscarPersonaPorDocumento(form.cedulaDemandante, 'ltg_Nombre_Demandante', 'Nacionalidad')"
+                class="w-full"
+                :placeholder="form.tiposDemandante === 'Persona Jurídica' ? 'Ej: 123456789' : 'Ej: 00112345678'" />
+              <small v-if="cedulaInvalida && !documentoNoEncontrado" class="p-error">
+                {{ form.tiposDemandante === 'Persona Jurídica' ? 'Debe tener 9 dígitos numéricos (RNC).' : `Debe tener
+                11 dígitos numéricos(cédula).` }}
               </small>
+              <small v-else-if="documentoNoEncontrado" class="p-error">
+                {{ form.tiposDemandante === 'Persona Jurídica' ? 'RNC no encontrado.' : 'Cédula no encontrada.' }}
+              </small>
+
+
+
+
+              <!-- <label class="block mb-2">Cédula/RNC</label>
+              <InputText v-model="form.cedulaDemandante" class="w-full" :class="{ 'p-invalid': cedulaInvalida }"
+              :maxlength="form.tiposDemandante === 'Persona Jurídica' ? 9 : 11" @input="handleCedulaInput"
+               :placeholder="form.tiposDemandante === 'Persona Jurídica' ? 'RNC de la empresa' : 'Cédula del demandante'" />
+              -->
+
             </div>
 
             <div class="field col-12 md:col-3">
               <label class="block mb-2">Nombre</label>
-              <InputText v-model="form.ltg_Nombre_Demandante" class="w-full"
-                :placeholder="form.tiposDemandante === 'Empresa' ? 'Nombre de la empresa' : 'Nombre del demandante'" />
+              <InputText id="nombreDemandante" v-model="form.ltg_Nombre_Demandante" class="w-full"
+                :disabled="!nombreDemandante"
+                :placeholder="form.tiposDemandante === 'Persona Jurídica' ? 'Nombre de la empresa' : 'Nombre del demandante'" />
             </div>
 
             <div class="field col-12 md:col-3">
               <label class="block mb-2">Nacionalidad</label>
-              <InputText v-model="form.Nacionalidad" class="w-full"
-                :placeholder="form.tiposDemandante === 'Empresa' ? 'País de constitución' : 'Nacionalidad'" />
+              <InputText id="nacionalidadDemandante" v-model="form.Nacionalidad" class="w-full"
+                :disabled="!nacionalidadDemandante"
+                :placeholder="form.tiposDemandante === 'Persona Jurídica' ? 'País de constitución' : 'Nacionalidad'" />
             </div>
 
             <div class="field col-12 md:col-4" v-if="form.tiposDemandante === 'Otros'">
@@ -98,19 +127,28 @@
           <legend class="font-bold text-lg">Datos del Representante</legend>
           <div class="grid">
 
-            <div class="field col-12 md:col-3">
+            <div class="field col-12 md:col-4">
               <label class="block mb-2">Cédula</label>
-              <InputText v-model="form.cedulaRepresentante" placeholder="Cédula del representante" class="w-full" />
+              <InputText v-model="form.cedulaRepresentante" class="w-full"
+                :class="{ 'p-invalid': documentoRepNoEncontrado }" placeholder="Cédula del representante" maxlength="11"
+                @input="handleCedulaRepresentanteInput" @blur="buscarRepresentantePorCedula" />
+              <small v-if="documentoRepNoEncontrado" class="p-error">
+                Cédula no encontrada o inválida.
+              </small>
+
+
             </div>
 
-            <div class="field col-12 md:col-3">
+            <div class="field col-12 md:col-4">
               <label class="block mb-2">Nombre</label>
-              <InputText v-model="form.nombreRepresentante" placeholder="Nombre del representante" class="w-full" />
+              <InputText v-model="form.nombreRepresentante" class="w-full" placeholder="Nombre del representante"
+                :disabled="true" />
             </div>
 
-             <div class="field col-12 md:col-3">
+            <div class="field col-12 md:col-4">
               <label class="block mb-2">Nacionalidad</label>
-              <InputText v-model="form.ltg_Nacionalidad_Representante" placeholder="Nacionalidad del representante" class="w-full" />
+              <InputText v-model="form.ltg_Nacionalidad_Representante" class="w-full"
+                placeholder="Nacionalidad del representante" :disabled="true" />
             </div>
 
           </div>
@@ -137,6 +175,7 @@ import Calendar from 'primevue/calendar'
 import Dropdown from 'primevue/dropdown'
 import Button from 'primevue/button'
 
+
 const router = useRouter()
 const hoy = ref(new Date())
 const rutaInicio = ref('');
@@ -144,6 +183,10 @@ const cedulaInvalida = ref(false)
 const tiposDemanda = ref([])
 const tribunales = ref([])
 const estatusList = ref([])
+const nombreHabilitado = ref(true)
+const nacionalidadHabilitado = ref(true)
+const documentoNoEncontrado = ref(false)
+const documentoRepNoEncontrado = ref(false)
 
 const form = ref({
   id_Ltg: null,
@@ -164,14 +207,29 @@ const form = ref({
   id_Sentencia: null,
 })
 
-  const usuarioLogueado = JSON.parse(localStorage.getItem('usuario'));
-  form.id_usuario = usuarioLogueado.idUsuario;
+const usuarioLogueado = JSON.parse(localStorage.getItem('usuario'));
+form.id_usuario = usuarioLogueado.idUsuario;
+
+const onTipoDemandanteChange = () => {
+  documentoNoEncontrado.value = false;
+  cedulaInvalida.value = false;
+
+  // Limpiar campos cuando se cambia el tipo de demandante
+  form.value.cedulaDemandante = '';
+  form.value.ltg_Nombre_Demandante = '';
+  form.value.Nacionalidad = '';
+
+  // También desactiva los campos nombre/nacionalidad si están controlados por lógica
+  nombreHabilitado.value = false;
+  nacionalidadHabilitado.value = false;
+};
 
 
 const tiposDemandante = [
-  { label: 'Empleado', value: 'Empleado' },
-  { label: 'Empresa', value: 'Empresa' },
-  { label: 'Otros', value: 'Otros' }
+  { label: 'Persona Física', value: 'Persona Física' },
+  { label: 'Persona Jurídica', value: 'Persona Jurídica' },
+  { label: 'Ex Empleado', value: 'Ex Empleado' }
+
 ]
 
 const cargarDatosDropdowns = async () => {
@@ -188,6 +246,52 @@ const cargarDatosDropdowns = async () => {
     console.error('Error al cargar los datos de los dropdowns:', error)
   }
 }
+
+const buscarRepresentantePorCedula = async () => {
+  const cedula = form.value.cedulaRepresentante?.trim() || '';
+  documentoRepNoEncontrado.value = false;
+
+  // Validar si la cédula está vacía
+  if (!cedula) {
+    documentoRepNoEncontrado.value = true;
+    form.value.nombreRepresentante = '';
+    form.value.ltg_Nacionalidad_Representante = '';
+    return;
+  }
+
+  // Validar que tenga exactamente 11 dígitos numéricos
+  if (!/^\d{11}$/.test(cedula)) {
+    documentoRepNoEncontrado.value = true;
+    form.value.nombreRepresentante = '';
+    form.value.ltg_Nacionalidad_Representante = '';
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/Litigio/BuscarDocumento/${cedula}`);
+
+    if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+
+    const data = await res.json();
+
+    if (!data?.nombre || !data?.nacionalidad) {
+      documentoRepNoEncontrado.value = true;
+      form.value.nombreRepresentante = '';
+      form.value.ltg_Nacionalidad_Representante = '';
+      return;
+    }
+
+    form.value.nombreRepresentante = data.nombre;
+    form.value.ltg_Nacionalidad_Representante = data.nacionalidad;
+
+  } catch (err) {
+    console.warn(`❌ Error al buscar representante con cédula ${cedula}:`, err);
+    documentoRepNoEncontrado.value = true;
+    form.value.nombreRepresentante = '';
+    form.value.ltg_Nacionalidad_Representante = '';
+  }
+};
+
 
 onMounted(async () => {
   await cargarDatosDropdowns()
@@ -216,7 +320,7 @@ onMounted(async () => {
       otrosDemandante: data.ltg_Tipo_Demandante === 'Otros' ? data.otrosDemandante || '' : '',
       cedulaRepresentante: data.ltg_Cedula_Representante,
       nombreRepresentante: data.ltg_Nombre_Representante,
-      ltg_Nacionalidad_Representante : data.ltg_Nacionalidad_Representante,
+      ltg_Nacionalidad_Representante: data.ltg_Nacionalidad_Representante,
       fechaAudiencia: data.ltg_Fecha_Audiencia ? new Date(data.ltg_Fecha_Audiencia) : null,
       tribunal: data.id_Tribunal,
       estatus: data.id_Estatus ?? data.ltg_estatus ?? null,
@@ -254,30 +358,128 @@ onMounted(async () => {
 //Validación dinámica para cédula o RNC según el tipo
 const validarIdentificacion = (valor, tipo) => {
   if (!valor) return false
-  const regex = tipo === 'Empresa' ? /^\d{9}$/ : /^\d{11}$/
+  const regex = tipo === 'Persona Jurídica' ? /^\d{9}$/ : /^\d{11}$/
   return regex.test(valor)
 }
 
+const buscarPersonaPorDocumento = async (documento, campoNombre, campoNacionalidad) => {
+  const doc = documento?.trim() || '';
+  documentoNoEncontrado.value = false;
+  const tipo = form.value.tiposDemandante;
+
+  // Validar longitud mínima
+  if (!doc || doc.length < 9) {
+    form.value[campoNombre] = '';
+    form.value[campoNacionalidad] = '';
+    nombreHabilitado.value = false;
+    nacionalidadHabilitado.value = false;
+    documentoNoEncontrado.value = true;
+    return;
+  }
+
+  // Validar si el tipo de documento no coincide con el tipo de demandante
+  const isCedula = doc.length === 11;
+  const isRNC = doc.length === 9;
+
+  if ((tipo === 'Persona Física' || tipo === 'Ex Empleado') && !isCedula) {
+    documentoNoEncontrado.value = true;
+    form.value[campoNombre] = '';
+    form.value[campoNacionalidad] = '';
+    nombreHabilitado.value = false;
+    nacionalidadHabilitado.value = false;
+    return;
+  }
+
+  if (tipo === 'Persona Jurídica' && !isRNC) {
+    documentoNoEncontrado.value = true;
+    form.value[campoNombre] = '';
+    form.value[campoNacionalidad] = '';
+    nombreHabilitado.value = false;
+    nacionalidadHabilitado.value = false;
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/Litigio/BuscarDocumento/${doc}`);
+    if (!res.ok) throw new Error(`Respuesta HTTP no válida: ${res.status}`);
+
+    const data = await res.json();
+
+    if (!data?.nombre || !data?.nacionalidad) {
+      documentoNoEncontrado.value = true;
+      form.value[campoNombre] = '';
+      form.value[campoNacionalidad] = '';
+      nombreHabilitado.value = false;
+      nacionalidadHabilitado.value = false;
+      return;
+    }
+
+    form.value[campoNombre] = data.nombre;
+    form.value[campoNacionalidad] = data.nacionalidad;
+    nombreHabilitado.value = true;
+    nacionalidadHabilitado.value = true;
+
+  } catch (error) {
+    console.warn(`❌ Error al buscar el documento ${doc}:`, error);
+    form.value[campoNombre] = '';
+    form.value[campoNacionalidad] = '';
+    nombreHabilitado.value = false;
+    nacionalidadHabilitado.value = false;
+    documentoNoEncontrado.value = true;
+  }
+};
+
+
+
 //Manejo de input: solo números y longitud según tipo
 const handleCedulaInput = (event) => {
+  documentoNoEncontrado.value = false
   const soloNumeros = event.target.value.replace(/\D/g, '')
   const tipo = form.value.tiposDemandante
-  const maxLength = tipo === 'Empresa' ? 9 : 11
+  const maxLength = tipo === 'Persona Jurídica' ? 9 : 11
   form.value.cedulaDemandante = soloNumeros.slice(0, maxLength)
   cedulaInvalida.value = !validarIdentificacion(form.value.cedulaDemandante, tipo)
 }
 
+
+const handleCedulaRepresentanteInput = (event) => {
+  documentoRepNoEncontrado.value = false;
+  const soloNumeros = event.target.value.replace(/\D/g, '');
+  form.value.cedulaRepresentante = soloNumeros.slice(0, 11);
+};
+
 const registrarLitigio = async () => {
   const tipo = form.value.tiposDemandante
+
+  // 1. Validación de cédula/RNC
   if (!validarIdentificacion(form.value.cedulaDemandante, tipo)) {
     cedulaInvalida.value = true
-    const tipoTexto = tipo === 'Empresa' ? 'RNC (9 dígitos)' : 'Cédula (11 dígitos)'
+    const tipoTexto = tipo === 'Persona Jurídica' ? 'RNC (9 dígitos)' : 'Cédula (11 dígitos)'
     push.error(`Debe ingresar un ${tipoTexto} válido.`)
     return
   } else {
     cedulaInvalida.value = false
   }
 
+  // 2. Validación si no se encontró el documento
+  if (documentoNoEncontrado.value) {
+    push.error('La cédula o RNC ingresado no fue encontrado en los registros.')
+    return
+  }
+
+  // Validación cédula representante
+  if (!/^\d{11}$/.test(form.value.cedulaRepresentante)) {
+    documentoRepNoEncontrado.value = true;
+    push.error('Debe ingresar una cédula válida del representante (11 dígitos).');
+    return;
+  }
+
+  if (documentoRepNoEncontrado.value) {
+    push.error('La cédula del representante no fue encontrada en los registros.');
+    return;
+  }
+
+  // 3. Armar el payload solo si pasó todas las validaciones
   const payload = {
     id_Ltg: form.value.id_Ltg,
     ltg_acto: form.value.noActo,
@@ -289,7 +491,7 @@ const registrarLitigio = async () => {
     ltg_Tipo_Demandante: tipo === 'Otros' ? form.value.otrosDemandante : tipo,
     ltg_Cedula_Representante: form.value.cedulaRepresentante,
     ltg_Nombre_Representante: form.value.nombreRepresentante,
-    ltg_Nacionalidad_Representante : form.value.ltg_Nacionalidad_Representante,
+    ltg_Nacionalidad_Representante: form.value.ltg_Nacionalidad_Representante,
     ltg_Fecha_Audiencia: form.value.fechaAudiencia
       ? form.value.fechaAudiencia.toISOString().split('T')[0]
       : null,
@@ -298,59 +500,58 @@ const registrarLitigio = async () => {
     id_Sentencia: form.value.id_Sentencia,
     id_usuario: form.value.id_usuario,
     id_Estatus: form.value.estatus,
-    id_usuario: form.value.id_usuario
   }
 
   try {
-  const response = await fetch('/api/Litigio/EditarLitigio', {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(payload)
-  });
+    const response = await fetch('/api/Litigio/EditarLitigio', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
 
-  let data;
-  try {
-    data = await response.clone().json();
-  } catch (jsonErr) {
-    const text = await response.text();
-    console.error("❌ Respuesta no es JSON:", text);
-    data = { error: text };
+    let data;
+    try {
+      data = await response.clone().json();
+    } catch (jsonErr) {
+      const text = await response.text();
+      console.error("❌ Respuesta no es JSON:", text);
+      data = { error: text };
+    }
+
+    console.log("👉 Datos que devuelve el backend:", data);
+
+    if (response.ok) {
+      push.success('Litigio actualizado exitosamente.');
+      localStorage.removeItem('litigioModificacion');
+
+      const usuarioActual = JSON.parse(localStorage.getItem('usuario'));
+      const perfil = usuarioActual?.perfil;
+
+      const rutasPorPerfil = {
+        1: '/Seguimiento',
+        2: '/GestionLitigios',
+        3: '/LitigiosRegistrados',
+        4: '/abogado/inicio'
+      };
+
+      const ruta = rutasPorPerfil[perfil] || '/Seguimiento';
+      router.push(ruta);
+    } else {
+      push.error(data?.message || 'Error al actualizar el litigio.');
+    }
+  } catch (err) {
+    console.error('Error al actualizar:', err);
+    push.error('Error de red o campos incompletos.');
   }
-
-  console.log("👉 Datos que devuelve el backend:", data);
-
-  if (response.ok) {
-    push.success('Litigio actualizado exitosamente.');
-    localStorage.removeItem('litigioModificacion');
-
-    const usuarioActual = JSON.parse(localStorage.getItem('usuario'));
-    const perfil = usuarioActual?.perfil;
-
-    const rutasPorPerfil = {
-      1: '/Seguimiento',
-      2: '/GestionLitigios',
-      3: '/LitigiosRegistrados',
-      4: '/abogado/inicio'
-    };
-
-    const ruta = rutasPorPerfil[perfil] || '/Seguimiento';
-    router.push(ruta);
-  } else {
-    push.error(data?.message || 'Error al actualizar el litigio.');
-  }
-} catch (err) {
-  console.error('Error al actualizar:', err);
-  push.error('Error de red o campos incompletos.');
-}}
+}
 
 </script>
 
 
 
 <style scoped>
-
 legend {
   float: none !important;
   display: inline-block !important;
@@ -398,5 +599,4 @@ fieldset {
   border-color: #002f66;
   color: white;
 }
-
 </style>

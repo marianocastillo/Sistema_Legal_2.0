@@ -54,7 +54,7 @@
 
       <Column header="Acciones">
         <template #body="{ data }">
-          <button class="btn btn-sm" style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;"
+          <button class="btn btn-sm btn-hover" style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;"
             v-tooltip="'Ver litigio'" @click="$router.push({ path: `/Detalles/${data.id_Ltg}` })">
             <i class="pi pi-eye white-icon"></i>
           </button>
@@ -119,6 +119,9 @@ onMounted(async () => {
   }
 });
 </script>
+
+
+
 
 <style scoped>
 .white-icon {

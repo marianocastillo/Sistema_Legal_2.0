@@ -122,30 +122,30 @@
 
             <!-- Cédula o RNC -->
             <div class="field col-12 md:col-3">
-              <label for="cedulaDemandante" class="block mb-2 font-medium text-sm" v-html="form.ltg_Tipo_Demandante === 'Empresa' ? 'RNC de la Empresa <span class=\'text-red-500\'>*</span>'
+              <label for="cedulaDemandante" class="block mb-2 font-medium text-sm" v-html="form.ltg_Tipo_Demandante === 'Persona Jurídica' ? 'RNC de la Empresa <span class=\'text-red-500\'>*</span>'
                 : 'Cédula del Demandante <span class=\'text-red-500\'>*</span>'">
               </label>
               <InputText id="cedulaDemandante" v-model="form.ltg_Cedula_Demandante"
-                :maxlength="form.ltg_Tipo_Demandante === 'Empresa' ? 9 : 11"
+                :maxlength="form.ltg_Tipo_Demandante === 'Persona Jurídica' ? 9 : 11"
                 @input="form.ltg_Cedula_Demandante = form.ltg_Cedula_Demandante.replace(/\D/g, '')"
                 @blur="() => buscarPersonaPorDocumento(form.ltg_Cedula_Demandante, 'ltg_Nombre_Demandante', 'ltg_Nacionalidad')"
                 class="w-full"
-                :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'Ej: 123456789' : 'Ej: 00112345678'"
+                :placeholder="form.ltg_Tipo_Demandante === 'Persona Jurídica' ? 'Ej: 123456789' : 'Ej: 00112345678'"
                 :disabled="!cedulaHabilitado" />
             </div>
             <!-- Nombre del Demandante -->
             <div class="field col-12 md:col-3">
-              <label for="nombreDemandante" class="block mb-2 font-medium text-sm" v-html="form.ltg_Tipo_Demandante === 'Empresa' ? 'Nombre de la empresa <span class=\'text-red-500\'>*</span>'
+              <label for="nombreDemandante" class="block mb-2 font-medium text-sm" v-html="form.ltg_Tipo_Demandante === 'Persona Jurídica' ? 'Nombre de la empresa <span class=\'text-red-500\'>*</span>'
                 : 'Nombre del Demandante <span class=\'text-red-500\'>*</span>'">
               </label>
               <InputText id="nombreDemandante" v-model="form.ltg_Nombre_Demandante" class="w-full"
-                :placeholder="form.ltg_Tipo_Demandante === 'Empresa' ? 'Nombre de la empresa' : 'Nombre completo'"
+                :placeholder="form.ltg_Tipo_Demandante === 'Persona Jurídica' ? 'Nombre de la empresa' : 'Nombre completo'"
                 :disabled="!nombreDemandante" />
             </div>
 
             <!-- Nacionalidad o país -->
             <div class="field col-12 md:col-3">
-              <label for="nacionalidadDemandante" class="block mb-2 font-medium text-sm" v-html="form.ltg_Tipo_Demandante === 'Empresa'
+              <label for="nacionalidadDemandante" class="block mb-2 font-medium text-sm" v-html="form.ltg_Tipo_Demandante === 'Persona Jurídica'
                 ? 'País de Constitución <span class=\'text-red-500\'>*</span>'
                 : 'Nacionalidad <span class=\'text-red-500\'>*</span>'">
               </label>
@@ -391,7 +391,7 @@ watch(() => form.ltg_Tipo_Demandante, (nuevoValor) => {
 
 function validarCedulaODocumento(doc, tipo) {
   if (!doc) return false;
-  return tipo === 'Empresa' ? /^\d{9}$/.test(doc) : /^\d{11}$/.test(doc);
+  return tipo === 'Persona Jurídica' ? /^\d{9}$/.test(doc) : /^\d{11}$/.test(doc);
 }
 
 const tiposDemandante = [

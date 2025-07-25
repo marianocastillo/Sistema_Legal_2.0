@@ -449,7 +449,8 @@ namespace Sistema_Legal_2._0.Server.Controllers
         public async Task<IActionResult> ObtenerLitigiosPaginados(
         string tipo = "asignado",
         int page = 1,
-        int pageSize = 10)
+        int pageSize = 10,
+         string? search = null)
         {
             var result = new LitigiosResponse();
 
@@ -460,6 +461,8 @@ namespace Sistema_Legal_2._0.Server.Controllers
             command.Parameters.AddWithValue("@Page", page);
             command.Parameters.AddWithValue("@PageSize", pageSize);
             command.Parameters.AddWithValue("@Tipo", tipo);
+            command.Parameters.AddWithValue("@Search", string.IsNullOrEmpty(search) ? DBNull.Value : search);
+
 
             await connection.OpenAsync();
             using var reader = await command.ExecuteReaderAsync();
@@ -491,7 +494,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
         //Api para paginar los litigios de 10 en 10 en la bandeja de los abogados 
         [HttpGet("Litigio_AsignacionesPaginado")]
-        public async Task<IActionResult> ObtenerLitigiosAsignadosPaginado(int idUsuario, int page = 1, int pageSize = 10)
+        public async Task<IActionResult> ObtenerLitigiosAsignadosPaginado(int idUsuario, int page = 1, int pageSize = 10, string? search = null)
         {
             var result = new LitigiosAsignadosPaginadoResponse();
 
@@ -502,6 +505,8 @@ namespace Sistema_Legal_2._0.Server.Controllers
             command.Parameters.AddWithValue("@idUsuario", idUsuario);
             command.Parameters.AddWithValue("@Page", page);
             command.Parameters.AddWithValue("@PageSize", pageSize);
+            command.Parameters.AddWithValue("@Search", string.IsNullOrEmpty(search) ? DBNull.Value : search);
+
 
             await connection.OpenAsync();
             using var reader = await command.ExecuteReaderAsync();
@@ -540,7 +545,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
 
         [HttpGet("Litigio_detalladoDigitadorPaginado")]
-        public async Task<IActionResult> ObtenerLitigiosDigitadoresPaginado(int page = 1, int pageSize = 10)
+        public async Task<IActionResult> ObtenerLitigiosDigitadoresPaginado(int page = 1, int pageSize = 10, string? search = null)
         {
             var result = new LitigiosDigitadoresPaginadoResponse();
 
@@ -552,6 +557,8 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
             command.Parameters.AddWithValue("@Page", page);
             command.Parameters.AddWithValue("@PageSize", pageSize);
+            command.Parameters.AddWithValue("@Search", string.IsNullOrEmpty(search) ? DBNull.Value : search);
+
 
             await connection.OpenAsync();
             using var reader = await command.ExecuteReaderAsync();
@@ -592,8 +599,6 @@ namespace Sistema_Legal_2._0.Server.Controllers
             public int Total { get; set; }
             public List<LitigioDetallado> Litigios { get; set; } = new();
         }
-
-
 
 
         private LitigioDetalladoS LeerLitigioDesdeReader(SqlDataReader reader)

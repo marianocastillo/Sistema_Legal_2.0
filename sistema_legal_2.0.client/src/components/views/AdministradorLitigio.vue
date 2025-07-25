@@ -33,7 +33,7 @@
       </div>
     </div>
 
-    <DataTable :value="data" :lazy="true" :paginator="true" :rows="rows" :totalRecords="totalRegistros"
+    <DataTable :value="data" :lazy="true" :paginator="true" :rows="rows" :loading="loading" :rowHover="true" :totalRecords="totalRegistros"
       :first="paginaActual * rows" :filters="filters" :globalFilterFields="[
         'ltg_acto',
         'ltg_Cedula_Demandante',
@@ -77,7 +77,7 @@
         <template #body="{ data }">
           <div class="btn-group">
             <!-- Ver -->
-            <button class="btn btn-sm" style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;"
+            <button class="btn btn-sm btn-hover" style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;"
               v-tooltip="'Ver litigio'" @click="$router.push({ path: `/Detalles/${data.id_Ltg}` })">
               <i class="pi pi-eye white-icon"></i>
             </button>
@@ -113,7 +113,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, watch, onUnmounted  } from 'vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import InputText from 'primevue/inputtext';
 import DataTable from 'primevue/datatable';
@@ -125,6 +125,7 @@ import AsignarAbogado from '@/components/views/AsignarAbogado.vue';
 // Variables de estado para la gestión de litigios
 const router = useRouter()
 const data = ref([]);
+const loading = ref(false);
 const filtroActivo = ref('asignado');
 const rows = ref(10);
 const popUp = ref(false);
@@ -133,10 +134,13 @@ const mostrarAsignar = ref(true);
 const paginaActual = ref(0); // índice 0
 const totalAsignados = ref(0);
 const totalSinAsignar = ref(0);
+let debounceTimeout = null;
 
 const totalRegistros = computed(() =>
   filtroActivo.value === 'asignado' ? totalAsignados.value : totalSinAsignar.value
 );
+
+
 
 
 const tituloLitigio = computed(() => {
@@ -148,6 +152,13 @@ const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
 
+watch(() => filters.value.global.value, () => {
+  if (debounceTimeout) clearTimeout(debounceTimeout);
+
+  debounceTimeout = setTimeout(() => {
+    cargarDatosPaginados(0);
+  }, 300); // Espera 500ms antes de ejecutar
+});
 
 // Funciones de estado para la gestión de litigios
 function togglePopUp(litigio = null) {
@@ -169,25 +180,26 @@ function getStatusClass(status) {
 }
 
 async function cargarDatosPaginados(page = 0) {
+  loading.value = true;
   try {
+    const termino = filters.value.global.value?.trim();
     const response = await api.get('/api/Litigio/litigios-paginados', {
       params: {
-        tipo: filtroActivo.value,        // "asignado" o "sinAsignar"
-        page: page + 1,                  // backend usa base 1
-        pageSize: rows.value
+        tipo: filtroActivo.value,
+        page: page + 1,
+        pageSize: rows.value,
+        search: termino || null
       }
     });
 
     totalAsignados.value = response.data.totalAsignados;
     totalSinAsignar.value = response.data.totalSinAsignar;
-
-    data.value = filtroActivo.value === 'asignado'
-      ? response.data.asignados
-      : response.data.sinAsignar;
-
+    data.value = filtroActivo.value === 'asignado' ? response.data.asignados : response.data.sinAsignar;
     paginaActual.value = page;
   } catch (err) {
     console.error('Error al cargar litigios:', err);
+  } finally {
+    loading.value = false;
   }
 }
 
@@ -215,11 +227,13 @@ function onPageChange(event) {
 }
 
 function mostrarAsignados() {
+  // if (filtroActivo.value === 'asignado') return;
   filtroActivo.value = 'asignado';
   cargarDatosPaginados(0);
 }
 
 function mostrarSinAsignar() {
+  // if (filtroActivo.value === 'sinAsignar') return;
   filtroActivo.value = 'sinAsignar';
   cargarDatosPaginados(0);
 }
@@ -229,8 +243,12 @@ function handleAsignacionExitosa() {
 }
 
 onMounted(() => {
-  // cargarDatosPaginados(0);
+//   cargarDatosPaginados(0);
   mostrarAsignados(); // carga inicial por defecto
+});
+
+onUnmounted(() => {
+  if (debounceTimeout) clearTimeout(debounceTimeout);
 });
 
 </script>

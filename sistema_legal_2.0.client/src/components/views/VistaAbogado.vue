@@ -17,7 +17,7 @@
       </div>
     </div>
 
-    <DataTable :lazy="true" :value="data" :paginator="true" :rows="rows" :totalRecords="totalRecords"
+    <DataTable :lazy="true" :value="data" :paginator="true" :rows="rows" :loading="loading" :totalRecords="totalRecords"
       :first="(currentPage - 1) * rows" :filters="filters" @page="onPageChange" :globalFilterFields="[
         'ltg_acto',
         'ltg_Cedula_Demandante',
@@ -92,7 +92,7 @@
 import { FilterMatchMode } from '@primevue/core/api';
 import AsignarAbogado from '@/components/views/AsignarAbogado.vue';
 import router from '@/router/router';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch} from 'vue';
 import api from '@/utilities/api.js';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
@@ -101,15 +101,24 @@ import InputText from 'primevue/inputtext';
 const popUp = ref(false);
 const litigioActual = ref({});
 const data = ref([]);
+const loading = ref(false);
 const totalRecords = ref(0);
 const currentPage = ref(1);
 const rows = ref(10); // Fijo
 const mostrarAsignar = ref(true);
+let debounceTimeout = null;
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
 
+watch(() => filters.value.global.value, () => {
+  if (debounceTimeout) clearTimeout(debounceTimeout);
+  debounceTimeout = setTimeout(() => {
+    currentPage.value = 1;
+    cargarLitigios();
+  }, 300);
+});
 function togglePopUp(litigio = null) {
   popUp.value = !popUp.value;
   litigioActual.value = litigio || {};
@@ -129,29 +138,31 @@ function getStatusClass(status) {
 }
 
 async function cargarLitigios() {
-
-
-
+  loading.value = true;
   const idUsuario = localStorage.getItem('idUsuario');
   if (!idUsuario) return router.push('/login');
+
+  const termino = filters.value.global.value?.trim();
 
   try {
     const { data: response } = await api.get(`/api/Litigio/Litigio_AsignacionesPaginado`, {
       params: {
         idUsuario,
         page: currentPage.value,
-        pageSize: rows.value
+        pageSize: rows.value,
+        search: termino || null
       }
     });
-    console.log("Litigios response:", response);
+
     data.value = response.litigios;
     totalRecords.value = response.total;
-
-
   } catch (error) {
     console.error('Error al cargar litigios paginados:', error);
+  }  finally {
+    loading.value = false;
   }
 }
+
 
 function onPageChange(event) {
   currentPage.value = Math.floor(event.first / event.rows) + 1;
@@ -180,6 +191,11 @@ function onPageChange(event) {
 onMounted(() => {
   cargarLitigios();
 });
+
+onUnmounted(() => {
+  if (debounceTimeout) clearTimeout(debounceTimeout);
+});
+
 </script>
 
 
