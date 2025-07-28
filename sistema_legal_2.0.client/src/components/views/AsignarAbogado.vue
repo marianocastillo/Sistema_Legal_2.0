@@ -30,7 +30,8 @@
           <Button v-if="!esLitigante" :label="isLoadingAsignar ? 'Asignando...' : 'Asignar'" icon="pi pi-user-plus"
             class="p-button-sm text-white border-0 btn-litigio me-2" :style="{ backgroundColor: '#003870' }"
             :disabled="!usuarioSeleccionado || isLoadingAsignar" @click="asignarAbogado" />
-          <Button label="Cerrar" icon="pi pi-times" class="p-button-sm btn-aceptar btn-litigio" @click="emit('close')" />
+          <Button label="Cerrar" icon="pi pi-times" class="p-button-sm btn-aceptar btn-litigio"
+            @click="emit('close')" />
         </div>
       </div>
     </div>
@@ -172,7 +173,8 @@ async function asignarAbogado() {
 
     if (abogadosAsignados.value.length === 0) {
       const { data: litigio } = await axios.get(`/api/Litigio/detallados/${props.id_Ltg}`);
-      const payload = construirPayloadDesdeLitigio(litigio);
+      const payload = construirPayloadDesdeLitigio(litigio, litigio.ltg_estatus);
+      console.log(litigio.ltg_estatus)
       await axios.put('/api/Litigio/EditarLitigio', payload);
     }
 
@@ -186,6 +188,7 @@ async function asignarAbogado() {
   } finally {
     isLoadingAsignar.value = false;
   }
+
 }
 
 
@@ -220,9 +223,11 @@ function confirmarEliminacion(idUsuario) {
   })
 }
 
-function construirPayloadDesdeLitigio(litigio) {
-  const tipo = litigio.ltg_Tipo_Demandante || 'Empleado'
-  return {
+function construirPayloadDesdeLitigio(litigio, idEstatus) {
+  const tipo = litigio.ltg_Tipo_Demandante || 'Empleado';
+  console.log(idEstatus);
+
+  const payload = {
     id_Ltg: litigio.id_Ltg,
     ltg_acto: litigio.ltg_acto,
     ltg_Fecha_Acto: litigio.ltg_Fecha_Acto?.split('T')[0] || null,
@@ -236,9 +241,12 @@ function construirPayloadDesdeLitigio(litigio) {
     ltg_Nacionalidad_Representante: litigio.ltg_Nacionalidad_Representante || null,
     id_Sentencia: litigio.id_Sentencia,
     id_usuario: litigio.id_usuario || JSON.parse(localStorage.getItem('usuario'))?.idUsuario || 1,
-    id_Estatus: 2
-  }
+    id_Estatus: idEstatus === 1 ? 2 : idEstatus
+  };
+
+  return payload;
 }
+
 
 </script>
 
@@ -304,6 +312,4 @@ function construirPayloadDesdeLitigio(litigio) {
   flex: 1 1 auto;
   min-width: 0;
 }
-
-
 </style>
