@@ -1,4 +1,4 @@
-<script setup>
+<!-- <script setup>
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { cerrarSesion } from '@/utilities/auth';
@@ -68,12 +68,12 @@ onMounted(() => {
   if (storedVistas) vistasPermitidas.value = JSON.parse(storedVistas);
 });
 
-</script>
+</script> -->
 
 <template>
   <div class="layout">
     <!-- Sidebar -->
-    <aside class="sidebar" :class="{ hidden: !isSidebarVisible && isMobile }">
+    <aside class="sidebar" :class="{ collapsed: isCollapsedSidebar }">
       <div class="sidebar-top">
         <div class="sidebar-header">
           <div class="sidebar-brand">
@@ -119,14 +119,11 @@ onMounted(() => {
     </aside>
 
     <!-- Main Content -->
-    <div class="main-wrapper">
+    <div class="main-wrapper" :class="{
+      'with-sidebar': !isCollapsedSidebar,
+      'with-collapsed': isCollapsedSidebar
+    }">
       <header class="navbar">
-        <div class="menu-placeholder">
-          <button class="menu-button" @click="toggleSidebar" aria-label="Abrir menú">
-            <i class="pi pi-bars" />
-          </button>
-        </div>
-
         <div v-if="usuario.nombre" class="user-dropdown">
           <button @click="toggleMenu" class="user-dropdown-btn">
             <Avatar :label="getInitials(usuario.nombre)" shape="circle" class="user-avatar" />
@@ -152,100 +149,105 @@ onMounted(() => {
 </template>
 
 
+<script setup>
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import axios from 'axios';
+import { cerrarSesion } from '@/utilities/auth';
+import Button from 'primevue/button';
+import Menu from 'primevue/menu';
+import Avatar from 'primevue/avatar';
+import { push } from 'notivue';
+import ListadoTribunales from '@/components/views/Tribunales/ListadoTribunales.vue';
 
-<script>
+const router = useRouter();
 
-import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import axios from 'axios'
-import { cerrarSesion } from '@/utilities/auth'
-import Button from 'primevue/button'
-import Menu from 'primevue/menu'
-import Avatar from 'primevue/avatar'
-import { push } from 'notivue'
-import ListadoTribunales from '@/components/views/Tribunales/ListadoTribunales.vue'
+const mostrarDialogoTribunales = ref(false);
+const mostrarSubmenu = ref(false);
+const submenuRef = ref(null);
+const isSidebarVisible = ref(true);
+const isCollapsedSidebar = ref(window.innerWidth < 1400);
+const menu = ref();
 
-const router = useRouter()
+const usuario = ref({ nombre: '', rol: '', perfil: null });
+const rutaInicio = ref('/');
+const vistasPermitidas = ref([]);
+const vistasPrincipales = ref([]);
 
-const mostrarDialogoTribunales = ref(false)
-const mostrarSubmenu = ref(false)
-const submenuRef = ref(null)
-const isSidebarVisible = ref(true)
-const menu = ref()
+const isMobile = computed(() => window.innerWidth <= 768);
 
-
-const usuario = ref({ nombre: '', rol: '', perfil: null })
-const rutaInicio = ref('')
-const vistasPrincipales = ref([])
-
-const isMobile = computed(() => window.innerWidth <= 768)
-
-const toggleSubmenu = () => {
-  mostrarSubmenu.value = !mostrarSubmenu.value
-}
+const handleResize = () => {
+  isCollapsedSidebar.value = window.innerWidth < 1400;
+};
 
 const toggleSidebar = () => {
-  isSidebarVisible.value = !isSidebarVisible.value
-}
+  isSidebarVisible.value = !isSidebarVisible.value;
+};
+
+const toggleSubmenu = () => {
+  mostrarSubmenu.value = !mostrarSubmenu.value;
+};
 
 const toggleMenu = (event) => {
-  menu.value.toggle(event)
-}
+  menu.value.toggle(event);
+};
 
 const getInitials = (name) => {
-  if (!name) return ''
-  return name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase()
-}
+  if (!name) return '';
+  return name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
+};
 
-/* const items = computed(() => {
-  const opciones = []
+const items = computed(() => {
+  const opciones = [];
 
   if (usuario.value.rol === 'Administrador') {
-    opciones.push({
-      label: 'Manejo de usuddddarios',
-      icon: 'pi pi-user-edit',
-      command: () => router.push('/Usuarios')
-    })
-
-     opciones.push({
-      label: 'Manejo de Perfiles',
-      icon: 'pi pi-sitemap',
-      command: () => router.push('/Perfiles')
-    })
-
-    opciones.push({
-      label: 'Manejo de Perfiles',
-      icon: 'pi pi-sitemap',
-      command: () => router.push('/Perfiles')
-    })
-
+    opciones.push(
+      {
+        label: 'Manejo de usuarios',
+        icon: 'pi pi-user-edit',
+        command: () => router.push('/Usuarios')
+      },
+      {
+        label: 'Manejo de Perfiles',
+        icon: 'pi pi-sitemap',
+        command: () => router.push('/Perfiles')
+      }
+    );
+  }
 
   opciones.push({
     label: 'Cerrar sesión',
     icon: 'pi pi-sign-out',
     command: cerrarSesion
-  })
+  });
 
-  return opciones
-}}) */
+  return opciones;
+});
 
 const handleClickOutside = (e) => {
   if (submenuRef.value && !submenuRef.value.contains(e.target)) {
-    mostrarSubmenu.value = false
+    mostrarSubmenu.value = false;
   }
-}
+};
 
 onMounted(async () => {
+  window.addEventListener('resize', handleResize);
+  handleResize();
+
   const stored = localStorage.getItem('usuario');
+  const storedInicio = localStorage.getItem('rutaInicio');
+  const storedVistas = localStorage.getItem('vistasPermitidas');
+
   if (stored) {
     usuario.value = JSON.parse(stored);
     const idPerfil = usuario.value.perfil;
 
     try {
       const res = await axios.get(`/api/Perfiles/GetVistasYInicio/${idPerfil}`);
-      const { rutaInicio, vistas } = res.data;
+      const { rutaInicio: ruta, vistas } = res.data;
 
-      rutaInicio.value = rutaInicio;
+      rutaInicio.value = storedInicio || ruta;
+      vistasPermitidas.value = storedVistas ? JSON.parse(storedVistas) : vistas;
       vistasPrincipales.value = vistas.filter(v => v.permiso && v.principal);
     } catch (error) {
       console.error('Error cargando vistas:', error);
@@ -254,15 +256,14 @@ onMounted(async () => {
   }
 });
 
-
 onBeforeUnmount(() => {
-  document.removeEventListener('click', handleClickOutside)
-})
+  window.removeEventListener('resize', handleResize);
+});
 </script>
 
 
-
 <style scoped>
+/* Reset básico */
 *,
 *::before,
 *::after {
@@ -279,6 +280,7 @@ body {
   overflow: hidden;
 }
 
+/* Layout general */
 .layout {
   display: flex;
   width: 100%;
@@ -286,14 +288,11 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
   background-color: #f8f9fa;
 }
 
 /* Sidebar */
 .sidebar {
-  width: 250px;
   background-color: #003870;
   border-right: 1px solid #ddd;
   display: flex;
@@ -305,20 +304,72 @@ body {
   position: fixed;
   top: 0;
   left: 0;
+  transition: width 0.3s ease;
+  z-index: 1000;
+  width: 250px;
+  overflow: hidden;
 }
 
-.sidebar.hidden {
-  display: none;
+.sidebar.collapsed {
+  width: 60px;
+  padding: 1rem 0.5rem;
+  overflow-x: hidden;
+}
 
+.sidebar.collapsed .sidebar-title,
+.sidebar.collapsed span,
+.sidebar.collapsed .sidebar-footer {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  width: 0;
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
+}
+
+.sidebar.collapsed:hover {
+  width: 250px;
+}
+
+.sidebar.collapsed:hover .sidebar-title,
+.sidebar.collapsed:hover span,
+.sidebar.collapsed:hover .sidebar-footer {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  width: auto;
+}
+
+/* Sidebar interior */
+.sidebar-footer {
+  font-size: 0.75rem;
+  text-align: center;
+  color: #999;
+  border-top: 1px solid #f34141;
+  padding-top: 1rem;
+  transition: all 0.2s ease;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid #f34141;
+  padding-bottom: 0.2rem;
+}
+
+.sidebar-title {
+  margin: 0;
+  color: #fff;
+  font-size: 1.2rem;
+  transition: opacity 0.2s ease;
 }
 
 .contenedor-menu {
   list-style: none;
   padding-left: 0;
-  margin-left: 0;
-  margin-left: 0.4rem;
+  margin: 0 0 0 0.4rem;
 }
-
 
 .sidebar-link {
   display: flex;
@@ -329,6 +380,7 @@ body {
   color: #fff;
   border-radius: 6px;
   transition: background-color 0.2s ease;
+  white-space: nowrap;
 }
 
 .sidebar-link:hover {
@@ -336,18 +388,37 @@ body {
   font-weight: 600;
 }
 
+.sidebar-link.active {
+  background-color: #c00606;
+  font-weight: 600;
+}
 .sidebar-link i {
   font-size: 1rem;
 }
 
-/* Main wrapper */
+/* Contenido principal */
 .main-wrapper {
-  margin-left: 250px;
   flex: 1;
   display: flex;
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+  transition: margin-left 0.3s ease;
+}
+
+.main-wrapper.with-sidebar {
+  margin-left: 250px;
+}
+
+.main-wrapper.with-collapsed {
+  margin-left: 60px;
+}
+
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  background-color: #f9f9f9;
 }
 
 /* Navbar */
@@ -356,13 +427,13 @@ body {
   background-color: #fff;
   border-bottom: 1px solid #ddd;
   display: flex;
-  font-family: Arial, sans-serif;
   align-items: center;
-  justify-content: space-between;
+  justify-content: end;
   padding: 0 1rem;
   position: sticky;
   top: 0;
   z-index: 10;
+  font-family: Arial, sans-serif;
 }
 
 .menu-placeholder {
@@ -385,23 +456,7 @@ body {
   }
 }
 
-/* Contenido */
-.main-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1.5rem;
-  background-color: #f9f9f9;
-}
-
-.sidebar-footer {
-  font-size: 0.75rem;
-  text-align: center;
-  color: #999;
-  border-top: 1px solid #f34141;
-  padding-top: 1rem;
-}
-
-/* Dropdown de Usuario  */
+/* Usuario */
 .user-dropdown {
   display: flex;
   align-items: center;
@@ -412,7 +467,7 @@ body {
   display: flex;
   align-items: center;
   padding: 6px 12px;
-  background-color: rgb(255, 255, 255);
+  background-color: #fff;
   border: none;
   border-radius: 8px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
@@ -422,7 +477,7 @@ body {
 .user-avatar {
   margin-right: 10px;
   background-color: #003880 !important;
-  color: #ffffff !important;
+  color: #fff !important;
 }
 
 .user-info {
@@ -442,7 +497,7 @@ body {
   color: #6c757d;
 }
 
-/* Misc */
+/* Otros */
 .logo {
   width: 40px;
   height: auto;
@@ -455,25 +510,12 @@ body {
 
 .submenu .p-button {
   justify-content: left !important;
-
 }
 
 .rotate-180 {
   transform: rotate(180deg);
   transition: transform 0.2s ease;
 }
-
-.sidebar-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border-bottom: 1px solid #f34141;
-  padding-bottom: 0.2rem;
-}
-
-.sidebar-title {
-  margin: 0;
-  color: #fff;
-  font-size: 1.2rem;
-}
 </style>
+
+
