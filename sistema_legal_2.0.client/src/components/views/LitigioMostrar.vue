@@ -228,10 +228,10 @@
                     </div>
 
                     <div class="botones" v-if="index === audiencias.length - 1 && !estaCerrado">
-                      <Button icon="pi pi-comment" class="custom-home-btn btn-comentario"
+                      <Button icon="pi pi-comment" class="btn-litigio btn-comentario"
                         @click.stop="togglePopUpEvidencia(id)" v-tooltip="'Agregar evidencia'" />
 
-                      <Button ref="btnEditarAudiencia" icon="pi pi-pencil" class="custom-home-btn btn-comentario"
+                      <Button ref="btnEditarAudiencia" icon="pi pi-pencil" class="btn-litigio btn-comentario "
                         @click.stop="togglePopUpTribunal(id)" v-tooltip="'Editar audiencia'" />
                     </div>
                   </div>
@@ -290,7 +290,7 @@
       <!-- Pie de documento -->
       <div class="flex justify-content-between mt-4 pt-3 border-top-1 surface-border">
 
-        <Button v-if="!estaCerrado" label="Nuevo Estado" icon="pi pi-cog" class="custom-home-btn"
+        <Button v-if="!estaCerrado" label="Nuevo Estado" icon="pi pi-cog" class="btn-litigio"
           @click="mostrarDialogoOpciones = true" />
 
         <!--  Redireccion: a poups de agregar Evidencias y comentarios -->
@@ -317,9 +317,9 @@
   <!-- Dialog: Seleccionar accion del proceso  -->
   <Dialog v-model:visible="mostrarDialogoOpciones" modal header="Selecciona una acción" class="w-4">
     <div class="flex flex-column gap-3">
-      <Button label="Agregar Audiencia" icon="pi pi-plus-circle" class="custom-home-btn w-full"
+      <Button label="Agregar Audiencia" icon="pi pi-plus-circle" class="btn-litigio w-full"
         @click="abrirAgregarAudiencia" />
-      <Button label="Actualizar Proceso" icon="pi pi-refresh" class="custom-home-btn w-full"
+      <Button label="Actualizar Proceso" icon="pi pi-refresh" class="btn-litigio w-full"
         @click="abrirActualizarProceso" />
     </div>
   </Dialog>
@@ -786,8 +786,8 @@ onMounted(async () => {
   cursor: pointer;
 }
 
-:deep(.custom-home-btn .pi-comment),
-:deep(.custom-home-btn .pi-pencil) {
+:deep(.btn-litigio .pi-comment),
+:deep(.btn-litigio .pi-pencil) {
   font-size: 0.8rem;
   /* o usa 12px */
 }
@@ -796,18 +796,6 @@ onMounted(async () => {
   font-size: 15px;
 }
 
-.custom-home-btn {
-  background-color: #003870 !important;
-  border-color: #003870 !important;
-}
-
-.custom-home-btn:hover {
-  background-color: #c00606 !important;
-  border-color: #c00606 !important;
-  box-shadow: 0 6px 16px rgba(121, 1, 51, 0.3) !important;
-  transform: translateY(-1px) !important;
-  transition: background-color 0.2s !important;
-}
 
 /*CALENDARIO DE PRIMEVUE */
 ::v-deep(.p-datepicker) {

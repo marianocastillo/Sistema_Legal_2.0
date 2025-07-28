@@ -1,8 +1,7 @@
 <template>
   <div class="pop-up">
     <div class="pop-up-inner">
-
-      <div class="flex justify-content-between align-items-center m-2 flex-wrap gap-2 pt-3 w-100 custom-header">
+      <div class="flex justify-content-between align-items-center m-2 mb-4 flex-wrap gap-2 pt-3 w-100 custom-header">
         <!-- Columna izquierda: solo el título -->
         <div class="flex-grow">
           <h2 class="text-2xl font-bold m-0">Agregar evidencia y comentario</h2>
@@ -13,7 +12,7 @@
          <button class="close-btn" @click="$emit('close')">&times;</button>
         </div>
       </div>
-      <div class=" ms-3 file-container">
+      <div class=" ms-2 file-container">
         <FileUpload name="Archivo" customUpload @select="handleExpedienteUpload" mode="basic"
           chooseLabel="Elegir archivo" class="w-full md:w-19rem" style="background-color: #003870;" />
       </div>

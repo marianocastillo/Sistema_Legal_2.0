@@ -29,7 +29,7 @@
     </div>
 
 
-    <DataTable :value="data" :paginator="true" :lazy="true" :rows="rows" :totalRecords="totalRecords"
+    <DataTable :value="data" :paginator="true" :lazy="true" :rows="rows" :loading="loading" :rowHover="true" :totalRecords="totalRecords"
       :first="(currentPage - 1) * rows" :filters="filters" :globalFilterFields="[
         'ltg_acto',
         'ltg_Cedula_Demandante',
@@ -72,13 +72,13 @@
         <template #body="{ data }">
           <div class="btn-group">
             <!-- Ver -->
-            <button class="btn btn-sm" style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;"
+            <button class="btn btn-sm btn-hover" style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;"
               v-tooltip="'Ver litigio'" @click="$router.push({ path: `/Detalles/${data.id_Ltg}` })">
               <i class="pi pi-eye white-icon"></i>
             </button>
             <!-- Modificar -->
-            <button class="btn btn-sm" @click="modificarLitigio(data)"
-              style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;" title="Modificar litigio">
+            <button class="btn btn-sm btn-hover" @click="modificarLitigio(data)"
+              style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;" v-tooltip="'Modificar litigio'">
               <i class="pi pi-pencil white-icon"></i>
             </button>
 
@@ -105,7 +105,7 @@
 
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import InputText from 'primevue/inputtext';
 import DataTable from 'primevue/datatable';
@@ -120,14 +120,25 @@ const data = ref([]);
 const registrar = ref('/registrar');
 const rows = ref(10);
 const popUp = ref(false);
+const loading = ref(false);
 const litigioActual = ref({});
 const currentPage = ref(1);
 const totalRecords = ref(0);
+let debounceTimeout = null;
+
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
 
+watch(() => filters.value.global.value, () => {
+  if (debounceTimeout) clearTimeout(debounceTimeout);
+
+  debounceTimeout = setTimeout(() => {
+    currentPage.value = 1;
+    cargarLitigios();
+  }, 300);
+});
 
 // Funciones de estado para la gestión de litigios
 function togglePopUp(litigio = null) {
@@ -185,11 +196,15 @@ function onPageChange(event) {
 }
 
 async function cargarLitigios() {
+  loading.value = true;
+  const termino = filters.value.global.value?.trim();
+
   try {
     const { data: response } = await api.get('/api/Litigio/Litigio_detalladoDigitadorPaginado', {
       params: {
         page: currentPage.value,
-        pageSize: rows.value
+        pageSize: rows.value,
+        search: termino || null
       }
     });
 
@@ -197,6 +212,8 @@ async function cargarLitigios() {
     totalRecords.value = response.total;
   } catch (error) {
     console.error('Error al cargar litigios paginados:', error);
+  } finally{
+    loading.value = false;
   }
 }
 
@@ -205,7 +222,9 @@ onMounted(async () => {
   await cargarLitigios();
 });
 
-
+onUnmounted(() => {
+  if (debounceTimeout) clearTimeout(debounceTimeout);
+});
 
 </script>
 

@@ -152,7 +152,7 @@ async function cargarSalas() {
     const res = await api.get(`/api/Tribunales/${props.tribunalId}/Salas`)
     console.log('Respuesta de la API:', res.data)
 
-    // Verifica si res.data tiene una propiedad "data"
+    // Manejar correctamente la respuesta vacía
     if (Array.isArray(res.data)) {
       salas.value = res.data
     } else if (Array.isArray(res.data.data)) {
@@ -162,15 +162,21 @@ async function cargarSalas() {
     }
 
   } catch (err) {
-    push.error('Error al cargar salas')
+    console.error('Error al obtener salas:', err)
+    // Solo mostrar error si falló realmente la petición
+    push.error('No se pudo obtener la información de las salas.')
     salas.value = []
   }
 }
+
 
 function cerrarSala() {
   dialogVisibleSala.value = false
   mostrarDialogoTribunales.value = true
 }
+
+
+
 function abrirFormularioNuevaSala() {
   form.value = { idSala: 0, nombre: '' }
   editing.value = false
@@ -201,8 +207,9 @@ async function guardarSala() {
 
     await api[metodo](url, payload)
     push.success('Sala guardada correctamente')
-    formVisible.value = false
+
     await cargarSalas()
+    formVisible.value = false
     page.value = 1
   } catch (err) {
     push.error('Error al guardar sala')

@@ -17,13 +17,11 @@
     </div>
 
     <!-- Tabla -->
-    <DataTable :value="litigiosFiltrados" :paginator="true" :rowHover="true" :rows="rows" :filters="filters"
-      :globalFilterFields="[
-        'ltg_acto',
-        'ltg_Cedula_Demandante',
-        'ltg_Nombre_Demandante',
-        'estatus_Descripcion'
-      ]" class="p-datatable-sm" responsiveLayout="scroll">
+    <DataTable :value="data" :paginator="true" :lazy="true" :rows="rows" :loading="loading" :rowHover="true"
+      :totalRecords="totalRecords" :first="(currentPage - 1) * rows" :filters="filters"
+      :globalFilterFields="['ltg_acto', 'ltg_Cedula_Demandante', 'ltg_Nombre_Demandante', 'estatus_Descripcion']"
+      @page="onPageChange" class="p-datatable-sm" responsiveLayout="scroll">
+
       <Column field="ltg_acto" header="N⁰ Acto" />
       <Column field="ltg_Fecha_Acto" header="Fecha Acto" style="min-width: 110px;">
         <template #body="{ data }">
@@ -54,8 +52,9 @@
 
       <Column header="Acciones">
         <template #body="{ data }">
-          <button class="btn btn-sm" style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;"
-            v-tooltip="'Ver litigio'" @click="$router.push({ path: `/Detalles/${data.id_Ltg}` })">
+          <button class="btn btn-sm btn-hover"
+            style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;" v-tooltip="'Ver litigio'"
+            @click="$router.push({ path: `/Detalles/${data.id_Ltg}` })">
             <i class="pi pi-eye white-icon"></i>
           </button>
         </template>
@@ -65,7 +64,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import InputText from 'primevue/inputtext';
 import Dropdown from 'primevue/dropdown';
@@ -74,12 +73,66 @@ import Column from 'primevue/column';
 import api from '@/utilities/api.js';
 
 const rows = ref(10);
-const todosLosLitigios = ref([]);
+const data = ref([]);
+const totalRecords = ref(0);
+const currentPage = ref(1);
+const loading = ref(false);
+const estatusSeleccionado = ref(null);
+let debounceTimeout = null;
+
+
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
 
-const estatusSeleccionado = ref(null);
+
+watch(() => filters.value.global.value?.trim(), (nuevo, viejo) => {
+  if (nuevo !== viejo) {
+    if (debounceTimeout) clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(() => {
+      currentPage.value = 1;
+      cargarLitigios();
+    }, 300);
+  }
+});
+
+
+watch(estatusSeleccionado, () => {
+  currentPage.value = 1;
+  cargarLitigios();
+});
+
+function onPageChange(event) {
+  currentPage.value = Math.floor(event.first / event.rows) + 1;
+  rows.value = event.rows;
+  cargarLitigios();
+}
+
+
+async function cargarLitigios() {
+  loading.value = true;
+  const termino = filters.value.global.value?.trim();
+
+  try {
+    const { data: response } = await api.get('/api/Litigio/SeguimientoPaginado', {
+      params: {
+        page: currentPage.value,
+        pageSize: rows.value,
+        search: termino || null,
+        estatus: estatusSeleccionado.value || null  // 👈 aquí agregamos el estatus
+      }
+    });
+
+    data.value = response.litigios;
+    totalRecords.value = response.total;
+  } catch (error) {
+    console.error('Error al cargar litigios paginados:', error);
+  } finally {
+    loading.value = false;
+  }
+}
+
+
 const estatusDisponibles = [
   { label: 'Todos', value: null },
   { label: 'Recibido', value: 'Recibido' },
@@ -90,12 +143,6 @@ const estatusDisponibles = [
   { label: 'Cierre del Caso', value: 'Cierre del Caso' }
 ];
 
-const litigiosFiltrados = computed(() => {
-  if (!estatusSeleccionado.value) return todosLosLitigios.value;
-  return todosLosLitigios.value.filter(
-    l => l.estatus_Descripcion?.toLowerCase().trim() === estatusSeleccionado.value.toLowerCase().trim()
-  );
-});
 
 function getStatusClass(status) {
   switch (status) {
@@ -110,15 +157,11 @@ function getStatusClass(status) {
   }
 }
 
-onMounted(async () => {
-  try {
-    const response = await api.get('/api/Litigio/Litigio_detallado');
-    todosLosLitigios.value = response.data;
-  } catch (error) {
-    console.error('Error al cargar litigios:', error);
-  }
-});
+onMounted(cargarLitigios);
 </script>
+
+
+
 
 <style scoped>
 .white-icon {

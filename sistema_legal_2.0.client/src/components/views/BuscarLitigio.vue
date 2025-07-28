@@ -37,10 +37,10 @@
         <p><strong>Demandante:</strong> {{ resultado.ltg_Nombre_Demandante }}</p>
 
         <Button
-          label="Modificar"
-          icon="pi pi-pencil"
+          label="Ver litigio"
+          icon="pi pi-eye"
           class="mt-3 p-button-warning"
-          @click="irAModificar" style="background-color: #003870;"
+          @click="$router.push({ path: `/Detalles/${resultado.id_Ltg}` })" style="background-color: #003870;"
         />
       </div>
     </div>
@@ -93,7 +93,7 @@ const buscarLitigio = async () => {
 
 const irAModificar = () => {
   localStorage.setItem('litigioModificacion', JSON.stringify(resultado.value))
-  router.push('/modificarregistro')
+  router.push({ path: `/Detalles/${data.id_Ltg}` })
 }
 </script>
 
