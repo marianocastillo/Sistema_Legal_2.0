@@ -40,7 +40,11 @@ namespace Sistema_Legal_2._0.Server.Controllers
             _configuration = config;
         }
 
-
+        /// <summary>
+        /// Controlador que nos permite editar el litigio por posibles errores de sintaxis aqui le pasamos todos los parametros mediante otro controlador que los llena en el frontend
+        /// </summary>
+        /// <param name="litigio"></param>
+        /// <returns></returns>
         [HttpPut("EditarLitigio")]
         public async Task<IActionResult> EditarLitigio([FromBody] LitigioEditarDto litigio)
         {
@@ -102,7 +106,12 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
 
         }
-
+        /// <summary>
+        /// Controlador que nos permite la creacion de un nuevo litigio pero ademas de agregar datos en la tabla litigios tambien sube datos a Audiencias y Evidencias
+        /// En caso de no tener la informacion de la audiencia se crea una automatico pero sin fecha ni sala donde se realizara 
+        /// </summary>
+        /// <param name="datos"></param>
+        /// <returns></returns>
 
         [HttpPost("Subir_Litigio_Con_Archivo")]
         public async Task<IActionResult> SubirLitigioConArchivo([FromForm] LitigioConArchivo datos)
@@ -205,7 +214,13 @@ namespace Sistema_Legal_2._0.Server.Controllers
             }
         }
 
-       [HttpGet("audiencias-con-evidencias-y-tribunal/{id_litigio}")]
+        /// <summary>
+        /// Aqui llenamos la informacion de la ultima audiencia en Litigio Detallado donde nos trae las audiencias evidencias y el tribunale mediante el id sala
+        /// </summary>
+        /// <param name="id_litigio"></param>
+        /// <returns></returns>
+
+        [HttpGet("audiencias-con-evidencias-y-tribunal/{id_litigio}")]
         public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
 {
     var result = new LitigioDetalleDto();
@@ -275,7 +290,11 @@ namespace Sistema_Legal_2._0.Server.Controllers
 }
 
 
-
+        /// <summary>
+        /// Controlador para traer la informacion mediante el RNC o la CEDULA nos usamos un procedimiento almacenado para eso
+        /// </summary>
+        /// <param name="documento"></param>
+        /// <returns></returns>
 
         [HttpGet("BuscarDocumento/{documento}")]
         [AllowAnonymous]
@@ -351,6 +370,11 @@ namespace Sistema_Legal_2._0.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Controlador para los dropdowns se llenen de la informacion para que el usuario pueda elegir en el registro de litigios y la modificacion
+        /// </summary>
+        /// <returns></returns>
+        /// 
 
         [HttpGet("datos-litigio")]
         public async Task<IActionResult> ObtenerDatosLitigio()
@@ -429,7 +453,10 @@ namespace Sistema_Legal_2._0.Server.Controllers
             return Ok(datos);
         }
 
-
+        /// <summary>
+        /// Nos trae la informacion de todos los litigios registrados para ser mostrados en la vista del administrador
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("Litigio_detallado")]
         public async Task<ActionResult<IEnumerable<LitigioDetallado>>> ObtenerLitigiosDetallados()
         {
@@ -537,7 +564,12 @@ namespace Sistema_Legal_2._0.Server.Controllers
         }
 
 
-
+        /// <summary>
+        /// Nos permite traer los litigos de 10 en 10 para no sobre cargar la consulta
+        /// </summary>
+        /// <param name="page"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
 
         [HttpGet("Litigio_detalladoDigitadorPaginado")]
         public async Task<IActionResult> ObtenerLitigiosDigitadoresPaginado(int page = 1, int pageSize = 10)
@@ -612,54 +644,16 @@ namespace Sistema_Legal_2._0.Server.Controllers
             };
         }
 
-        [HttpGet("Litigio_Asignaciones")]
-        public async Task<ActionResult<IEnumerable<LitigiosAsignadosAbogados>>> GetLitigiosAsignados([FromQuery] int idUsuario)
-        {
-            var lista = new List<LitigiosAsignadosAbogados>();
 
-            try
-            {
-                using (SqlConnection conn = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal")))
-                {
-                    using (SqlCommand cmd = new SqlCommand("sp_MostrarAsignacionesAbogados", conn))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@idUsuario", idUsuario);
 
-                        await conn.OpenAsync();
-                        using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
-                        {
-                            while (await reader.ReadAsync())
-                            {
-                                lista.Add(new LitigiosAsignadosAbogados
-                                {
-                                    id_Ltg = reader.GetInt32(reader.GetOrdinal("id_Ltg")),
-                                    ltg_acto = reader["ltg_acto"]?.ToString(),
-                                    ltg_Fecha_Acto = reader["ltg_Fecha_Acto"] as DateTime?,
-                                    ltg_Fecha_Audiencia = reader["ltg_Fecha_Audiencia"] as DateTime?,
-                                    Nombre_Tipo_Demanda = reader["Nombre_Tipo_Demanda"]?.ToString(),
-                                    ltg_Nombre_Demandante = reader["ltg_Nombre_Demandante"]?.ToString(),
-                                    ltg_Cedula_Demandante = reader["ltg_Cedula_Demandante"]?.ToString(),
-                                    desc_Sentencia = reader["desc_Sentencia"]?.ToString(),
-                                    idUsuario = idUsuario,
-                                    ltg_description = reader["ltg_description"]?.ToString()
-                                });
-                            }
-                        }
-                    }
-                }
-
-                return Ok(lista);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error interno: {ex.Message}");
-            }
-        }
-
+        
        
 
-
+        /// <summary>
+        /// Trae la informacion del litigio seleccionado para llenar 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("detallados/{id}")]
         public async Task<ActionResult<LitigioDetallado>> ObtenerLitigioPorId(int id)
         {
@@ -682,7 +676,11 @@ namespace Sistema_Legal_2._0.Server.Controllers
             return Ok(litigio);
         }
 
-
+        /// <summary>
+        /// Nos permite buscar los litigios por el numero de acto o la cedula 
+        /// </summary>
+        /// <param name="valor"></param>
+        /// <returns></returns>
         [HttpGet("Buscar")]
         public async Task<IActionResult> BuscarPorCedulaOActo(string valor)
         {
@@ -719,7 +717,11 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
 
 
-
+        /// <summary>
+        /// Nos trae la informacion guardada en la tabla historico_litigio para cargar la linea de tiempo
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("historial/{id}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetHistorialLitigio(int id)

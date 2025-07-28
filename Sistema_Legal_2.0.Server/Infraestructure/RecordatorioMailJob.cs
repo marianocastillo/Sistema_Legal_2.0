@@ -23,6 +23,12 @@ public class RecordatorioJob : BackgroundService
         _cadenaSQL = configuration.GetConnectionString("Sistema_Legal");
     }
 
+
+    /// <summary>
+    /// Job que nos permite mandar notificaciones a los 15 minutos, al dia y 3 dias antes que ocurra la audiencia
+    /// </summary>
+    /// <param name="stoppingToken"></param>
+    /// <returns></returns>
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
@@ -51,17 +57,17 @@ public class RecordatorioJob : BackgroundService
                         if (diferencia.TotalMinutes <= 15 && diferencia.TotalMinutes > 0)
                         {
                             tipoNotificacion = "15 minutos antes";
-                            subject = $"⏰ Audiencia en menos de 15 minutoses la No.{reader["Numero Acto"]}";
+                            subject = $"⏰ Audiencia en menos de 15 minutos";
                         }
                         else if (fechaAudiencia.Date == ahora.Date)
                         {
                             tipoNotificacion = "Diario";
-                            subject = $"📅 Hoy tiene una audiencia  es la No.{reader["Numero Acto"]}";
+                            subject = $"📅 Hoy tiene una audiencia";
                         }
                         else if (fechaAudiencia.Date == ahora.Date.AddDays(3))
                         {
                             tipoNotificacion = "3 dias Antes";
-                            subject = $"📌 Próxima audiencia dentro de 3 días es la No.{reader["Numero Acto"]}";
+                            subject = $"📌 Próxima audiencia dentro de 3 días";
                         }
                         else
                         {

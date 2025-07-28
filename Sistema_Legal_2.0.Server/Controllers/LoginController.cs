@@ -33,6 +33,11 @@ namespace Sistema_Legal_2._0.Server.Controllers
             idUsuarioOnline = userAccessor.idUsuario;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ID"></param>
+        /// <returns></returns>
         [HttpGet(Name = "GetUserData")]
         [AllowAnonymous]
         public object GetUserData(int ID)
@@ -49,19 +54,12 @@ namespace Sistema_Legal_2._0.Server.Controllers
         }
 
 
-        //[HttpGet(Name = "GetUserData")]
-        //[Authorize]
-        //public object GetUserData()
-        //{
-        //    UsuariosModel usuario = _usuariosRepo.Get(x => x.IdUsuario == idUsuarioOnline).FirstOrDefault();
-        //    List<VistasModel> vistas = [.. _perfilesRepo.GetPermisos(Convert.ToInt32(usuario.IdPerfil)).Where(v => v.Permiso)];
-        //    return new
-        //    {
-        //        usuario = usuario,
-        //        vistas = vistas
-        //    };
-        //}
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="credentials"></param>
+        /// <returns></returns>
         [HttpPost(Name = "LogIn")]
         [AllowAnonymous]
         public OperationResult LogIn(Credentials credentials)

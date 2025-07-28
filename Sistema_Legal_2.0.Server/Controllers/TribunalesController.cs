@@ -37,7 +37,10 @@ namespace Sistema_Legal_2._0.Server.Controllers
             _cadenaSQL = config.GetConnectionString("Sistema_Legal");
             _configuration = config;
         }
-
+        /// <summary>
+        /// Trae todos los tribunales
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("Tribunales")]
         public async Task<IActionResult> GetTodos()
         {
@@ -46,7 +49,11 @@ namespace Sistema_Legal_2._0.Server.Controllers
             return Ok(tribunales);
         }
 
-        // 🔍 Obtener un tribunal por ID
+        /// <summary>
+        /// Obtener un tribunal por ID
+        /// </summary>
+        /// <param name="id_Tribunal"></param>
+        /// <returns></returns>
         [HttpGet("ObtenerTribunales/{id_Tribunal}")]
         public async Task<IActionResult> GetPorId(int id_Tribunal)
         {
@@ -60,7 +67,11 @@ namespace Sistema_Legal_2._0.Server.Controllers
             return Ok(tribunal);
         }
 
-        // ➕ Crear tribunal
+       /// <summary>
+       /// Crear tribunal
+       /// </summary>
+       /// <param name="dto"></param>
+       /// <returns></returns>
         [HttpPost("CrearTribunal")]
         public async Task<IActionResult> Crear([FromBody] Tribunales dto)
         {
@@ -75,7 +86,12 @@ namespace Sistema_Legal_2._0.Server.Controllers
             return Ok(new { mensaje = "Tribunal creado correctamente", id });
         }
 
-        // ✏️ Actualizar tribunal
+        /// <summary>
+        ///  Actualizar tribunal
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         [HttpPut("ActualizarTribunal/{id}")]
         public async Task<IActionResult> Actualizar(int id, [FromBody] Tribunales dto)
         {
@@ -100,7 +116,11 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
             return Ok(new { mensaje = "Tribunal actualizado correctamente" });
         }
-
+        /// <summary>
+        /// Eliminar un tribunal (en cuestion de las salas ya tuvo que haber pasado esa audiencia)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("EliminarTribunal/{id}")]
         public async Task<IActionResult> Eliminar(int id)
         {
@@ -112,20 +132,12 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
             return Ok(new { mensaje = "Tribunal eliminado correctamente" });
         }
-        //
-        //
-        //
-        //
-        //
-        //            Salas
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
+  
+        /// <summary>
+        /// Traer todas las salas
+        /// </summary>
+        /// <returns></returns>
+
         [HttpGet("Salas")]
         public async Task<IActionResult> GetTodas()
         {
@@ -146,7 +158,11 @@ namespace Sistema_Legal_2._0.Server.Controllers
         }
 
 
-        // 🔍 Obtener sala por ID
+        /// <summary>
+        /// Obtener sala por ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("Salaspor/{id}")]
         public async Task<IActionResult> PorId(int id)
         {
@@ -172,7 +188,11 @@ namespace Sistema_Legal_2._0.Server.Controllers
         }
 
 
-        // ➕ Crear nueva sala
+        /// <summary>
+        /// Crear nueva sala
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         [HttpPost("CrearSalas")]
         public async Task<IActionResult> Crear([FromBody] SalaDto dto)
         {
@@ -187,7 +207,12 @@ namespace Sistema_Legal_2._0.Server.Controllers
             return Ok(new { mensaje = "Sala creada correctamente", id });
         }
 
-        // ✏️ Actualizar sala
+        /// <summary>
+        /// Actualizar sala
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         [HttpPut("Actualizarsalas/{id}")]
         public async Task<IActionResult> Actualizar(int id, [FromBody] SalaDto dto)
         {
@@ -208,7 +233,11 @@ namespace Sistema_Legal_2._0.Server.Controllers
             return Ok(new { mensaje = "Sala actualizada correctamente" });
         }
 
-        // ❌ Eliminar sala
+        /// <summary>
+        /// Eliminar sala
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("Eliminarsalas/{id}")]
         public async Task<IActionResult> Eliminarsalas(int id)
         {
@@ -221,7 +250,11 @@ namespace Sistema_Legal_2._0.Server.Controllers
             return Ok(new { mensaje = "Sala eliminada correctamente" });
         }
 
-
+        /// <summary>
+        /// Trae todas las salas que tiene un tribunal en especifico
+        /// </summary>
+        /// <param name="idTribunal"></param>
+        /// <returns></returns>
         [HttpGet("{idTribunal}/Salas")]
         public async Task<IActionResult> ObtenerSalasPorTribunal(int idTribunal)
         {

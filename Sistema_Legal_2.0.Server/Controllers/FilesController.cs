@@ -42,6 +42,13 @@ namespace Sistema_Legal_2._0.Server.Controllers
             _configuration = config;
         }
 
+/// <summary>
+/// Controlador encardado de subir evidencias en la ultima audiencia creada esto se hace validando por la fecha se subira en el litigio
+/// que tenga la fecha mas reciente este controlador espera que ya exista una audienca para poder crear una evidencia en la tabla evidencia en la base de datos 
+/// </summary>
+/// <param name="model"></param>
+/// <returns></returns>
+
         [HttpPost("subir-evidencia")]
         public async Task<IActionResult> SubirEvidencia([FromForm] EvidenciaUploadModel model)
         {
@@ -97,6 +104,12 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 return StatusCode(500, new { success = false, error = ex.Message });
             }
         }
+        /// <summary>
+        /// Este controlador se encaga de crear audiencas extras a un litigio (El litigio de forma automatica crea la primera audiencia) 
+        /// espera el parametro del idlitigio ademas de eso tiene que tener una fecha superior a la ultima audiencia que tiene un litigio
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
 
         [HttpPost("crearAudiencias")]
         public async Task<IActionResult> CrearAudiencia([FromBody] CrearAudienciaDto dto)
@@ -126,7 +139,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                     commandType: CommandType.StoredProcedure
                 );
 
-                 CorreoHelper.EnviarCorreoAudiencia(idAudiencia, conn);
+                 await CorreoHelper.EnviarCorreoAudiencia(idAudiencia, conn);
 
                 return Ok(new
                 {
@@ -144,7 +157,13 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 });
             }
         }
-
+        /// <summary>
+        /// Este controlador se encarga de crear un estado permitiendo ademas cambiar el estado del litigio para pasar los las diferentes fases
+        /// se debe de dar un idlitigio ademas de que la fecha tiene que ser mas alta que el ultimo litigio registrado
+        /// en caso de que el campo cierre sea true esto hara que el litigio se considere como finalizado y ya no se pueda agregar mas documentacion relacionada
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
 
         [HttpPost("CrearEstados")]
         public async Task<IActionResult> CrearEstados([FromBody] CrearEstados dto)
@@ -175,7 +194,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                     commandType: CommandType.StoredProcedure
                 );
 
-                CorreoHelper.EnviarCorreoAudiencia(idAudiencia, conn);
+               await CorreoHelper.EnviarCorreoAudiencia(idAudiencia, conn);
 
                 return Ok(new
                 {
@@ -194,6 +213,13 @@ namespace Sistema_Legal_2._0.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// En caso de una mala digitacion en cuanto a las audiencas y estados este controlador es para corregir esos errores de sintaxis no opstante
+        /// en el caso de los estados no permite cambiar el estado una vez ya definido este solo editara la ultima audiencia creada osea audiencias previas 
+        /// se consideran como finalizadas, espera un idlitigio y que la fecha sea mas reciente que el litigio pasado
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
 
         [HttpPut("actualizarAudiencias")]
         public async Task<IActionResult> EditarUltimaAudiencia([FromBody] AudienciaUpdateDto dto)
@@ -217,7 +243,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
                 await connection.ExecuteAsync("ActualizarAudiencia", parametros, commandType: CommandType.StoredProcedure);
 
-                CorreoHelper.EnviarCorreoAudienciaActualizada(dto.IdLitigio, connection);
+               await CorreoHelper.EnviarCorreoAudienciaActualizada(dto.IdLitigio, connection);
 
                 return Ok(new
                 {
@@ -235,6 +261,14 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 });
             }
         }
+
+        /// <summary>
+        /// Este controlador nos permite acceder a la informacion que posee la ultima audiencia
+        /// esto nos permite cargar la informacion previa como la sala y las fechas para que sea mas facil 
+        /// llenar la informacion
+        /// </summary>
+        /// <param name="idLitigio"></param>
+        /// <returns></returns>
 
 
         [HttpGet("ultima-audiencia/{idLitigio}")]
@@ -275,6 +309,11 @@ namespace Sistema_Legal_2._0.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Funcion que nos permite normalizar la extension del archivo 
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         private string GetContentType(string path)
         {
             var ext = Path.GetExtension(path).ToLowerInvariant();
@@ -293,6 +332,12 @@ namespace Sistema_Legal_2._0.Server.Controllers
             };
         }
 
+        /// <summary>
+        /// Este controlador nos unifica la ruta que tenemos guardada en la base de datos (La cual esta por la mitad) y la ruta que tenemos en el servidor (La otra mitad) 
+        /// unificandolas para poder acceder al archivo 
+        /// </summary>
+        /// <param name="ruta"></param>
+        /// <returns></returns>
 
         [HttpGet("rutaspor/{*ruta}")]
         public IActionResult ObtenerArchivoPorRuta(string ruta)
@@ -316,6 +361,11 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 return StatusCode(500, new { mensaje = "Error al acceder al archivo", error = ex.Message });
             }
         }
+
+        /// <summary>
+        /// Esto nos trae todas las audiencias que han sido agregadas al sistema para mostrarlas en la vista calendario (Administrador)
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("AudienciasHistorial")]
         public async Task<ActionResult<IEnumerable<AudienciaCalendarioDto>>> GetAudienciasCalendario()
         {
@@ -355,7 +405,11 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
             return Ok(result);
         }
-
+        /// <summary>
+        /// Controlador que nos permite ver todas las audiencias que tiene un abogado esperamos el idUsuario y retornamos solo las de ese usuario en especifico (Abogado)
+        /// </summary>
+        /// <param name="idUsuario"></param>
+        /// <returns></returns>
         [HttpGet("AudienciasCalendarios/{idUsuario}")]
         public async Task<ActionResult<IEnumerable<AudienciaCalendarioDtoAbogados>>> GetAudienciasCalendarioParaAbogados(int idUsuario)
         {

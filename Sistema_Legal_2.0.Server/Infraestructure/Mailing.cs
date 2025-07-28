@@ -22,7 +22,10 @@ namespace Sistema_Legal_2._0.Server.Infraestructure
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .Build();
         }
-
+        /// <summary>
+        /// Nos permite acceder a la plantilla html
+        /// </summary>
+        /// <returns></returns>
         private static string GetHtmlTemplateCode()
         {
             try
@@ -40,7 +43,11 @@ namespace Sistema_Legal_2._0.Server.Infraestructure
                 return "<html><body><p>Error cargando plantilla de correo.</p></body></html>";
             }
         }
-
+        /// <summary>
+        /// Nos permite mandar un email
+        /// </summary>
+        /// <param name="correo"></param>
+        /// <returns></returns>
         public static async Task SendMailAsync(CorreoVM correo)
         {
             try
@@ -113,6 +120,13 @@ namespace Sistema_Legal_2._0.Server.Infraestructure
         }
         public static class CorreoHelper
         {
+            /// <summary>
+            /// Enviar una notificacion por correro que se creo una audiencia nueva al litigio que fueron asignados (Abogados)
+            /// </summary>
+            /// <param name="idAudiencia"></param>
+            /// <param name="conn"></param>
+            /// <returns></returns>
+
             public static async Task EnviarCorreoAudiencia(int idAudiencia, SqlConnection conn)
             {
                 using var cmdCorreo = new SqlCommand("sp_GetInfoAudienciaCorreo", conn)
@@ -168,7 +182,12 @@ namespace Sistema_Legal_2._0.Server.Infraestructure
                 }
             }
 
-
+            /// <summary>
+            /// Notificacion de correo de cambios en la audiencia (Abogados)
+            /// </summary>
+            /// <param name="idLitigio"></param>
+            /// <param name="conn"></param>
+            /// <returns></returns>
             public static async Task EnviarCorreoAudienciaActualizada(int idLitigio, SqlConnection conn)
             {
                 using var cmd = new SqlCommand("sp_GetInfoUltimaAudienciaCorreo", conn)
@@ -192,7 +211,7 @@ namespace Sistema_Legal_2._0.Server.Infraestructure
             </div>
         </div>
                  <div style='font-size: 15px; line-height: 1.6; color: #333;'>
-            <p><strong style='color: #083d7a;'>Título:</strong> {reader["Numero"]}</p>
+            <p><strong style='color: #083d7a;'>Títulos:</strong> {reader["Numero"]}</p>
             <p><strong style='color: #083d7a;'>Modalidad:</strong> {reader["Tipo"]}</p>
             <p><strong style='color: #083d7a;'>Tipo de Demanda:</strong> {reader["TipoDemanda"]}</p>
             <p><strong style='color: #083d7a;'>Demandante:</strong> {reader["NombreDemandante"]}</p>
@@ -217,7 +236,13 @@ namespace Sistema_Legal_2._0.Server.Infraestructure
                     });
                 }
             }
-
+            /// <summary>
+            /// Notificacion de que fue asignado a un litigo (Abogados)
+            /// </summary>
+            /// <param name="idUsuario"></param>
+            /// <param name="idLitigio"></param>
+            /// <param name="conn"></param>
+            /// <returns></returns>
             public static async Task EnviarCorreoAsignacionAbogado(int idUsuario, int idLitigio, SqlConnection conn)
             {
                
@@ -268,7 +293,13 @@ namespace Sistema_Legal_2._0.Server.Infraestructure
                     });
                 }
             }
-
+            /// <summary>
+            /// Permite que no se re envie el mismo correo
+            /// </summary>
+            /// <param name="conn"></param>
+            /// <param name="idAudiencia"></param>
+            /// <param name="tipo"></param>
+            /// <returns></returns>
             public static async Task<bool> YaFueNotificada(SqlConnection conn, int idAudiencia, string tipo)
             {
                 var checkCmd = new SqlCommand(
@@ -279,7 +310,13 @@ namespace Sistema_Legal_2._0.Server.Infraestructure
                 var existe = (int)await checkCmd.ExecuteScalarAsync();
                 return existe > 0;
             }
-
+            /// <summary>
+            /// Registra que fue mandado y que no
+            /// </summary>
+            /// <param name="conn"></param>
+            /// <param name="idAudiencia"></param>
+            /// <param name="tipo"></param>
+            /// <returns></returns>
             public static async Task RegistrarNotificacion(SqlConnection conn, int idAudiencia, string tipo)
             {
                 var insertCmd = new SqlCommand(

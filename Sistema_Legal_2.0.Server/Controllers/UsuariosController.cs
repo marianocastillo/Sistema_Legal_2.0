@@ -30,7 +30,10 @@ namespace Sistema_Legal_2._0.Server.Controller
             _configuration = configuration;
             idUsuarioOnline = userAccessor.idUsuario;
         }
-
+        /// <summary>
+        /// Nos trae los usuarios y sus perfiles
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("UsuariosConPerfil")]
         public IActionResult GetUsuariosConPerfil()
         {
@@ -188,7 +191,11 @@ namespace Sistema_Legal_2._0.Server.Controller
             }
         }
 
-
+        /// <summary>
+        /// Nos permite asignar un abogado a un litigio 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost("Asignar-Litigio")]
         [AllowAnonymous]
         public async Task<IActionResult> Asignar([FromBody] Asignaciones_Ltg model)
@@ -221,14 +228,18 @@ namespace Sistema_Legal_2._0.Server.Controller
             if (rows > 0)
             {
                 // 🟢 Enviar correo de notificación
-             CorreoHelper.EnviarCorreoAsignacionAbogado(model.IdUsuario, model.IdLtg, conn);
+           await  CorreoHelper.EnviarCorreoAsignacionAbogado(model.IdUsuario, model.IdLtg, conn);
                 return Ok("Asociación guardada correctamente.");
             }
 
             return StatusCode(500, "No se pudo guardar.");
         }
 
-
+        /// <summary>
+        /// Nos trae los abogados que estan asignados a un litigio en especifico
+        /// </summary>
+        /// <param name="idLtg"></param>
+        /// <returns></returns>
 
         [HttpGet("Asignados/{idLtg}")]
         public IActionResult GetAbogadosAsignadosConCantidad(int idLtg)
@@ -281,6 +292,12 @@ namespace Sistema_Legal_2._0.Server.Controller
             return Ok(lista);
         }
 
+
+        /// <summary>
+        /// Nos trae todos los abogados con las asignaciones que tienen
+        /// </summary>
+        /// <returns></returns>
+
         [HttpGet("AbogadosConAsignaciones")]
         public IActionResult GetAbogadosConCantidadAsignaciones()
         {
@@ -323,7 +340,12 @@ namespace Sistema_Legal_2._0.Server.Controller
 
 
 
-
+        /// <summary>
+        /// Nos permite eliminar un abogado de un litigio
+        /// </summary>
+        /// <param name="idUsuario"></param>
+        /// <param name="idLtg"></param>
+        /// <returns></returns>
 
         [HttpDelete("EliminarAsignacion")]
         public IActionResult EliminarAsignacion([FromQuery] int idUsuario, [FromQuery] int idLtg)
