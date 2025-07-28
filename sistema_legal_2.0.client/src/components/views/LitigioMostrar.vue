@@ -462,24 +462,14 @@ const obtenerComentariosConEvidencias = async () => {
 
 const obtenerTribunal = async () => {
   try {
-    const res = await api.get(`/api/Litigio/audiencias-con-evidencias-y-tribunal/${props.id}`);
+    const res = await api.get(`/api/Litigio/detallados/${props.id}`);
+    litigio.value = res.data;
 
-    // Actualiza solo la parte del tribunal dentro del litigio
-    if (res.data.tribunalFinal) {
-      litigio.value = {
-        ...litigio.value,
-        ...res.data.tribunalFinal
-      };
-    }
-
-    // Si también quieres actualizar audiencias:
-    if (res.data.audiencias) {
-      audiencias.value = res.data.audiencias;
-    }
-
-    console.log('✅ Tribunal actualizado');
+    // Si quieres también refrescar audiencias:
+    await obtenerAudiencias();
+    await cargarLineaDeTiempo();
   } catch (error) {
-    console.error('❌ Error al actualizar tribunal:', error);
+    console.error('❌ Error al recargar litigio:', error);
   }
 };
 

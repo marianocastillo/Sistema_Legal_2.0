@@ -48,7 +48,7 @@ onMounted(async () => {
         description: `
           Tipo: (${a.tipoAudiencia})<br />
           Sala: ${a.nombreSala} | Tribunal: ${a.nombre_Tribunal} | ${a.tipoDemanda}<br /><br />
-          <button class="ver-detalle-btn" onclick="window.__goToDetalle(${a.id_Ltg})">🔍 Ver Detalle</button>
+          <button class="ver-detalle-btn" onclick="window.__goToDetalle(${a.id_Ltg})">👁️ Ver Detalle</button>
         `,
         eventType: a.tipoAudiencia?.toLowerCase().includes('virtual') ? 'virtual' : 'presencial',
         actions: [

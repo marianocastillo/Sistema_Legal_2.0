@@ -56,6 +56,8 @@ const cargarDatosDropdowns = async () => {
     push.error('No se pudieron cargar los datos.');
   }
 };
+
+
 const cargarUltimaAudiencia = async () => {
   try {
     const { data } = await axios.get(`/api/Files/ultima-Audiencia/${props.id_Ltg}`);
@@ -63,7 +65,14 @@ const cargarUltimaAudiencia = async () => {
 
     numero.value = audiencia.NumeroAudiencia || '';
     tipo.value = audiencia.TipoAudiencia || '';
-    Fecha.value = new Date(audiencia.FechaAudiencia);
+    if (audiencia.FechaAudiencia) {
+      // Si tiene hora, úsala directamente. Si solo es fecha, igual funcionará bien.
+      Fecha.value = new Date(audiencia.FechaAudiencia);
+    } else {
+      // Si viene vacío, asigna la fecha actual
+      Fecha.value = new Date();
+    }
+
     horaSeleccionada.value = new Date(audiencia.FechaAudiencia);
     console.log(audiencia)
     tribunalSeleccionado.value = audiencia.IdSala
@@ -122,9 +131,9 @@ onMounted(async () => {
 </script>
 
 <template>
-  <Dialog :style="{ width: '40%' }" v-model:visible="visible" modal :closable="false" :draggable="false" @hide="emit('close')"
-    class="dialog-editar-audiencia">
-      <template #header>
+  <Dialog :style="{ width: '40%' }" v-model:visible="visible" modal :closable="false" :draggable="false"
+    @hide="emit('close')" class="dialog-editar-audiencia">
+    <template #header>
       <div class="flex justify-content-between align-items-center m-2 flex-wrap gap-2 pt-3 w-100 custom-header">
         <!-- Columna izquierda: solo el título -->
         <div class="flex-grow">
@@ -133,7 +142,7 @@ onMounted(async () => {
 
         <!-- Columna derecha: botones + buscador -->
         <div class="flex items-center gap-2">
-         <button class="close-btn" @click="visible = false">&times;</button>
+          <button class="close-btn" @click="visible = false">&times;</button>
 
         </div>
       </div>
@@ -211,6 +220,4 @@ onMounted(async () => {
   color: #003870;
   font-weight: bold;
 }
-
-
 </style>
