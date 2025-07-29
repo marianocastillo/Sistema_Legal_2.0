@@ -8,6 +8,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using MimeMapping;
 using Newtonsoft.Json;
+using QuestPDF.Fluent;
 using Sistema_Legal_2._0.Server.Entities;
 using Sistema_Legal_2._0.Server.Infraestructure;
 using Sistema_Legal_2._0.Server.Models;
@@ -17,7 +18,9 @@ using System.Data;
 using System.Globalization;
 using System.Numerics;
 using System.Reflection;
+using System.Security.Policy;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using static Sistema_Legal_2._0.Server.Models.SistemadeRegistro;
 
 namespace Sistema_Legal_2._0.Server.Controllers
 {
@@ -52,46 +55,46 @@ namespace Sistema_Legal_2._0.Server.Controllers
             try
             {
                 using (SqlConnection connection = new SqlConnection(_cadenaSQL))
-            {
-
-
-                await connection.OpenAsync();
-
-                litigio.ltg_acto = string.IsNullOrWhiteSpace(litigio.ltg_acto) ? null : litigio.ltg_acto;
-                litigio.ltg_Cedula_Demandante = string.IsNullOrWhiteSpace(litigio.ltg_Cedula_Demandante) ? null : litigio.ltg_Cedula_Demandante;
-                litigio.ltg_Nacionalidad = string.IsNullOrWhiteSpace(litigio.ltg_Nacionalidad) ? null : litigio.ltg_Nacionalidad;
-                litigio.ltg_Tipo_Demandante = string.IsNullOrWhiteSpace(litigio.ltg_Tipo_Demandante) ? null : litigio.ltg_Tipo_Demandante;
-                litigio.ltg_Cedula_Representante = string.IsNullOrWhiteSpace(litigio.ltg_Cedula_Representante) ? null : litigio.ltg_Cedula_Representante;
-                litigio.ltg_Nombre_Representante = string.IsNullOrWhiteSpace(litigio.ltg_Nombre_Representante) ? null : litigio.ltg_Nombre_Representante;
-
-
-                using (SqlCommand cmd = new SqlCommand("sp_EditarLitigio", connection))
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
 
-                    cmd.Parameters.AddWithValue("@id_Ltg", litigio.id_Ltg);
-                    cmd.Parameters.AddWithValue("@ltg_acto", (object?)litigio.ltg_acto ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("@ltg_Fecha_Acto", litigio.ltg_Fecha_Acto);
-                    cmd.Parameters.AddWithValue("@ltg_Nombre_Demandante", (object?)litigio.ltg_Nombre_Demandante ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("@id_Tipo_Demanda", litigio.id_Tipo_Demanda);
-                    cmd.Parameters.AddWithValue("@ltg_Cedula_Demandante", (object?)litigio.ltg_Cedula_Demandante?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("@ltg_Nacionalidad", (object?)litigio.ltg_Nacionalidad ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("@ltg_Nacionalidad_Representante", (object?)litigio.ltg_Nacionalidad_Representante ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("@ltg_Tipo_Demandante", litigio.ltg_Tipo_Demandante);
-                    cmd.Parameters.AddWithValue("@ltg_Cedula_Representante", (object?)litigio.ltg_Cedula_Representante ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("@ltg_Nombre_Representante", (object?)litigio.ltg_Nombre_Representante ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("@id_Sentencia", litigio.id_Sentencia);
-                    cmd.Parameters.AddWithValue("@id_Estatus", litigio.id_Estatus);
-                    cmd.Parameters.AddWithValue("@id_usuario", litigio.id_usuario);
+
+                    await connection.OpenAsync();
+
+                    litigio.ltg_acto = string.IsNullOrWhiteSpace(litigio.ltg_acto) ? null : litigio.ltg_acto;
+                    litigio.ltg_Cedula_Demandante = string.IsNullOrWhiteSpace(litigio.ltg_Cedula_Demandante) ? null : litigio.ltg_Cedula_Demandante;
+                    litigio.ltg_Nacionalidad = string.IsNullOrWhiteSpace(litigio.ltg_Nacionalidad) ? null : litigio.ltg_Nacionalidad;
+                    litigio.ltg_Tipo_Demandante = string.IsNullOrWhiteSpace(litigio.ltg_Tipo_Demandante) ? null : litigio.ltg_Tipo_Demandante;
+                    litigio.ltg_Cedula_Representante = string.IsNullOrWhiteSpace(litigio.ltg_Cedula_Representante) ? null : litigio.ltg_Cedula_Representante;
+                    litigio.ltg_Nombre_Representante = string.IsNullOrWhiteSpace(litigio.ltg_Nombre_Representante) ? null : litigio.ltg_Nombre_Representante;
+
+
+                    using (SqlCommand cmd = new SqlCommand("sp_EditarLitigio", connection))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        cmd.Parameters.AddWithValue("@id_Ltg", litigio.id_Ltg);
+                        cmd.Parameters.AddWithValue("@ltg_acto", (object?)litigio.ltg_acto ?? DBNull.Value);
+                        cmd.Parameters.AddWithValue("@ltg_Fecha_Acto", litigio.ltg_Fecha_Acto);
+                        cmd.Parameters.AddWithValue("@ltg_Nombre_Demandante", (object?)litigio.ltg_Nombre_Demandante ?? DBNull.Value);
+                        cmd.Parameters.AddWithValue("@id_Tipo_Demanda", litigio.id_Tipo_Demanda);
+                        cmd.Parameters.AddWithValue("@ltg_Cedula_Demandante", (object?)litigio.ltg_Cedula_Demandante ?? DBNull.Value);
+                        cmd.Parameters.AddWithValue("@ltg_Nacionalidad", (object?)litigio.ltg_Nacionalidad ?? DBNull.Value);
+                        cmd.Parameters.AddWithValue("@ltg_Nacionalidad_Representante", (object?)litigio.ltg_Nacionalidad_Representante ?? DBNull.Value);
+                        cmd.Parameters.AddWithValue("@ltg_Tipo_Demandante", litigio.ltg_Tipo_Demandante);
+                        cmd.Parameters.AddWithValue("@ltg_Cedula_Representante", (object?)litigio.ltg_Cedula_Representante ?? DBNull.Value);
+                        cmd.Parameters.AddWithValue("@ltg_Nombre_Representante", (object?)litigio.ltg_Nombre_Representante ?? DBNull.Value);
+                        cmd.Parameters.AddWithValue("@id_Sentencia", litigio.id_Sentencia);
+                        cmd.Parameters.AddWithValue("@id_Estatus", litigio.id_Estatus);
+                        cmd.Parameters.AddWithValue("@id_usuario", litigio.id_usuario);
 
 
                         int rowsAffected = await cmd.ExecuteNonQueryAsync();
 
-                    if (rowsAffected == 0)
-                        return NotFound("Litigio no encontrado o no modificado.");
+                        if (rowsAffected == 0)
+                            return NotFound("Litigio no encontrado o no modificado.");
 
-                    return Ok(new { mensaje = "Litigio actualizado correctamente." });
-                }
+                        return Ok(new { mensaje = "Litigio actualizado correctamente." });
+                    }
                 }
             }
             catch (Exception ex)
@@ -100,7 +103,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                 {
                     success = false,
                     message = "Error al actualizar el litigio",
-                    error = ex.Message 
+                    error = ex.Message
                 });
             }
 
@@ -157,7 +160,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                         command.Parameters.AddWithValue("@Comentario_Evidencia", string.IsNullOrWhiteSpace(datos.comentario) ? "Archivo subido sin nombre." : datos.comentario);
 
                         command.Parameters.AddWithValue("@Fecha", fechabien);
-                        command.Parameters.AddWithValue("@SalaId", datos.SalaId);                   
+                        command.Parameters.AddWithValue("@SalaId", datos.SalaId);
                         command.Parameters.AddWithValue("@Tipo", (object?)datos.Tipo_audiencia ?? DBNull.Value);
 
 
@@ -222,72 +225,72 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
         [HttpGet("audiencias-con-evidencias-y-tribunal/{id_litigio}")]
         public async Task<IActionResult> ObtenerAudienciasYTribunal(int id_litigio)
-{
-    var result = new LitigioDetalleDto();
-
-    try
-    {
-        using var connection = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal"));
-        await connection.OpenAsync();
-
-        using var command = new SqlCommand("sp_ObtenerAudienciasConEvidenciasYTribunalFinal", connection)
         {
-            CommandType = CommandType.StoredProcedure
-        };
+            var result = new LitigioDetalleDto();
 
-        command.Parameters.AddWithValue("@id_litigio", id_litigio);
-
-        using var reader = await command.ExecuteReaderAsync();
-
-        // 1. Audiencias con evidencias, sala y tribunal
-        while (await reader.ReadAsync())
-        {
-            var audiencia = new AudienciaDto
+            try
             {
-                Id_audiencia = reader["Id_audiencia"] as int?,
-                numeroAudiencia = reader["numeroAudiencia"] as string,
-                tipoAudiencia = reader["tipoAudiencia"] as string,
-                fechaAudiencia = reader["fechaAudiencia"] as DateTime?,
-                IdSala = reader["IdSala"] as int?,
-                evidenciasYComentarios = reader["evidenciasJSON"] == DBNull.Value
-                    ? new List<EvidenciaDto>()
-                    : JsonConvert.DeserializeObject<List<EvidenciaDto>>(reader["evidenciasJSON"].ToString())
-            };
+                using var connection = new SqlConnection(_configuration.GetConnectionString("Sistema_Legal"));
+                await connection.OpenAsync();
 
-            result.Audiencias.Add(audiencia);
-        }
+                using var command = new SqlCommand("sp_ObtenerAudienciasConEvidenciasYTribunalFinal", connection)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
 
-        if (await reader.NextResultAsync() && await reader.ReadAsync())
-        {
-            result.TribunalFinal = new AudienciaFinalDto
+                command.Parameters.AddWithValue("@id_litigio", id_litigio);
+
+                using var reader = await command.ExecuteReaderAsync();
+
+                // 1. Audiencias con evidencias, sala y tribunal
+                while (await reader.ReadAsync())
+                {
+                    var audiencia = new AudienciaDto
+                    {
+                        Id_audiencia = reader["Id_audiencia"] as int?,
+                        numeroAudiencia = reader["numeroAudiencia"] as string,
+                        tipoAudiencia = reader["tipoAudiencia"] as string,
+                        fechaAudiencia = reader["fechaAudiencia"] as DateTime?,
+                        IdSala = reader["IdSala"] as int?,
+                        evidenciasYComentarios = reader["evidenciasJSON"] == DBNull.Value
+                            ? new List<EvidenciaDto>()
+                            : JsonConvert.DeserializeObject<List<EvidenciaDto>>(reader["evidenciasJSON"].ToString())
+                    };
+
+                    result.Audiencias.Add(audiencia);
+                }
+
+                if (await reader.NextResultAsync() && await reader.ReadAsync())
+                {
+                    result.TribunalFinal = new AudienciaFinalDto
+                    {
+                        tipoAudiencia = reader["Tipo"] as string,
+                        numeroAudiencia = reader["Numero"] as string,
+                        IdSala = reader["IdSala"] as int?,
+                        Nombre = reader["Nombre"] as string,
+                        id_Tribunal = reader["Id_Tribunal"] as int?,
+                        Distrito = reader["Distrito"] as string,
+                        MapsUrl = reader["MapsUrl"] as string,
+                        nombre_Tribunal = reader["Nombre_Tribunal"] as string,
+                        tribunal_Direccion = reader["tribunal_Direccion"] as string,
+                        tribunal_Telefono = reader["tribunal_Telefono"] as string,
+                        tribunal_Descripcion = reader["tribunal_Descripcion"] as string,
+                        ltg_Fecha_Audiencia = reader["ltg_Fecha_Audiencia"] as DateTime?
+                    };
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
             {
-                tipoAudiencia = reader["Tipo"] as string,
-                numeroAudiencia = reader["Numero"] as string,
-                IdSala = reader["IdSala"] as int?,
-                Nombre = reader["Nombre"] as string,
-                id_Tribunal = reader["Id_Tribunal"] as int?,
-                Distrito = reader["Distrito"] as string,
-                MapsUrl = reader["MapsUrl"] as string,
-                nombre_Tribunal = reader["Nombre_Tribunal"] as string,            
-                tribunal_Direccion = reader["tribunal_Direccion"] as string,
-                tribunal_Telefono = reader["tribunal_Telefono"] as string,
-                tribunal_Descripcion = reader["tribunal_Descripcion"] as string,
-                ltg_Fecha_Audiencia = reader["ltg_Fecha_Audiencia"] as DateTime?
-            };
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Error al obtener los datos",
+                    error = ex.Message
+                });
+            }
         }
-
-        return Ok(result);
-    }
-    catch (Exception ex)
-    {
-        return StatusCode(500, new
-        {
-            success = false,
-            message = "Error al obtener los datos",
-            error = ex.Message
-        });
-    }
-}
 
 
         /// <summary>
@@ -398,7 +401,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
                     using (var reader = await command.ExecuteReaderAsync())
                     {
-                      
+
                         while (await reader.ReadAsync())
                         {
                             datos.Tribunales.Add(new TribunalDto
@@ -424,7 +427,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                             });
                         }
 
-                   
+
                         await reader.NextResultAsync();
                         while (await reader.ReadAsync())
                         {
@@ -435,7 +438,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
                             });
                         }
 
-                  
+
                         await reader.NextResultAsync();
                         while (await reader.ReadAsync())
                         {
@@ -459,7 +462,7 @@ namespace Sistema_Legal_2._0.Server.Controllers
     int page = 1,
     int pageSize = 10,
     string? search = null,
-    string? estatus = null 
+    string? estatus = null
 )
         {
             var result = new LitigiosDigitadoresPaginadoResponse();
@@ -687,8 +690,8 @@ namespace Sistema_Legal_2._0.Server.Controllers
 
 
 
-        
-       
+
+
 
         /// <summary>
         /// Trae la informacion del litigio seleccionado para llenar 
@@ -766,92 +769,229 @@ namespace Sistema_Legal_2._0.Server.Controllers
         [HttpGet("historial/{id}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetHistorialLitigio(int id)
-            {
-                var result = new List<LineaTiempoItemDto>();
+        {
+            var result = new List<LineaTiempoItemDto>();
 
-                var connectionString = _configuration.GetConnectionString("Sistema_Legal");
-                using var connection = new SqlConnection(connectionString);
-                await connection.OpenAsync();
+            var connectionString = _configuration.GetConnectionString("Sistema_Legal");
+            using var connection = new SqlConnection(connectionString);
+            await connection.OpenAsync();
 
-                var command = new SqlCommand(@"
+            var command = new SqlCommand(@"
                     SELECT h.Tipo_cambio, h.Valor_anterior, h.Valor_nuevo, h.Fecha_cambio, u.nombreUsuario AS UsuarioNombre
                     FROM Historico_Litigio h
                     LEFT JOIN Usuarios u ON h.Usuario_id = u.idUsuario
                     WHERE h.Id_litigio = @Id
                     ORDER BY h.Fecha_cambio ASC", connection);
-                command.Parameters.AddWithValue("@Id", id);
+            command.Parameters.AddWithValue("@Id", id);
 
-                using var reader = await command.ExecuteReaderAsync();
-                while (await reader.ReadAsync())
-                {
-                    var tipo = reader["Tipo_cambio"].ToString();
-                    var anterior = reader["Valor_anterior"]?.ToString();
-                    var nuevo = reader["Valor_nuevo"]?.ToString();
-                    var fecha = ((DateTime)reader["Fecha_cambio"]).ToString("o"); // "o" = ISO 8601
-                    var usuarioNombre = reader["UsuarioNombre"]?.ToString();
+            using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                var tipo = reader["Tipo_cambio"].ToString();
+                var anterior = reader["Valor_anterior"]?.ToString();
+                var nuevo = reader["Valor_nuevo"]?.ToString();
+                var fecha = ((DateTime)reader["Fecha_cambio"]).ToString("o"); // "o" = ISO 8601
+                var usuarioNombre = reader["UsuarioNombre"]?.ToString();
 
 
 
                 result.Add(new LineaTiempoItemDto
-                    {
-                        Status = tipo,
-                        Date = fecha,
-                        Content = anterior != null ? $"-{anterior}-{nuevo}-" : nuevo,
-                        Icon = IconoPorTipo(tipo),
-                        Color = ColorPorTipo(tipo),
-                        Usuario = usuarioNombre
+                {
+                    Status = tipo,
+                    Date = fecha,
+                    Content = anterior != null ? $"-{anterior}-{nuevo}-" : nuevo,
+                    Icon = IconoPorTipo(tipo),
+                    Color = ColorPorTipo(tipo),
+                    Usuario = usuarioNombre
                 });
+            }
+
+            return Ok(result);
+        }
+
+        private string IconoPorTipo(string tipo)
+        {
+            return tipo switch
+
+
+
+            {
+
+                "Creación del litigio" => "pi pi-building",
+                "Nueva Audiencia" => "pi pi-calendar-plus",
+                "Actualización de Audiencia" => "pi pi-calendar",
+
+                "Nueva Evidencia" => "pi pi-file-pdf",
+                "Cambio de tribunal" => "pi pi-building",
+                "Cambio de estatus" => "pi pi-info-circle",
+                "Cambio de sentencia" => "pi pi-check",
+                "Inicio del litigio" => "pi pi-flag",
+                "Cambio de representante" => "pi pi-user-edit",
+
+                _ => "pi-exclamation-triangle"
+            };
+        }
+
+        private string ColorPorTipo(string tipo)
+        {
+            return tipo switch
+            {
+                "Nueva Audiencia" => "#75F07B",
+                "Actualización de Audiencia" => "#75F0B2",
+                "Nueva Evidencia" => "#E02500",
+                "Cambio de tribunal" => "##C5F0DE",
+                "Cambio de estatus" => "#FFC107",
+                "Cambio de sentencia" => "#4CAF50",
+                "Inicio del litigio" => "#9C27B0",
+                "Cambio de representante" => "#CABBE1",
+                _ => "#00254F"
+            };
+        }
+
+
+        private async Task<LitigioCompletoDto?> SistemadeRegistroPDF(int idLitigio)
+        {
+            var connectionString = _configuration.GetConnectionString("Sistema_Legal");
+
+            var dto = new LitigioCompletoDto
+            {
+                AbogadosIds = new List<int>(),
+                Audiencias = new List<AudienciaDetalleDto>(),
+                CambiosEstatus = new List<CambioEstatusDto>()
+            };
+
+            using var conn = new SqlConnection(connectionString);
+            using var cmd = new SqlCommand("sp_SistemaDeReportes", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            cmd.Parameters.AddWithValue("@IdLitigio", idLitigio);
+
+            await conn.OpenAsync();
+            using var reader = await cmd.ExecuteReaderAsync();
+
+            try
+            {
+                // 1. Litigio
+                if (await reader.ReadAsync())
+                {
+                    dto.Litigio = new Litigioses
+                    {
+                        id_Ltg = reader.GetInt32(0),
+                        ltg_acto = reader.GetString(1),
+                        ltg_Fecha_Acto = reader.GetDateTime(2),
+                        ltg_Cedula_Demandante = reader.GetString(3),
+                        ltg_Nombre_Demandante = reader.GetString(4),
+                        ltg_Tipo_Demandante = reader.GetString(5),
+                        ltg_Nacionalidad = reader.GetString(6),
+                        ltg_Cedula_Representante = reader.GetString(7),
+                        ltg_Nombre_Representante = reader.GetString(8),
+                        ltg_Nacionalidad_Representante = reader.GetString(9),
+                        id_Tipo_Demanda = reader.IsDBNull(10) ? 0 : reader.GetInt32(10),
+                        Nombre = reader.IsDBNull(11) ? null : reader.GetString(11),
+                        id_Sentencia = reader.IsDBNull(12) ? 0 : reader.GetInt32(12),
+                        desc_Sentencia = reader.IsDBNull(13) ? null : reader.GetString(13),
+                        id_usuario = reader.IsDBNull(14) ? 0 : reader.GetInt32(14),
+                        id_Estatus = reader.IsDBNull(15) ? 0 : reader.GetInt32(15),
+                        ltg_description = reader.IsDBNull(16) ? null : reader.GetString(16)
+                    };
                 }
 
-                return Ok(result);
-            }
-
-            private string IconoPorTipo(string tipo)
-            {
-                return tipo switch
-
-
-              
+                // 2. Abogados
+                await reader.NextResultAsync();
+                while (await reader.ReadAsync())
                 {
-                    
-                    "Creación del litigio" => "pi pi-building",
-                    "Nueva Audiencia" => "pi pi-calendar-plus",
-                    "Actualización de Audiencia" => "pi pi-calendar",
+                    dto.AbogadosIds.Add(reader.GetInt32(0));
+                }
 
-                    "Nueva Evidencia" => "pi pi-file-pdf",
-                    "Cambio de tribunal" => "pi pi-building",
-                    "Cambio de estatus" => "pi pi-info-circle",
-                    "Cambio de sentencia" => "pi pi-check",
-                    "Inicio del litigio" => "pi pi-flag",
-                    "Cambio de representante" => "pi pi-user-edit",
-
-                    _ => "pi-exclamation-triangle"
-                };
-            }
-
-            private string ColorPorTipo(string tipo)
-            {
-                return tipo switch
+                // 3. Audiencias
+                var audienciasTemp = new List<AudienciaDetalleDto>();
+                await reader.NextResultAsync();
+                while (await reader.ReadAsync())
                 {
-                    "Nueva Audiencia" => "#75F07B",
-                    "Actualización de Audiencia" => "#75F0B2",
-                    "Nueva Evidencia" => "#E02500",
-                    "Cambio de tribunal" => "##C5F0DE",
-                    "Cambio de estatus" => "#FFC107",
-                    "Cambio de sentencia" => "#4CAF50",
-                    "Inicio del litigio" => "#9C27B0",
-                    "Cambio de representante" => "#CABBE1",
-                    _ => "#00254F"
-                };
+                    var aud = new AudienciaDetalleDto
+                    {
+                        Audiencia = new Audiencias
+                        {
+                            Id_audiencia = reader.GetInt32(0),
+                            Id_litigio = reader.GetInt32(1),
+                            Numero = reader.GetString(2),
+                            Tipo = reader.GetString(3),
+                            Fecha = reader.GetDateTime(4),
+                            SalaId = reader.GetInt32(5),
+                            Cierre = reader.IsDBNull(10) ? false : reader.GetBoolean(10)
+                        },
+                        NombreSala = reader.GetString(6),
+                        NombreTribunal = reader.GetString(7),
+                        DireccionTribunal = reader.GetString(8),
+                        MapsUrl = reader.IsDBNull(9) ? null : reader.GetString(9),
+                        Evidencias = new List<Evidencias>()
+                    };
+                    audienciasTemp.Add(aud);
+                }
+
+                // 4. Evidencias
+                await reader.NextResultAsync();
+                var evidencias = new List<Evidencias>();
+                while (await reader.ReadAsync())
+                {
+                    evidencias.Add(new Evidencias
+                    {
+                        Id_Evidencia = reader.GetInt32(0),
+                        Id_audiencia = reader.GetInt32(1),
+                        Ruta_Archivo = reader.GetString(2),
+                        Comentario_Evidencia = reader.GetString(3),
+                        Fecha = reader.GetDateTime(4)
+                    });
+                }
+
+                // Relacionar evidencias con audiencias
+                foreach (var aud in audienciasTemp)
+                {
+                    aud.Evidencias = evidencias
+                        .Where(e => e.Id_audiencia == aud.Audiencia.Id_audiencia)
+                        .ToList();
+                }
+
+                dto.Audiencias = audienciasTemp;
+
+                // 5. Cambios de estatus
+                await reader.NextResultAsync();
+                while (await reader.ReadAsync())
+                {
+                    dto.CambiosEstatus.Add(new CambioEstatusDto
+                    {
+                        Id_historial = reader.GetInt32(0),
+                        Valor_anterior = reader.GetString(3),
+                        Valor_nuevo = reader.GetString(4),
+                        Fecha_cambio = reader.GetDateTime(5),
+                    });
+                }
+
+                return dto;
+            }
+            catch
+            {
+                return null;
             }
         }
 
 
+        [HttpGet("{id}/pdf")]
+        public async Task<IActionResult> GenerarPdf(int id)
+        {
+            var dto = await SistemadeRegistroPDF(id);
 
+            if (dto == null)
+                return NotFound();
+
+            var document = new LitigioPdfDocument(_configuration, dto);
+            var pdfStream = new MemoryStream();
+            document.GeneratePdf(pdfStream);
+            pdfStream.Position = 0;
+
+            return File(pdfStream, "application/pdf", $"Litigio_{id}.pdf");
+        }
 
     }
-
-
-
-
-
+}

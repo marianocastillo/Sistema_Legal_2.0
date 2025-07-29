@@ -137,7 +137,7 @@ public class RecordatorioJob : BackgroundService
                 Console.WriteLine("Error en el job de recordatorio: " + ex.Message);
             }
 
-            await Task.Delay(TimeSpan.FromMinutes(15), stoppingToken);
+            await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
         }
     }
 }

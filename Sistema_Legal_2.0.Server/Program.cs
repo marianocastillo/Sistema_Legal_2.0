@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-
+using QuestPDF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -81,6 +81,9 @@ builder.Services.AddAuthentication(options =>
         RequireExpirationTime = true,
     };
 });
+
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+
 
 builder.Services.AddMvcCore().ConfigureApiBehaviorOptions(options => {
     options.InvalidModelStateResponseFactory = (errorContext) =>
