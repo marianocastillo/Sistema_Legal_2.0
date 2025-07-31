@@ -76,11 +76,10 @@ onMounted(() => {
     <aside class="sidebar" :class="{ collapsed: isCollapsedSidebar }">
       <div class="sidebar-top">
         <div class="sidebar-header">
-          <div class="sidebar-brand">
+          <router-link :to="rutaInicio" class="sidebar-brand">
             <img src="../assets/LogoBlanco.png" alt="Logo" class="img-fluid" style="max-width: 50px;" />
             <h4 class="sidebar-title">Sistema Sileg 2.0</h4>
-
-          </div>
+          </router-link>
         </div>
         <br />
         <nav class="sidebar-menu">
@@ -356,8 +355,9 @@ body {
   gap: 10px;
   border-bottom: 1px solid #f34141;
   padding-bottom: 0.2rem;
+  text-decoration: none;
+  color: #fff;
 }
-
 .sidebar-title {
   margin: 0;
   color: #fff;
@@ -384,14 +384,15 @@ body {
 }
 
 .sidebar-link:hover {
-  background-color: #c00606;
+  background-color: #b12525;
   font-weight: 600;
 }
 
 .sidebar-link.active {
-  background-color: #c00606;
+  background-color: #b12525;
   font-weight: 600;
 }
+
 .sidebar-link i {
   font-size: 1rem;
 }
@@ -517,5 +518,3 @@ body {
   transition: transform 0.2s ease;
 }
 </style>
-
-

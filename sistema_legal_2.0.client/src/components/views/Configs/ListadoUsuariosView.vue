@@ -1,75 +1,4 @@
-<!-- <template>
-  <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h4 class="text-dark">Listado de usuarios</h4>
-      <div class="d-flex gap-2">
-        <router-link to="/formulario" class="btn text-white" style="background-color: #003870;">
-          <i class="fas fa-plus me-2"></i> Nuevo
-        </router-link>
 
-        <input type="text" class="form-control-sm bg-white text-dark" placeholder="Buscar..." v-model="search" />
-        <router-link to="/Seguimiento" class="btn text-white" style="background-color: #003870;">
-          <i class="fa-solid fa-home me-2"></i> Inicio
-        </router-link>
-      </div>
-    </div>
-
-    <table class="table table-bordered table-hover table-sm">
-      <thead class="table-light">
-        <tr>
-          <th @click="sort('nombreUsuario')">Nombre de Usuario</th>
-          <th @click="sort('nombres')">Nombres</th>
-          <th @click="sort('apellidos')">Apellidos</th>
-          <th @click="sort('idPerfil')">Perfil</th>
-          <th @click="sort('fechaCrea')">Fecha de Creación</th>
-          <th @click="sort('activo')">Estado</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="usuario in paginatedUsuarios" :key="usuario.idUsuario">
-          <td>{{ usuario.nombreUsuario }}</td>
-          <td>{{ usuario.nombres }}</td>
-          <td>{{ usuario.apellidos }}</td>
-          <td>{{ usuario.nombrePerfil}}</td>
-          <td>{{ new Date(usuario.fechaCreacion).toLocaleDateString() }}</td>
-          <td>
-            <span :class="['badge', usuario.activo ? 'bg-success' : 'bg-warning']">
-              {{ usuario.activo ? 'Activo' : 'Inactivo' }}
-            </span>
-          </td>
-          <td>
-            <button class="btn btn-sm  me-2" style="background-color: #003870;"
-              @click="$router.push({ name: 'formulario', params: { idUsuario: usuario.idUsuario } })">
-              <i class="fas fa-edit" style="color: white;"></i>
-            </button>
-            <button class="btn btn-sm " style="background-color: #003870;" @click="ConfirmDelete(usuario.idUsuario)">
-              <i class="fas fa-trash-alt" style="color: white;"></i>
-            </button>
-          </td>
-        </tr>
-        <tr v-if="filteredUsuarios.length === 0">
-          <td colspan="7" class="text-center">No se han encontrado usuarios.</td>
-        </tr>
-      </tbody>
-    </table>
-
-
-    <nav>
-      <ul class="pagination justify-content-end">
-        <li class="page-item" :class="{ disabled: page === 1 }">
-          <button class="page-link" @click="page--">Anterior</button>
-        </li>
-        <li class="page-item" v-for="p in totalPages" :key="p" :class="{ active: page === p }">
-          <button class="page-link" @click="page = p">{{ p }}</button>
-        </li>
-        <li class="page-item" :class="{ disabled: page === totalPages }">
-          <button class="page-link" @click="page++">Siguiente</button>
-        </li>
-      </ul>
-    </nav>
-  </div>
-</template> -->
 
 
 <template>
@@ -123,11 +52,11 @@
           </td>
           <td>
             <div class="btn-group">
-              <button class="btn btn-sm" style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;"
+              <button class="btn btn-sm btn-hover" style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;"
                @click="$router.push({ path: `/ConfiguracionUsuarios/${usuario.idUsuario}` })">
                 <i class="fas fa-edit white-icon"></i>
               </button>
-              <button class="btn btn-sm" style="background-color: #003870; border-color: #003870;"
+              <button class="btn btn-sm btn-hover" style="background-color: #003870; border-color: #003870;"
                 @click="ConfirmDelete(usuario.idUsuario)">
                 <i class="fas fa-trash-alt white-icon"></i>
               </button>

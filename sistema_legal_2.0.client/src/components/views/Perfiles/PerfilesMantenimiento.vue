@@ -1,33 +1,60 @@
 <template>
-  <div class="card">
-  <!-- 🌀 Loading spinner -->
+  <div class="card p-6 shadow-2">
+    <!-- 🌀 Loading spinner -->
     <div v-if="loading" class="loading-container">
       <ProgressSpinner strokeWidth="4" />
     </div v-else>
 
-    <h2>Gestión de Perfiles</h2>
+    <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+      <h2 class="text-2xl font-bold">Gestión de Perfiles</h2>
 
-    <Button label="Nuevo Perfil" icon="pi pi-plus" class="mb-3" @click="nuevoPerfil" />
+      <div class="filtro-busqueda-bar">
+        <Button icon="pi pi-plus" label="Nuevo Perfil" class="btn-litigio" @click="nuevoPerfil" />
+      </div>
+    </div>
 
-    <DataTable :value="perfiles" dataKey="idPerfil">
-      <Column field="idPerfil" header="ID" />
-      <Column field="nombre" header="nombre" />
-      <Column field="descripcion" header="Descripción" />
-      <Column field="cantPermisos" header="Permisos" />
-      <Column field="cantUsuarios" header="Usuarios" />
-      <Column field="porDefecto" header="Por Defecto">
-        <template #body="{ data }">
-          <i v-if="data.porDefecto" class="pi pi-check text-green-500"></i>
-        </template>
-      </Column>
-      <Column header="Acciones">
-        <template #body="{ data }">
-          <Button icon="pi pi-pencil" label="Editar" class="p-button-sm mr-2" @click="abrirEdicion(data)" />
-          <Button icon="pi pi-trash" label="Eliminar" class="p-button-sm p-button-danger"
-            @click="confirmarEliminacion(data.idPerfil)" />
-        </template>
-      </Column>
-    </DataTable>
+    <table class="table table-bordered table-hover table-sm">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Descripción</th>
+          <th>Permisos</th>
+          <th>Usuarios</th>
+          <th>Por Defecto</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="perfil in perfiles" :key="perfil.idPerfil">
+          <td>{{ perfil.idPerfil }}</td>
+          <td>{{ perfil.nombre }}</td>
+          <td>{{ perfil.descripcion }}</td>
+          <td>{{ perfil.cantPermisos }}</td>
+          <td>{{ perfil.cantUsuarios }}</td>
+          <td>
+            <i v-if="perfil.porDefecto" class="pi pi-check text-green-500"></i>
+          </td>
+          <td>
+            <div class="btn-group">
+              <button class="btn btn-sm btn-hover"
+                style="background-color: #003870; border-color: #003870; margin-right: 0.3rem;"
+                v-tooltip="'Editar Perfil'" @click="abrirEdicion(perfil)">
+                <i class="pi pi-pencil white-icon"></i>
+              </button>
+              <button class="btn btn-sm btn-hover" style="background-color: #003870; border-color: #003870;"
+                v-tooltip="'Eliminar Perfil'" @click="confirmarEliminacion(perfil.idPerfil)">
+                <i class="pi pi-trash white-icon"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr v-if="perfiles.length === 0">
+          <td colspan="7" class="text-center">No se han encontrado perfiles.</td>
+        </tr>
+      </tbody>
+    </table>
+
 
     <Dialog v-model:visible="mostrarDialogo" :header="modoNuevo ? 'Nuevo Perfil' : 'Editar Perfil'" :modal="true"
       :style="{ width: '50vw' }">
@@ -83,12 +110,12 @@ export default {
     };
   },
   components: {
-  ProgressSpinner
-},
+    ProgressSpinner
+  },
 
   methods: {
     async cargarDatos() {
-        this.loading = true; // 🟡 comienza carga
+      this.loading = true; // 🟡 comienza carga
 
       try {
         const [resPerfiles, resVistas] = await Promise.all([
@@ -117,7 +144,7 @@ export default {
         this.vistas = resVistas.data;
       } catch (error) {
         // ya se maneja por interceptor
-      }finally{
+      } finally {
         this.loading = false;
       }
     }
@@ -198,7 +225,7 @@ export default {
         });
       }
     },
-      async abrirEdicion(perfil) {
+    async abrirEdicion(perfil) {
       this.modoNuevo = false;
       const res = await fetch(`/api/Perfiles/${perfil.idPerfil}`);
       const perfilCompleto = await res.json();
@@ -212,70 +239,70 @@ export default {
       this.vistasDisponibles = [vistasNoAsignadas, vistasAsignadas];
       this.mostrarDialogo = true;
     },
-  async confirmarEliminacion(idPerfil) {
-    try {
-      // Consultar cuántos usuarios tiene el perfil
-      const res = await axios.get(`/api/Perfiles/GetUsuariosPerfiles/${idPerfil}`);
-      const cantidad = res.data?.length || 0;
+    async confirmarEliminacion(idPerfil) {
+      try {
+        // Consultar cuántos usuarios tiene el perfil
+        const res = await axios.get(`/api/Perfiles/GetUsuariosPerfiles/${idPerfil}`);
+        const cantidad = res.data?.length || 0;
 
-      if (cantidad > 0) {
-        this.$toast.add({
-          severity: 'warn',
-          summary: 'No permitido',
-          detail: `Este perfil tiene ${cantidad} usuario(s) asignado(s) y no puede eliminarse.`,
-          life: 4000
-        });
-        return;
-      }
+        if (cantidad > 0) {
+          this.$toast.add({
+            severity: 'warn',
+            summary: 'No permitido',
+            detail: `Este perfil tiene ${cantidad} usuario(s) asignado(s) y no puede eliminarse.`,
+            life: 4000
+          });
+          return;
+        }
 
-      // Confirmación de eliminación
-      this.$confirm.require({
-        message: '¿Estás seguro de eliminar este perfil?',
-        header: 'Confirmar Eliminación',
-        icon: 'pi pi-exclamation-triangle',
-        acceptClass: 'p-button-danger',
-        acceptLabel: 'Sí',
-        rejectLabel: 'No',
-        accept: async () => {
-          try {
-            const delRes = await axios.delete(`/api/Perfiles/DeletePerfil/${idPerfil}`);
-            if (delRes.data.success) {
+        // Confirmación de eliminación
+        this.$confirm.require({
+          message: '¿Estás seguro de eliminar este perfil?',
+          header: 'Confirmar Eliminación',
+          icon: 'pi pi-exclamation-triangle',
+          acceptClass: 'p-button-danger',
+          acceptLabel: 'Sí',
+          rejectLabel: 'No',
+          accept: async () => {
+            try {
+              const delRes = await axios.delete(`/api/Perfiles/DeletePerfil/${idPerfil}`);
+              if (delRes.data.success) {
+                this.$toast.add({
+                  severity: 'success',
+                  summary: 'Eliminado',
+                  detail: delRes.data.message || 'Perfil eliminado correctamente',
+                  life: 3000
+                });
+                await this.cargarDatos();
+              } else {
+                this.$toast.add({
+                  severity: 'warn',
+                  summary: 'Advertencia',
+                  detail: delRes.data.message || 'No se pudo eliminar el perfil',
+                  life: 3000
+                });
+              }
+            } catch (error) {
+              console.error("Error al eliminar perfil:", error);
               this.$toast.add({
-                severity: 'success',
-                summary: 'Eliminado',
-                detail: delRes.data.message || 'Perfil eliminado correctamente',
-                life: 3000
-              });
-              await this.cargarDatos();
-            } else {
-              this.$toast.add({
-                severity: 'warn',
-                summary: 'Advertencia',
-                detail: delRes.data.message || 'No se pudo eliminar el perfil',
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Ocurrió un error al eliminar el perfil',
                 life: 3000
               });
             }
-          } catch (error) {
-            console.error("Error al eliminar perfil:", error);
-            this.$toast.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: 'Ocurrió un error al eliminar el perfil',
-              life: 3000
-            });
           }
-        }
-      });
-    } catch (error) {
-      console.error("Error al consultar usuarios del perfil:", error);
-      this.$toast.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'No se pudo verificar si el perfil tiene usuarios',
-        life: 3000
-      });
-    }
-  },
+        });
+      } catch (error) {
+        console.error("Error al consultar usuarios del perfil:", error);
+        this.$toast.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudo verificar si el perfil tiene usuarios',
+          life: 3000
+        });
+      }
+    },
 
   },
 
@@ -289,9 +316,14 @@ export default {
 </script>
 
 <style scoped>
-.card {
-  padding: 4rem;
+.filtro-busqueda-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: nowrap;
+  margin-left: auto;
 }
+
 .loading-container {
   display: flex;
   justify-content: center;
@@ -302,4 +334,41 @@ export default {
 .mt-3 {
   margin-top: 2rem;
 }
+
+/* === Tabla HTML === */
+.table thead th {
+  background-color: rgb(241, 242, 250);
+  font-weight: 600;
+  color: #2e3842;
+  font-size: 0.95rem;
+  border: none !important;
+}
+
+.table tbody td {
+  border-right: 1px solid #ebebeb;
+  border-top: none !important;
+  border-bottom: none !important;
+  border-left: none !important;
+}
+
+/* === Botones de acción === */
+.btn-group .btn {
+  margin: 0 2px;
+}
+
+.white-icon {
+  color: white !important;
+}
+
+/* === Responsivo (opcional, como en el otro) === */
+@media (max-width: 768px) {
+  .filtro-busqueda-bar {
+    flex-direction: column;
+    align-items: flex-end;
+    width: 100%;
+    margin-left: 0;
+    gap: 0.5rem;
+  }
+}
 </style>
+
