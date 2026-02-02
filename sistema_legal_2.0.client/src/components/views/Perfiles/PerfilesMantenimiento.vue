@@ -8,9 +8,9 @@
     <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
       <h2 class="text-2xl font-bold">Gestión de Perfiles</h2>
 
-      <div class="filtro-busqueda-bar">
+      <!-- <div class="filtro-busqueda-bar">
         <Button icon="pi pi-plus" label="Nuevo Perfil" class="btn-litigio" @click="nuevoPerfil" />
-      </div>
+      </div> -->
     </div>
 
     <table class="table table-bordered table-hover table-sm">
@@ -56,8 +56,8 @@
     </table>
 
 
-    <Dialog v-model:visible="mostrarDialogo" :header="modoNuevo ? 'Nuevo Perfil' : 'Editar Perfil'" :modal="true"
-      :style="{ width: '50vw' }">
+    <!-- <Dialog v-model:visible="mostrarDialogo" :header="modoNuevo ? 'Nuevo Perfil' : 'Editar Perfil'" :modal="true"
+      :style="{ width: '30vw', height: '30%' }">
       <div class="p-fluid">
         <label>Nombre</label>
         <InputText v-model="perfilSeleccionado.nombre" />
@@ -81,7 +81,7 @@
       <template #footer>
         <Button label="Guardar" icon="pi pi-save" @click="guardarPerfil" />
       </template>
-    </Dialog>
+    </Dialog> -->
   </div>
 
 </template>
